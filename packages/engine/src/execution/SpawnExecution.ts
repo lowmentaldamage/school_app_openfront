@@ -1,14 +1,14 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   GameType,
   PlayerInfo,
   PlayerType,
   SpawnArea,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameID } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { zNum, zRandom } from "@openfront/engine-lib/snapshot/SnapshotType";
-import { simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { zNum, zRandom } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Execution, Game, Player } from "../game/Game";
 import {

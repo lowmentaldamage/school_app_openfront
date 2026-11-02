@@ -1,4 +1,4 @@
-import type { TokenPayload } from "@openfront/shared/ApiSchemas";
+import type { TokenPayload } from "@laukolaroser/shared/ApiSchemas";
 import { z } from "zod";
 import { ServerEnv } from "./ServerEnv";
 

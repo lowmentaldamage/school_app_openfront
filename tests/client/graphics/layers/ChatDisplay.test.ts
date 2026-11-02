@@ -25,8 +25,8 @@ vi.mock("lit/directives/unsafe-html.js", () => ({
   unsafeHTML: (s: string) => s,
 }));
 
-import { MessageType } from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
+import { MessageType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChatDisplay } from "../../../../src/client/hud/layers/ChatDisplay";
 

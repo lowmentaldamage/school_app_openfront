@@ -1,4 +1,4 @@
-import { Subscription } from "@openfront/shared/CosmeticSchemas";
+import { Subscription } from "@laukolaroser/shared/CosmeticSchemas";
 import { html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ResolvedCosmetic, translateCosmetic } from "../Cosmetics";

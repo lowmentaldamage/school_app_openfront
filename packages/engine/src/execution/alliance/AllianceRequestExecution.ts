@@ -2,9 +2,12 @@ import {
   MessageType,
   PlayerID,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { wouldNukeBreakAlliance } from "@openfront/engine-lib/execution/NukeAlliance";
-import { zPlayerRef, zRef } from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { wouldNukeBreakAlliance } from "@laukolaroser/engine-lib/execution/NukeAlliance";
+import {
+  zPlayerRef,
+  zRef,
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { AllianceRequest, Execution, Game, Player } from "../../game/Game";
 import { execSnapshotType } from "../../snapshot/ExecutionSnapshot";

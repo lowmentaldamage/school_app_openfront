@@ -127,9 +127,9 @@ describe("RenderHtml serverHost pinning", () => {
   }
 
   test("pins the page to the deployment's own host behind a load balancer", async () => {
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
-    expect(await render()).toBe('serverHost: "blue.openfront.io",');
+    expect(await render()).toBe('serverHost: "blue.laukolaroser.com",');
   });
 
   test("omits serverHost in dev so the client stays same-origin", async () => {
@@ -146,7 +146,7 @@ describe("RenderHtml siteHost injection", () => {
     stubIdentity();
     vi.stubEnv("TURNSTILE_SITE_KEY", "test-key");
     vi.stubEnv("GIT_COMMIT", "abc");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
   });
 
@@ -171,8 +171,8 @@ describe("RenderHtml siteHost injection", () => {
   }
 
   test("advertises the apex behind a load balancer (unknown-letter redirect target)", async () => {
-    vi.stubEnv("SITE_HOST", "openfront.io");
-    expect(await render()).toBe('siteHost: "openfront.io",');
+    vi.stubEnv("SITE_HOST", "laukolaroser.com");
+    expect(await render()).toBe('siteHost: "laukolaroser.com",');
   });
 
   test("omits siteHost for a standalone deployment", async () => {
@@ -188,7 +188,7 @@ describe("RenderHtml stripePublishableKey injection", () => {
     stubIdentity();
     vi.stubEnv("TURNSTILE_SITE_KEY", "test-key");
     vi.stubEnv("GIT_COMMIT", "abc");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
   });
 
@@ -228,7 +228,7 @@ describe("RenderHtml faroCollectorUrl injection", () => {
     stubIdentity();
     vi.stubEnv("TURNSTILE_SITE_KEY", "test-key");
     vi.stubEnv("GIT_COMMIT", "abc");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
   });
 
@@ -272,9 +272,9 @@ describe("RenderHtml environment-only render", () => {
   beforeEach(() => {
     stubIdentity();
     vi.stubEnv("TURNSTILE_SITE_KEY", "test-key");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
-    vi.stubEnv("SITE_HOST", "openfront.io");
+    vi.stubEnv("SITE_HOST", "laukolaroser.com");
     vi.stubEnv("INSTANCE_ID", "i-1");
     vi.stubEnv("GIT_COMMIT", "abc");
     vi.stubEnv("STRIPE_PUBLISHABLE_KEY", "pk_test_abc");
@@ -358,12 +358,12 @@ describe("RenderHtml environment-only render", () => {
         `        cluster: ${JSON.stringify(ServerEnv.cluster())},`,
         '        instanceLetter: "a",',
         '        turnstileSiteKey: "test-key",',
-        '        jwtAudience: "openfront.io",',
+        '        jwtAudience: "laukolaroser.com",',
         '        stripePublishableKey: "pk_test_abc",',
         '        faroCollectorUrl: "https://faro.example/collect/k",',
         '        instanceId: "i-1",',
-        '        serverHost: "blue.openfront.io",',
-        '        siteHost: "openfront.io",',
+        '        serverHost: "blue.laukolaroser.com",',
+        '        siteHost: "laukolaroser.com",',
         "      };",
       ].join("\n"),
     );
@@ -387,7 +387,7 @@ describe("RenderHtml environment-only render", () => {
     const config = bootstrapConfig(await renderHtmlContent(REAL_TEMPLATE));
 
     expect(config.instanceLetter).toBe("a");
-    expect(config.serverHost).toBe("blue.openfront.io");
+    expect(config.serverHost).toBe("blue.laukolaroser.com");
   });
 
   it("renders valid Schema.org VideoGame JSON-LD", async () => {
@@ -398,6 +398,6 @@ describe("RenderHtml environment-only render", () => {
     expect(match).not.toBeNull();
     const data = JSON.parse(match![1]);
     expect(data["@type"]).toBe("VideoGame");
-    expect(data.name).toBe("OpenFront");
+    expect(data.name).toBe("Laukolaroser");
   });
 });

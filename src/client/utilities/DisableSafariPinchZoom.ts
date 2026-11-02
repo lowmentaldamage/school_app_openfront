@@ -20,7 +20,7 @@
  *   `document`, which is the scope Safari uses to decide whether to zoom
  *   the page.
  *
- * @see https://github.com/openfrontio/OpenFrontIO/issues/2330
+ * @see issue #2330
  */
 export function installSafariPinchZoomBlocker(
   target: EventTarget = document,
@@ -70,7 +70,7 @@ function tapsInteractiveElement(e: Event): boolean {
  * @param target - The EventTarget to attach the listener to. Defaults to
  *   `document`.
  *
- * @see https://github.com/openfrontio/OpenFrontIO/issues/4609
+ * @see issue #4609
  */
 export function installDoubleTapZoomBlocker(
   target: EventTarget = document,
@@ -128,7 +128,7 @@ export function installDoubleTapZoomBlocker(
  * @param target - The EventTarget to attach the listener to. Defaults to
  *   `document`.
  *
- * @see https://github.com/openfrontio/OpenFrontIO/issues/5098
+ * @see issue #5098
  */
 export function installCtrlWheelZoomBlocker(
   target: EventTarget = document,

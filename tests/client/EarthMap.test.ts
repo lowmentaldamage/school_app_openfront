@@ -3,8 +3,8 @@ import {
   listedMaps,
   MapInfo,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
-import { MapManifest } from "@openfront/engine-api/game/MapManifest";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapManifest";
 import fs from "fs";
 import path from "path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

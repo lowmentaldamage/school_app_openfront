@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
-import { GameMapType, GameMode } from "@openfront/engine-api/game/GameTypes";
-import type { GameConfig } from "@openfront/engine-api/Schemas";
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import { GameMapType, GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import type { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import type {
   PublicGameInfo,
   PublicGames,
   PublicGameType,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ClientEnv } from "../src/client/ClientEnv";
 import type { DesktopUpdateState } from "../src/client/DesktopShell";

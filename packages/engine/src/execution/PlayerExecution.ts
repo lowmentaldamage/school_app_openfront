@@ -1,12 +1,15 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Cell,
   PlayerType,
   Structures,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { zInt, zPlayerRef } from "@openfront/engine-lib/snapshot/SnapshotType";
-import { getMode, simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import {
+  zInt,
+  zPlayerRef,
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { getMode, simpleHash } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { EngineConfig } from "../configuration/EngineConfig";
 import { Execution, Game, Player } from "../game/Game";

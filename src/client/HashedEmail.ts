@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 
 // Playwire's hashed-email (HEM) signal: the SHA-256 of the signed-in player's
 // email, never the email itself. index.html reads this key into window.ramp.up

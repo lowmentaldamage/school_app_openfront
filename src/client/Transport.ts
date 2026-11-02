@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllPlayers,
   GameType,
@@ -6,24 +6,24 @@ import {
   PlayerID,
   Tick,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AllPlayersStats,
   ClientID,
   Intent,
   Winner,
-} from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/Schemas";
 import {
   CloseCode,
   CloseReason,
   isCloseReason,
   isTerminalClose,
-} from "@openfront/shared/CloseCodes";
+} from "@laukolaroser/shared/CloseCodes";
 import {
   EventBus,
   EventConstructor,
   GameEvent,
-} from "@openfront/shared/EventBus";
+} from "@laukolaroser/shared/EventBus";
 import {
   ClientHashMessage,
   ClientIntentMessage,
@@ -38,13 +38,13 @@ import {
   LiveStats,
   ReportReason,
   ServerMessage,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import {
   createGameWireContext,
   decodeServerMessage,
   encodeClientMessage,
-} from "@openfront/shared/ZbinWire";
-import { ZbContext } from "@openfront/zbin";
+} from "@laukolaroser/shared/ZbinWire";
+import { ZbContext } from "@laukolaroser/zbin";
 import { ClientEnv, NoServerError } from "src/client/ClientEnv";
 import { getPlayToken } from "./Auth";
 import { LobbyConfig } from "./ClientGameRunner";

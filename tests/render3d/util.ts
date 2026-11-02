@@ -1,5 +1,5 @@
-import type { GameMap } from "@openfront/engine-api/game/GameMap";
-import { genTerrainFromBin } from "@openfront/engine-lib/game/TerrainMapLoader";
+import type { GameMap } from "@laukolaroser/engine-api/game/GameMap";
+import { genTerrainFromBin } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

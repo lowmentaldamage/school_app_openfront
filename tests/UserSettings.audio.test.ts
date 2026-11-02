@@ -22,12 +22,12 @@ function resetUserSettingsState() {
 function pretendDesktopShell() {
   (
     globalThis as unknown as { window: Record<string, unknown> }
-  ).window.openfrontDesktop = {};
+  ).window.laukolaroserDesktop = {};
 }
 
 function pretendWeb() {
   delete (globalThis as unknown as { window: Record<string, unknown> }).window
-    .openfrontDesktop;
+    .laukolaroserDesktop;
 }
 
 const INHERITS_EFFECTS: AudioCategory[] = [

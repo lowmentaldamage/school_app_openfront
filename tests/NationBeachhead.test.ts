@@ -3,14 +3,14 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationAttackBehavior } from "@openfront/engine/execution/nation/NationAttackBehavior";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { NationWarshipBehavior } from "@openfront/engine/execution/nation/NationWarshipBehavior";
-import { TransportShipExecution } from "@openfront/engine/execution/TransportShipExecution";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationAttackBehavior } from "@laukolaroser/engine/execution/nation/NationAttackBehavior";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { NationWarshipBehavior } from "@laukolaroser/engine/execution/nation/NationWarshipBehavior";
+import { TransportShipExecution } from "@laukolaroser/engine/execution/TransportShipExecution";
 import { createGame, L, W } from "./core/pathfinding/_fixtures";
 import { setup } from "./util/Setup";
 

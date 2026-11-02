@@ -13,16 +13,16 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { unpackMotionPlans } from "@openfront/engine-lib/game/MotionPlans";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { BreakAllianceExecution } from "@openfront/engine/execution/alliance/BreakAllianceExecution";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { ConstructionExecution } from "@openfront/engine/execution/ConstructionExecution";
-import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { TransportShipExecution } from "@openfront/engine/execution/TransportShipExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { unpackMotionPlans } from "@laukolaroser/engine-lib/game/MotionPlans";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { BreakAllianceExecution } from "@laukolaroser/engine/execution/alliance/BreakAllianceExecution";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
+import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { TransportShipExecution } from "@laukolaroser/engine/execution/TransportShipExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "../../../util/Setup";
 import { expectFrameMatchesTruth, expectReplayMatches } from "../util/Expect";
 import { openReader, recordGame } from "../util/RecordGame";

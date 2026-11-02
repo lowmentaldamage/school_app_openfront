@@ -1,6 +1,6 @@
-import { AllPlayers } from "@openfront/engine-api/game/GameTypes";
-import { flattenedEmojiTable } from "@openfront/engine-api/Schemas";
-import { EventBus } from "@openfront/shared/EventBus";
+import { AllPlayers } from "@laukolaroser/engine-api/game/GameTypes";
+import { flattenedEmojiTable } from "@laukolaroser/engine-api/Schemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   type EmojiTable,

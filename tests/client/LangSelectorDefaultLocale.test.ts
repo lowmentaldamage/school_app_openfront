@@ -21,7 +21,7 @@ function resolvedDefaultLanguage(): string {
 
 /** What the Steam shell's preload would expose, or nothing off the shell. */
 function withShellLocale(locale: string | null): void {
-  window.openfrontDesktop =
+  window.laukolaroserDesktop =
     locale === null ? undefined : { steamLocale: locale };
 }
 
@@ -30,7 +30,7 @@ function withOsLocale(locale: string): void {
 }
 
 afterEach(() => {
-  window.openfrontDesktop = undefined;
+  window.laukolaroserDesktop = undefined;
   vi.restoreAllMocks();
 });
 

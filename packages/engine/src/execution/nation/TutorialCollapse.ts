@@ -1,4 +1,4 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
 import { Game, Player } from "../../game/Game";
 
 /**

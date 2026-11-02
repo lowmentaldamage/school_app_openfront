@@ -1,6 +1,6 @@
 // Connected Component Labeling using flood-fill
 
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { DebugSpan } from "../../utilities/DebugSpan";
 
 export const LAND_MARKER = 0xff; // Uint8Array sentinel — upgraded to 0xFFFF on Uint16Array promotion

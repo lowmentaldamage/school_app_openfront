@@ -9,7 +9,7 @@
 // A failure here means the wire format changed. Since zbin has no version byte
 // and peers are expected to run the same build, that is fine to do
 // deliberately — update the vector — but it must never happen by accident.
-import { zb } from "@openfront/zbin";
+import { zb } from "@laukolaroser/zbin";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 

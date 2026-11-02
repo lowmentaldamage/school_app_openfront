@@ -1,12 +1,15 @@
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { MapManifest } from "@openfront/engine-api/game/MapManifest";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapManifest";
 import {
   loadTerrainMap,
   TerrainMapData,
-} from "@openfront/engine-lib/game/TerrainMapLoader";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { FetchGameMapLoader } from "@openfront/shared/FetchGameMapLoader";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { FetchGameMapLoader } from "@laukolaroser/shared/FetchGameMapLoader";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 
 export const terrainMapFileLoader = new FetchGameMapLoader((path) =>
   assetUrl(`maps/${path}`),

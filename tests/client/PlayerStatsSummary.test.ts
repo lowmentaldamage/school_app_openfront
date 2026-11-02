@@ -26,7 +26,7 @@ vi.mock("../../src/client/Utils", async (importOriginal) => {
 import type {
   PlayerStatsLeaf,
   PlayerStatsTree,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import {
   PlayerStatsSummary,
   buildPlayerStatsSummary,

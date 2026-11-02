@@ -24,7 +24,7 @@
 
 import "./Shims"; // must be first: browser-global shims for client code
 
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   GameMapSize,
@@ -32,28 +32,28 @@ import {
   GameMode,
   GameType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateType,
   GameUpdateViewData,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameConfig, GameStartInfo } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { UNIT_UPDATE_STRIDE } from "@openfront/engine-lib/game/PackedUnitUpdates";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { CityExecution } from "@openfront/engine/execution/CityExecution";
-import { FactoryExecution } from "@openfront/engine/execution/FactoryExecution";
-import { MirvExecution } from "@openfront/engine/execution/MIRVExecution";
-import { MissileSiloExecution } from "@openfront/engine/execution/MissileSiloExecution";
-import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
-import { PortExecution } from "@openfront/engine/execution/PortExecution";
-import { SAMLauncherExecution } from "@openfront/engine/execution/SAMLauncherExecution";
-import { WarshipExecution } from "@openfront/engine/execution/WarshipExecution";
-import { Player, Unit } from "@openfront/engine/game/Game";
-import { createGameRunner } from "@openfront/engine/GameRunner";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameConfig, GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { UNIT_UPDATE_STRIDE } from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { CityExecution } from "@laukolaroser/engine/execution/CityExecution";
+import { FactoryExecution } from "@laukolaroser/engine/execution/FactoryExecution";
+import { MirvExecution } from "@laukolaroser/engine/execution/MIRVExecution";
+import { MissileSiloExecution } from "@laukolaroser/engine/execution/MissileSiloExecution";
+import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
+import { PortExecution } from "@laukolaroser/engine/execution/PortExecution";
+import { SAMLauncherExecution } from "@laukolaroser/engine/execution/SAMLauncherExecution";
+import { WarshipExecution } from "@laukolaroser/engine/execution/WarshipExecution";
+import { Player, Unit } from "@laukolaroser/engine/game/Game";
+import { createGameRunner } from "@laukolaroser/engine/GameRunner";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import path from "path";
 import { fileURLToPath } from "url";
 import { GameView } from "../../../src/client/view/GameView";

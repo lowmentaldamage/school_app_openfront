@@ -19,7 +19,7 @@ vi.mock("../../src/client/Utils", () => ({
     params ? `${key} ${Object.values(params).join(" ")}` : key,
 }));
 
-import type { UserSubscription } from "@openfront/shared/ApiSchemas";
+import type { UserSubscription } from "@laukolaroser/shared/ApiSchemas";
 import {
   cancelSubscription,
   invalidateUserMe,
@@ -89,13 +89,15 @@ describe("subscription-panel", () => {
   // OPE-314. In the packaged Steam build a Manage click cannot reach Stripe:
   // navigationPolicy refuses payment-origin link-outs, per the rule that the
   // desktop build must never steer to a payment page. Rendering the button
-  // anyway produces a dead control -- and once infra accepts app://openfront
+  // anyway produces a dead control -- and once infra accepts app://laukolaroser
   // as a returnUrl it gets worse, because the click then raises the shell's
   // "Purchase unavailable / nothing has been charged" modal at a player who
   // is trying to STOP paying. Render static copy instead of a button.
   describe("inside the desktop shell", () => {
     beforeEach(async () => {
-      (window as unknown as { openfrontDesktop?: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop?: unknown }
+      ).laukolaroserDesktop = {
         steam: {},
       };
       el.sub = sub();
@@ -104,8 +106,8 @@ describe("subscription-panel", () => {
     });
 
     afterEach(() => {
-      delete (window as unknown as { openfrontDesktop?: unknown })
-        .openfrontDesktop;
+      delete (window as unknown as { laukolaroserDesktop?: unknown })
+        .laukolaroserDesktop;
     });
 
     it("offers no Manage button", async () => {
@@ -154,8 +156,8 @@ describe("subscription-panel", () => {
     });
 
     afterEach(() => {
-      delete (window as unknown as { openfrontDesktop?: unknown })
-        .openfrontDesktop;
+      delete (window as unknown as { laukolaroserDesktop?: unknown })
+        .laukolaroserDesktop;
     });
 
     const keys = () =>
@@ -186,7 +188,9 @@ describe("subscription-panel", () => {
     });
 
     it("says where billing is managed inside the desktop shell", async () => {
-      (window as unknown as { openfrontDesktop?: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop?: unknown }
+      ).laukolaroserDesktop = {
         steam: {},
       };
       el.requestUpdate();
@@ -292,7 +296,9 @@ describe("subscription-panel", () => {
     });
 
     it("promises ad-free play only inside the desktop shell", async () => {
-      (window as unknown as { openfrontDesktop?: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop?: unknown }
+      ).laukolaroserDesktop = {
         steam: {},
       };
       try {
@@ -301,8 +307,8 @@ describe("subscription-panel", () => {
         await el.updateComplete;
         expect(text()).toContain("free_play.ad_free_steam");
       } finally {
-        delete (window as unknown as { openfrontDesktop?: unknown })
-          .openfrontDesktop;
+        delete (window as unknown as { laukolaroserDesktop?: unknown })
+          .laukolaroserDesktop;
       }
     });
 
@@ -316,7 +322,9 @@ describe("subscription-panel", () => {
     // signs in on the website meets the same one-way Cancel, so the branch is
     // deliberately not gated on isDesktopShell().
     it("hides the same controls inside the desktop shell", async () => {
-      (window as unknown as { openfrontDesktop?: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop?: unknown }
+      ).laukolaroserDesktop = {
         steam: {},
       };
       try {
@@ -326,8 +334,8 @@ describe("subscription-panel", () => {
         expect(text()).not.toContain("account_modal.cancel_subscription");
         expect(buttonKeys()).toEqual([]);
       } finally {
-        delete (window as unknown as { openfrontDesktop?: unknown })
-          .openfrontDesktop;
+        delete (window as unknown as { laukolaroserDesktop?: unknown })
+          .laukolaroserDesktop;
       }
     });
 
@@ -535,7 +543,9 @@ describe("subscription-panel", () => {
     // The Stripe rail loses Manage inside the shell; the Steam rail must not,
     // because the whole point of Manage there is the Steam account page.
     it("keeps Manage inside the desktop shell", async () => {
-      (window as unknown as { openfrontDesktop?: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop?: unknown }
+      ).laukolaroserDesktop = {
         steam: {},
       };
       try {
@@ -547,8 +557,8 @@ describe("subscription-panel", () => {
           "account_modal.manage_subscription_on_web",
         );
       } finally {
-        delete (window as unknown as { openfrontDesktop?: unknown })
-          .openfrontDesktop;
+        delete (window as unknown as { laukolaroserDesktop?: unknown })
+          .laukolaroserDesktop;
       }
     });
 

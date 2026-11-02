@@ -42,7 +42,7 @@ import {
   GameMapType,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { ClientEnv } from "../../src/client/ClientEnv";
 import { JoinLobbyModal } from "../../src/client/JoinLobbyModal";
 import { UserSettings } from "../../src/client/UserSettings";
@@ -465,10 +465,10 @@ describe("JoinLobbyModal checkActiveLobby resilience", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "test",
-      serverHost: "blue.openfront.io",
+      serverHost: "blue.laukolaroser.com",
     };
   });
 
@@ -501,7 +501,7 @@ describe("JoinLobbyModal checkActiveLobby resilience", () => {
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "test",
     };
@@ -552,21 +552,21 @@ describe("JoinLobbyModal pasted lobby links", () => {
         "https://poki.com/en/preview/8d0149be-4a6f-4eb3-8af0-d7d5ee9c2cc5/58c9e7b0-5432-4117-8f51-62022219c432?gdgameId=AbCd1234",
       ),
     ).toBe("AbCd1234");
-    expect(normalize("https://poki.com/en/g/openfront?gdgameId=AbCd1234")).toBe(
-      "AbCd1234",
-    );
+    expect(
+      normalize("https://poki.com/en/g/laukolaroser?gdgameId=AbCd1234"),
+    ).toBe("AbCd1234");
   });
 
   it("takes the id from a CrazyGames invite link, not its /game/ path", () => {
     expect(
-      normalize("https://www.crazygames.com/game/openfront?gameId=AbCd1234"),
+      normalize("https://www.crazygames.com/game/laukolaroser?gameId=AbCd1234"),
     ).toBe("AbCd1234");
   });
 
   it("still takes the id from our own lobby link and a bare id", () => {
-    expect(normalize("https://openfront.io/game/AbCd1234?lobby&s=x1y2z")).toBe(
-      "AbCd1234",
-    );
+    expect(
+      normalize("https://laukolaroser.com/game/AbCd1234?lobby&s=x1y2z"),
+    ).toBe("AbCd1234");
     expect(normalize("AbCd1234")).toBe("AbCd1234");
   });
 });

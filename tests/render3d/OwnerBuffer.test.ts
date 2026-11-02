@@ -4,9 +4,12 @@
  * fed only the tiles that changed each tick.
  */
 
-import { PlayerInfo, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
+import {
+  PlayerInfo,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
 import { describe, expect, it } from "vitest";
 import { OwnerBuffer } from "../../src/client/render3d/territory/OwnerBuffer";
 import { setup } from "../util/Setup";

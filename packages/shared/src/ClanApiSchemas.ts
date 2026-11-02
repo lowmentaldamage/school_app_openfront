@@ -1,4 +1,4 @@
-import { ClanTagSchema } from "@openfront/engine-api/Schemas";
+import { ClanTagSchema } from "@laukolaroser/engine-api/Schemas";
 import { z } from "zod";
 import { RowLevelFields } from "./ApiSchemas";
 

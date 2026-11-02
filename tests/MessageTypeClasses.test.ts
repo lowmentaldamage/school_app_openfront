@@ -1,4 +1,4 @@
-import { MessageType } from "@openfront/engine-api/game/GameTypes";
+import { MessageType } from "@laukolaroser/engine-api/game/GameTypes";
 import { vi, type MockInstance } from "vitest";
 import { getMessageTypeClasses, severityColors } from "../src/client/Utils";
 

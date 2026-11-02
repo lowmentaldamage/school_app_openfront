@@ -1,21 +1,17 @@
-import { GameType, RankedType } from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import type { AllPlayersStats, Winner } from "@openfront/engine-api/Schemas";
-import type { GameXpEligible, Progress } from "@openfront/shared/ApiSchemas";
-import { Pattern } from "@openfront/shared/CosmeticSchemas";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameType, RankedType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import type { AllPlayersStats, Winner } from "@laukolaroser/engine-api/Schemas";
+import type { GameXpEligible, Progress } from "@laukolaroser/shared/ApiSchemas";
+import { Pattern } from "@laukolaroser/shared/CosmeticSchemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import {
   copyToClipboard,
-  DESKTOP_TUTORIAL_VIDEO_URL,
-  getGamesPlayed,
   getTranslatedPlayerTeamLabel,
   homeHref,
-  isInIframe,
   showToast,
   translateText,
-  TUTORIAL_VIDEO_URL,
 } from "../../../client/Utils";
 import { fetchUserMeUncached, getUserMe, invalidateUserMe } from "../../Api";
 import { ClientEnv } from "../../ClientEnv";
@@ -25,7 +21,6 @@ import type { GameXpPanelState } from "../../components/GameXpPanel";
 import type { LegendCeremony } from "../../components/LegendCeremony";
 import "../../components/ProfileShare";
 import "../../components/PurchaseButton";
-import "../../components/SteamWishlist";
 import { Controller } from "../../Controller";
 import {
   fetchCosmetics,
@@ -40,7 +35,6 @@ import {
   momentShareText,
   momentShareUrl,
 } from "../../MomentShare";
-import { Platform } from "../../Platform";
 import { MAX_PRESTIGE, reachedLegendThisGame } from "../../Progression";
 import { resolveXpAccount } from "../../ProgressionAccount";
 import { fetchProgressionConfig, pollGameXp } from "../../ProgressionApi";
@@ -58,7 +52,6 @@ import {
   reconcileXp,
 } from "../../ProvisionalXpAtDeath";
 import { PlaySoundEffectEvent } from "../../sound/Sounds";
-import { steamSDK } from "../../SteamSDK";
 import { SendWinnerEvent } from "../../Transport";
 import { GameView } from "../../view";
 
@@ -501,61 +494,14 @@ export class WinModal extends LitElement implements Controller {
   }
 
   innerHtml() {
-    // The Steam desktop build has nothing to wishlist — fall through to the
-    // other promos so the box is never empty.
-    const canWishlist = !steamSDK.isOnSteam();
-
-    if (isInIframe()) {
-      return canWishlist ? this.steamWishlist() : this.discordDisplay();
-    }
-
-    if (!this.isWin && getGamesPlayed() < 3) {
-      return this.renderYoutubeTutorial();
-    }
-    if (this.rand < 0.25 && canWishlist) {
-      return this.steamWishlist();
-    } else if (this.rand < 0.5) {
-      return this.discordDisplay();
-    } else {
-      return this.renderPatternButton();
-    }
-  }
-
-  renderYoutubeTutorial() {
-    return html`
-      <div class="text-center mb-6 bg-black/30 p-2.5 rounded-sm">
-        <h3 class="text-xl font-semibold text-white mb-3">
-          ${translateText("win_modal.youtube_tutorial")}
-        </h3>
-        <!-- 56.25% = 9:16 -->
-        <div class="relative w-full pb-[56.25%]">
-          ${
-            Platform.isElectron
-              ? html`<video
-                  class="absolute top-0 left-0 w-full h-full rounded-sm"
-                  src="${this.isVisible ? DESKTOP_TUTORIAL_VIDEO_URL : ""}"
-                  controls
-                  preload="metadata"
-                ></video>`
-              : html`<iframe
-                  class="absolute top-0 left-0 w-full h-full rounded-sm"
-                  src="${this.isVisible ? TUTORIAL_VIDEO_URL : ""}"
-                  title="YouTube video player"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowfullscreen
-                ></iframe>`
-          }
-        </div>
-      </div>
-    `;
+    return this.renderPatternButton();
   }
 
   renderPatternButton() {
     return html`
       <div class="text-center mb-6 bg-black/30 p-2.5 rounded-sm">
         <h3 class="text-xl font-semibold text-white mb-3">
-          ${translateText("win_modal.support_openfront")}
+          ${translateText("win_modal.support_laukolaroser")}
         </h3>
         ${
           isDesktopShell()
@@ -616,41 +562,6 @@ export class WinModal extends LitElement implements Controller {
             </div>
           `;
         })}
-      </div>
-    `;
-  }
-
-  steamWishlist(): TemplateResult {
-    return html`
-      <div class="text-center mb-6 bg-black/30 p-2.5 rounded-sm">
-        <h3 class="text-xl font-semibold text-white mb-3">
-          ${translateText("steam_wishlist.buy_on_steam")}
-        </h3>
-        <steam-wishlist
-          campaign="win_modal"
-          .active=${this.isVisible}
-        ></steam-wishlist>
-      </div>
-    `;
-  }
-
-  discordDisplay(): TemplateResult {
-    return html`
-      <div class="text-center mb-6 bg-black/30 p-2.5 rounded-sm">
-        <h3 class="text-xl font-semibold text-white mb-3">
-          ${translateText("win_modal.join_discord")}
-        </h3>
-        <p class="text-white mb-3">
-          ${translateText("win_modal.discord_description")}
-        </p>
-        <a
-          href="https://discord.com/invite/openfront"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-sm font-semibold transition-all duration-200 hover:bg-indigo-700 hover:-translate-y-px no-underline"
-        >
-          ${translateText("win_modal.join_server")}
-        </a>
       </div>
     `;
   }

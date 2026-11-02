@@ -12,7 +12,7 @@ import {
   versionedPath,
   versionedPathForGame,
   versionMatches,
-} from "@openfront/shared/ServerList";
+} from "@laukolaroser/shared/ServerList";
 import { describe, expect, it } from "vitest";
 
 const OWN = "bfd5563a11111111111111111111111111111111";
@@ -26,25 +26,25 @@ const LIST: ServerList = {
   latest: OWN,
   servers: {
     c: {
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
       version: OLD,
       state: "draining",
     },
     d: {
-      host: "falk2-b.openfront.io",
+      host: "falk2-b.laukolaroser.com",
       numWorkers: 16,
       version: OWN,
       state: "open",
     },
     e: {
-      host: "nbg2-a.openfront.io",
+      host: "nbg2-a.laukolaroser.com",
       numWorkers: 8,
       version: OWN,
       state: "open",
     },
     f: {
-      host: "nbg2-b.openfront.io",
+      host: "nbg2-b.laukolaroser.com",
       numWorkers: 8,
       version: OWN,
       state: "fenced",
@@ -60,7 +60,7 @@ function only(
   return {
     latest: OWN,
     servers: {
-      c: { host: "falk2-a.openfront.io", numWorkers: 16, version, state },
+      c: { host: "falk2-a.laukolaroser.com", numWorkers: 16, version, state },
     },
   };
 }
@@ -234,10 +234,10 @@ describe("servesBuild", () => {
 // server may be picked is servesBuild's question, asked by the client.
 describe("ownLetterIn", () => {
   it("matches the page's own host against the entries", () => {
-    expect(ownLetterIn(LIST, "nbg2-a.openfront.io", undefined)).toBe("e");
+    expect(ownLetterIn(LIST, "nbg2-a.laukolaroser.com", undefined)).toBe("e");
     // Hostnames are case-insensitive, and the two spellings arrive from
     // different places (a server's injected value and the registry's).
-    expect(ownLetterIn(LIST, "NBG2-A.openfront.io", undefined)).toBe("e");
+    expect(ownLetterIn(LIST, "NBG2-A.laukolaroser.com", undefined)).toBe("e");
   });
 
   it("matches by letter when the page names no host of its own", () => {
@@ -251,18 +251,18 @@ describe("ownLetterIn", () => {
     // The host is what the page actually talks to; the letter comes from the
     // cluster map baked into the page, which the registry can have moved on
     // from.
-    expect(ownLetterIn(LIST, "nbg2-a.openfront.io", "d")).toBe("e");
+    expect(ownLetterIn(LIST, "nbg2-a.laukolaroser.com", "d")).toBe("e");
     // And a host the list does not carry answers null rather than falling
     // through to the letter, whose entry names some OTHER host.
-    expect(ownLetterIn(LIST, "blue.openfront.io", "d")).toBeNull();
+    expect(ownLetterIn(LIST, "blue.laukolaroser.com", "d")).toBeNull();
   });
 
   it("is null when the list carries neither", () => {
-    expect(ownLetterIn(LIST, "blue.openfront.io", undefined)).toBeNull();
+    expect(ownLetterIn(LIST, "blue.laukolaroser.com", undefined)).toBeNull();
     expect(ownLetterIn(LIST, undefined, "z")).toBeNull();
     expect(ownLetterIn(LIST, undefined, undefined)).toBeNull();
     expect(
-      ownLetterIn({ servers: {} }, "falk2-b.openfront.io", "d"),
+      ownLetterIn({ servers: {} }, "falk2-b.laukolaroser.com", "d"),
     ).toBeNull();
   });
 });
@@ -477,18 +477,18 @@ describe("isSiteLike", () => {
   // Mirrors the API's SiteSchema: what a join or check-in may name as its
   // site. Anything else is a 400 there, so it must be left off instead.
   it("accepts lowercase hostnames", () => {
-    expect(isSiteLike("openfront.io")).toBe(true);
-    expect(isSiteLike("fix-foo.openfront.dev")).toBe(true);
+    expect(isSiteLike("laukolaroser.com")).toBe(true);
+    expect(isSiteLike("fix-foo.laukolaroser.dev")).toBe(true);
     expect(isSiteLike("localhost")).toBe(true);
   });
 
   it("refuses ports, schemes, paths, uppercase and empty names", () => {
     expect(isSiteLike("localhost:9000")).toBe(false);
-    expect(isSiteLike("https://openfront.io")).toBe(false);
-    expect(isSiteLike("openfront.io/game")).toBe(false);
-    expect(isSiteLike("OpenFront.io")).toBe(false);
+    expect(isSiteLike("https://laukolaroser.com")).toBe(false);
+    expect(isSiteLike("laukolaroser.com/game")).toBe(false);
+    expect(isSiteLike("Laukolaroser")).toBe(false);
     expect(isSiteLike("")).toBe(false);
-    expect(isSiteLike("-openfront.io")).toBe(false);
+    expect(isSiteLike("-laukolaroser.com")).toBe(false);
     expect(isSiteLike("open..front.io")).toBe(false);
   });
 });

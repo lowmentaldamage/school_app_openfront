@@ -5,8 +5,8 @@ import {
   PublicLobbyMessageSchema,
   ServerErrorSchema,
   ServerMessageSchema,
-} from "@openfront/shared/WireSchemas";
-import { zb } from "@openfront/zbin";
+} from "@laukolaroser/shared/WireSchemas";
+import { zb } from "@laukolaroser/zbin";
 
 const COMMIT = "a".repeat(40);
 

@@ -1,5 +1,5 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { GameConfigSchema } from "@openfront/engine-api/Schemas";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfigSchema } from "@laukolaroser/engine-api/Schemas";
 import { z } from "zod";
 
 // `pool` points joiners at other lobbies, so only the authenticated admin-bot

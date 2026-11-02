@@ -1,8 +1,8 @@
-// In-game driver for OpenFront: start a singleplayer game headless, spawn,
+// In-game driver for Laukolaroser: start a singleplayer game headless, spawn,
 // attack, and read ground-truth simulation state from the page.
 //
 // Run the smoke flow from the repo root (dev server must be up):
-//   node .claude/skills/run-openfront/game.mjs
+//   node .claude/skills/run-laukolaroser/game.mjs
 // or import the helpers in an ad-hoc script inside the repo.
 //
 // Ground-truth access — no repo changes needed: src/client/hud/GameRenderer.ts
@@ -307,7 +307,7 @@ export async function waitForTick(page, tick, timeout = 120_000) {
 const isMain =
   process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  const out = "/tmp/openfront-run";
+  const out = "/tmp/laukolaroser-run";
   fs.mkdirSync(out, { recursive: true });
   const shot = (page, name) =>
     page.screenshot({ path: `${out}/${name}.png` }).then(() => {

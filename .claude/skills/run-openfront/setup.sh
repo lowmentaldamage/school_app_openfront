@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# One-time per-machine setup for headless-Chromium driving of OpenFront.
+# One-time per-machine setup for headless-Chromium driving of Laukolaroser.
 # No sudo needed: Playwright's chromium is downloaded with a platform
 # override, and its missing system libraries are extracted locally from
 # .deb packages.
 set -euo pipefail
 
-CACHE="${OPENFRONT_RUN_CACHE:-$HOME/.cache/openfront-run}"
+CACHE="${LAUKOLAROSER_RUN_CACHE:-$HOME/.cache/laukolaroser-run}"
 mkdir -p "$CACHE/debs" "$CACHE/fonts" "$CACHE/fc-cache"
 
 # 1. Playwright (not a project dependency; --no-save keeps package.json clean)

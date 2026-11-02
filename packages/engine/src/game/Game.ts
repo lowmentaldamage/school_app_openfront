@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllianceInfo,
   AllPlayers,
@@ -26,21 +26,21 @@ import {
   UnitInfo,
   UnitType,
   WarshipState,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdate,
   PlayerUpdate,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   GameLike,
   PlayerLike,
   ReadonlyTileSet,
   UnitLike,
   UnitPredicate,
-} from "@openfront/engine-api/game/ReadViews";
-import { AllPlayersStats, ClientID } from "@openfront/engine-api/Schemas";
-import { MotionPlanRecord } from "@openfront/engine-lib/game/MotionPlans";
+} from "@laukolaroser/engine-api/game/ReadViews";
+import { AllPlayersStats, ClientID } from "@laukolaroser/engine-api/Schemas";
+import { MotionPlanRecord } from "@laukolaroser/engine-lib/game/MotionPlans";
 import type { EngineConfig } from "../configuration/EngineConfig";
 import { AbstractGraph } from "../pathfinding/algorithms/AbstractGraph";
 import { PathFinder } from "../pathfinding/types";

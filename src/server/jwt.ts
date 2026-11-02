@@ -3,10 +3,10 @@ import {
   TokenPayloadSchema,
   UserMeResponse,
   UserMeResponseSchema,
-} from "@openfront/shared/ApiSchemas";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { PersistentIdSchema } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { PersistentIdSchema } from "@laukolaroser/shared/WireSchemas";
 import { jwtVerify } from "jose";
 import { z } from "zod";
 import { ServerEnv } from "./ServerEnv";

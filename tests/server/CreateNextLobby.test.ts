@@ -1,4 +1,4 @@
-import { ServerNewLobbyMessage } from "@openfront/shared/WireSchemas";
+import { ServerNewLobbyMessage } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   makeClient as harnessClient,

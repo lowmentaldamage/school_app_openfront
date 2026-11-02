@@ -11,7 +11,7 @@ vi.mock("../../src/client/Utils", async (importOriginal) => {
   };
 });
 
-import type { PlayerStats } from "@openfront/engine-api/StatsSchemas";
+import type { PlayerStats } from "@laukolaroser/engine-api/StatsSchemas";
 import { PlayerStatsTable } from "../../src/client/components/baseComponents/stats/PlayerStatsTable";
 
 /**

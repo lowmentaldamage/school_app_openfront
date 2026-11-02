@@ -1,4 +1,4 @@
-import type { StreamsFeed } from "@openfront/shared/ApiSchemas";
+import type { StreamsFeed } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { formatViewers } from "../../../src/client/components/StreamingNow";
 import { streamsFeed, watchUrl } from "../../../src/client/StreamsFeed";

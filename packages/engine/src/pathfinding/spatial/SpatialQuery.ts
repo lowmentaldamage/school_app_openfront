@@ -1,5 +1,5 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { TerraNullius } from "@openfront/engine-api/game/GameTypes";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { TerraNullius } from "@laukolaroser/engine-api/game/GameTypes";
 import { Game, Player } from "../../game/Game";
 import {
   bumpTraversalGeneration,

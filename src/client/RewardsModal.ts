@@ -1,4 +1,4 @@
-import { isRewardClaimable, Reward } from "@openfront/shared/ApiSchemas";
+import { isRewardClaimable, Reward } from "@laukolaroser/shared/ApiSchemas";
 import { html, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BaseModal } from "./components/BaseModal";

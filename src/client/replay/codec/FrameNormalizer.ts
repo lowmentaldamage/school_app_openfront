@@ -14,18 +14,18 @@
  * out: frames keep theirs.
  */
 
-import type { PlayerID } from "@openfront/engine-api/game/GameTypes";
+import type { PlayerID } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   type GameUpdateViewData,
   type PlayerUpdate,
   type UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   unpackMotionPlans,
   type MotionPlanRecord,
-} from "@openfront/engine-lib/game/MotionPlans";
-import { unpackUnitUpdates } from "@openfront/engine-lib/game/PackedUnitUpdates";
+} from "@laukolaroser/engine-lib/game/MotionPlans";
+import { unpackUnitUpdates } from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
 import type {
   NameEntry,
   PlayerState,

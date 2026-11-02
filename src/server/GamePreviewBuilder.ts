@@ -2,10 +2,13 @@ import {
   formatPlayerDisplayName,
   GameMode,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
-import { ClanTagSchema, UsernameSchema } from "@openfront/engine-api/Schemas";
-import { buildAssetUrl } from "@openfront/shared/AssetPaths";
-import { GameInfo } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import {
+  ClanTagSchema,
+  UsernameSchema,
+} from "@laukolaroser/engine-api/Schemas";
+import { buildAssetUrl } from "@laukolaroser/shared/AssetPaths";
+import { GameInfo } from "@laukolaroser/shared/WireSchemas";
 import { z } from "zod";
 import { getRuntimeAssetManifest } from "./RuntimeAssetManifest";
 import { ServerEnv } from "./ServerEnv";
@@ -218,7 +221,7 @@ export async function buildPreview(
     ? `${mode ?? "Game"} on ${map ?? "Unknown Map"}${gameTypeLabel}`
     : mode && map
       ? `${mode} on ${map}${gameTypeLabel}`
-      : "OpenFront Game";
+      : "Laukolaroser Game";
 
   let description: string;
   if (isFinished) {

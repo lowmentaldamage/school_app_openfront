@@ -3,14 +3,14 @@ import {
   GameMode,
   PlayerType,
   Relation,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   readVersioned,
   snapshotType,
   Versioned,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { assertNever } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { assertNever } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Game, Player } from "../../game/Game";
 import type {

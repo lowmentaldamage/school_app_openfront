@@ -1,4 +1,4 @@
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { describe, expect, it, vi } from "vitest";
 import "../../src/client/hud/layers/TutorialPanel";
 import type { TutorialPanel } from "../../src/client/hud/layers/TutorialPanel";

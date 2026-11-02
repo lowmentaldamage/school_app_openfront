@@ -1,6 +1,6 @@
 # Pathfinding Tests
 
-This directory contains benchmarking tools, scenario generators, and an interactive playground for testing and optimizing pathfinding algorithms in OpenFrontIO.
+This directory contains benchmarking tools, scenario generators, and an interactive playground for testing and optimizing pathfinding algorithms in Laukolaroser.
 
 ## TLDR
 

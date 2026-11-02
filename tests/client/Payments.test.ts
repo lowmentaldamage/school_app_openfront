@@ -66,7 +66,7 @@ function installShell(
       return drained;
     }),
   };
-  (window as any).openfrontDesktop = {
+  (window as any).laukolaroserDesktop = {
     steam:
       options.steam === false
         ? undefined
@@ -166,7 +166,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete (window as any).openfrontDesktop;
+  delete (window as any).laukolaroserDesktop;
   vi.restoreAllMocks();
   vi.useRealTimers();
 });

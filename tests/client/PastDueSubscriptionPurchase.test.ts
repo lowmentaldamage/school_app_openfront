@@ -35,7 +35,7 @@ vi.mock("../../src/client/Payments", async (importOriginal) => ({
   startPurchase: vi.fn(),
 }));
 
-import type { Subscription } from "@openfront/shared/CosmeticSchemas";
+import type { Subscription } from "@laukolaroser/shared/CosmeticSchemas";
 import { openSubscriptionPortal } from "../../src/client/Api";
 import type { ResolvedCosmetic } from "../../src/client/Cosmetics";
 import { purchaseCosmetic } from "../../src/client/Cosmetics";

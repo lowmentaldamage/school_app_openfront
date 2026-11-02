@@ -6,14 +6,14 @@ import {
   GameType,
   listedMaps,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import type { SnapshotHeader } from "@openfront/engine-api/game/SnapshotHeader";
-import { TeamCountConfig } from "@openfront/engine-api/Schemas";
-import { DoomsdayClockSpeed } from "@openfront/engine-lib/game/DoomsdayClock";
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { generateID } from "@openfront/shared/SharedUtil";
-import { PlayerCosmetics } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { SnapshotHeader } from "@laukolaroser/engine-api/game/SnapshotHeader";
+import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
+import { DoomsdayClockSpeed } from "@laukolaroser/engine-lib/game/DoomsdayClock";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { generateID } from "@laukolaroser/shared/SharedUtil";
+import { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
 import { html, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { translateText } from "../client/Utils";

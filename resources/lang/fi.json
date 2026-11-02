@@ -9,7 +9,7 @@
     "close": "Sulje"
   },
   "main": {
-    "title": "OpenFront (ALPHA)",
+    "title": "Laukolaroser (ALPHA)",
     "join_discord": "Liity Discordiin!",
     "login_discord": "Kirjaudu sisään Discordilla",
     "checking_login": "Tarkistetaan sisäänkirjautumista...",
@@ -21,7 +21,6 @@
     "instructions": "Ohjeet",
     "how_to_play": "Kuinka pelata",
     "advertise": "Mainosta",
-    "wiki": "Wiki",
     "privacy_policy": "Tietosuojaseloste",
     "terms_of_service": "Käyttöehdot"
   },
@@ -461,8 +460,8 @@
     "not_enough_money": "Ei tarpeeksi rahaa"
   },
   "win_modal": {
-    "support_openfront": "Tue OpenFrontia!",
-    "territory_pattern": "Osta aluekuvio tukeaksesi OpenFrontia!",
+    "support_laukolaroser": "Tue Laukolaroseria!",
+    "territory_pattern": "Osta aluekuvio tukeaksesi Laukolaroseria!",
     "died": "Sinä kuolit",
     "your_team": "Joukkueesi voitti!",
     "other_team": "{team} joukkue on voittanut!",
@@ -618,8 +617,8 @@
       "cursor": "Kursori",
       "hand": "Käsi",
       "radiation": "Säteily",
-      "openfront_qr": "OpenFront.io:n QR-koodi",
-      "openfront": "OpenFront",
+      "laukolaroser_qr": "Laukolaroser:n QR-koodi",
+      "laukolaroser": "Laukolaroser",
       "t_rex": "T-Rex",
       "embelem": "Tunnus",
       "contributor": "Avustaja",

@@ -1,4 +1,4 @@
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html, LitElement, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 import { NavNotificationsController } from "./NavNotificationsController";
@@ -86,8 +86,8 @@ export class MobileNavBar extends LitElement {
         >
           <div class="flex flex-col items-center gap-1">
             <img
-              src=${assetUrl("images/OpenFrontLogo.svg")}
-              alt="OpenFront"
+              src=${assetUrl("images/LaukolaroserLogo.svg")}
+              alt="Laukolaroser"
               class="w-auto h-auto max-w-[220px] max-h-[4.5rem]"
             />
             <div

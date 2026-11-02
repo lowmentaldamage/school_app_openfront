@@ -5,7 +5,7 @@
 
 # Publift
 
-OWNERDOMAIN=openfront.io
+OWNERDOMAIN=laukolaroser.com
 MANAGERDOMAIN=publift.com
 publift.com, 01K62JJMRS9RQ7CND6PN13CYK7, DIRECT
 
@@ -831,7 +831,7 @@ lijit.com, 551846, RESELLER, fafdf38b16bf6b2b
 playwire.com,1025558,DIRECT
 
 managerdomain=playwire.com
-ownerdomain=openfront.io
+ownerdomain=laukolaroser.com
 
 # Playwire Ads.txt file v10.2
 contact=sales@playwire.com

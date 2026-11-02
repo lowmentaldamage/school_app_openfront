@@ -1,5 +1,5 @@
-import { NameViewData } from "@openfront/engine-api/game/GameTypes";
-import { calculateBoundingBox } from "@openfront/engine-lib/Util";
+import { NameViewData } from "@laukolaroser/engine-api/game/GameTypes";
+import { calculateBoundingBox } from "@laukolaroser/engine-lib/Util";
 import { Game, Player } from "./Game";
 
 export interface Point {

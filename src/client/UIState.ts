@@ -1,4 +1,4 @@
-import { PlayerBuildableUnitType } from "@openfront/engine-api/game/GameTypes";
+import { PlayerBuildableUnitType } from "@laukolaroser/engine-api/game/GameTypes";
 
 export interface UIState {
   preventStacking?: boolean;

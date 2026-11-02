@@ -2,7 +2,7 @@ import {
   readVersioned,
   SnapshotError,
   snapshotType,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 
 // A record type as it would look after two layout changes.

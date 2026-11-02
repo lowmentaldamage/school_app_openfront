@@ -1,10 +1,10 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   GameMode,
   PlayerType,
   Team,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   doomsdayClockDrain,
   doomsdayClockRequiredTiles,
@@ -14,10 +14,10 @@ import {
   ROT_NOISE_SCALE,
   rotFrontNoise,
   rotSpeckleNoise,
-} from "@openfront/engine-lib/game/DoomsdayClock";
-import { DoomsdayClockExecution } from "@openfront/engine/execution/DoomsdayClockExecution";
-import { PlayerExecution } from "@openfront/engine/execution/PlayerExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-lib/game/DoomsdayClock";
+import { DoomsdayClockExecution } from "@laukolaroser/engine/execution/DoomsdayClockExecution";
+import { PlayerExecution } from "@laukolaroser/engine/execution/PlayerExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { vi } from "vitest";
 import { playerInfo, setup } from "./util/Setup";
 

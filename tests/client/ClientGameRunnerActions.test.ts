@@ -1,6 +1,6 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ClientGameRunner's left-click handling: spawn intents during the spawn

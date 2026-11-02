@@ -50,21 +50,21 @@ export function initWorkerMetrics(
 
   // Create observable gauges
   const activeGamesGauge = meter.createObservableGauge(
-    "openfront.active_games.gauge",
+    "laukolaroser.active_games.gauge",
     {
       description: "Number of active games on this worker",
     },
   );
 
   const connectedClientsGauge = meter.createObservableGauge(
-    "openfront.connected_clients.gauge",
+    "laukolaroser.connected_clients.gauge",
     {
       description: "Number of connected clients on this worker",
     },
   );
 
   const lobbyClientsGauge = meter.createObservableGauge(
-    "openfront.lobby_clients.gauge",
+    "laukolaroser.lobby_clients.gauge",
     {
       description:
         "Number of clients connected to the /lobbies WebSocket on this worker",
@@ -72,26 +72,29 @@ export function initWorkerMetrics(
   );
 
   const singleplayerGamesGauge = meter.createObservableGauge(
-    "openfront.singleplayer_games.gauge",
+    "laukolaroser.singleplayer_games.gauge",
     {
       description:
         "Number of in-browser singleplayer games heartbeating to this worker",
     },
   );
 
-  const desyncsGauge = meter.createObservableGauge("openfront.desyncs.gauge", {
-    description: "Number of detected desyncs on active games on this worker",
-  });
+  const desyncsGauge = meter.createObservableGauge(
+    "laukolaroser.desyncs.gauge",
+    {
+      description: "Number of detected desyncs on active games on this worker",
+    },
+  );
 
   const memoryUsageGauge = meter.createObservableGauge(
-    "openfront.memory_usage.bytes",
+    "laukolaroser.memory_usage.bytes",
     {
       description: "Current memory usage of the worker process in bytes",
     },
   );
 
   const winnerReplayPendingGauge = meter.createObservableGauge(
-    "openfront.winner_replay.pending.gauge",
+    "laukolaroser.winner_replay.pending.gauge",
     {
       description:
         "Winner replays waiting or running on this worker (disputed or one-IP votes)",
@@ -99,7 +102,7 @@ export function initWorkerMetrics(
   );
 
   const winnerReplayOutcomes = meter.createObservableCounter(
-    "openfront.winner_replay.outcomes",
+    "laukolaroser.winner_replay.outcomes",
     {
       description:
         "Disputed or one-IP winner votes settled by replay: agreed with the vote, overturned it, or failed (vote stood); or skipped (one-IP vote, replay queue full: vote stood unconfirmed)",
@@ -107,12 +110,12 @@ export function initWorkerMetrics(
   );
 
   const winnerReplayRuns = meter.createObservableCounter(
-    "openfront.winner_replay.runs",
+    "laukolaroser.winner_replay.runs",
     { description: "Winner replay runs finished on this worker" },
   );
 
   const winnerReplaySeconds = meter.createObservableCounter(
-    "openfront.winner_replay.seconds",
+    "laukolaroser.winner_replay.seconds",
     {
       description:
         "Total run time of finished winner replays; divide by runs for the mean",
@@ -130,9 +133,9 @@ export function initWorkerMetrics(
     for (const segment of gameManager.activeClientsBySegment()) {
       result.observe(segment.count, {
         ...labels,
-        "openfront.platform": segment.platform,
-        "openfront.device": segment.device,
-        "openfront.auth": segment.auth,
+        "laukolaroser.platform": segment.platform,
+        "laukolaroser.device": segment.device,
+        "laukolaroser.auth": segment.auth,
       });
     }
   });
@@ -140,7 +143,7 @@ export function initWorkerMetrics(
   lobbyClientsGauge.addCallback((result) => {
     const labels = getPromLabels();
     for (const [platform, count] of lobbyService.connectedClientsByPlatform()) {
-      result.observe(count, { ...labels, "openfront.platform": platform });
+      result.observe(count, { ...labels, "laukolaroser.platform": platform });
     }
   });
 
@@ -150,7 +153,7 @@ export function initWorkerMetrics(
       platform,
       count,
     ] of singleplayerPresence.activeGamesByPlatform()) {
-      result.observe(count, { ...labels, "openfront.platform": platform });
+      result.observe(count, { ...labels, "laukolaroser.platform": platform });
     }
   });
 
@@ -168,7 +171,7 @@ export function initWorkerMetrics(
     for (const [outcome, count] of Object.entries(
       winnerReplayMetrics.outcomes,
     )) {
-      result.observe(count, { ...labels, "openfront.outcome": outcome });
+      result.observe(count, { ...labels, "laukolaroser.outcome": outcome });
     }
   });
 

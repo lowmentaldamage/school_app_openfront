@@ -2,7 +2,7 @@ import {
   AnalyticsRecordSchema,
   ArchivedAnalyticsRecordSchema,
   GameRecordSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 
 // A record as an old build would have written it: no `nations` in the config,
 // no `clanTag` on players, a username that fails today's tighter regex, and a
@@ -14,7 +14,7 @@ function oldRecord() {
     version: "v0.0.2",
     gitCommit: "0123456789abcdef0123456789abcdef01234567",
     subdomain: "eu1",
-    domain: "openfront.io",
+    domain: "laukolaroser.com",
     info: {
       gameID: "abCD1234",
       lobbyCreatedAt: 1700000000000,

@@ -1,4 +1,4 @@
-import { isVerifiedUsername } from "@openfront/shared/ApiSchemas";
+import { isVerifiedUsername } from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../Utils";

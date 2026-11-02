@@ -104,7 +104,7 @@ export function apiMockFactory() {
     })),
     invalidateUserMe: vi.fn(),
     // ClanMapView derives the map page origin from the audience.
-    getAudience: vi.fn(() => "openfront.dev"),
+    getAudience: vi.fn(() => "laukolaroser.dev"),
   };
 }
 

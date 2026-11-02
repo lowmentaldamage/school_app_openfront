@@ -1,12 +1,12 @@
 ---
 name: release
-description: Cut the next patch release on an OpenFront release branch - `/release v34` finds the last v0.34.x tag, collects the commits on the v34 branch since it, writes one curated player-facing line per change with its author, and creates a draft GitHub release v0.34.N+1 whose notes are the new section stacked on top of the previous release's notes. Use whenever the user types /release, or asks to cut, tag, ship, draft or write release notes / a changelog for a vNN branch or a v0.NN.x version, even if they don't say "skill".
+description: Cut the next patch release on an Laukolaroser release branch - `/release v34` finds the last v0.34.x tag, collects the commits on the v34 branch since it, writes one curated player-facing line per change with its author, and creates a draft GitHub release v0.34.N+1 whose notes are the new section stacked on top of the previous release's notes. Use whenever the user types /release, or asks to cut, tag, ship, draft or write release notes / a changelog for a vNN branch or a v0.NN.x version, even if they don't say "skill".
 ---
 
 # /release <branch>
 
 `/release v34` makes the next patch release of the `v34` branch of
-`openfrontio/OpenFrontIO`. The argument is the branch (`v34`), not a version;
+`laukolaroser/Laukolaroser`. The argument is the branch (`v34`), not a version;
 if the user gives a version like `v0.34.19`, take the branch from its minor
 number and check the patch is the next one.
 
@@ -14,11 +14,11 @@ Release notes on this repo are **cumulative**: each release's body is its own
 new section on top, followed by the previous release's body unchanged, so the
 latest release page reads as the whole v0.34 changelog. Look at the latest
 release first if you have not seen one this session:
-`gh release view --repo openfrontio/OpenFrontIO` (or the latest v0.<minor>.x).
+`gh release view --repo laukolaroser/Laukolaroser` (or the latest v0.<minor>.x).
 
 ## 1. Collect the commits
 
-Run the script from the root of an OpenFrontIO checkout. It lives in this
+Run the script from the root of an Laukolaroser checkout. It lives in this
 skill's directory: `.claude/skills/release/` in the repo, or
 `~/.claude/skills/release/` if the skill is installed for your user.
 
@@ -137,10 +137,10 @@ Then create the release **as a draft**. Build the body as the new section, a
 blank line, and the previous release's body as it is:
 
 ```bash
-prev="$(gh release view v0.34.18 --repo openfrontio/OpenFrontIO --json body --jq .body)"
+prev="$(gh release view v0.34.18 --repo laukolaroser/Laukolaroser --json body --jq .body)"
 printf '%s\n\n%s\n' "$(cat section.md)" "$prev" | tr -d '\r' > body.md
 head_sha=a188868bc16c... # the head_sha line the script printed
-gh release create v0.34.19 --repo openfrontio/OpenFrontIO \
+gh release create v0.34.19 --repo laukolaroser/Laukolaroser \
   --draft --target "$head_sha" --title v0.34.19 --notes-file body.md
 ```
 
@@ -167,7 +167,7 @@ only when the user says so after seeing the draft. First re-run the script: if
 review, so they can publish as reviewed or have the notes redone.
 
 ```bash
-gh release edit v0.34.19 --repo openfrontio/OpenFrontIO --draft=false
+gh release edit v0.34.19 --repo laukolaroser/Laukolaroser --draft=false
 ```
 
 If a newer release line has already been published (a `v0.35.x` exists), add

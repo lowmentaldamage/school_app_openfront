@@ -20,7 +20,7 @@ vi.mock("../../../../src/client/Utils", () => ({
   renderDuration: vi.fn(),
   showToast: vi.fn(),
 }));
-vi.mock("@openfront/engine-lib/Format", () => ({
+vi.mock("@laukolaroser/engine-lib/Format", () => ({
   renderNumber: vi.fn(),
   renderTroops: vi.fn(),
 }));
@@ -36,8 +36,8 @@ vi.mock("../../../../src/client/InGameModal", () => ({
   showInGameAlert: vi.fn(),
 }));
 
-import { GameType, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameType, PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { actionButton } from "../../../../src/client/components/ui/ActionButton";
 import { PlayerModerationModal } from "../../../../src/client/hud/layers/PlayerModerationModal";
 import { PlayerPanel } from "../../../../src/client/hud/layers/PlayerPanel";

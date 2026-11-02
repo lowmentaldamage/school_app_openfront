@@ -1,12 +1,12 @@
 ---
-name: run-openfront
-description: Build, run, and drive OpenFront locally — including full in-game WebGL testing. Use when asked to run the game, start the dev server, take a screenshot of the UI, verify a client change in the real app, or interact with the running game (lobby, modals, map picker, starting a singleplayer game, spawning, attacking, build menu, reading live sim state).
+name: run-laukolaroser
+description: Build, run, and drive Laukolaroser locally — including full in-game WebGL testing. Use when asked to run the game, start the dev server, take a screenshot of the UI, verify a client change in the real app, or interact with the running game (lobby, modals, map picker, starting a singleplayer game, spawning, attacking, build menu, reading live sim state).
 ---
 
-OpenFront is a browser game (Lit + WebGL2 client, Node game server).
+Laukolaroser is a browser game (Lit + WebGL2 client, Node game server).
 Run the dev server with `npm run dev` (serves on **http://localhost:9000**,
 not Vite's default 5173), then drive it with headless Chromium via
-`.claude/skills/run-openfront/driver.mjs`. All paths are relative to the
+`.claude/skills/run-laukolaroser/driver.mjs`. All paths are relative to the
 repo root.
 
 ## Prerequisites (one-time per machine, no sudo)
@@ -15,12 +15,12 @@ On a headless Ubuntu 26.04 host there is no browser, and Playwright doesn't
 support 26.04. `setup.sh` works around both: it installs Playwright
 (`--no-save`), downloads the ubuntu24.04 chromium-headless-shell via
 `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE`, extracts the missing system libraries
-from `.deb` packages into `~/.cache/openfront-run/` (no root needed), and
+from `.deb` packages into `~/.cache/laukolaroser-run/` (no root needed), and
 builds a local fontconfig (the host has no `/etc/fonts`; Skia FATALs
 without one).
 
 ```bash
-bash .claude/skills/run-openfront/setup.sh
+bash .claude/skills/run-laukolaroser/setup.sh
 ```
 
 On other hosts (Windows, macOS) skip `setup.sh`: install Playwright as its
@@ -47,8 +47,8 @@ Smoke flow — home page, open the single-player modal, dump the map-picker
 state, screenshot:
 
 ```bash
-node .claude/skills/run-openfront/driver.mjs
-# screenshots: /tmp/openfront-run/home.png, /tmp/openfront-run/solo-modal.png
+node .claude/skills/run-laukolaroser/driver.mjs
+# screenshots: /tmp/laukolaroser-run/home.png, /tmp/laukolaroser-run/solo-modal.png
 ```
 
 For ad-hoc flows, write a script **inside the repo** (so `playwright`
@@ -59,7 +59,7 @@ import {
   launch,
   gotoHome,
   openSoloModal,
-} from "./.claude/skills/run-openfront/driver.mjs";
+} from "./.claude/skills/run-laukolaroser/driver.mjs";
 const { browser, page } = await launch(); // env/libs/fonts handled here
 await gotoHome(page);
 await openSoloModal(page);
@@ -81,8 +81,8 @@ Smoke flow (≈2 min: starts a 50-bot game, spawns, expands, opens the
 radial menu, asserts territory growth):
 
 ```bash
-node .claude/skills/run-openfront/game.mjs
-# screenshots: /tmp/openfront-run/game-{spawn-phase,spawned,expanded,radial-menu}.png
+node .claude/skills/run-laukolaroser/game.mjs
+# screenshots: /tmp/laukolaroser-run/game-{spawn-phase,spawned,expanded,radial-menu}.png
 ```
 
 For ad-hoc in-game flows, import the helpers (script must live inside the
@@ -93,7 +93,7 @@ import {
   launch,
   gotoHome,
   openSoloModal,
-} from "./.claude/skills/run-openfront/driver.mjs";
+} from "./.claude/skills/run-laukolaroser/driver.mjs";
 import {
   startSoloGame, // set modal options ({bots, map, difficulty, instantBuild, …}), click Start, wait for sim
   gameState, // {ticks, inSpawnPhase, numPlayers, myPlayer: {troops, gold, tilesOwned, isAlive}, …}
@@ -107,7 +107,7 @@ import {
   panTo,
   setAttackRatio,
   openRadialMenu, // right-click on own territory; returns true if the menu opened
-} from "./.claude/skills/run-openfront/game.mjs";
+} from "./.claude/skills/run-laukolaroser/game.mjs";
 
 const { browser, page } = await launch({ rafIntervalMs: 3000 }); // throttle is REQUIRED in-game, see below
 await gotoHome(page);
@@ -184,7 +184,7 @@ npx vitest tests/MapConsistency.test.ts --run # single file
   (`libnspr4.so`, `libatk-1.0.so.0`, …) then a Skia FATAL
   (`SkFontMgr_FontConfigInterface.cpp: Not implemented`) from the absent
   fontconfig. `launch()` in driver.mjs injects `LD_LIBRARY_PATH` and
-  `FONTCONFIG_FILE` pointing at `~/.cache/openfront-run/`; diagnose new
+  `FONTCONFIG_FILE` pointing at `~/.cache/laukolaroser-run/`; diagnose new
   missing libs with `DEBUG=pw:browser` and
   `ldd .../chrome-headless-shell | grep "not found"`.
 - **The single-player button is labeled "Solo"** (`main.solo`), and the DOM has more
@@ -204,7 +204,7 @@ npx vitest tests/MapConsistency.test.ts --run # single file
   module resolution starts at the script's path, not cwd. Move it inside
   the repo (anywhere under the root works).
 - `Target page, context or browser has been closed` immediately —
-  re-run `bash .claude/skills/run-openfront/setup.sh` (the
-  `~/.cache/openfront-run` lib cache is missing or was cleared).
+  re-run `bash .claude/skills/run-laukolaroser/setup.sh` (the
+  `~/.cache/laukolaroser-run` lib cache is missing or was cleared).
 - `EADDRINUSE` on relaunch — a previous dev server is still up:
   `pkill -f "tsx src/server/Server.ts"; pkill -f vite`.

@@ -12,10 +12,10 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { NationExecution } from "@openfront/engine/execution/NationExecution";
-import { RecomputeRailClusterExecution } from "@openfront/engine/execution/RecomputeRailClusterExecution";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { NationExecution } from "@laukolaroser/engine/execution/NationExecution";
+import { RecomputeRailClusterExecution } from "@laukolaroser/engine/execution/RecomputeRailClusterExecution";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

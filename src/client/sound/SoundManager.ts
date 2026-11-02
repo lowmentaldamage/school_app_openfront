@@ -1,5 +1,5 @@
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { Howl } from "howler";
 import { AudioMixer, PlayableCategory, streamsMusic } from "./AudioMixer";
 import {

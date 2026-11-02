@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { Crown } from "@openfront/shared/CosmeticSchemas";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { Crown } from "@laukolaroser/shared/CosmeticSchemas";
 import {
   cosmeticRelationship,
   crownRelationship,

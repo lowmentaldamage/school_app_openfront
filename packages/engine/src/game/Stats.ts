@@ -1,12 +1,12 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { TerraNullius } from "@openfront/engine-api/game/GameTypes";
-import { AllPlayersStats, ClientID } from "@openfront/engine-api/Schemas";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { TerraNullius } from "@laukolaroser/engine-api/game/GameTypes";
+import { AllPlayersStats, ClientID } from "@laukolaroser/engine-api/Schemas";
 import {
   BoatUnitType,
   NukeType,
   OtherUnitType,
   PlayerStats,
-} from "@openfront/engine-api/StatsSchemas";
+} from "@laukolaroser/engine-api/StatsSchemas";
 import { Player } from "./Game";
 
 export interface Stats {

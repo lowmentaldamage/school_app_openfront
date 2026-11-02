@@ -23,6 +23,7 @@ import {
   CameraController,
   type Camera2DState,
 } from "./camera/CameraController";
+import { detectDeviceProfile, type DeviceProfile } from "./DeviceProfile";
 import { EnvironmentRenderer } from "./environment/EnvironmentRenderer";
 import { WaterRenderer } from "./environment/WaterRenderer";
 import { Heightfield } from "./terrain/Heightfield";
@@ -41,6 +42,8 @@ export interface WorldRendererInit {
   terrain: Uint8Array;
   /** Number of palette slots (smallIDs) — PlayerPalette.PALETTE_SIZE. */
   paletteSize: number;
+  /** Device budgets; detected from the browser when omitted. */
+  profile?: DeviceProfile;
 }
 
 export interface TerritoryFrame {
@@ -58,7 +61,8 @@ export class WorldRenderer {
   private readonly water: WaterRenderer;
   private readonly environment: EnvironmentRenderer;
   private readonly terrainUniforms: TerrainMaterialUniforms;
-  private readonly quality = new AdaptiveQuality();
+  private readonly quality: AdaptiveQuality;
+  readonly profile: DeviceProfile;
   private readonly clock = new Clock();
   private lastFrameMs = 0;
   private cssWidth = 1;
@@ -66,9 +70,15 @@ export class WorldRenderer {
   private disposed = false;
 
   constructor(init: WorldRendererInit) {
+    this.profile = init.profile ?? detectDeviceProfile();
+    this.quality = new AdaptiveQuality(
+      this.profile.initialQuality,
+      undefined,
+      this.profile.maxQuality,
+    );
     this.renderer = new WebGLRenderer({
       canvas: init.canvas,
-      antialias: true,
+      antialias: this.profile.antialias,
       powerPreference: "high-performance",
     });
     this.renderer.outputColorSpace = SRGBColorSpace;
@@ -93,7 +103,11 @@ export class WorldRenderer {
     this.terrainUniforms = uniforms;
     this.terrain = new TerrainRenderer(this.heightfield, material, {
       chunkSize: 128,
-      baseStride: baseStrideFor(init.mapWidth, init.mapHeight),
+      baseStride: baseStrideFor(
+        init.mapWidth,
+        init.mapHeight,
+        this.profile.terrainVertexBudget,
+      ),
       lodMultipliers: [1, 2, 4],
       lodDistances: [0, 3, 7],
       skirtDepth: 2,

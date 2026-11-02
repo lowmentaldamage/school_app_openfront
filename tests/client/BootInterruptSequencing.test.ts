@@ -40,7 +40,7 @@ vi.mock("../../src/client/SteamSDK", () => ({
   steamSDK: { isOnSteam: () => false, getUser: vi.fn(async () => null) },
 }));
 
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import {
   lapseShownAfterDispatch,
   nextBootInterrupt,

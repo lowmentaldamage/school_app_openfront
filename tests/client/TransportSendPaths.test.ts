@@ -1,10 +1,10 @@
-import { EventBus } from "@openfront/shared/EventBus";
-import { ServerMessage } from "@openfront/shared/WireSchemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import { ServerMessage } from "@laukolaroser/shared/WireSchemas";
 import {
   createGameWireContext,
   decodeClientMessage,
   encodeServerMessage,
-} from "@openfront/shared/ZbinWire";
+} from "@laukolaroser/shared/ZbinWire";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { testGameConfig } from "../util/Wire";
 

@@ -1,5 +1,5 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { GameEnv } from "@openfront/shared/configuration/Env";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";

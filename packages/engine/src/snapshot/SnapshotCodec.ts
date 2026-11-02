@@ -1,4 +1,4 @@
-import { ByteReader } from "@openfront/zbin";
+import { ByteReader } from "@laukolaroser/zbin";
 
 /**
  * Self-describing binary encoding for snapshot data.

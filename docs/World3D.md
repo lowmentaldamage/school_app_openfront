@@ -1,19 +1,19 @@
-# World Front 3D — Architecture & Progress
+# Laukolaroser 3D — Architecture & Progress
 
-World Front 3D turns OpenFront into a 3D strategy game by adding a new
-Three.js rendering layer on top of the unchanged OpenFront simulation,
-networking and UI. This document records the architectural decisions and
+Laukolaroser is a 3D strategy game built by adding a new Three.js rendering
+layer on top of the unchanged OpenFront-derived simulation, networking and
+UI. This document records the architectural decisions and
 the state of each increment.
 
 ## Origin and licensing
 
-- Imported from [OpenFrontIO](https://github.com/openfrontio/OpenFrontIO) at
+- Imported from the open-source game OpenFront (github.com/openfrontio/OpenFrontIO) at
   commit `103bba550d3a39ceb623179a04687719cf8a051b`.
 - Code: AGPL-3.0 (see `LICENSE`, `LICENSING.md`). Open assets under
   `resources/`: CC BY-SA 4.0 (`LICENSE-ASSETS`, `CREDITS.md`). All upstream
   notices are kept intact.
 - The upstream `proprietary/` directory (All Rights Reserved, licensed only
-  for use within OpenFront itself) is **not** included. The build already
+  for use within the original OpenFront game) is **not** included. The build already
   falls back to `resources/` when it is absent.
 - New dependency: `three` (MIT).
 
@@ -65,14 +65,15 @@ colour-blind mode and team colours match.
 
 ## Module map (`src/client/render3d/`)
 
-| Module                               | Role                                                                    |
-| ------------------------------------ | ----------------------------------------------------------------------- |
+| Module                               | Role                                                                     |
+| ------------------------------------ | ------------------------------------------------------------------------ |
 | `WorldRenderer.ts`                   | Owns the `WebGLRenderer` and scene; composes everything below            |
 | `World3DView.ts`                     | Game glue: canvas, per-tick feed, `ScreenProjector` for input            |
 | `World3DFlag.ts`                     | `?renderer=3d` flag (no three.js import; safe for the homepage)          |
 | `AdaptiveQuality.ts`                 | Frame-time driven quality levels (pixel ratio, shadows, shadow map size) |
+| `DeviceProfile.ts`                   | Phone vs desktop budgets: start/max quality, MSAA, terrain vertex budget |
 | `terrain/TerrainCodec.ts`            | Decodes `GameMap.terrainByte` bits                                       |
-| `terrain/Heightfield.ts`             | Terrain bytes → smoothed elevation (land > 0 > water, guaranteed)       |
+| `terrain/Heightfield.ts`             | Terrain bytes → smoothed elevation (land > 0 > water, guaranteed)        |
 | `terrain/TerrainChunkGeometry.ts`    | Pure chunk mesh builder (shared-edge normals, crack-hiding skirts)       |
 | `terrain/TerrainRenderer.ts`         | 128-tile chunks × 3 LOD levels (`THREE.LOD`), frustum culled             |
 | `terrain/TerrainMaterial.ts`         | Procedural albedo (sand/grass/highland/rock/snow) + territory overlay    |
@@ -109,7 +110,8 @@ Integration points touched outside this folder (all additive):
 - `TerrainChunkGeometry.test.ts` — topology, up-facing winding, seam agreement between chunks.
 - `OwnerBuffer.test.ts` — mirrors real simulation ownership (spawn + expansion) from tile deltas.
 - `CameraController.test.ts` — centre mapping, tile↔screen round-trip on land, zoom parity with 2D.
-- `AdaptiveQuality.test.ts` — step down / no oscillation / step up / stall rejection.
+- `AdaptiveQuality.test.ts` — step down / time-based reaction at low fps / no oscillation / step up / stall rejection.
+- `DeviceProfile.test.ts` — phone detection and lighter budgets.
 
 Manual check: `npm run dev`, open `http://localhost:9000/?renderer=3d`,
 start a Solo game, click to spawn, expand, zoom.
@@ -130,6 +132,23 @@ Known gaps (planned next):
   still drawn only by the 2D renderer (hidden in 3D mode).
 - Terrain is built once; water-nuke terrain changes are not yet re-meshed.
 - No free camera rotation/tilt controls yet (yaw/pitch are fixed tuning).
+
+### Increment 2 — Laukolaroser branding + phones (done)
+
+- Renamed to Laukolaroser throughout (UI, translations, package scope
+  `@laukolaroser/*`, domains, storage keys); new logo, favicon and app icons.
+  Upstream community links, Steam store promos, tutorial videos, press kit,
+  tournament assets and upstream repo bots were removed. The license-required
+  notice "© OpenFront and Contributors" stays in the footer and loading screen.
+- `DeviceProfile`: phones start at the "low" level (pixel ratio ≤ 1, no
+  shadows), never climb above "medium", skip MSAA, and use a 600k-vertex
+  terrain budget. `AdaptiveQuality` cooldown is now wall-clock based, so a
+  slow phone reacts within ~2 s instead of after N frames.
+- Loading dialog fits narrow screens; the installed app may rotate.
+- Verified on an emulated Pixel 7 (portrait and landscape) with touch: home
+  page, Solo setup, game start, tap-to-spawn through the 3D projector. Under
+  the same software GPU, 3D went from 3.0 to 13.3 fps after the mobile
+  profile (the 2D renderer measured 1.3 fps there).
 
 ### Next increments
 

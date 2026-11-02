@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   MessageType,
   NukeState,
@@ -9,12 +9,12 @@ import {
   TransportShipState,
   UnitType,
   WarshipState,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { maxHealthWithVeterancy } from "@openfront/engine-lib/game/Veterancy";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { maxHealthWithVeterancy } from "@laukolaroser/engine-lib/game/Veterancy";
 import {
   snapshotType,
   zInt,
@@ -23,8 +23,8 @@ import {
   zRef,
   zTile,
   zTiles,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { simpleHash, toInt, withinInt } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { simpleHash, toInt, withinInt } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { UnitTypeSchema } from "../snapshot/CommonSchemas";
 import type {

@@ -4,12 +4,12 @@ import {
   GameType,
   HumansVsNations,
   RankedType,
-} from "@openfront/engine-api/game/GameTypes";
-import { ClanTagSchema } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { ClanTagSchema } from "@laukolaroser/engine-api/Schemas";
 import {
   BigIntStringSchema,
   PlayerStatsSchema,
-} from "@openfront/engine-api/StatsSchemas";
+} from "@laukolaroser/engine-api/StatsSchemas";
 import { z } from "zod";
 import { base64urlToUuid } from "./Base64";
 import {
@@ -552,7 +552,7 @@ export const UserMeResponseSchema = z.object({
     })
     .nullable()
     .optional(),
-  // Owns OpenFront on Steam. A licence is not a subscription: it confers
+  // Owns Laukolaroser on Steam. A licence is not a subscription: it confers
   // custom lobbies and the verified name with `subscription` null, so a
   // licence holder with no subscription has not lapsed.
   steamLicence: z.boolean().optional().default(false),
@@ -650,7 +650,7 @@ export const UserMeResponseSchema = z.object({
     // read the private answer is the safe one.
     levelHidden: z.boolean().optional().catch(true),
     // "Show my profile in search engines" turned off: the public profile page
-    // (openfront.io/player/<publicId>) is served noindex. It still opens for
+    // (laukolaroser.com/player/<publicId>) is served noindex. It still opens for
     // anyone with the link, and link previews are unchanged. Optional so an
     // older API without the setting still parses — absent hides the row in
     // account settings. A malformed value reads as hidden, like levelHidden.
@@ -888,7 +888,7 @@ export type PutUsernameResponse = z.infer<typeof PutUsernameResponseSchema>;
 
 // GET /creators/code/:code — public creator-code lookup (Creator Code
 // programme; no auth). Used to preview/validate a code before binding, e.g.
-// from an openfront.io/c/CODE share link. `status` is the creator's account
+// from an laukolaroser.com/c/CODE share link. `status` is the creator's account
 // state; today the endpoint only ever resolves an "active" creator (a
 // suspended/terminated/unknown code 404s), but the field is kept here to
 // mirror the server's row shape rather than assume that never changes.

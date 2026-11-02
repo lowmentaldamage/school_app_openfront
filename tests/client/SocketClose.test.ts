@@ -13,12 +13,12 @@ describe("describeSocketClose", () => {
   it("says a socket that never opened failed its handshake", () => {
     expect(
       describeSocketClose(
-        "wss://blue.openfront.io/w3/lobbies",
+        "wss://blue.laukolaroser.com/w3/lobbies",
         close(1006),
         null,
       ),
     ).toBe(
-      "blue.openfront.io/w3/lobbies closed (1006, no close frame) before it opened",
+      "blue.laukolaroser.com/w3/lobbies closed (1006, no close frame) before it opened",
     );
   });
 
@@ -27,17 +27,17 @@ describe("describeSocketClose", () => {
     vi.setSystemTime(10_000);
     expect(
       describeSocketClose(
-        "wss://blue.openfront.io/w0",
+        "wss://blue.laukolaroser.com/w0",
         close(4001, "kicked"),
         7_500,
       ),
-    ).toBe('blue.openfront.io/w0 closed (4001) "kicked" after 2.5s open');
+    ).toBe('blue.laukolaroser.com/w0 closed (4001) "kicked" after 2.5s open');
   });
 
   it("drops the query string", () => {
     expect(
       describeSocketClose(
-        "wss://api.openfront.io/matchmaking/join?instance=abc&mode=1v1",
+        "wss://api.laukolaroser.com/matchmaking/join?instance=abc&mode=1v1",
         close(1006),
         null,
       ),

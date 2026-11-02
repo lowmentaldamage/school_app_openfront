@@ -1,5 +1,5 @@
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { sanitizeClanTag } from "@openfront/shared/SharedUtil";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { sanitizeClanTag } from "@laukolaroser/shared/SharedUtil";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { translateText } from "../client/Utils";

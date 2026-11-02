@@ -1,5 +1,8 @@
-import { PlayerInfo, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { Game } from "@openfront/engine/game/Game";
+import {
+  PlayerInfo,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { Game } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 
 // OFM live standings: killedBy + deathPosition are stored on the player's stats

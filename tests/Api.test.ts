@@ -73,15 +73,15 @@ describe("getAudience / getApiBase from BOOTSTRAP_CONFIG", () => {
   beforeEach(() => ClientEnv.reset());
 
   it("returns the configured audience (desktop staging)", () => {
-    setConfig("openfront.dev");
-    expect(getAudience()).toBe("openfront.dev");
-    expect(getApiBase()).toBe("https://api.openfront.dev");
+    setConfig("laukolaroser.dev");
+    expect(getAudience()).toBe("laukolaroser.dev");
+    expect(getApiBase()).toBe("https://api.laukolaroser.dev");
   });
 
   it("returns the configured audience (prod)", () => {
-    setConfig("openfront.io");
-    expect(getAudience()).toBe("openfront.io");
-    expect(getApiBase()).toBe("https://api.openfront.io");
+    setConfig("laukolaroser.com");
+    expect(getAudience()).toBe("laukolaroser.com");
+    expect(getApiBase()).toBe("https://api.laukolaroser.com");
   });
 });
 
@@ -122,7 +122,7 @@ describe("creator code client functions", () => {
   }
 
   beforeEach(() => {
-    setConfig("openfront.io");
+    setConfig("laukolaroser.com");
     invalidateUserMe();
     fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
@@ -371,7 +371,7 @@ describe("claimReward", () => {
   }
 
   beforeEach(() => {
-    setConfig("openfront.io");
+    setConfig("laukolaroser.com");
     fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -389,7 +389,7 @@ describe("claimReward", () => {
       currency: { soft: 150, hard: 0 },
     });
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://api.openfront.io/rewards/7/claim");
+    expect(url).toBe("https://api.laukolaroser.com/rewards/7/claim");
     expect(init.method).toBe("POST");
   });
 

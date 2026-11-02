@@ -1,5 +1,5 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html, LitElement, nothing, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import {
@@ -223,7 +223,7 @@ export class ClanGameHistoryView extends LitElement {
 
   private async copyGameLink(gameId: string) {
     // shareOrigin(), not window.location.origin: this is copied to be sent to
-    // someone else, and the desktop shell's own origin (`app://openfront`)
+    // someone else, and the desktop shell's own origin (`app://laukolaroser`)
     // resolves nowhere outside that Electron app. See deriveShareOrigin.
     const url = `${ClientEnv.shareOrigin()}${ClientEnv.gamePath(gameId)}`;
 

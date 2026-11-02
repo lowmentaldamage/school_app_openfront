@@ -30,9 +30,16 @@ export interface TerrainRendererOptions {
   skirtDepth: number;
 }
 
-/** Keeps LOD 0 at roughly ≤1.5M vertices across the whole map. */
-export function baseStrideFor(mapWidth: number, mapHeight: number): number {
-  return Math.max(1, Math.ceil(Math.sqrt((mapWidth * mapHeight) / 1_500_000)));
+/** Keeps LOD 0 at roughly ≤ `vertexBudget` vertices across the whole map. */
+export function baseStrideFor(
+  mapWidth: number,
+  mapHeight: number,
+  vertexBudget = 1_500_000,
+): number {
+  return Math.max(
+    1,
+    Math.ceil(Math.sqrt((mapWidth * mapHeight) / vertexBudget)),
+  );
 }
 
 export class TerrainRenderer {

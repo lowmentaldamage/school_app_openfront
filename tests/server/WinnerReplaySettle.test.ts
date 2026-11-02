@@ -1,12 +1,12 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AllPlayersStats,
   GameStartInfo,
   Turn,
   Winner,
-} from "@openfront/engine-api/Schemas";
-import type { ReplayedWinner } from "@openfront/engine/WinnerReplay";
-import { PartialGameRecord } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/Schemas";
+import type { ReplayedWinner } from "@laukolaroser/engine/WinnerReplay";
+import { PartialGameRecord } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Client } from "../../src/server/Client";
 import {

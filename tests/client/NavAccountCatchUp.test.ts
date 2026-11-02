@@ -19,7 +19,7 @@ vi.mock("../../src/client/Utils", () => ({
   showToast: vi.fn(),
 }));
 
-import type { Progress, UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { Progress, UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import {
   NAV_CATCH_UP_MS,
   NAV_LEVEL_POP_MS,

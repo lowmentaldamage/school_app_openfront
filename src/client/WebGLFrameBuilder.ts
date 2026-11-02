@@ -1,5 +1,5 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import {
   type EffectAttributesFor,
   type EffectType,
@@ -7,7 +7,7 @@ import {
   isNukeExplosionEffect,
   type NukeExplosionAttributes,
   type NukeExplosionType,
-} from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/CosmeticSchemas";
 import { colord } from "colord";
 import { getCachedCosmetics } from "./Cosmetics";
 import { buildTerrainRowSpans } from "./render/frame/derive/TerrainRowSpans";

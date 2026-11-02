@@ -1,7 +1,10 @@
-import { MessageType, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { AllianceExtensionExecution } from "@openfront/engine/execution/alliance/AllianceExtensionExecution";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+import {
+  MessageType,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { AllianceExtensionExecution } from "@laukolaroser/engine/execution/alliance/AllianceExtensionExecution";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { playerInfo, setup } from "./util/Setup";
 
 let game: Game;

@@ -1,4 +1,7 @@
-import { ColoredTeams, PlayerType } from "@openfront/engine-api/game/GameTypes";
+import {
+  ColoredTeams,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { colord, Colord, extend } from "colord";
 import labPlugin from "colord/plugins/lab";
 import lchPlugin from "colord/plugins/lch";

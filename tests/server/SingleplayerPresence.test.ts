@@ -5,7 +5,7 @@ import {
   SingleplayerPresence,
 } from "../../src/server/SingleplayerPresence";
 
-// activeGamesByPlatform() feeds the openfront.singleplayer_games.gauge
+// activeGamesByPlatform() feeds the laukolaroser.singleplayer_games.gauge
 // metric: a game counts while its last heartbeat is younger than the TTL,
 // and a fresh beat for the same id refreshes rather than duplicates it.
 describe("SingleplayerPresence", () => {

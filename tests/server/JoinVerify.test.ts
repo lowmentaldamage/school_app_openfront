@@ -1,4 +1,4 @@
-import type { TokenPayload } from "@openfront/shared/ApiSchemas";
+import type { TokenPayload } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   _clearInFlightTokens,
@@ -536,7 +536,7 @@ describe("isSteamAuthenticated", () => {
       sub: "s",
       iat: 0,
       iss: "i",
-      aud: "openfront.io",
+      aud: "laukolaroser.com",
       exp: 0,
       ...(provider ? { provider } : {}),
     } as TokenPayload;
@@ -560,7 +560,7 @@ describe("clientAuth", () => {
       sub: "s",
       iat: 0,
       iss: "i",
-      aud: "openfront.io",
+      aud: "laukolaroser.com",
       exp: 0,
       ...(provider ? { provider } : {}),
     } as TokenPayload;

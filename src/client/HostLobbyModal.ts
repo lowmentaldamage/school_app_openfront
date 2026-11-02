@@ -4,20 +4,20 @@ import {
   GameMapType,
   GameMode,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameConfigPatch,
   isValidGameID,
   TeamCountConfig,
-} from "@openfront/engine-api/Schemas";
-import { DoomsdayClockSpeed } from "@openfront/engine-lib/game/DoomsdayClock";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/Schemas";
+import { DoomsdayClockSpeed } from "@laukolaroser/engine-lib/game/DoomsdayClock";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   ClientInfo,
   LOBBY_QUEUE_CUTOFF_MS,
   LobbyInfoEvent,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";

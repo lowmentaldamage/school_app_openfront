@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { describe, expect, test, vi } from "vitest";
 import { SendUpgradeStructureIntentEvent } from "../src/client/Transport";
 

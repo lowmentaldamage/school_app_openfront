@@ -13,7 +13,7 @@
 // the final release is expected in December 2026. Until then this script is
 // kept as it is, but is not type-checked and refuses to run. The next split
 // has to wait for that release.
-// See https://github.com/openfrontio/OpenFrontIO/issues/4982
+// See issue #4982
 // @ts-nocheck
 import fs from "fs";
 import ts from "typescript";

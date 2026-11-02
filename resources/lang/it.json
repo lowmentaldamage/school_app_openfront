@@ -6,7 +6,7 @@
     "lang_code": "it"
   },
   "main": {
-    "title": "OpenFront (ALPHA)",
+    "title": "Laukolaroser (ALPHA)",
     "join_discord": "Unisciti al nostro Discord!",
     "login_discord": "Accedi con Discord",
     "logged_in": "Accesso effettuato!",
@@ -15,8 +15,7 @@
     "join_lobby": "Unisciti a una Lobby",
     "single_player": "Giocatore Singolo",
     "instructions": "Istruzioni",
-    "how_to_play": "Come si gioca",
-    "wiki": "Wiki"
+    "how_to_play": "Come si gioca"
   },
   "help_modal": {
     "hotkeys": "Tasti di scelta rapida",

@@ -1,6 +1,6 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
-import { ReadonlyTileSet } from "@openfront/engine-api/game/ReadViews";
-import { euclDistFN } from "@openfront/engine-lib/game/GameMapImpl";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { ReadonlyTileSet } from "@laukolaroser/engine-api/game/ReadViews";
+import { euclDistFN } from "@laukolaroser/engine-lib/game/GameMapImpl";
 import { Game, Player } from "../game/Game";
 
 export function getSpawnTiles(

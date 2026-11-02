@@ -14,9 +14,9 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { SAMLauncherExecution } from "@openfront/engine/execution/SAMLauncherExecution";
-import { Unit } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { SAMLauncherExecution } from "@laukolaroser/engine/execution/SAMLauncherExecution";
+import { Unit } from "@laukolaroser/engine/game/Game";
 import path from "path";
 import { performance } from "perf_hooks";
 import { fileURLToPath } from "url";

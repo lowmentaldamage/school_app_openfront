@@ -6,8 +6,8 @@ import {
   PlayerType,
   RANKED_FFA_MIN_PLAYERS,
   RankedType,
-} from "@openfront/engine-api/game/GameTypes";
-import { maps } from "@openfront/engine-api/game/Maps.gen";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { maps } from "@laukolaroser/engine-api/game/Maps.gen";
 import {
   AllPlayersStats,
   ClientID,
@@ -20,16 +20,16 @@ import {
   Tribe,
   Turn,
   Winner,
-} from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/Schemas";
 import {
   adjustForTeams,
   assignTeamsLobbyPreview,
   resolveTeamsList,
-} from "@openfront/engine-lib/game/TeamAssignment";
-import { isAdminRole } from "@openfront/shared/ApiSchemas";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { createPartialGameRecord } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/engine-lib/game/TeamAssignment";
+import { isAdminRole } from "@laukolaroser/shared/ApiSchemas";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { createPartialGameRecord } from "@laukolaroser/shared/SharedUtil";
 import {
   ClientMessage,
   ClientReportMessage,
@@ -53,12 +53,12 @@ import {
   ServerTurnMessage,
   WireGameStartInfo,
   WireGameStartInfoSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import {
   createGameWireContext,
   encodeServerMessage,
-} from "@openfront/shared/ZbinWire";
-import { ZbContext } from "@openfront/zbin";
+} from "@laukolaroser/shared/ZbinWire";
+import { ZbContext } from "@laukolaroser/zbin";
 import { createHash, randomBytes } from "crypto";
 import ipAnonymize from "ip-anonymize";
 import { Logger } from "winston";
@@ -549,7 +549,7 @@ export class GameServer {
       return "kicked";
     }
 
-    // OFM: if an allowlist is set, only those publicIds may join. Re-checked on
+    // Tournament mode: if an allowlist is set, only those publicIds may join. Re-checked on
     // every join attempt. Admins/root bypass it so moderation can reach any
     // private lobby; a kick still applies (checked above).
     if (!this.passesAllowlist(client)) {

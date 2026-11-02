@@ -1,10 +1,10 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { Tick, UnitType } from "@openfront/engine-api/game/GameTypes";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { Tick, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   zInt,
   zPlayerRef,
   zRef,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { UnitTypeSchema } from "../snapshot/CommonSchemas";

@@ -3,7 +3,7 @@ import {
   NukeExplosionAttributes,
   StructuresEffectAttributes,
   TrailEffectAttributes,
-} from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/CosmeticSchemas";
 import { colord } from "colord";
 import {
   html,

@@ -1,4 +1,4 @@
-import { EFFECT_TYPES } from "@openfront/shared/CosmeticSchemas";
+import { EFFECT_TYPES } from "@laukolaroser/shared/CosmeticSchemas";
 import { describe, expect, test } from "vitest";
 import {
   catalogSnippet,

@@ -1,4 +1,4 @@
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { LobbyConfig } from "../../src/client/ClientGameRunner";
 
@@ -45,7 +45,7 @@ vi.mock("src/client/ClientEnv", async (importOriginal) => {
   };
 });
 
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { ClientEnv, NoServerError } from "../../src/client/ClientEnv";
 import { Transport } from "../../src/client/Transport";
 

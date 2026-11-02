@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 // Side-effect import: the @customElement decorator registers <build-menu>
 // when the module is evaluated, and a type-only reference would not evaluate it.
-import { BuildableUnit, UnitType } from "@openfront/engine-api/game/GameTypes";
+import {
+  BuildableUnit,
+  UnitType,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import "../../../../src/client/hud/layers/BuildMenu";
 import type { BuildMenu } from "../../../../src/client/hud/layers/BuildMenu";
 

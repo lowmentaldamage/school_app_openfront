@@ -4,8 +4,8 @@
  * draw a player the same way.
  */
 
-import type { Team } from "@openfront/engine-api/game/GameTypes";
-import type { PlayerCosmetics } from "@openfront/shared/WireSchemas";
+import type { Team } from "@laukolaroser/engine-api/game/GameTypes";
+import type { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
 import { type Colord, colord } from "colord";
 import type { Theme } from "../theme/ThemeProvider";
 

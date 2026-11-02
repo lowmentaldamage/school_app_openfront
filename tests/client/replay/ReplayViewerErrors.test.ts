@@ -5,7 +5,7 @@
  * with the client-side replay offered - never an endless "Preparing".
  */
 
-import type { GameRecord } from "@openfront/shared/WireSchemas";
+import type { GameRecord } from "@laukolaroser/shared/WireSchemas";
 import type { SettingsModal } from "../../../src/client/hud/layers/SettingsModal";
 import { MapRenderer } from "../../../src/client/render/gl";
 import type {

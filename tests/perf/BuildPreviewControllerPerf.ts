@@ -1,6 +1,9 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { BuildableUnit, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import {
+  BuildableUnit,
+  UnitType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import Benchmark from "benchmark";
 // @ts-expect-error jsdom lacks bundled type declarations in this environment
 import { JSDOM } from "jsdom";

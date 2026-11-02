@@ -1,11 +1,11 @@
-import type { TileRef } from "@openfront/engine-api/game/GameMap";
-import type { TerraNullius } from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+import type { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import type { TerraNullius } from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   SnapshotError,
   SnapshotType,
   Versioned,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import type {
   Attack,
   Execution,

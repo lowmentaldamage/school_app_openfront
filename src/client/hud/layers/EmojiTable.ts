@@ -1,7 +1,7 @@
-import { AllPlayers } from "@openfront/engine-api/game/GameTypes";
-import { Emoji, flattenedEmojiTable } from "@openfront/engine-api/Schemas";
-import { TerraNulliusImpl } from "@openfront/engine-lib/game/TerraNulliusImpl";
-import { EventBus, GameEvent } from "@openfront/shared/EventBus";
+import { AllPlayers } from "@laukolaroser/engine-api/game/GameTypes";
+import { Emoji, flattenedEmojiTable } from "@laukolaroser/engine-api/Schemas";
+import { TerraNulliusImpl } from "@laukolaroser/engine-lib/game/TerraNulliusImpl";
+import { EventBus, GameEvent } from "@laukolaroser/shared/EventBus";
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import {

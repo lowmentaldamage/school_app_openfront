@@ -1,4 +1,4 @@
-import { normalizeAssetPath } from "@openfront/shared/AssetPaths";
+import { normalizeAssetPath } from "@laukolaroser/shared/AssetPaths";
 import fs from "fs/promises";
 import os from "os";
 import path from "path";
@@ -81,7 +81,7 @@ describe("PublicAssetManifest", () => {
       path.join(resourcesDir, "manifest.json"),
       JSON.stringify(
         {
-          name: "OpenFront",
+          name: "Laukolaroser",
           icons,
         },
         null,
@@ -393,6 +393,5 @@ describe("PublicAssetManifest", () => {
     expect(
       index[".well-known/apple-developer-merchantid-domain-association"],
     ).toBe("text/plain; charset=utf-8");
-    expect(index["press/"]).toBe("text/html; charset=utf-8");
   });
 });

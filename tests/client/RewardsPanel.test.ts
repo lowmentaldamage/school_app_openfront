@@ -19,7 +19,7 @@ vi.mock("../../src/client/CrazyGamesSDK", () => ({
   crazyGamesSDK: { isOnCrazyGames: vi.fn(() => false) },
 }));
 
-import type { Reward, UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { Reward, UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import {
   claimAllRewards,
   claimReward,

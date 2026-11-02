@@ -1,4 +1,4 @@
-import { isCommitLike, isSiteLike } from "@openfront/shared/ServerList";
+import { isCommitLike, isSiteLike } from "@laukolaroser/shared/ServerList";
 import type winston from "winston";
 import { z } from "zod";
 import { registeredSite } from "./ClusterCheckin";
@@ -14,7 +14,7 @@ import { ServerEnv } from "./ServerEnv";
 //
 // That offer must follow the deployment's active flag. Until OPE-469 it did
 // not: on 15 Sept 2026 blue was `draining` with v0.34.0 while every
-// openfront.io page served green's v0.34.1, and blue's workers kept checking
+// laukolaroser.com page served green's v0.34.1, and blue's workers kept checking
 // in. Players on the new build were matched into blue's games, were answered
 // `version_mismatch`, navigated to blue's page to get the matching build, and
 // arrived after the start deadline — so the match cancelled short-handed

@@ -1,4 +1,4 @@
-import { ServerMessageSchema } from "@openfront/shared/WireSchemas";
+import { ServerMessageSchema } from "@laukolaroser/shared/WireSchemas";
 import { describe, expect, it } from "vitest";
 
 // Wire message that powers reusing a private lobby for back-to-back games:

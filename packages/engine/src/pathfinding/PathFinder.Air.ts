@@ -1,5 +1,5 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import { Game } from "../game/Game";
 import { PathFinder } from "./types";
 

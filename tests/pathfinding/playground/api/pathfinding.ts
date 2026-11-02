@@ -1,7 +1,7 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { PathFinding } from "@openfront/engine/pathfinding/PathFinder";
-import { SteppingPathFinder } from "@openfront/engine/pathfinding/types";
-import { DebugSpan } from "@openfront/engine/utilities/DebugSpan";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { PathFinding } from "@laukolaroser/engine/pathfinding/PathFinder";
+import { SteppingPathFinder } from "@laukolaroser/engine/pathfinding/types";
+import { DebugSpan } from "@laukolaroser/engine/utilities/DebugSpan";
 import { getAdapter } from "../../utils.js";
 import { COMPARISON_ADAPTERS, loadMap } from "./maps.js";
 

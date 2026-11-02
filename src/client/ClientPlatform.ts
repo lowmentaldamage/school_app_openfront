@@ -1,7 +1,7 @@
 import type {
   ClientDevice,
   ClientPlatform,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { isDesktopShell } from "./DesktopShell";
 import { gamePortal } from "./GamePortal";
 import { Platform } from "./Platform";

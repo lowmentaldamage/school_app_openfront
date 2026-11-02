@@ -1,5 +1,5 @@
-import { MAX_USERNAME_LENGTH } from "@openfront/engine-api/Schemas";
-import { simpleHash } from "@openfront/engine-lib/Util";
+import { MAX_USERNAME_LENGTH } from "@laukolaroser/engine-api/Schemas";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import {
   DataSet,
   RegExpMatcher,

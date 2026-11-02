@@ -6,14 +6,14 @@
  * between ticks.
  */
 
-import type { MapFiles } from "@openfront/engine-api/game/MapFiles";
-import type { GameStartInfo, Turn } from "@openfront/engine-api/Schemas";
+import type { MapFiles } from "@laukolaroser/engine-api/game/MapFiles";
+import type { GameStartInfo, Turn } from "@laukolaroser/engine-api/Schemas";
 import type {
   MainThreadMessage,
   RunTurnsResultMessage,
   WorkerMessage,
-} from "@openfront/engine-api/worker/WorkerMessages";
-import { mapFilesTransfer } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/worker/WorkerMessages";
+import { mapFilesTransfer } from "@laukolaroser/shared/GameMapLoader";
 import type { ReplayEngine } from "./ReplayProcessor";
 
 /** How long the engine gets to build the map and start the game. */

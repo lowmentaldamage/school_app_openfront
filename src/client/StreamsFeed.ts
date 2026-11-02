@@ -1,4 +1,4 @@
-import { LiveStream, StreamsFeed } from "@openfront/shared/ApiSchemas";
+import { LiveStream, StreamsFeed } from "@laukolaroser/shared/ApiSchemas";
 import { getStreams } from "./Api";
 
 // One poller for both homepage streaming features.

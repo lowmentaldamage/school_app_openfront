@@ -1,5 +1,5 @@
-import { Game } from "@openfront/engine/game/Game";
-import { DebugSpan } from "@openfront/engine/utilities/DebugSpan";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { DebugSpan } from "@laukolaroser/engine/utilities/DebugSpan";
 import { readdirSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";

@@ -1,8 +1,17 @@
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import type { MapFiles, MapLayer } from "@openfront/engine-api/game/MapFiles";
-import { MapInfoSchema } from "@openfront/engine-api/game/MapManifest";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import type { GameMapLoader, MapData } from "@openfront/shared/GameMapLoader";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type {
+  MapFiles,
+  MapLayer,
+} from "@laukolaroser/engine-api/game/MapFiles";
+import { MapInfoSchema } from "@laukolaroser/engine-api/game/MapManifest";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import type {
+  GameMapLoader,
+  MapData,
+} from "@laukolaroser/shared/GameMapLoader";
 import { describe, expect, test, vi } from "vitest";
 import { loadLayerImages } from "../src/client/controllers/MapLayerController";
 import { GraphicsOverridesSchema } from "../src/client/render/gl/GraphicsOverrides";

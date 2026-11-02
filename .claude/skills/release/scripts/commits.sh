@@ -19,7 +19,7 @@ set -euo pipefail
 branch="${1:?usage: commits.sh <branch, e.g. v34> [since-tag] [until-ref]}"
 since="${2:-}"
 until_ref="${3:-}"
-repo="openfrontio/OpenFrontIO"
+repo="laukolaroser/Laukolaroser"
 
 if [[ ! "$branch" =~ ^v([0-9]+)$ ]]; then
     echo "error: branch must look like v34, got '$branch'" >&2

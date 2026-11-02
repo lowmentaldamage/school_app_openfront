@@ -4,15 +4,15 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { ConstructionExecution } from "@openfront/engine/execution/ConstructionExecution";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationAttackBehavior } from "@openfront/engine/execution/nation/NationAttackBehavior";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { NationWarshipBehavior } from "@openfront/engine/execution/nation/NationWarshipBehavior";
-import { TransportShipExecution } from "@openfront/engine/execution/TransportShipExecution";
-import { Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationAttackBehavior } from "@laukolaroser/engine/execution/nation/NationAttackBehavior";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { NationWarshipBehavior } from "@laukolaroser/engine/execution/nation/NationWarshipBehavior";
+import { TransportShipExecution } from "@laukolaroser/engine/execution/TransportShipExecution";
+import { Player } from "@laukolaroser/engine/game/Game";
 import { createGame, L, W } from "./core/pathfinding/_fixtures";
 
 // Synthetic seas: `ownerAt` names the player owning each land tile (null is water)

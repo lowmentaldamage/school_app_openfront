@@ -2,7 +2,7 @@ import {
   isTemporaryUsername,
   PutUsernameResponse,
   UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { updateUsername, UpdateUsernameResult } from "../Api";

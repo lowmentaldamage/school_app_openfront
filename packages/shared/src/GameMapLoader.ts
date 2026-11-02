@@ -1,5 +1,8 @@
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { MapFiles, MapManifest } from "@openfront/engine-api/game/MapFiles";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MapFiles, MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
 
 /** Where a host gets a map's files, its thumbnail and its layer images. */
 export interface GameMapLoader {

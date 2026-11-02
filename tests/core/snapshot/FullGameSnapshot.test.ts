@@ -1,9 +1,9 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { GameConfig, GameStartInfo } from "@openfront/engine-api/Schemas";
-import { Game } from "@openfront/engine/game/Game";
-import { GameRunner } from "@openfront/engine/GameRunner";
-import { EXECUTION_SNAPSHOT_TYPES } from "@openfront/engine/snapshot/ExecutionRegistry";
-import { decodeSnapshotValue } from "@openfront/engine/snapshot/SnapshotCodec";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig, GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { GameRunner } from "@laukolaroser/engine/GameRunner";
+import { EXECUTION_SNAPSHOT_TYPES } from "@laukolaroser/engine/snapshot/ExecutionRegistry";
+import { decodeSnapshotValue } from "@laukolaroser/engine/snapshot/SnapshotCodec";
 import {
   createScriptedRunner,
   restoreScriptedRunner,

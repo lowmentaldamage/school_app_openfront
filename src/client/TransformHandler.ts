@@ -1,5 +1,5 @@
-import { Cell } from "@openfront/engine-api/game/GameTypes";
-import { EventBus, GameEvent } from "@openfront/shared/EventBus";
+import { Cell } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus, GameEvent } from "@laukolaroser/shared/EventBus";
 import {
   CenterCameraEvent,
   DragEvent,

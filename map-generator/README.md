@@ -1,12 +1,12 @@
 # MapGenerator
 
-This is a go-based tool to generate map files for OpenFront.
+This is a go-based tool to generate map files for Laukolaroser.
 
 The map generator reads PNG files and converts pixels into terrain based primarily on the **Blue** channel.
 Because only blue values are used, grayscale and other formats are fully supported. Many maps in `assets/maps/<mapname>` are grayscale.
 
 Additional Guides, Tutorials, Scripts, Resources, and Third Party Unofficial Applications can be found on
-the [Official Openfront Wiki](https://openfront.wiki/Map_Making)
+the [Official Laukolaroser Wiki](https://laukolaroser.wiki/Map_Making)
 
 ## Installation
 

@@ -2,7 +2,7 @@ import {
   Difficulty,
   GameMapType,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import {

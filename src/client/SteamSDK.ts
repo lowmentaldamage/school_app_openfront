@@ -1,4 +1,4 @@
-// Mirrors SteamTicketResult in openfront-desktop's src/main/steam.ts. The two
+// Mirrors SteamTicketResult in laukolaroser-desktop's src/main/steam.ts. The two
 // repositories cannot import from each other, so this is a hand-kept copy; if
 // you change one, change the other.
 export type SteamTicketFailure =
@@ -23,12 +23,12 @@ interface SteamBridge {
   getUser(): Promise<{ steamId: string; name: string } | null>;
 }
 
-// window.openfrontDesktop is declared `unknown` by DesktopShell.ts (kept loose
+// window.laukolaroserDesktop is declared `unknown` by DesktopShell.ts (kept loose
 // there on purpose). We know the shape the Electron preload exposes, so narrow
 // it locally rather than re-declaring the global (a second `declare global`
 // with a different type triggers TS2717).
 function steamBridge(): SteamBridge | undefined {
-  const desktop = window.openfrontDesktop as
+  const desktop = window.laukolaroserDesktop as
     | { steam?: SteamBridge }
     | undefined;
   return desktop?.steam;

@@ -1,5 +1,5 @@
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { Cosmetics } from "@openfront/shared/CosmeticSchemas";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { Cosmetics } from "@laukolaroser/shared/CosmeticSchemas";
 import { html, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { renderFreePlayPerks } from "./components/FreePlayPerks";

@@ -1,5 +1,5 @@
-import { MessageType, PlayerID } from "@openfront/engine-api/game/GameTypes";
-import { zPlayerRef } from "@openfront/engine-lib/snapshot/SnapshotType";
+import { MessageType, PlayerID } from "@laukolaroser/engine-api/game/GameTypes";
+import { zPlayerRef } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player } from "../../game/Game";
 import { execSnapshotType } from "../../snapshot/ExecutionSnapshot";

@@ -19,16 +19,16 @@
 @theme {
   --default-ring-width: 3px;
   --default-ring-color: var(--color-malibu-blue);
-  --font-display: "OpenFront", Inter, Arial, sans-serif;
+  --font-display: "Laukolaroser", Inter, Arial, sans-serif;
 
-  /* Openfront.io brand palette — see Openfront_Brand_Guidelines.pdf §4 */
+  /* Laukolaroser.io brand palette — see Laukolaroser_Brand_Guidelines.pdf §4 */
   --color-malibu-blue: #0084d1;
   --color-aquarius: #3fa9f5;
   --color-dawn-blue: #cccccc;
   --color-bright-white: #ffffff;
   --color-bright-blue: #1e90ff;
 
-  /* Openfront Masters sub-brand */
+  /* Laukolaroser Masters sub-brand */
   --color-cyber-yellow: #ffd700;
   --color-limestone: #999999;
 

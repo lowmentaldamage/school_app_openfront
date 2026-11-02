@@ -45,7 +45,7 @@ describe("clearLocalSession", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.dev",
+      jwtAudience: "laukolaroser.dev",
       instanceId: "desktop",
       gitCommit: "test",
     };

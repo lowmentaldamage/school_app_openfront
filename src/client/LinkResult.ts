@@ -49,7 +49,7 @@ const LINK_RESULT_KEYS: Record<string, string> = {
  * The one link outcome that is a QUESTION rather than a verdict.
  *
  * `steam_has_progress` means the Steam account is already attached to an
- * OpenFront account that holds it and nothing else — the account the desktop
+ * Laukolaroser account that holds it and nothing else — the account the desktop
  * login creates for a player who launched on Steam before ever linking. Until
  * now that was a dead end a player could only escape by asking support to
  * delete the account for them; the server may now offer to do exactly that,

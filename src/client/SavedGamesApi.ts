@@ -2,7 +2,7 @@ import {
   type SavedGame,
   SavedGameSchema,
   SavedGamesListResponseSchema,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { getApiBase } from "./Api";
 import { getAuthHeader } from "./Auth";
 

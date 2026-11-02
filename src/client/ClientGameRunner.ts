@@ -1,23 +1,23 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   BuildableUnit,
   PlayerType,
   Structures,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateType,
   GameUpdateViewData,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { ClientID, GameID } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { TerrainMapData } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { findClosestBy } from "@openfront/engine-lib/Util";
-import { EventBus } from "@openfront/shared/EventBus";
-import { GameMapLoader } from "@openfront/shared/GameMapLoader";
-import { replacer } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { ClientID, GameID } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { findClosestBy } from "@laukolaroser/engine-lib/Util";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import { GameMapLoader } from "@laukolaroser/shared/GameMapLoader";
+import { replacer } from "@laukolaroser/shared/SharedUtil";
 import {
   GameRecord,
   GroupTokenEvent,
@@ -25,7 +25,7 @@ import {
   PlayerCosmeticRefs,
   ServerMessage,
   WireGameStartInfo,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { ClientEnv } from "../client/ClientEnv";
 import { reloadForUpdate, translateText } from "../client/Utils";
 import { MapLayerController } from "./controllers/MapLayerController";
@@ -730,7 +730,8 @@ async function createWorld3DView(
       paletteSize: PALETTE_SIZE,
     });
     console.log(
-      `[World3D] ready: ${w}x${h} map in ${Math.round(performance.now() - t0)}ms`,
+      `[World3D] ready: ${w}x${h} map in ${Math.round(performance.now() - t0)}ms ` +
+        `(${view.world.profile.mobile ? "mobile" : "desktop"}, ${view.world.qualityName()})`,
     );
     return view;
   } catch (e) {

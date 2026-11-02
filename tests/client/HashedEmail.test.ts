@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   HEM_STORAGE_KEY,

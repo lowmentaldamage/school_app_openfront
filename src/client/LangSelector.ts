@@ -1,4 +1,4 @@
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { desktopSteamLocale } from "./DesktopShell";
@@ -295,8 +295,6 @@ export class LangSelector extends LitElement {
       "effects-grid",
       "token-login",
       "tribes-panel",
-      "steam-wishlist",
-      "steam-wishlist-button",
       "streaming-now",
       "tutorial-panel",
     ];

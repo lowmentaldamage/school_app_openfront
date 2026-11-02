@@ -6,12 +6,12 @@ import {
   PlayerType,
   Quads,
   Trios,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   adjustForTeams,
   assignTeams,
   resolveTeamsList,
-} from "@openfront/engine-lib/game/TeamAssignment";
+} from "@laukolaroser/engine-lib/game/TeamAssignment";
 
 const teams = [ColoredTeams.Red, ColoredTeams.Blue];
 

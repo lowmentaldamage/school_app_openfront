@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock the 'maps' array from '@openfront/engine-api/game/GameTypes' to ensure consistent test results
+// Mock the 'maps' array from '@laukolaroser/engine-api/game/GameTypes' to ensure consistent test results
 // for normaliseMapKey without relying on actual game data.
-vi.mock("@openfront/engine-api/game/GameTypes", async (importOriginal) => {
+vi.mock("@laukolaroser/engine-api/game/GameTypes", async (importOriginal) => {
   const actual =
     await importOriginal<
-      typeof import("@openfront/engine-api/game/GameTypes")
+      typeof import("@laukolaroser/engine-api/game/GameTypes")
     >();
   return {
     ...actual,
@@ -19,7 +19,7 @@ vi.mock("@openfront/engine-api/game/GameTypes", async (importOriginal) => {
   };
 });
 
-import { renderTroops } from "@openfront/engine-lib/Format";
+import { renderTroops } from "@laukolaroser/engine-lib/Format";
 import { LangSelector } from "../src/client/LangSelector";
 import {
   formatKeyForDisplay,

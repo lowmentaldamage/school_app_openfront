@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { responseHasLinkedIdentity } from "./AccountIdentity";
 import { getApiBase } from "./Api";
 import { getAuthHeader, logOut } from "./Auth";
@@ -246,7 +246,7 @@ export async function fetchSteamLinkTicket(
 }
 
 /**
- * The account a `steam_has_progress` refusal is about: the OpenFront account
+ * The account a `steam_has_progress` refusal is about: the Laukolaroser account
  * that already holds this Steam id and holds nothing else — the one the
  * desktop login creates for a player who launched on Steam before linking.
  *

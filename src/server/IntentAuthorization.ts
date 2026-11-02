@@ -1,5 +1,5 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { ClientID, Intent } from "@openfront/engine-api/Schemas";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { ClientID, Intent } from "@laukolaroser/engine-api/Schemas";
 import { hostCheatsEnabled } from "./ConfigPatch";
 
 export interface IntentActor {

@@ -12,7 +12,7 @@ vi.mock("../../src/client/Payments", () => ({
   createInlinePaymentIntent: vi.fn(),
 }));
 
-import { GameEnv } from "@openfront/shared/configuration/Env";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
 import { ClientEnv } from "../../src/client/ClientEnv";
 import { paymentsProvider } from "../../src/client/Payments";
 import {

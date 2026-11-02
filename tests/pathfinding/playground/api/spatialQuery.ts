@@ -1,7 +1,7 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { PathFinding } from "@openfront/engine/pathfinding/PathFinder";
-import { SpatialQuery } from "@openfront/engine/pathfinding/spatial/SpatialQuery";
-import { DebugSpan } from "@openfront/engine/utilities/DebugSpan";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { PathFinding } from "@laukolaroser/engine/pathfinding/PathFinder";
+import { SpatialQuery } from "@laukolaroser/engine/pathfinding/spatial/SpatialQuery";
+import { DebugSpan } from "@laukolaroser/engine/utilities/DebugSpan";
 import { loadMap } from "./maps.js";
 
 export interface SpatialQueryResult {

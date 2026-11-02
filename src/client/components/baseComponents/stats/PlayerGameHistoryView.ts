@@ -1,10 +1,10 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   type PlayerGameModeFilter,
   type PlayerGameTypeFilter,
   type PublicPlayerGame,
-} from "@openfront/shared/ApiSchemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+} from "@laukolaroser/shared/ApiSchemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import {
   html,
   LitElement,
@@ -267,7 +267,7 @@ export class PlayerGameHistoryView extends LitElement {
 
   private async copyGameLink(gameId: string) {
     // shareOrigin(), not window.location.origin: this is copied to be sent to
-    // someone else, and the desktop shell's own origin (`app://openfront`)
+    // someone else, and the desktop shell's own origin (`app://laukolaroser`)
     // resolves nowhere outside that Electron app. See deriveShareOrigin.
     const url = `${ClientEnv.shareOrigin()}${ClientEnv.gamePath(gameId)}`;
 

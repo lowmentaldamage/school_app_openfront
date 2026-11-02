@@ -1,15 +1,15 @@
-import { GameStartInfoSchema } from "@openfront/engine-api/Schemas";
+import { GameStartInfoSchema } from "@laukolaroser/engine-api/Schemas";
 import {
   createPartialGameRecord,
   replacer,
-} from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/shared/SharedUtil";
 import {
   ArchivedAnalyticsRecordSchema,
   GameEndInfoSchema,
   GameRecordSchema,
   PartialGameRecordSchema,
   PlayerRecord,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { describe, expect, it } from "vitest";
 import { testGameConfig } from "./util/Wire";
 

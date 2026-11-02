@@ -3,20 +3,20 @@ import {
   GameMapSize,
   GameMapType,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameID } from "@openfront/engine-api/Schemas";
-import type { Game } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
+import type { Game } from "@laukolaroser/engine/game/Game";
 import { vi } from "vitest";
 import { setup } from "../../util/Setup";
 
 const mockResolveTribeNameData = vi.fn();
 
-vi.mock("@openfront/engine-lib/execution/utils/TribeNames", () => ({
+vi.mock("@laukolaroser/engine-lib/execution/utils/TribeNames", () => ({
   resolveTribeNameData: (...args: unknown[]) =>
     mockResolveTribeNameData(...args),
 }));
 
-import { TribeSpawner } from "@openfront/engine/execution/TribeSpawner";
+import { TribeSpawner } from "@laukolaroser/engine/execution/TribeSpawner";
 
 const GAME_ID: GameID = "test_game_id";
 

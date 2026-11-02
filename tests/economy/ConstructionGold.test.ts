@@ -2,10 +2,10 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { ConstructionExecution } from "@openfront/engine/execution/ConstructionExecution";
-import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
+import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "../util/Setup";
 
 describe("Construction economy", () => {

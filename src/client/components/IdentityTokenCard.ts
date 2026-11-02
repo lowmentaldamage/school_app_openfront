@@ -7,7 +7,7 @@ import { styledSelect } from "./ui/StyledSelect";
 
 /**
  * "Link to a third-party site": mints a short-lived identity token the player
- * pastes into a third-party site (e.g. ofstats.io) to prove which OpenFront
+ * pastes into a third-party site (e.g. ofstats.io) to prove which Laukolaroser
  * account they own. The site list is admin-managed on the API; with no sites
  * (or when it can't be loaded) the card renders nothing. The token only works
  * on the selected site, expires after 10 minutes, and is held in memory only —

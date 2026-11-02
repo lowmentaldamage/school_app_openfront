@@ -10,7 +10,7 @@
  * The shared playerDataTex is passed in but not owned/deleted.
  */
 
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import statusAtlasMeta from "resources/atlases/status-atlas-meta.json";
 import type { RenderSettings } from "../../RenderSettings";
 import statusFragSrc from "../../shaders/name/status-icon.frag.glsl?raw";

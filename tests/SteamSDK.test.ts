@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { steamSDK } from "../src/client/SteamSDK";
 
 beforeEach(() => {
-  delete (window as any).openfrontDesktop;
+  delete (window as any).laukolaroserDesktop;
 });
 
 describe("SteamSDK", () => {
@@ -11,7 +11,7 @@ describe("SteamSDK", () => {
     expect(steamSDK.isOnSteam()).toBe(false);
   });
   it("isOnSteam true and passes through ticket/user with the bridge", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi
           .fn()
@@ -27,7 +27,7 @@ describe("SteamSDK", () => {
     expect(await steamSDK.getUser()).toEqual({ steamId: "77", name: "Ada" });
   });
   it("getTicket degrades to a generic error when bridge rejects", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockRejectedValue(new Error("boom")),
         getUser: vi.fn(),
@@ -39,7 +39,7 @@ describe("SteamSDK", () => {
     });
   });
   it("getUser degrades to null when bridge rejects", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn(),
         getUser: vi.fn().mockRejectedValue(new Error("boom")),
@@ -53,7 +53,7 @@ describe("SteamSDK", () => {
   // successful sign-in against that shell must not be read as a failure
   // (result.ok undefined), and null must not throw.
   it("normalises a legacy string ticket into a successful result", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockResolvedValue("deadbeef"),
         getUser: vi.fn(),
@@ -66,7 +66,7 @@ describe("SteamSDK", () => {
   });
 
   it("normalises a legacy null ticket into steam-unavailable without throwing", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockResolvedValue(null),
         getUser: vi.fn(),
@@ -85,7 +85,7 @@ describe("SteamSDK", () => {
     ["a non-string ticket", { ok: true, ticket: 1234 }],
     ["an empty ticket", { ok: true, ticket: "" }],
   ])("rejects a malformed success object with %s", async (_label, shape) => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockResolvedValue(shape),
         getUser: vi.fn(),
@@ -101,7 +101,7 @@ describe("SteamSDK", () => {
   it("times out rather than hanging when the bridge never settles", async () => {
     vi.useFakeTimers();
     try {
-      (window as any).openfrontDesktop = {
+      (window as any).laukolaroserDesktop = {
         steam: {
           getAuthTicket: vi.fn().mockReturnValue(new Promise(() => {})),
           getUser: vi.fn(),

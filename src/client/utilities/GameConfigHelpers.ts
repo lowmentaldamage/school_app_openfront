@@ -2,8 +2,8 @@ import {
   GameMapType,
   listedMaps,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 
 /**
  * Maps a slider value (0-400) to the nations config value.

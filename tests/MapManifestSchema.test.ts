@@ -1,7 +1,7 @@
 import {
   MapInfoSchema,
   MapManifestSchema,
-} from "@openfront/engine-api/game/MapManifest";
+} from "@laukolaroser/engine-api/game/MapManifest";
 import fs from "fs";
 import path from "path";
 import { describe, expect, test } from "vitest";

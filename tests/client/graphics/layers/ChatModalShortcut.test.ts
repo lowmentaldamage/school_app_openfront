@@ -1,4 +1,4 @@
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   ShowPlayerChatEvent,

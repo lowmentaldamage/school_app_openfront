@@ -6,7 +6,7 @@
 // 2. Adversarial decode: random bytes and bit-mutated valid payloads must
 //    either decode cleanly or throw ZbDecodeError/ZodError — never anything
 //    else, never hang, never crash.
-import { zb, ZbDecodeError } from "@openfront/zbin";
+import { zb, ZbDecodeError } from "@laukolaroser/zbin";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 

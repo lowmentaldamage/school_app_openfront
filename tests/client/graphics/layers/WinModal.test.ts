@@ -1,5 +1,5 @@
-import { RankedType } from "@openfront/engine-api/game/GameTypes";
-import { GAME_ID_REGEX } from "@openfront/engine-api/Schemas";
+import { RankedType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GAME_ID_REGEX } from "@laukolaroser/engine-api/Schemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PurchaseButton } from "../../../../src/client/components/PurchaseButton";
 import {
@@ -236,13 +236,13 @@ describe("WinModal pattern promotion", () => {
     expect(await render()).toContain("win_modal.territory_pattern");
     modal?.remove();
 
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     try {
       const text = await render();
-      expect(text).toContain("win_modal.support_openfront");
+      expect(text).toContain("win_modal.support_laukolaroser");
       expect(text).not.toContain("win_modal.territory_pattern");
     } finally {
-      delete window.openfrontDesktop;
+      delete window.laukolaroserDesktop;
     }
   });
 
@@ -269,7 +269,7 @@ describe("WinModal share button", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "d",
       gitCommit: "t",
       ...overrides,
@@ -278,8 +278,10 @@ describe("WinModal share button", () => {
   }
 
   beforeEach(() => {
-    vi.spyOn(ClientEnv, "shareOrigin").mockReturnValue("https://openfront.io");
-    setBootstrapConfig({ serverHost: "openfront.io" });
+    vi.spyOn(ClientEnv, "shareOrigin").mockReturnValue(
+      "https://laukolaroser.com",
+    );
+    setBootstrapConfig({ serverHost: "laukolaroser.com" });
     vi.stubGlobal(
       "ResizeObserver",
       class {
@@ -388,8 +390,8 @@ describe("WinModal share button", () => {
   it("uses share origin from desktop shell instead of app://", async () => {
     const shareOriginSpy = vi
       .spyOn(ClientEnv, "shareOrigin")
-      .mockReturnValue("https://openfront.io");
-    setBootstrapConfig({ serverHost: "openfront.io" });
+      .mockReturnValue("https://laukolaroser.com");
+    setBootstrapConfig({ serverHost: "laukolaroser.com" });
 
     const gameId = "desk456789";
     expect(GAME_ID_REGEX.test(gameId)).toBe(true);
@@ -405,7 +407,9 @@ describe("WinModal share button", () => {
     expect(shareOriginSpy).toHaveBeenCalled();
     expect(copyToClipboardMock).toHaveBeenCalledTimes(1);
     const copiedUrl = copyToClipboardMock.mock.calls[0][0];
-    expect(copiedUrl).toBe(`https://openfront.io${ClientEnv.gamePath(gameId)}`);
+    expect(copiedUrl).toBe(
+      `https://laukolaroser.com${ClientEnv.gamePath(gameId)}`,
+    );
     expect(copiedUrl).not.toContain("app:");
     expect(showToastMock).toHaveBeenCalledWith("Copied!", "green");
 

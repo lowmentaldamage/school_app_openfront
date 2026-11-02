@@ -2,7 +2,7 @@ import {
   type AssetManifest,
   encodeAssetPath,
   normalizeAssetPath,
-} from "@openfront/shared/AssetPaths";
+} from "@laukolaroser/shared/AssetPaths";
 import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";

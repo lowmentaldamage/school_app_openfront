@@ -3,8 +3,11 @@
  * nothing itself, and a failed start doesn't leave the worker running.
  */
 
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import type { GameStartInfo } from "@openfront/engine-api/Schemas";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
 import {
   readSnapshotHeader,
   WorkerClient,
@@ -18,7 +21,7 @@ const worker = vi.hoisted(() => ({
 }));
 const mapFiles = vi.hoisted(() => ({ fail: false }));
 
-vi.mock("@openfront/engine/worker/Worker.worker?worker&inline", () => ({
+vi.mock("@laukolaroser/engine/worker/Worker.worker?worker&inline", () => ({
   default: class {
     addEventListener(type: string, l: (e: any) => void) {
       if (type === "error") worker.errorListeners.push(l);

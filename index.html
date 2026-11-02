@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title data-i18n="main.title">OpenFront (ALPHA)</title>
+    <title data-i18n="main.title">Laukolaroser (ALPHA)</title>
     <link rel="manifest" href="<%- manifestHref %>" />
     <link rel="icon" type="image/svg+xml" href="<%- faviconHref %>" />
 
@@ -135,15 +135,15 @@
     </style>
 
     <!-- SEO -->
-    <link rel="canonical" href="https://openfront.io/" />
+    <link rel="canonical" href="https://laukolaroser.com/" />
     <meta
       name="description"
       content="Conquer the world in this multiplayer battle royale! Expand your nation, eliminate opponents, and dominate the map in this fast-paced IO game."
     />
 
     <!-- Open Graph -->
-    <meta property="og:url" content="https://openfront.io/" />
-    <meta property="og:title" content="OpenFront - Battle Royale" />
+    <meta property="og:url" content="https://laukolaroser.com/" />
+    <meta property="og:title" content="Laukolaroser - Battle Royale" />
     <meta
       property="og:description"
       content="Conquer the world in this multiplayer battle royale! Expand your nation, eliminate opponents, and dominate the map in this fast-paced IO game."
@@ -156,9 +156,9 @@
       {
         "@context": "https://schema.org",
         "@type": "VideoGame",
-        "name": "OpenFront",
-        "alternateName": "OpenFront.io",
-        "url": "https://openfront.io/",
+        "name": "Laukolaroser",
+        "alternateName": "Laukolaroser",
+        "url": "https://laukolaroser.com/",
         "description": "Conquer the world in this multiplayer battle royale! Expand your nation, eliminate opponents, and dominate the map in this fast-paced IO game.",
         "applicationCategory": "Game",
         "operatingSystem": "Any",
@@ -167,11 +167,7 @@
         "playMode": "MultiPlayer",
         "inLanguage": "en",
         "isAccessibleForFree": true,
-        "sameAs": [
-          "https://github.com/openfrontio/OpenFrontIO",
-          "https://discord.gg/openfront",
-          "https://www.reddit.com/r/OpenFront/"
-        ]
+        "sameAs": ["https://github.com/lowmentaldamage/school_app_openfront"]
       }
     </script>
 
@@ -186,7 +182,7 @@
       (v2)"); a game server supplies them all and gets exactly the page it
       always served.
 
-      Never add a placeholder the Steam shell does not supply: openfront-desktop
+      Never add a placeholder the Steam shell does not supply: laukolaroser-desktop
       renders this same template itself and a missing local is a ReferenceError,
       i.e. a blank window. Guarding an existing one is safe — the shell supplies
       a value and the line still emits.
@@ -201,10 +197,10 @@
         jwtAudience: <%- jwtAudience %>,<%- typeof stripePublishableKey !== "undefined" && stripePublishableKey ? "\n        stripePublishableKey: " + stripePublishableKey + "," : "" %><%- typeof faroCollectorUrl !== "undefined" && faroCollectorUrl ? "\n        faroCollectorUrl: " + faroCollectorUrl + "," : "" %><%- typeof instanceId !== "undefined" && instanceId ? "\n        instanceId: " + instanceId + "," : "" %><%- typeof serverHost !== "undefined" && serverHost ? "\n        serverHost: " + serverHost + "," : "" %><%- typeof siteHost !== "undefined" && siteHost ? "\n        siteHost: " + siteHost + "," : "" %>
       };
       // Set here rather than from the bundle so the first paint already has the
-      // desktop layout. The shell's preload defines openfrontDesktop before
+      // desktop layout. The shell's preload defines laukolaroserDesktop before
       // any page script runs. ?desktop-layout previews it outside prod.
       if (
-        window.openfrontDesktop ||
+        window.laukolaroserDesktop ||
         (window.BOOTSTRAP_CONFIG.gameEnv !== "prod" &&
           new URLSearchParams(location.search).has("desktop-layout"))
       ) {
@@ -285,7 +281,7 @@
     <script>
       window.googletag = window.googletag || { cmd: [] };
       googletag.cmd.push(function () {
-        googletag.pubads().set("page_url", "http://openfront.io ");
+        googletag.pubads().set("page_url", "http://laukolaroser.com ");
       });
     </script>
 

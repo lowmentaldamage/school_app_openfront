@@ -3,7 +3,7 @@ import {
   PublicGameInfo,
   PublicGames,
   PublicGameType,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ClientEnv } from "../src/client/ClientEnv";
 import { PublicLobbySocket } from "../src/client/LobbySocket";
@@ -40,7 +40,7 @@ vi.mock("../src/client/ServerList", async (importOriginal) => {
 // What a dropped or refused socket delivers: the arguments handleClose
 // receives from the socket's close listener.
 const ABNORMAL_CLOSE = [
-  "wss://blue.openfront.io/w0/lobbies",
+  "wss://blue.laukolaroser.com/w0/lobbies",
   { code: 1006, reason: "", wasClean: false } as CloseEvent,
   null,
 ] as const;
@@ -257,10 +257,10 @@ describe("PublicLobbySocket.start when this build is outdated", () => {
       gameEnv: "prod",
       numWorkers: 2,
       turnstileSiteKey: "k",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "5ccc50a722222222222222222222222222222222",
-      serverHost: "blue.openfront.io",
+      serverHost: "blue.laukolaroser.com",
     };
   });
 
@@ -438,7 +438,7 @@ describe("PublicLobbySocket.start when this build is outdated", () => {
     (socket as any).handleClose(...ABNORMAL_CLOSE);
 
     expect(warn).toHaveBeenCalledWith(
-      "Lobby socket blue.openfront.io/w0/lobbies closed (1006, no close frame) " +
+      "Lobby socket blue.laukolaroser.com/w0/lobbies closed (1006, no close frame) " +
         "before it opened; attempt 1/3, reconnecting",
     );
     socket.stop();
@@ -459,7 +459,7 @@ describe("PublicLobbySocket.start when this build is outdated", () => {
     expect(warn).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledWith(
       expect.stringContaining(
-        "Lobby socket blue.openfront.io/w0/lobbies closed (1000)",
+        "Lobby socket blue.laukolaroser.com/w0/lobbies closed (1000)",
       ),
     );
     socket.stop();
@@ -653,7 +653,7 @@ const LIST = {
   latest: OWN,
   servers: {
     d: {
-      host: "falk2-b.openfront.io",
+      host: "falk2-b.laukolaroser.com",
       numWorkers: 8,
       version: OWN,
       state: "open" as const,
@@ -676,7 +676,7 @@ describe("PublicLobbySocket.start with no server known", () => {
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       turnstileSiteKey: "k",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       gitCommit: OWN,
     };
   });
@@ -729,7 +729,7 @@ describe("PublicLobbySocket.start with no server known", () => {
 
       expect(urls).toHaveLength(1);
       expect(urls[0]).toMatch(
-        /^wss:\/\/falk2-b\.openfront\.io\/w\d+\/lobbies\?platform=web$/,
+        /^wss:\/\/falk2-b\.laukolaroser\.com\/w\d+\/lobbies\?platform=web$/,
       );
       expect(mocks.showInGameAlert).not.toHaveBeenCalled();
     } finally {
@@ -775,10 +775,10 @@ describe("PublicLobbySocket.start with no server known", () => {
 // OPE-430, end to end through the real server list: the one flow that
 // prompts, on the kind of page that must never be prompted.
 //
-// Live on main.openfront.dev, where the page is still rendered by a game
+// Live on main.laukolaroser.dev, where the page is still rendered by a game
 // server: a deploy failed to register the new build in the API's registry,
 // so the list carried no server on the page's build and a `latest` that was
-// a different commit. This socket raised "a new version of OpenFront is
+// a different commit. This socket raised "a new version of Laukolaroser is
 // available", the reload re-fetched the same page from the same server, and
 // it prompted again — forever.
 describe("PublicLobbySocket.start on a page its own game server rendered", () => {
@@ -789,7 +789,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
     latest: OWN,
     servers: {
       d: {
-        host: "falk2-b.openfront.io",
+        host: "falk2-b.laukolaroser.com",
         numWorkers: 8,
         version: OWN,
         state: "open" as const,
@@ -814,7 +814,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       turnstileSiteKey: "k",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       gitCommit: OLD,
       ...extra,
     };
@@ -858,11 +858,11 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
       // Prod's shape: a sibling in the map is what makes the site host an
       // apex a reload can land elsewhere through (reloadCanLandElsewhere).
       cluster: {
-        a: { host: "blue.openfront.io", numWorkers: 2 },
-        b: { host: "green.openfront.io", numWorkers: 2 },
+        a: { host: "blue.laukolaroser.com", numWorkers: 2 },
+        b: { host: "green.laukolaroser.com", numWorkers: 2 },
       },
       instanceLetter: "a",
-      serverHost: "blue.openfront.io",
+      serverHost: "blue.laukolaroser.com",
     });
     const onUpdateAvailable = vi.fn();
     const socket = new PublicLobbySocket(vi.fn(), { onUpdateAvailable });
@@ -872,7 +872,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
     expect(onUpdateAvailable).not.toHaveBeenCalled();
     // And the lobby list still connects, on the page's own server.
     expect((socket as any).ws.url).toMatch(
-      /^wss:\/\/blue\.openfront\.io\/w\d+\/lobbies\?platform=web$/,
+      /^wss:\/\/blue\.laukolaroser\.com\/w\d+\/lobbies\?platform=web$/,
     );
     socket.stop();
   });
@@ -883,18 +883,18 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
   // from a live deployment. So the newer version IS news now.
   it("prompts once its socket has given up, though the same list said fallback", async () => {
     // Prod's shape: the page is served behind the apex, so reloadForUpdate
-    // re-enters through openfront.io and the load balancer answers from a
+    // re-enters through laukolaroser.com and the load balancer answers from a
     // live deployment — the reload cannot come back to this dead host.
     bootstrap({
       // Prod's shape: a sibling in the map is what makes the site host an
       // apex a reload can land elsewhere through (reloadCanLandElsewhere).
       cluster: {
-        a: { host: "blue.openfront.io", numWorkers: 2 },
-        b: { host: "green.openfront.io", numWorkers: 2 },
+        a: { host: "blue.laukolaroser.com", numWorkers: 2 },
+        b: { host: "green.laukolaroser.com", numWorkers: 2 },
       },
       instanceLetter: "a",
-      serverHost: "blue.openfront.io",
-      siteHost: "openfront.io",
+      serverHost: "blue.laukolaroser.com",
+      siteHost: "laukolaroser.com",
     });
     const onUpdateAvailable = vi.fn();
     const socket = new PublicLobbySocket(vi.fn(), {
@@ -926,7 +926,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
             latest: OWN,
             servers: {
               a: {
-                host: "blue.openfront.io",
+                host: "blue.laukolaroser.com",
                 numWorkers: 2,
                 version: OLD,
                 state: "open" as const,
@@ -939,12 +939,12 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
     bootstrap({
       gitCommit: OWN,
       cluster: {
-        a: { host: "blue.openfront.io", numWorkers: 2 },
-        b: { host: "green.openfront.io", numWorkers: 2 },
+        a: { host: "blue.laukolaroser.com", numWorkers: 2 },
+        b: { host: "green.laukolaroser.com", numWorkers: 2 },
       },
       instanceLetter: "a",
-      serverHost: "blue.openfront.io",
-      siteHost: "openfront.io",
+      serverHost: "blue.laukolaroser.com",
+      siteHost: "laukolaroser.com",
     });
     const onUpdateAvailable = vi.fn();
     const socket = new PublicLobbySocket(vi.fn(), {
@@ -955,7 +955,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
     await socket.start();
     expect(onUpdateAvailable).not.toHaveBeenCalled();
     expect((socket as any).ws.url).toMatch(
-      /^wss:\/\/blue\.openfront\.io\/w\d+\/lobbies\?platform=web$/,
+      /^wss:\/\/blue\.laukolaroser\.com\/w\d+\/lobbies\?platform=web$/,
     );
 
     // And not after the socket gives up either: there is no newer build.
@@ -966,7 +966,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
     socket.stop();
   });
 
-  // A standalone deployment (dev's main.openfront.dev today, previews,
+  // A standalone deployment (dev's main.laukolaroser.dev today, previews,
   // beta) has nowhere else for a reload to go: its site's list names only
   // its own server, and Traefik routes its page host and its game host to
   // the same container. So even a socket that has given up raises nothing —
@@ -980,7 +980,7 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
             latest: OWN,
             servers: {
               a: {
-                host: "main.server.openfront.dev",
+                host: "main.server.laukolaroser.dev",
                 numWorkers: 2,
                 version: OWN,
                 state: "open" as const,
@@ -991,10 +991,10 @@ describe("PublicLobbySocket.start on a page its own game server rendered", () =>
         ),
     );
     bootstrap({
-      cluster: { a: { host: "main.server.openfront.dev", numWorkers: 2 } },
+      cluster: { a: { host: "main.server.laukolaroser.dev", numWorkers: 2 } },
       instanceLetter: "a",
-      serverHost: "main.server.openfront.dev",
-      siteHost: "main.openfront.dev",
+      serverHost: "main.server.laukolaroser.dev",
+      siteHost: "main.laukolaroser.dev",
     });
     const onUpdateAvailable = vi.fn();
     const socket = new PublicLobbySocket(vi.fn(), {
@@ -1054,13 +1054,13 @@ describe("PublicLobbySocket.start on a replay shell host", () => {
     mocks.refreshServerList.mockReset();
     mocks.refreshServerList.mockResolvedValue("api");
     vi.stubGlobal("WebSocket", RecordingWebSocket);
-    vi.stubGlobal("location", { hostname: "replay.openfront.io" });
+    vi.stubGlobal("location", { hostname: "replay.laukolaroser.com" });
     ClientEnv.reset();
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       numWorkers: 2,
       turnstileSiteKey: "k",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "5ccc50a722222222222222222222222222222222",
     };
@@ -1093,8 +1093,8 @@ describe("PublicLobbySocket.start on a replay shell host", () => {
   });
 
   it("still opens the feed on the game's own origin", async () => {
-    vi.stubGlobal("location", { hostname: "openfront.io" });
-    (window as any).BOOTSTRAP_CONFIG.serverHost = "blue.openfront.io";
+    vi.stubGlobal("location", { hostname: "laukolaroser.com" });
+    (window as any).BOOTSTRAP_CONFIG.serverHost = "blue.laukolaroser.com";
     const socket = new PublicLobbySocket(vi.fn(), {});
 
     await socket.start();

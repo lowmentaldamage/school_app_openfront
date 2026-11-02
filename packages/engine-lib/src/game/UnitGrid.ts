@@ -1,6 +1,9 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
-import { PlayerID, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { UnitLike, UnitPredicate } from "@openfront/engine-api/game/ReadViews";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { PlayerID, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import {
+  UnitLike,
+  UnitPredicate,
+} from "@laukolaroser/engine-api/game/ReadViews";
 
 export class UnitGrid<U extends UnitLike = UnitLike> {
   private grid: Map<UnitType, Set<U>>[][];

@@ -11,7 +11,7 @@ import {
   ClanJoinRequestSchema,
   ClanMemberSchema,
   ClanMembersResponseSchema,
-} from "@openfront/shared/ClanApiSchemas";
+} from "@laukolaroser/shared/ClanApiSchemas";
 import { describe, expect, it } from "vitest";
 
 describe("ClanInfoSchema", () => {

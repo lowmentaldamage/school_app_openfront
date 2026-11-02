@@ -1,5 +1,5 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { GameStartInfo } from "@openfront/engine-api/Schemas";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
 import { Client } from "../../src/server/Client";
 import { GameServer } from "../../src/server/GameServer";
 import { NameVisibility } from "../../src/server/NameVisibility";

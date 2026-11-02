@@ -1,8 +1,8 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { ClientID, GameConfig } from "@openfront/engine-api/Schemas";
-import { simpleHash } from "@openfront/engine-lib/Util";
-import { anonWordName } from "@openfront/shared/AnonNames";
-import { GameInfo, WireGameStartInfo } from "@openfront/shared/WireSchemas";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { ClientID, GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
+import { anonWordName } from "@laukolaroser/shared/AnonNames";
+import { GameInfo, WireGameStartInfo } from "@laukolaroser/shared/WireSchemas";
 import { Client } from "./Client";
 
 // Who may see whose real identity, and what each viewer is shown instead.

@@ -1,14 +1,18 @@
-import { GameMode, GameType, maps } from "@openfront/engine-api/game/GameTypes";
-import { GAME_ID_REGEX, GameConfig } from "@openfront/engine-api/Schemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+import {
+  GameMode,
+  GameType,
+  maps,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GAME_ID_REGEX, GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   ClientInfo,
   GameInfo,
   GameRecordSchema,
   LobbyInfoEvent,
   PublicGameInfo,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { html, TemplateResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";
@@ -918,8 +922,8 @@ export class JoinLobbyModal extends BaseModal {
     try {
       const url = new URL(input);
       // Portal invite links carry the id as a query param: gdgameId on Poki
-      // (poki.com/en/g/openfront?gdgameId=…), gameId on CrazyGames. Checked
-      // before the path, since CrazyGames' /game/openfront looks like an id.
+      // (poki.com/en/g/laukolaroser?gdgameId=…), gameId on CrazyGames. Checked
+      // before the path, since CrazyGames' /game/laukolaroser looks like an id.
       for (const param of ["gdgameId", "gameId"]) {
         const value = url.searchParams.get(param);
         if (value && GAME_ID_REGEX.test(value)) return value;

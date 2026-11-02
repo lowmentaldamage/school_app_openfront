@@ -1,6 +1,6 @@
-import { GAME_ID_REGEX } from "@openfront/engine-api/Schemas";
-import { replacer } from "@openfront/shared/SharedUtil";
-import { GameInfo } from "@openfront/shared/WireSchemas";
+import { GAME_ID_REGEX } from "@laukolaroser/engine-api/Schemas";
+import { replacer } from "@laukolaroser/shared/SharedUtil";
+import { GameInfo } from "@laukolaroser/shared/WireSchemas";
 import type { Express, Request } from "express";
 import fsPromises from "fs/promises";
 import { parse } from "node-html-parser";

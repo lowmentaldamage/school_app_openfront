@@ -14,7 +14,7 @@
  * trail per death, which goes quadratic during MIRV strikes (hundreds of
  * long-trailed warheads dying in waves).
  *
- * Simpler than the original openfront-workspace TrailManager (no MotionPlanStore
+ * Simpler than the original laukolaroser-workspace TrailManager (no MotionPlanStore
  * dependency). Since we run in the main thread reading GameView directly, we
  * don't need plan-based reconstruction.
  */

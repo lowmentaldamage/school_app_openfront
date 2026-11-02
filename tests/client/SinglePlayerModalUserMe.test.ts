@@ -1,5 +1,8 @@
-import { Difficulty, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import {
+  Difficulty,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/client/Cosmetics", () => ({

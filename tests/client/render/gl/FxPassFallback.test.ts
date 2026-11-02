@@ -11,7 +11,7 @@
  * here, and the real ones need a full WebGL2 context.
  */
 
-import type { Config } from "@openfront/engine-lib/configuration/Config";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RenderSettings } from "../../../../src/client/render/gl/RenderSettings";
 import { GLContextLostError } from "../../../../src/client/render/gl/utils/GlUtils";

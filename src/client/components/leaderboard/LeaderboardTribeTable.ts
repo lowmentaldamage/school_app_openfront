@@ -1,7 +1,7 @@
 import {
   TribeLeaderboardEntry,
   TribeLeaderboardResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { fetchTribeLeaderboard } from "../../Api";

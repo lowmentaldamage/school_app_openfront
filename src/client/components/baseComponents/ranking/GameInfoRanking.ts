@@ -7,8 +7,11 @@ import {
   PLAYER_INDEX_BOT,
   PLAYER_INDEX_HUMAN,
   PLAYER_INDEX_NATION,
-} from "@openfront/engine-api/StatsSchemas";
-import { AnalyticsRecord, PlayerRecord } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/StatsSchemas";
+import {
+  AnalyticsRecord,
+  PlayerRecord,
+} from "@laukolaroser/shared/WireSchemas";
 
 export enum RankType {
   ConquestHumans = "ConquestHumans",

@@ -1,12 +1,12 @@
-import type { HumanStatsSnapshot } from "@openfront/engine-api/game/GameTypes";
-import { GameMode, GameType } from "@openfront/engine-api/game/GameTypes";
-import type { Winner } from "@openfront/engine-api/Schemas";
+import type { HumanStatsSnapshot } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameMode, GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { Winner } from "@laukolaroser/engine-api/Schemas";
 import type {
   GameXpResponse,
   Progress,
   ProgressionConfig,
   XpRules,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { projectProgress } from "./ProgressProjection";
 import {
   applyMultipliers,

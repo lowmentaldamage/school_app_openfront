@@ -1,4 +1,4 @@
-import type { MapLayer } from "@openfront/engine-api/game/MapFiles";
+import type { MapLayer } from "@laukolaroser/engine-api/game/MapFiles";
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import {

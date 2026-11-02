@@ -1,4 +1,4 @@
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { responseHasLinkedIdentity } from "./AccountIdentity";
 import { getDiscordAvatarUrl, translateText } from "./Utils";
 

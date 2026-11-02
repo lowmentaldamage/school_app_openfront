@@ -3,7 +3,7 @@
  * imports) so checking it never pulls the 3D renderer into a bundle.
  */
 
-const STORAGE_KEY = "worldfront.renderer";
+const STORAGE_KEY = "laukolaroser.renderer";
 
 /**
  * The 3D view is opt-in while it is being built out: `?renderer=3d` in the

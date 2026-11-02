@@ -10,12 +10,12 @@ vi.mock("../../../src/client/hud/layers/BuildMenu", () => ({
 vi.mock("../../../src/client/Utils", () => ({
   translateText: (key: string) => key,
 }));
-vi.mock("@openfront/engine-lib/Format", () => ({
+vi.mock("@laukolaroser/engine-lib/Format", () => ({
   renderNumber: (num: number) => num.toString(),
 }));
 
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { EventBus } from "@openfront/shared/EventBus";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { RadialMenu } from "../../../src/client/hud/layers/RadialMenu";
 import {
   centerButtonElement,

@@ -26,7 +26,7 @@ describe("page-footer version line", () => {
 
   afterEach(() => {
     footer?.remove();
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     delete (window as { BOOTSTRAP_CONFIG?: unknown }).BOOTSTRAP_CONFIG;
     ClientEnv.reset();
   });
@@ -39,14 +39,14 @@ describe("page-footer version line", () => {
   }
 
   it("renders no version line on the web", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     await mount();
 
     expect(footer.querySelector(".footer-version")).toBeNull();
   });
 
   it("renders the game version alone when the shell reports no version", async () => {
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     await mount();
 
     const line = footer.querySelector(".footer-version");
@@ -54,7 +54,7 @@ describe("page-footer version line", () => {
   });
 
   it("appends the shell version inside the desktop shell", async () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       version: () => Promise.resolve("0.2.0"),
     };
     await mount();
@@ -75,11 +75,11 @@ describe("page-footer version line", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "1x00000000000000000000AA",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: SHA,
     };
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     await mount();
 
     const line = footer.querySelector(".footer-version");
@@ -89,7 +89,7 @@ describe("page-footer version line", () => {
   // The bridge lives in a separate private repo, so the footer must degrade to
   // the game version alone rather than render a broken label.
   it("falls back to the game version when the bridge rejects", async () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       version: () => Promise.reject(new Error("boom")),
     };
     await mount();

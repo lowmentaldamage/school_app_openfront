@@ -1,4 +1,4 @@
-// A player can arrive at `openfront.io/c/<code>` while logged out. Binding
+// A player can arrive at `laukolaroser.com/c/<code>` while logged out. Binding
 // the code to an account requires an authenticated `PUT /users/@me/creator`
 // call (see Task 1's Api.ts), so an anonymous visit has to send the player
 // through login first -- Discord/Google OAuth or a magic link, same as

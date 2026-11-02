@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Cell,
   formatPlayerDisplayName,
@@ -11,30 +11,30 @@ import {
   Tick,
   UnitInfo,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   GameUpdateViewData,
   SpawnPhaseEndUpdate,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   GameLike,
   ReadonlyTileSet,
   UnitPredicate,
-} from "@openfront/engine-api/game/ReadViews";
-import { ClientID, GameID } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { unpackMotionPlans } from "@openfront/engine-lib/game/MotionPlans";
+} from "@laukolaroser/engine-api/game/ReadViews";
+import { ClientID, GameID } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { unpackMotionPlans } from "@laukolaroser/engine-lib/game/MotionPlans";
 import {
   PackedUnitUpdateDecoder,
   UNIT_UPDATE_STRIDE,
   unpackUnitUpdates,
-} from "@openfront/engine-lib/game/PackedUnitUpdates";
-import { TerrainMapData } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { TerraNulliusImpl } from "@openfront/engine-lib/game/TerraNulliusImpl";
-import { UnitGrid } from "@openfront/engine-lib/game/UnitGrid";
-import { PlayerCosmetics, WirePlayer } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
+import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { TerraNulliusImpl } from "@laukolaroser/engine-lib/game/TerraNulliusImpl";
+import { UnitGrid } from "@laukolaroser/engine-lib/game/UnitGrid";
+import { PlayerCosmetics, WirePlayer } from "@laukolaroser/shared/WireSchemas";
 import { computeAllianceClusters } from "../render/frame/derive/AllianceClusters";
 import { extractAttackRings } from "../render/frame/derive/AttackRings";
 import { extractNukeTelegraphs } from "../render/frame/derive/NukeTelegraphs";
@@ -994,7 +994,7 @@ export class GameView implements GameLike {
     return this._map.waterVersion();
   }
   /** Map layers defined in the map's info.json, if any. */
-  layers(): import("@openfront/engine-api/game/MapFiles").MapLayer[] {
+  layers(): import("@laukolaroser/engine-api/game/MapFiles").MapLayer[] {
     return this._mapData.layers ?? [];
   }
   /** Nations the map's manifest defines, whether or not they spawned. */

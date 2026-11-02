@@ -1,10 +1,10 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   snapshotType,
   zInt,
   zNum,
   zPlayerRef,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Game, Player } from "../../game/Game";
 import type {

@@ -334,7 +334,7 @@ export class HomepagePromos extends LitElement {
           ? "unknown"
           : left === null
             ? "playwire"
-            : "openfront",
+            : "laukolaroser",
         outcome: "removed",
       });
       if (!isCurrent()) return;

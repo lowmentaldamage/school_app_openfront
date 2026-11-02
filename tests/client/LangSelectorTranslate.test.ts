@@ -25,7 +25,7 @@ describe("LangSelector applyTranslation", () => {
       <span data-i18n="test.bogus">untouched</span>
     `;
     const selector = makeSelector({
-      "main.title": "OpenFront",
+      "main.title": "Laukolaroser",
       "test.hello": "Hello",
       // Malformed map value: translateText hands it back as null, which the
       // loop must skip with a warning instead of blanking the node.
@@ -41,7 +41,7 @@ describe("LangSelector applyTranslation", () => {
       document.querySelector('[data-i18n="test.bogus"]')!.textContent,
     ).toBe("untouched");
     expect(warn).toHaveBeenCalledWith("Translation key not found: test.bogus");
-    expect(document.title).toBe("OpenFront");
+    expect(document.title).toBe("Laukolaroser");
   });
 });
 

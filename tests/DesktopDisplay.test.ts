@@ -22,12 +22,12 @@ const snapshot = {
 
 describe("desktopDisplay", () => {
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   // The web build. Nothing about the display bridge may be reachable there.
   it("is null with no shell at all", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     expect(desktopDisplay()).toBeNull();
   });
 
@@ -35,37 +35,37 @@ describe("desktopDisplay", () => {
   // 3). The client updates at runtime while the shell updates on Steam's
   // schedule, so this combination is ordinary, not an error.
   it("is null on a shell with no display namespace", () => {
-    window.openfrontDesktop = { shell: { api: 2 } };
+    window.laukolaroserDesktop = { shell: { api: 2 } };
     expect(desktopDisplay()).toBeNull();
   });
 
   it("is null on an empty display namespace", () => {
-    window.openfrontDesktop = { display: {} };
+    window.laukolaroserDesktop = { display: {} };
     expect(desktopDisplay()).toBeNull();
   });
 
   // Feature detection is on BOTH methods the tab calls, so a rename of
   // either hides the feature rather than wiring a control to nothing.
   it("is null when only getPrefs is callable", () => {
-    window.openfrontDesktop = { display: { getPrefs: () => undefined } };
+    window.laukolaroserDesktop = { display: { getPrefs: () => undefined } };
     expect(desktopDisplay()).toBeNull();
   });
 
   it("is null when only setPrefs is callable", () => {
-    window.openfrontDesktop = { display: { setPrefs: () => undefined } };
+    window.laukolaroserDesktop = { display: { setPrefs: () => undefined } };
     expect(desktopDisplay()).toBeNull();
   });
 
   it("returns the bridge when both methods are callable", () => {
     const display = { getPrefs: () => undefined, setPrefs: () => undefined };
-    window.openfrontDesktop = { display };
+    window.laukolaroserDesktop = { display };
     expect(desktopDisplay()).toBe(display);
   });
 
   // subscribe is optional on the wire: a shell that can read and write but
   // never pushes is still usable, and the tab falls back to re-reading.
   it("returns the bridge with no subscribe", () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       display: { getPrefs: () => undefined, setPrefs: () => undefined },
     };
     expect(desktopDisplay()?.subscribe).toBeUndefined();
@@ -74,7 +74,7 @@ describe("desktopDisplay", () => {
   // shell.api is bumped for the record; the client must not gate on it, or a
   // shell that ships the namespace without bumping would be refused.
   it("does not read shell.api", () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       shell: { api: 1 },
       display: { getPrefs: () => undefined, setPrefs: () => undefined },
     };

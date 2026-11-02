@@ -1,11 +1,11 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "../util/Setup";
 import { constructionExecution } from "../util/utils";
 

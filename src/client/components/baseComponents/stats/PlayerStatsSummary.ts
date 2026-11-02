@@ -1,6 +1,6 @@
-import { renderNumber } from "@openfront/engine-lib/Format";
-import type { PlayerStatsLeaf } from "@openfront/shared/ApiSchemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
+import type { PlayerStatsLeaf } from "@laukolaroser/shared/ApiSchemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { LitElement, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../../../Utils";

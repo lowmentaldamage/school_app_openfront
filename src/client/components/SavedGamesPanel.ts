@@ -1,4 +1,4 @@
-import type { SavedGame } from "@openfront/shared/ApiSchemas";
+import type { SavedGame } from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement, nothing, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientEnv } from "../ClientEnv";

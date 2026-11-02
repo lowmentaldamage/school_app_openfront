@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "../../src/client/AccountSettingsModal";
 import type { AccountSettingsModal } from "../../src/client/AccountSettingsModal";

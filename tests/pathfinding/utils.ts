@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   GameMapSize,
@@ -6,22 +6,22 @@ import {
   GameMode,
   GameType,
   PlayerInfo,
-} from "@openfront/engine-api/game/GameTypes";
-import { MapManifest } from "@openfront/engine-api/game/MapFiles";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { genTerrainFromBin } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { Game } from "@openfront/engine/game/Game";
-import { createGame, GameImpl } from "@openfront/engine/game/GameImpl";
-import { AStarWater } from "@openfront/engine/pathfinding/algorithms/AStar.Water";
-import { AStarWaterHierarchical } from "@openfront/engine/pathfinding/algorithms/AStar.WaterHierarchical";
-import { PathFinding } from "@openfront/engine/pathfinding/PathFinder";
-import { PathFinderBuilder } from "@openfront/engine/pathfinding/PathFinderBuilder";
-import { StepperConfig } from "@openfront/engine/pathfinding/PathFinderStepper";
-import { MiniMapTransformer } from "@openfront/engine/pathfinding/transformers/MiniMapTransformer";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { genTerrainFromBin } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { createGame, GameImpl } from "@laukolaroser/engine/game/GameImpl";
+import { AStarWater } from "@laukolaroser/engine/pathfinding/algorithms/AStar.Water";
+import { AStarWaterHierarchical } from "@laukolaroser/engine/pathfinding/algorithms/AStar.WaterHierarchical";
+import { PathFinding } from "@laukolaroser/engine/pathfinding/PathFinder";
+import { PathFinderBuilder } from "@laukolaroser/engine/pathfinding/PathFinderBuilder";
+import { StepperConfig } from "@laukolaroser/engine/pathfinding/PathFinderStepper";
+import { MiniMapTransformer } from "@laukolaroser/engine/pathfinding/transformers/MiniMapTransformer";
 import {
   PathStatus,
   SteppingPathFinder,
-} from "@openfront/engine/pathfinding/types";
+} from "@laukolaroser/engine/pathfinding/types";
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";

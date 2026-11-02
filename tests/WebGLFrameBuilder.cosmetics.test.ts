@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { PlayerCosmetics } from "@openfront/shared/WireSchemas";
+import type { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
 import { colord } from "colord";
 import { describe, expect, it } from "vitest";
 import { STRUCTURES_EFFECT_BLOCK } from "../src/client/render/gl/utils/ColorUtils";

@@ -1,4 +1,4 @@
-import { GameEnv } from "@openfront/shared/configuration/Env";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
 import cluster, { Worker } from "cluster";
 import crypto from "crypto";
 import express from "express";
@@ -59,7 +59,7 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Desktop (Steam) shell release descriptor. See openfront-desktop's
+// Desktop (Steam) shell release descriptor. See laukolaroser-desktop's
 // docs/superpowers/specs/2026-08-20-runtime-asset-updating-design.md.
 //
 // version.json is polled once a minute by every running desktop client, so it

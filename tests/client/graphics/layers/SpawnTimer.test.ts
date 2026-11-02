@@ -1,5 +1,5 @@
-import { GameMode, GameType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameMode, GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SpawnBarVisibleEvent } from "../../../../src/client/hud/layers/SpawnTimer";
 import type { SpawnTimer } from "../../../../src/client/hud/layers/SpawnTimer";

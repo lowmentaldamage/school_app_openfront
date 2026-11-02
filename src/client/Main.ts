@@ -1,12 +1,12 @@
-import { GAME_ID_REGEX } from "@openfront/engine-api/Schemas";
+import { GAME_ID_REGEX } from "@laukolaroser/engine-api/Schemas";
 import {
   isRewardClaimable,
   UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { EventBus } from "@openfront/shared/EventBus";
-import { toWireGameStartInfo } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/shared/ApiSchemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import { toWireGameStartInfo } from "@laukolaroser/shared/SharedUtil";
 import {
   GameInfo,
   GameRecord,
@@ -14,7 +14,7 @@ import {
   LobbyInfoEvent,
   PublicGameInfo,
   WireGameStartInfo,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { ClientEnv } from "src/client/ClientEnv";
 import { renderNavVersion } from "src/client/GameVersion";
 import { responseHasLinkedIdentity } from "./AccountIdentity";
@@ -577,12 +577,12 @@ class Client {
     await customElements.whenDefined("mobile-nav-bar");
     await customElements.whenDefined("desktop-nav-bar");
 
-    const openFrontFont = new FontFace(
-      "OpenFront",
-      `url(${assetUrl("fonts/OpenFront.ttf")})`,
+    const laukolaroserFont = new FontFace(
+      "Laukolaroser",
+      `url(${assetUrl("fonts/Laukolaroser.ttf")})`,
     );
-    document.fonts.add(openFrontFont);
-    openFrontFont.load().catch(() => {});
+    document.fonts.add(laukolaroserFont);
+    laukolaroserFont.load().catch(() => {});
 
     // The tagged version only, so a player's version reads the same across web
     // and Steam. The build's full identity -- the commit on an untagged build,
@@ -2124,7 +2124,7 @@ class Client {
       // Not reachable from the desktop shell today: it classifies every
       // https:// URL as open-externally, so redirectToVersionedShell() hands
       // the replay host to the OS browser and this window stays on
-      // app://openfront/. That is a policy in a different repo though, and
+      // app://laukolaroser/. That is a policy in a different repo though, and
       // nothing here would notice if it changed -- so guard rather than depend
       // on it. On the replay host, fall back to the in-place leave.
       if (!isReplayShellHost(window.location.hostname)) {

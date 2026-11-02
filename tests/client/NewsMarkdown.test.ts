@@ -1,25 +1,25 @@
 import { normalizeNewsMarkdown } from "../../src/client/NewsMarkdown";
 
 describe("normalizeNewsMarkdown", () => {
-  it("converts openfront pull request URLs to short markdown links", () => {
+  it("converts laukolaroser pull request URLs to short markdown links", () => {
     const input =
-      "Fix attack logic in https://github.com/openfrontio/OpenFrontIO/pull/1234";
+      "Fix attack logic in https://github.com/lowmentaldamage/school_app_openfront/pull/1234";
 
     const result = normalizeNewsMarkdown(input);
 
     expect(result).toContain(
-      "[#1234](https://github.com/openfrontio/OpenFrontIO/pull/1234)",
+      "[#1234](https://github.com/lowmentaldamage/school_app_openfront/pull/1234)",
     );
   });
 
-  it("converts openfront compare URLs to markdown links", () => {
+  it("converts laukolaroser compare URLs to markdown links", () => {
     const input =
-      "Full Changelog: https://github.com/openfrontio/OpenFrontIO/compare/v1.0.0...v1.1.0";
+      "Full Changelog: https://github.com/lowmentaldamage/school_app_openfront/compare/v1.0.0...v1.1.0";
 
     const result = normalizeNewsMarkdown(input);
 
     expect(result).toContain(
-      "[v1.0.0...v1.1.0](https://github.com/openfrontio/OpenFrontIO/compare/v1.0.0...v1.1.0)",
+      "[v1.0.0...v1.1.0](https://github.com/lowmentaldamage/school_app_openfront/compare/v1.0.0...v1.1.0)",
     );
   });
 
@@ -40,7 +40,7 @@ describe("normalizeNewsMarkdown", () => {
   });
 
   it("does not convert email addresses", () => {
-    const input = "Contact support@openfront.io for help";
+    const input = "Contact support@laukolaroser.com for help";
 
     const result = normalizeNewsMarkdown(input);
 

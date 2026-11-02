@@ -9,7 +9,7 @@
     "close": "Stäng"
   },
   "main": {
-    "title": "OpenFront (ALPHA)",
+    "title": "Laukolaroser (ALPHA)",
     "join_discord": "Gå med i Discord!",
     "login_discord": "Logga in med Discord",
     "checking_login": "Kontrollerar inloggning...",
@@ -21,7 +21,6 @@
     "instructions": "Instruktioner",
     "how_to_play": "Hur man Spelar",
     "advertise": "Annonsera",
-    "wiki": "Wiki",
     "privacy_policy": "Sekretesspolicy",
     "terms_of_service": "Användarvillkor"
   },
@@ -569,8 +568,8 @@
       "cursor": "Muspekare",
       "hand": "Hand",
       "radiation": "Radioaktivitet",
-      "openfront_qr": "OpenFront.io QR kod",
-      "openfront": "OpenFront",
+      "laukolaroser_qr": "Laukolaroser QR kod",
+      "laukolaroser": "Laukolaroser",
       "t_rex": "T-Rex",
       "embelem": "Emblem",
       "grogu_head": "Grogu Huvud",

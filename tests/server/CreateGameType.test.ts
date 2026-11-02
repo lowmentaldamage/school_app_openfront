@@ -1,8 +1,8 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   CreateGameInputSchema,
   isPrivateGameInput,
-} from "@openfront/shared/WorkerSchemas";
+} from "@laukolaroser/shared/WorkerSchemas";
 import { describe, expect, it } from "vitest";
 import { testGameConfig } from "../util/Wire";
 

@@ -1,5 +1,5 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { GameConfigSchema } from "@openfront/engine-api/Schemas";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfigSchema } from "@laukolaroser/engine-api/Schemas";
 import { describe, expect, it, vi } from "vitest";
 import { MapPlaylist } from "../../src/server/MapPlaylist";
 

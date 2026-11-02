@@ -107,7 +107,7 @@ describe("rankedCheckinPass", () => {
     vi.stubEnv("GAME_ENV", "prod");
     vi.stubEnv("INSTANCE_LETTER", "a");
     vi.stubEnv("NUM_WORKERS", "4");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
     vi.stubEnv("API_KEY", "test-key");
     vi.stubEnv("INSTANCE_ID", "abcd1234");
@@ -127,7 +127,7 @@ describe("rankedCheckinPass", () => {
 
     expect(fetchFn).toHaveBeenCalledTimes(1);
     const [url, init] = vi.mocked(fetchFn).mock.calls[0];
-    expect(url).toBe("https://api.openfront.io/matchmaking/checkin");
+    expect(url).toBe("https://api.laukolaroser.com/matchmaking/checkin");
     const body = JSON.parse(String((init as RequestInit).body));
     // The body is otherwise unchanged by OPE-469; the API keys its queue
     // off it.
@@ -177,7 +177,7 @@ describe("rankedCheckinPass", () => {
   // site's registry that the server is open before assigning. The site is
   // the one this server registers under for the cluster check-in.
   it("carries the site it registers under", async () => {
-    vi.stubEnv("SITE_HOST", "openfront.io");
+    vi.stubEnv("SITE_HOST", "laukolaroser.com");
     const fetchFn = okFetch({ assignment: null });
     const deps = makeDeps(() => true, fetchFn);
     const gate = new RankedCheckinGate(deps.isActive, deps.log);
@@ -186,7 +186,7 @@ describe("rankedCheckinPass", () => {
 
     const [, init] = vi.mocked(fetchFn).mock.calls[0];
     const body = JSON.parse(String((init as RequestInit).body));
-    expect(body.site).toBe("openfront.io");
+    expect(body.site).toBe("laukolaroser.com");
   });
 
   it("falls back to its own public host as the site on a standalone deploy", async () => {
@@ -198,7 +198,7 @@ describe("rankedCheckinPass", () => {
 
     const [, init] = vi.mocked(fetchFn).mock.calls[0];
     const body = JSON.parse(String((init as RequestInit).body));
-    expect(body.site).toBe("blue.openfront.io");
+    expect(body.site).toBe("blue.laukolaroser.com");
   });
 
   it("omits the site when it is not a name the API accepts", async () => {

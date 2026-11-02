@@ -27,7 +27,7 @@ behavior except the bugs it fixes.
   always serves its own build and its own config, so any misroute
   self-corrects.
 - **Cloudflare:** two LB pools, blue and green, each containing every server
-  as an origin (color Host header, e.g. `falk2-blue.openfront.io`; Traefik
+  as an origin (color Host header, e.g. `falk2-blue.laukolaroser.com`; Traefik
   routes by Host). Promotion = reorder pools + purge, regardless of fleet
   size. Color subdomains are plain proxied DNS records; the LB only matters
   for fresh page loads — after that the page is pinned via `serverHost`.
@@ -73,7 +73,11 @@ only say where containers run:
 ```json
 [
   { "host": "falk2", "subdomain": "blue" },
-  { "host": "nbg2", "subdomain": "blue", "gameHost": "blue.nbg2.openfront.io" }
+  {
+    "host": "nbg2",
+    "subdomain": "blue",
+    "gameHost": "blue.nbg2.laukolaroser.com"
+  }
 ]
 ```
 
@@ -315,13 +319,13 @@ All of these are config edits; no code changes.
    (`*.nbg2.<game domain>`) covers the box. deploy.sh looks a deployment
    up under that name first and under the bare `<subdomain>.<game domain>`
    second, so a fleet can carry both shapes while it migrates
-   (`blue2.openfront.io` still works; it is just a standalone-shaped entry
+   (`blue2.laukolaroser.com` still works; it is just a standalone-shaped entry
    on a second machine). A machine-scoped container is named
-   `openfront-<env>-<machine>-<subdomain>`, which is what lets staging
+   `laukolaroser-<env>-<machine>-<subdomain>`, which is what lets staging
    rehearse two machines on one box: `staging2` is a second name for the
    staging box in `SERVER_HOSTS_JSON`, and its blue and green sit next to
-   staging's own as `blue.staging2.server.openfront.dev` and
-   `green.staging2.server.openfront.dev`.
+   staging's own as `blue.staging2.server.laukolaroser.dev` and
+   `green.staging2.server.laukolaroser.dev`.
 3. Secrets: add the machine to `SERVER_HOSTS_JSON`
    (`{"falk2":"<ip>","nbg2":"<ip>"}`, lowercase keys) — deploy.sh resolves
    machine names from this directory and keyscans only the machine it is
@@ -330,7 +334,7 @@ All of these are config edits; no code changes.
    other machine must be in the directory.
 4. Vars: add the machine's blue and green to the `DEPLOY_TARGETS_BLUE` and
    `DEPLOY_TARGETS_GREEN` **repository** vars with their game hosts:
-   `[{"host":"falk2","subdomain":"blue"},{"host":"nbg2","subdomain":"blue","gameHost":"blue.nbg2.openfront.io"}]`
+   `[{"host":"falk2","subdomain":"blue"},{"host":"nbg2","subdomain":"blue","gameHost":"blue.nbg2.laukolaroser.com"}]`
    (machine-scoped: the subdomain is the slot, the host is the machine). The
    registry assigns each new host a letter on its first deploy and sizes its
    workers from the machine; adjust the count on the admin Cluster page.
@@ -382,7 +386,7 @@ that servers learn about by polling the apex; adding a host means editing
 `CLUSTER_JSON` and redeploying every server. And because a game server
 renders the page, every value it writes in must also be supplied by the
 Steam build, which renders the same template itself (#5310 blanked it,
-patched in openfront-desktop #55).
+patched in laukolaroser-desktop #55).
 
 Goal: one place decides where players go (the API), and nothing else (DNS,
 a load balancer, the page) has to change at the same moment.
@@ -390,8 +394,8 @@ a load balancer, the page) has to change at the same moment.
 ## The server list
 
 `GET https://api.<audience>/cluster.json?site=<host>` — `site` is the
-hostname players load the page from (`openfront.io`, `main.openfront.dev`,
-`<branch>.openfront.dev`). Every site has its own list and its own
+hostname players load the page from (`laukolaroser.com`, `main.laukolaroser.dev`,
+`<branch>.laukolaroser.dev`). Every site has its own list and its own
 `latest`; previews never appear in main's list.
 
 ```json
@@ -399,19 +403,19 @@ hostname players load the page from (`openfront.io`, `main.openfront.dev`,
   "latest": "bfd5563a…",
   "servers": {
     "c": {
-      "host": "falk2-a.openfront.io",
+      "host": "falk2-a.laukolaroser.com",
       "numWorkers": 16,
       "version": "5ccc50a7…",
       "state": "draining"
     },
     "d": {
-      "host": "falk2-b.openfront.io",
+      "host": "falk2-b.laukolaroser.com",
       "numWorkers": 16,
       "version": "bfd5563a…",
       "state": "open"
     },
     "e": {
-      "host": "nbg2-a.openfront.io",
+      "host": "nbg2-a.laukolaroser.com",
       "numWorkers": 8,
       "version": "3a1f90bb…",
       "state": "fenced"
@@ -452,7 +456,7 @@ until its master says otherwise. The check-in also carries the server's own
 commit as `version` (omitted when `GIT_COMMIT` names no commit), so the
 Lobby can refuse to assign a match to a server on a different build than the
 players — the contract form of the same rule (OPE-470). Without this, blue ran v0.34.0 as `draining`
-while every `openfront.io` page served green's v0.34.1, blue's workers kept
+while every `laukolaroser.com` page served green's v0.34.1, blue's workers kept
 claiming matches, and players on the new build were assigned a blue game, got
 `version_mismatch`, went to fetch blue's build, and arrived past the start
 deadline — so the match cancelled short-handed and the game was pruned before
@@ -487,8 +491,8 @@ keeps offering, and now its offer is checked against what the site's players
 actually see in `GET /cluster.json`.
 
 Why: on 15 Sept 2026 every branch preview on the staging host deployed as
-letter `a` and checked into the same API, so `main.openfront.dev` — same
-letter and build as blue — won openfront.dev's matches, and the client polled
+letter `a` and checked into the same API, so `main.laukolaroser.dev` — same
+letter and build as blue — won laukolaroser.dev's matches, and the client polled
 blue for a game that lived on a host its list could not name.
 
 ## What the client does (`src/client/ServerList.ts`, `src/core/ServerList.ts`)
@@ -698,9 +702,9 @@ one kind of page only: one that names no server of its own.
   server — as Create did before the list existed.
 
 Without that rule, one deploy that fails to register strands every visitor.
-On `main.openfront.dev` the list carried no server on the page's build and a
+On `main.laukolaroser.dev` the list carried no server on the page's build and a
 `latest` that was a different commit; the lobby socket raised "a new version
-of OpenFront is available", the reload re-served the same page from the same
+of Laukolaroser is available", the reload re-served the same page from the same
 server, and it prompted again — forever. That was OPE-430.
 
 A server-rendered page is not left behind by this, because it does not need
@@ -741,20 +745,20 @@ necessary:
    through `siteHost`, so the reload can land elsewhere only when `siteHost`
    is defined, is not the page's own server host, **and** the page's cluster
    map has siblings. That last check is what catches a standalone deployment
-   with `GAME_DOMAIN` set: its page host (`main.openfront.dev`) and game host
-   (`main.server.openfront.dev`) differ, yet Traefik routes both names to the
+   with `GAME_DOMAIN` set: its page host (`main.laukolaroser.dev`) and game host
+   (`main.server.laukolaroser.dev`) differ, yet Traefik routes both names to the
    one container, so a differing `siteHost` alone proves nothing — the same
    rule the server's own apex poll uses (`shouldPollApex`).
 
 #### Per topology
 
-| Topology                                                                                       | Own-server calls                                                      | Create refused | Prompt at page load                                 | Prompt once the socket gives up                               |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | -------------- | --------------------------------------------------- | ------------------------------------------------------------- |
-| **Prod behind an apex** — page `openfront.io`, server `blue.openfront.io`, two-entry map       | the page's own server when it serves this build, else the list's pick | never          | never from the list; the feed's commit / drain flag | yes, when nothing serves this build and `latest` is newer     |
-| **Standalone** — dev `main.openfront.dev`, previews, beta; one-entry map, `GAME_DOMAIN` or not | same                                                                  | never          | same                                                | never: a reload re-serves this same page from the same server |
-| **Worker-served page** (roadmap item 2)                                                        | the list's pick, else the document's origin                           | on `outdated`  | on `outdated`                                       | on `outdated` — its three conditions hold by construction     |
-| **Desktop shell** — `app://openfront`, injects its own `serverHost`                            | same                                                                  | never          | never: its updater owns which version it runs       | never                                                         |
-| **Replay shell**, and any `/v/<commit>/` pinned page                                           | same                                                                  | never          | never: pinned to that build on purpose              | never                                                         |
+| Topology                                                                                          | Own-server calls                                                      | Create refused | Prompt at page load                                 | Prompt once the socket gives up                               |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | -------------- | --------------------------------------------------- | ------------------------------------------------------------- |
+| **Prod behind an apex** — page `laukolaroser.com`, server `blue.laukolaroser.com`, two-entry map  | the page's own server when it serves this build, else the list's pick | never          | never from the list; the feed's commit / drain flag | yes, when nothing serves this build and `latest` is newer     |
+| **Standalone** — dev `main.laukolaroser.dev`, previews, beta; one-entry map, `GAME_DOMAIN` or not | same                                                                  | never          | same                                                | never: a reload re-serves this same page from the same server |
+| **Worker-served page** (roadmap item 2)                                                           | the list's pick, else the document's origin                           | on `outdated`  | on `outdated`                                       | on `outdated` — its three conditions hold by construction     |
+| **Desktop shell** — `app://laukolaroser`, injects its own `serverHost`                            | same                                                                  | never          | never: its updater owns which version it runs       | never                                                         |
+| **Replay shell**, and any `/v/<commit>/` pinned page                                              | same                                                                  | never          | never: pinned to that build on purpose              | never                                                         |
 
 A server-rendered page prefers its own server because the page and the
 registry can disagree about a sibling while the page's own server is, by
@@ -1078,7 +1082,7 @@ re-deriving it. The page host is `SITE_HOST`, and what fills that in depends
 on whether the deployment has siblings:
 
 - **In a multi-entry cluster map** — prod's blue/green, and the dev blue/green
-  pair — the page host is the **apex**: `openfront.io`, `openfront.dev`. That
+  pair — the page host is the **apex**: `laukolaroser.com`, `laukolaroser.dev`. That
   is genuinely where players load the page from, and `deploy.sh` has always
   defaulted `SITE_HOST` to `$DOMAIN` for these. `GAME_DOMAIN` does not change
   it.
@@ -1094,16 +1098,16 @@ never pass through it: a Worker proxying WebSockets is an expense and a
 failure mode for no gain, and the whole point of the server list is that the
 client picks a game server itself.
 
-Prod is already shaped this way — `openfront.io` is the page, `blue.openfront.io`
-and `green.openfront.io` are the games — because the load balancer forced it.
+Prod is already shaped this way — `laukolaroser.com` is the page, `blue.laukolaroser.com`
+and `green.laukolaroser.com` are the games — because the load balancer forced it.
 `deploy.sh` therefore ignores `GAME_DOMAIN` entirely on prod: it is a
 repository-level variable that every workflow inherits the day it is set, and
-honouring it there would compute `blue.server.openfront.io`, which is in no
+honouring it there would compute `blue.server.laukolaroser.com`, which is in no
 cluster map and resolves nowhere.
-Dev was not: `main.openfront.dev` was both. `GAME_DOMAIN` is the one deploy
+Dev was not: `main.laukolaroser.dev` was both. `GAME_DOMAIN` is the one deploy
 variable that gives a dev deployment the prod shape, e.g.
-`GAME_DOMAIN=server.openfront.dev` makes `main` page at `main.openfront.dev`
-and game at `main.server.openfront.dev`.
+`GAME_DOMAIN=server.laukolaroser.dev` makes `main` page at `main.laukolaroser.dev`
+and game at `main.server.laukolaroser.dev`.
 
 What follows from it:
 
@@ -1119,7 +1123,7 @@ What follows from it:
   routed at the page host. After that the page-host clause never matches:
 
   ```
-  Host(`main.openfront.dev`) || Host(`main.server.openfront.dev`)
+  Host(`main.laukolaroser.dev`) || Host(`main.server.laukolaroser.dev`)
   ```
 
 - CI polls the GAME host for `commit.txt` when waiting for a deploy: the page
@@ -1137,8 +1141,8 @@ What follows from it:
 With `GAME_DOMAIN` unset the game host falls back to `<subdomain>.<DOMAIN>`,
 which is exactly today's behaviour. That does not mean one hostname: a
 deployment behind an apex still has two, because `SITE_HOST` is set
-independently — prod's `blue` pages at `openfront.io` and games at
-`blue.openfront.io` today, without `GAME_DOMAIN` existing at all. It is the
+independently — prod's `blue` pages at `laukolaroser.com` and games at
+`blue.laukolaroser.com` today, without `GAME_DOMAIN` existing at all. It is the
 standalone deployments with no `SITE_HOST` — `main` and the branch previews —
 where page and game really are the same name, and that is what this variable
 changes. `deploy.sh` ignores it on prod outright, and dev leaves it unset until

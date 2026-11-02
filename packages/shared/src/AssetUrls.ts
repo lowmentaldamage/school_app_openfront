@@ -1,10 +1,10 @@
 // vite.config.ts imports this file, and Vite's config loader leaves
-// @openfront/* imports to Node, which only strips types: type-only imports
+// @laukolaroser/* imports to Node, which only strips types: type-only imports
 // must be marked `type` here and in anything this file imports.
 import {
   type AssetManifest,
   buildAssetUrl,
-} from "@openfront/shared/AssetPaths";
+} from "@laukolaroser/shared/AssetPaths";
 
 declare global {
   var __ASSET_MANIFEST__: AssetManifest | undefined;

@@ -1,4 +1,4 @@
-import { ClusterConfig } from "@openfront/shared/ClusterConfig";
+import { ClusterConfig } from "@laukolaroser/shared/ClusterConfig";
 import { describe, expect, it } from "vitest";
 import { resolveGameHost } from "../../src/client/ClientEnv";
 
@@ -6,15 +6,15 @@ import { resolveGameHost } from "../../src/client/ClientEnv";
 // leading letter names its deployment in the cluster map; everything older
 // or unmapped stays on the server the page already talks to.
 const CLUSTER: ClusterConfig = {
-  c: { host: "blue.openfront.io", numWorkers: 20 },
-  d: { host: "green.openfront.io", numWorkers: 20 },
+  c: { host: "blue.laukolaroser.com", numWorkers: 20 },
+  d: { host: "green.laukolaroser.com", numWorkers: 20 },
 };
 
 describe("resolveGameHost", () => {
   it("routes a foreign letter to its deployment with its worker count", () => {
     expect(resolveGameHost("dAbCd12345", CLUSTER, "c")).toEqual({
       kind: "cross",
-      host: "green.openfront.io",
+      host: "green.laukolaroser.com",
       numWorkers: 20,
     });
   });

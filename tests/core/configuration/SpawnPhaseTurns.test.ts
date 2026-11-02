@@ -1,4 +1,4 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import { describe, expect, test } from "vitest";
 import { setup } from "../../util/Setup";
 

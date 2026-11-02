@@ -116,6 +116,6 @@ export function createTerrainMaterial(
         "#include <color_fragment>\ndiffuseColor.rgb = applyTerritory(terrainAlbedo(vTerrainWorld, vTerrainUp), vTerrainWorld.xz);",
       );
   };
-  material.customProgramCacheKey = () => "worldfront-terrain-v1";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v1";
   return { material, uniforms };
 }

@@ -1,6 +1,6 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { PublicGameInfo, PublicGames } from "@openfront/shared/WireSchemas";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { PublicGameInfo, PublicGames } from "@laukolaroser/shared/WireSchemas";
 import { html, nothing, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";

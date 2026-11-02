@@ -4,7 +4,7 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { z } from "zod";
 import type { SnapshotReader } from "./SnapshotContext";
 

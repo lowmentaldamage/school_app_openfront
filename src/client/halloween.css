@@ -1,4 +1,4 @@
-/* Halloween Theme Overrides for OpenFront (Polished Orange & Black) */
+/* Halloween Theme Overrides for Laukolaroser (Polished Orange & Black) */
 
 /* 
   Crucial Constraint: This file ONLY contains decorative styling overrides
@@ -17,7 +17,7 @@
   --hw-pumpkin-svg: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSI+CiAgPHBhdGggZD0iTTI5IDEyQzI5IDYgMzQgMyAzOSA0IiBzdHJva2U9IiM5YTM0MTIiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8ZWxsaXBzZSBjeD0iMTUiIGN5PSIzNiIgcng9IjE0IiByeT0iMjIiIGZpbGw9IiM5YTM0MTIiLz4KICA8ZWxsaXBzZSBjeD0iNDkiIGN5PSIzNiIgcng9IjE0IiByeT0iMjIiIGZpbGw9IiM5YTM0MTIiLz4KICA8ZWxsaXBzZSBjeD0iMjMiIGN5PSIzNyIgcng9IjE0IiByeT0iMjQiIGZpbGw9IiNlYTU4MGMiLz4KICA8ZWxsaXBzZSBjeD0iNDEiIGN5PSIzNyIgcng9IjE0IiByeT0iMjQiIGZpbGw9IiNlYTU4MGMiLz4KICA8ZWxsaXBzZSBjeD0iMzIiIGN5PSIzNyIgcng9IjEyIiByeT0iMjUiIGZpbGw9IiNmZjdhMTgiLz4KICA8cG9seWdvbiBwb2ludHM9IjIxLDIyIDEyLDM0IDI2LDMzIiBmaWxsPSIjMTgwOTI0Ii8+CiAgPHBvbHlnb24gcG9pbnRzPSI0MywyMiAzOCwzMyA1MiwzNCIgZmlsbD0iIzE4MDkyNCIvPgogIDxwb2x5Z29uIHBvaW50cz0iMzIsMzEgMjgsMzggMzYsMzgiIGZpbGw9IiMxODA5MjQiLz4KICA8cGF0aCBkPSJNMTIgNDEgTDE5IDQ2IEwyNSA0MiBMMzIgNDcgTDM5IDQyIEw0NSA0NiBMNTIgNDEgTDQ3IDUzIEwzOSA0OSBMMzIgNTUgTDI1IDQ5IEwxNyA1MyBaIiBmaWxsPSIjMTgwOTI0Ii8+Cjwvc3ZnPg==");
 }
 
-/* Base body styles & OpenFront @theme variable overrides (Homepage & Modals)
+/* Base body styles & Laukolaroser @theme variable overrides (Homepage & Modals)
    Note: <o-modal> is a Shadow DOM host that adopts documentStylesSheet(), where
    Tailwind v4's @layer theme declares `:root, :host { --color-malibu-blue: #0084d1 }`.
    We declare `body.halloween-theme:not(.in-game) o-modal` (excluding in-game modals)
@@ -158,13 +158,13 @@ body.halloween-theme:not(.in-game) mobile-nav-bar .nav-menu-item.active {
 }
 
 /* Nav Bar Logo Image (Blue -> Orange with Jack-o'-Lantern candlelight flicker) */
-body.halloween-theme:not(.in-game) desktop-nav-bar img[src*="OpenFrontLogo"],
-body.halloween-theme:not(.in-game) mobile-nav-bar img[src*="OpenFrontLogo"],
+body.halloween-theme:not(.in-game) desktop-nav-bar img[src*="LaukolaroserLogo"],
+body.halloween-theme:not(.in-game) mobile-nav-bar img[src*="LaukolaroserLogo"],
 body.halloween-theme:not(.in-game)
   play-page
   div.fixed
-  img[src*="OpenFrontLogo"],
-body.halloween-theme:not(.in-game) img[src*="OpenFrontLogo"] {
+  img[src*="LaukolaroserLogo"],
+body.halloween-theme:not(.in-game) img[src*="LaukolaroserLogo"] {
   filter: hue-rotate(150deg) saturate(1.5) brightness(1.15)
     drop-shadow(0 0 6px rgba(234, 112, 8, 0.5));
   animation: hw-candle-flicker 3.2s infinite ease-in-out !important;
@@ -582,13 +582,17 @@ body.halloween-theme:not(.in-game)
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.halloween-theme:not(.in-game) desktop-nav-bar img[src*="OpenFrontLogo"],
-  body.halloween-theme:not(.in-game) mobile-nav-bar img[src*="OpenFrontLogo"],
+  body.halloween-theme:not(.in-game)
+    desktop-nav-bar
+    img[src*="LaukolaroserLogo"],
+  body.halloween-theme:not(.in-game)
+    mobile-nav-bar
+    img[src*="LaukolaroserLogo"],
   body.halloween-theme:not(.in-game)
     play-page
     div.fixed
-    img[src*="OpenFrontLogo"],
-  body.halloween-theme:not(.in-game) img[src*="OpenFrontLogo"],
+    img[src*="LaukolaroserLogo"],
+  body.halloween-theme:not(.in-game) img[src*="LaukolaroserLogo"],
   body.halloween-theme:not(.in-game) .l-header__highlightText {
     animation: none !important;
   }

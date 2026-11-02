@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllPlayers,
   Difficulty,
@@ -7,12 +7,12 @@ import {
   GameMode,
   GameType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateViewData,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapManifest } from "@openfront/engine-api/game/MapFiles";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
 import {
   flattenedEmojiTable,
   GameConfig,
@@ -20,20 +20,20 @@ import {
   Intent,
   StampedIntent,
   Turn,
-} from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import {
   createGameRunner,
   createGameRunnerFromSnapshot,
   GameRunner,
-} from "@openfront/engine/GameRunner";
-import { readSnapshotHeader } from "@openfront/engine/snapshot/GameSnapshot";
+} from "@laukolaroser/engine/GameRunner";
+import { readSnapshotHeader } from "@laukolaroser/engine/snapshot/GameSnapshot";
 import {
   GameMapLoader,
   loadMapFiles,
   MapData,
-} from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/shared/GameMapLoader";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

@@ -1,4 +1,4 @@
-import { LiveStream, StreamsFeed } from "@openfront/shared/ApiSchemas";
+import { LiveStream, StreamsFeed } from "@laukolaroser/shared/ApiSchemas";
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { isCompactViewport } from "./CompactViewport";
@@ -10,8 +10,8 @@ import { translateText } from "./Utils";
 // Homepage "featured stream" panel: embeds a Twitch channel and shows ONLY while it is
 // actually live, then hides. Data comes from the shared streams feed (GET /streams.json,
 // with a bundled empty fallback in resources/streams.json): `featured` is a list of
-// verified-live broadcasts in admin priority order (e.g. the OFM channel for tournaments
-// ahead of the OF channel for releases). Empty = nothing to show (renders nothing).
+// verified-live broadcasts in admin priority order (e.g. a tournament channel
+// ahead of the main channel for releases). Empty = nothing to show (renders nothing).
 //
 // Liveness is decided server-side: the API polls Twitch Helix on a cron and serves only
 // broadcasts that are live right now, each carrying a `startedAt` no static config could

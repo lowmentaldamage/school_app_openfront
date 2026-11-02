@@ -24,13 +24,13 @@ if (!customElements.get("profile-share")) {
   customElements.define("profile-share", ProfileShare);
 }
 
-const URL_ = "https://openfront.io/player/aB3dE5fX";
+const URL_ = "https://laukolaroser.com/player/aB3dE5fX";
 const LINE = 'player_profile.share_text:{"name":"Wonder & Co"}';
 
 describe("share links", () => {
   it("builds the X compose URL with the link and line encoded", () => {
     expect(xShareUrl(URL_, "Wonder & Co's profile #1")).toBe(
-      "https://x.com/intent/post?url=https%3A%2F%2Fopenfront.io%2Fplayer%2FaB3dE5fX&text=Wonder%20%26%20Co's%20profile%20%231",
+      "https://x.com/intent/post?url=https%3A%2F%2Flaukolaroser.com%2Fplayer%2FaB3dE5fX&text=Wonder%20%26%20Co's%20profile%20%231",
     );
   });
 
@@ -180,7 +180,7 @@ describe("<profile-share>", () => {
 
 describe("<profile-share> as a menu, for a moment", () => {
   const MOMENT_URL = `${URL_}?moment=level50`;
-  const MOMENT_LINE = "I just reached Level 50 on OpenFront!";
+  const MOMENT_LINE = "I just reached Level 50 on Laukolaroser!";
   let el: ProfileShare;
   let openSpy: ReturnType<typeof vi.spyOn>;
 

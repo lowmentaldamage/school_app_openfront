@@ -34,12 +34,12 @@ interface PresenceBridge {
   shell?: { api?: number };
 }
 
-// window.openfrontDesktop is declared `unknown` by DesktopShell.ts (kept loose
+// window.laukolaroserDesktop is declared `unknown` by DesktopShell.ts (kept loose
 // there on purpose). We know the shape the Electron preload exposes, so narrow
 // it locally rather than re-declaring the global (a second `declare global`
 // with a different type triggers TS2717).
 function bridge(): PresenceBridge | undefined {
-  return window.openfrontDesktop as PresenceBridge | undefined;
+  return window.laukolaroserDesktop as PresenceBridge | undefined;
 }
 
 class DesktopPresence {

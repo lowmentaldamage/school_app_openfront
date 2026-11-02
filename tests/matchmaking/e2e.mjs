@@ -17,7 +17,7 @@
 import {
   gotoHome,
   launch,
-} from "../../.claude/skills/run-openfront/driver.mjs";
+} from "../../.claude/skills/run-laukolaroser/driver.mjs";
 import { isUp, makeChecker, waitFor } from "./util.mjs";
 
 const MODE = process.env.MM_MODE === "2v2" ? "2v2" : "1v1";
@@ -227,7 +227,7 @@ try {
 
   if (MODE === "2v2") {
     // Ride the real flow into the game and read the ground-truth team split
-    // from each client's GameView (see run-openfront skill notes).
+    // from each client's GameView (see run-laukolaroser skill notes).
     const splitOf = (p) =>
       p.evaluate(() => {
         const g = document.querySelector("build-menu")?.game;

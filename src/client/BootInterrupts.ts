@@ -16,7 +16,7 @@
 import {
   isTemporaryUsername,
   type UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import type { DesktopUpdateState } from "./DesktopShell";
 import { lapseNoticeDue } from "./PlayerName";
 import {
@@ -102,7 +102,7 @@ export interface BootInterruptInputs {
  *
  * `pathname === "/"` alone is wrong in the Steam build, and silently so. The
  * desktop shell serves the renderer from its own privileged scheme at
- * `app://openfront/index.html` (openfront-desktop src/main/protocol.ts,
+ * `app://laukolaroser/index.html` (laukolaroser-desktop src/main/protocol.ts,
  * GAME_URL), so the pathname there is ALWAYS "/index.html" and a bare "/" test
  * is never true. That is not new — the TEMPORARY#### rename prompt and the
  * unclaimed-rewards popup have both been dead on Steam for the same reason —

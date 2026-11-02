@@ -1,13 +1,13 @@
-import { AllPlayersStats } from "@openfront/engine-api/Schemas";
+import { AllPlayersStats } from "@laukolaroser/engine-api/Schemas";
 import {
   ClientSendWinnerMessage,
   LiveStats,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import {
   createGameWireContext,
   decodeClientMessage,
   encodeClientMessage,
-} from "@openfront/shared/ZbinWire";
+} from "@laukolaroser/shared/ZbinWire";
 import { describe, expect, it } from "vitest";
 import {
   LiveStatsVote,

@@ -19,7 +19,7 @@ function setBootstrapConfig() {
     gameEnv: "prod",
     numWorkers: 1,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.dev",
+    jwtAudience: "laukolaroser.dev",
     instanceId: "d",
     gitCommit: "t",
   };
@@ -31,8 +31,8 @@ function sessionJwt(): string {
     jti: "some-id",
     sub: "AAAAAAAAAAAAAAAAAAAAAA",
     iat: Math.floor(Date.now() / 1000),
-    iss: "https://api.openfront.dev",
-    aud: "openfront.dev",
+    iss: "https://api.laukolaroser.dev",
+    aud: "laukolaroser.dev",
     exp: Math.floor(Date.now() / 1000) + 3600,
   }).encode();
 }
@@ -43,7 +43,7 @@ const realLocationDescriptor = Object.getOwnPropertyDescriptor(
   window,
   "location",
 )!;
-const WEB_HREF = "https://openfront.dev/#modal=account";
+const WEB_HREF = "https://laukolaroser.dev/#modal=account";
 
 function stubLocation(href: string): { href: string } {
   const stub = { href, hash: new URL(href).hash };
@@ -66,7 +66,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   Object.defineProperty(window, "location", realLocationDescriptor);
-  delete (window as { openfrontDesktop?: unknown }).openfrontDesktop;
+  delete (window as { laukolaroserDesktop?: unknown }).laukolaroserDesktop;
 });
 
 describe("steamLogin", () => {
@@ -74,7 +74,7 @@ describe("steamLogin", () => {
     steamLogin();
 
     expect(location.href).toBe(
-      `https://api.openfront.dev/auth/login/steam?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
+      `https://api.laukolaroser.dev/auth/login/steam?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
     );
   });
 
@@ -83,7 +83,9 @@ describe("steamLogin", () => {
   // here would be a bug that only shows up inside the shell.
   it("never opens the desktop link gate", () => {
     const showLinkGate = vi.fn(async () => undefined);
-    (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+    (
+      window as unknown as { laukolaroserDesktop: unknown }
+    ).laukolaroserDesktop = {
       showLinkGate,
     };
 
@@ -107,7 +109,7 @@ describe("linkSteam", () => {
             status: 200,
           });
         }
-        if (url.startsWith("https://api.openfront.dev/auth/link/steam")) {
+        if (url.startsWith("https://api.laukolaroser.dev/auth/link/steam")) {
           // A top-level navigation cannot carry this, which is why the route
           // returns JSON rather than a 302.
           expect(new Headers(init?.headers).get("Authorization")).toBe(
@@ -127,7 +129,7 @@ describe("linkSteam", () => {
     );
     expect(linkCall).toBeDefined();
     expect(String(linkCall![0])).toBe(
-      `https://api.openfront.dev/auth/link/steam?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
+      `https://api.laukolaroser.dev/auth/link/steam?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
     );
     expect(location.href).toBe(authorizeUrl);
   });

@@ -1,6 +1,6 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { Versioned } from "@openfront/engine-lib/snapshot/SnapshotType";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { Versioned } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { Player } from "../game/Game";
 import type {
   SnapshotReader,

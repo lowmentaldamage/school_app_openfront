@@ -1,4 +1,4 @@
-import { GameMapType, GameMode } from "@openfront/engine-api/game/GameTypes";
+import { GameMapType, GameMode } from "@laukolaroser/engine-api/game/GameTypes";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MapPlaylist } from "../../src/server/MapPlaylist";
 

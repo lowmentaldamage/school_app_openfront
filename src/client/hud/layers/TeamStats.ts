@@ -1,4 +1,4 @@
-import type { Team } from "@openfront/engine-api/game/GameTypes";
+import type { Team } from "@laukolaroser/engine-api/game/GameTypes";
 import { customElement } from "lit/decorators.js";
 import { type StatsRow, StatsTable } from "../../components/StatsTable";
 import type { ColumnId } from "../../StatsConstants";

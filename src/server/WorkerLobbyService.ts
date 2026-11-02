@@ -1,13 +1,13 @@
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
 import {
   ClientPlatform,
   ClientPlatformSchema,
   PublicGameInfo,
   PublicGames,
   PublicLobbyMessage,
-} from "@openfront/shared/WireSchemas";
-import { encodeLobbyMessage } from "@openfront/shared/ZbinWire";
+} from "@laukolaroser/shared/WireSchemas";
+import { encodeLobbyMessage } from "@laukolaroser/shared/ZbinWire";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import { GameManager } from "./GameManager";

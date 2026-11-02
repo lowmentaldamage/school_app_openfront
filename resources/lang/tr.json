@@ -23,7 +23,7 @@
     "click_to_copy": "Kopyalamak için tıkla"
   },
   "main": {
-    "title": "OpenFront (ALFA)",
+    "title": "Laukolaroser (ALFA)",
     "join_discord": "Discord",
     "login_discord": "Discord'la giriş yap",
     "sign_in": "Oturum Aç",
@@ -37,10 +37,9 @@
     "solo": "Tekli",
     "instructions": "Rehber",
     "game_info": "Oyun bilgisi",
-    "wiki": "Wiki",
     "privacy_policy": "Gizlilik Politikası",
     "terms_of_service": "Hizmet Şartları",
-    "copyright": "© OpenFront™ ve Katkıda Bulunanlar",
+    "copyright": "© OpenFront and Contributors",
     "reddit": "Reddit",
     "play": "Oyna",
     "news": "Haberler",
@@ -633,7 +632,7 @@
     "not_enough_money": "Yeterli para yok"
   },
   "win_modal": {
-    "support_openfront": "OpenFront'u Destekle!",
+    "support_laukolaroser": "Laukolaroser'u Destekle!",
     "territory_pattern": "Bir toprak kaplaması alarak reklamlardan kurtul!",
     "died": "Öldün",
     "your_team": "Takımınız kazandı!",
@@ -645,13 +644,9 @@
     "keep": "Oynamaya Devam Et",
     "spectate": "İzle",
     "wishlist": "Steam'de İstek Listesine Ekle!",
-    "ofm_winter": "OpenFront Masters Kış Turnuvası!",
+    "ofm_winter": "Laukolaroser Masters Kış Turnuvası!",
     "ofm_winter_description": "Rekabetçi turnuvaya katıl ve en iyi oyunculara karşı mücadele et",
-    "join_tournament": "Turnuvaya Katıl",
-    "join_discord": "Discord Topluluğumuza Katıl!",
-    "discord_description": "Oyuncularla bağlantı kurun, yeni özellikleri keşfedin ve ödüller kazanın!",
-    "join_server": "Sunucuya Katıl",
-    "youtube_tutorial": "Yardım lazım mı?"
+    "join_tournament": "Turnuvaya Katıl"
   },
   "leaderboard": {
     "title": "Lider Tablosu",

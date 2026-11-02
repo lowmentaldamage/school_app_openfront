@@ -3,7 +3,7 @@
  * ReplayViewer so Main can check it without loading the viewer.
  */
 
-import { GAME_ID_REGEX } from "@openfront/engine-api/Schemas";
+import { GAME_ID_REGEX } from "@laukolaroser/engine-api/Schemas";
 
 const HASH = "#replay-viewer";
 

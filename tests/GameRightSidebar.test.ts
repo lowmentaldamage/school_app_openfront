@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { GameRightSidebar } from "../src/client/hud/layers/GameRightSidebar";
 import { SendWinnerEvent } from "../src/client/Transport";
 import type { GameView } from "../src/client/view";

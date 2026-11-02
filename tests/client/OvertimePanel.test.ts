@@ -2,7 +2,7 @@ import {
   ColoredTeams,
   GameMode,
   Team,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { OvertimePanel } from "../../src/client/components/OvertimePanel";
 import type { GameView, PlayerView } from "../../src/client/view";
 

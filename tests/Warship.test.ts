@@ -1,13 +1,13 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { MoveWarshipExecution } from "@openfront/engine/execution/MoveWarshipExecution";
-import { WarshipExecution } from "@openfront/engine/execution/WarshipExecution";
-import { Game, Player, Unit } from "@openfront/engine/game/Game";
-import { PathStatus } from "@openfront/engine/pathfinding/types";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MoveWarshipExecution } from "@laukolaroser/engine/execution/MoveWarshipExecution";
+import { WarshipExecution } from "@laukolaroser/engine/execution/WarshipExecution";
+import { Game, Player, Unit } from "@laukolaroser/engine/game/Game";
+import { PathStatus } from "@laukolaroser/engine/pathfinding/types";
 import { setup } from "./util/Setup";
 import { executeTicks } from "./util/utils";
 

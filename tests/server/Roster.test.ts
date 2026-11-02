@@ -1,4 +1,4 @@
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Roster } from "../../src/server/Roster";
 import {

@@ -1,4 +1,4 @@
-import { RankedType } from "@openfront/engine-api/game/GameTypes";
+import { RankedType } from "@laukolaroser/engine-api/game/GameTypes";
 import { html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { BaseModal } from "./components/BaseModal";

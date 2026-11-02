@@ -18,14 +18,14 @@
  * tests rely on that.
  */
 
-import type { TileRef } from "@openfront/engine-api/game/GameMap";
+import type { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import type {
   PlayerType,
   Team,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import type { Config } from "@openfront/engine-lib/configuration/Config";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { OWNER_MASK } from "../render/gl/utils/TileCodec";
 import type {
   NameEntry,

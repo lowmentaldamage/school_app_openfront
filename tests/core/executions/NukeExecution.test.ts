@@ -4,12 +4,12 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { OTHER_INDEX_DESTROY } from "@openfront/engine-api/StatsSchemas";
-import { ConstructionExecution } from "@openfront/engine/execution/ConstructionExecution";
-import { MissileSiloExecution } from "@openfront/engine/execution/MissileSiloExecution";
-import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { OTHER_INDEX_DESTROY } from "@laukolaroser/engine-api/StatsSchemas";
+import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
+import { MissileSiloExecution } from "@laukolaroser/engine/execution/MissileSiloExecution";
+import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "../../util/Setup";
 import { TestConfig } from "../../util/TestConfig";
 import { executeTicks } from "../../util/utils";

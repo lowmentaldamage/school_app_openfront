@@ -65,7 +65,7 @@ export class CopyButton extends LitElement {
   private async buildCopyUrl(): Promise<string> {
     // ClientEnv.shareOrigin(), not window.location: this string goes to the
     // clipboard and then to another player, and under the desktop shell the
-    // document's own origin is `app://openfront` — a link only that one
+    // document's own origin is `app://laukolaroser` — a link only that one
     // Electron process can open. See deriveShareOrigin.
     let url = `${ClientEnv.shareOrigin()}${ClientEnv.gamePath(this.lobbyId)}`;
     if (this.includeLobbyQuery) {

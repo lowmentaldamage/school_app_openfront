@@ -3,7 +3,7 @@ import {
   type ProgressionConfig,
   type Reward,
   type TrackFlare,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import {

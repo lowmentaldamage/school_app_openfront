@@ -4,7 +4,7 @@
 // BrowserWindow constructor, which is well before any renderer exists to read
 // localStorage.
 //
-// openfront-desktop's `src/main/displayTypes.ts` is the SOURCE OF TRUTH for
+// laukolaroser-desktop's `src/main/displayTypes.ts` is the SOURCE OF TRUTH for
 // every shape below. The two repositories cannot import from each other -- the
 // client is a submodule built from a public AGPL repo -- so these are mirrored
 // by hand, the same arrangement `DesktopUpdateState` in DesktopShell.ts
@@ -89,7 +89,7 @@ type DisplayBridgeHolder = { display?: unknown };
  */
 export function desktopDisplay(): DesktopDisplayBridge | null {
   if (typeof window === "undefined") return null;
-  const desktop = window.openfrontDesktop as DisplayBridgeHolder | undefined;
+  const desktop = window.laukolaroserDesktop as DisplayBridgeHolder | undefined;
   const display = desktop?.display as Partial<DesktopDisplayBridge> | undefined;
   if (
     typeof display?.getPrefs !== "function" ||
@@ -161,7 +161,7 @@ export function isDisplaySnapshot(
   return prefs.displayId === null || typeof prefs.displayId === "number";
 }
 
-// Mirrors UI_SCALE_STEPS in openfront-desktop's uiScaleKeys.ts, which the
+// Mirrors UI_SCALE_STEPS in laukolaroser-desktop's uiScaleKeys.ts, which the
 // zoom keys step through. Values outside UI_SCALE_MIN/MAX are refused.
 export const UI_SCALE_OPTIONS: readonly number[] = [
   0.75, 0.9, 1, 1.1, 1.25, 1.5,

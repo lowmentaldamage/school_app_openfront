@@ -9,8 +9,8 @@
  *     structure levels → bars → bloom → trails → missiles → fx → conquest → names
  */
 
-import type { MapLayer } from "@openfront/engine-api/game/MapFiles";
-import type { Config } from "@openfront/engine-lib/configuration/Config";
+import type { MapLayer } from "@laukolaroser/engine-api/game/MapFiles";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { translateText } from "../../Utils";
 import type { SpiralRibbon } from "../frame/SpiralTrails";
 import type {

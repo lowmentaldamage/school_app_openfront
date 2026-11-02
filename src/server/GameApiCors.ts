@@ -3,23 +3,23 @@ import { ServerEnv } from "./ServerEnv";
 
 /**
  * Origin the desktop app's renderer runs from. It loads from a privileged
- * custom scheme rather than https, so `app://openfront` is a real, fixed
+ * custom scheme rather than https, so `app://laukolaroser` is a real, fixed
  * origin — see the desktop repo's `src/main/protocol.ts`.
  */
-export const DESKTOP_APP_ORIGIN = "app://openfront";
+export const DESKTOP_APP_ORIGIN = "app://laukolaroser";
 
 function isAllowedOrigin(origin: string): boolean {
   if (origin === DESKTOP_APP_ORIGIN) return true;
   const siteHost = ServerEnv.siteHost();
   if (siteHost !== undefined && origin === `https://${siteHost}`) return true;
 
-  // Replay shell host: replay.openfront.io (or replay.<domain>)
+  // Replay shell host: replay.laukolaroser.com (or replay.<domain>)
   const audience = ServerEnv.domain();
   if (audience && origin === `https://replay.${audience}`) return true;
   // This server's own game host — harmless (same-origin requests skip CORS)
   // and what a page rendered by this server pins itself to — and its own
-  // PAGE host when GAME_DOMAIN splits the two names (`main.openfront.dev`
-  // for game host `main.server.openfront.dev`): a player who loads that
+  // PAGE host when GAME_DOMAIN splits the two names (`main.laukolaroser.dev`
+  // for game host `main.server.laukolaroser.dev`): a player who loads that
   // page arrives from exactly that origin.
   //
   // Sibling game hosts are deliberately NOT here any more. Every page a
@@ -39,14 +39,14 @@ function isAllowedOrigin(origin: string): boolean {
  * host the players came from.
  *
  * A deployment has two hostnames (docs/MultiServer.md, "Two hostnames per
- * deployment"): the page host players load from — the apex `openfront.io`, or
- * `main.openfront.dev` served by the static Worker where GAME_DOMAIN is set —
- * and the game host this server answers on (`blue.openfront.io`,
- * `main.server.openfront.dev`; see ServerEnv.publicHost). Those are different
+ * deployment"): the page host players load from — the apex `laukolaroser.com`, or
+ * `main.laukolaroser.dev` served by the static Worker where GAME_DOMAIN is set —
+ * and the game host this server answers on (`blue.laukolaroser.com`,
+ * `main.server.laukolaroser.dev`; see ServerEnv.publicHost). Those are different
  * origins, so every `/api` call the page makes is cross-origin — which is why
  * the page host is allowed here alongside this server's own game host. The
  * desktop client's renderer is cross-origin for a different reason: it loads
- * from `app://openfront`. The POSTs send Authorization and Content-Type,
+ * from `app://laukolaroser`. The POSTs send Authorization and Content-Type,
  * which makes them non-simple, so the browser preflights.
  *
  * Deliberately no `Access-Control-Allow-Credentials`: the play token travels

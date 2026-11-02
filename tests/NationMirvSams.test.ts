@@ -3,16 +3,16 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { MirvExecution } from "@openfront/engine/execution/MIRVExecution";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { MirvExecution } from "@laukolaroser/engine/execution/MIRVExecution";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
 import {
   mirvLeakShare,
   NationMIRVBehavior,
-} from "@openfront/engine/execution/nation/NationMIRVBehavior";
-import { NationNukeBehavior } from "@openfront/engine/execution/nation/NationNukeBehavior";
-import { NationStructureBehavior } from "@openfront/engine/execution/nation/NationStructureBehavior";
+} from "@laukolaroser/engine/execution/nation/NationMIRVBehavior";
+import { NationNukeBehavior } from "@laukolaroser/engine/execution/nation/NationNukeBehavior";
+import { NationStructureBehavior } from "@laukolaroser/engine/execution/nation/NationStructureBehavior";
 import { vi } from "vitest";
 import { createGame, L, W } from "./core/pathfinding/_fixtures";
 

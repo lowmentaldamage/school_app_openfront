@@ -1,4 +1,4 @@
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { colord } from "colord";
 import { describe, expect, it } from "vitest";
 import { getColoredSprite } from "../../../src/client/hud/SpriteLoader";

@@ -1,22 +1,22 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   GameMode,
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   Config,
   NukeMagnitude,
-} from "@openfront/engine-lib/configuration/Config";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationAttackBehavior } from "@openfront/engine/execution/nation/NationAttackBehavior";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { NationNukeBehavior } from "@openfront/engine/execution/nation/NationNukeBehavior";
-import { NationWarshipBehavior } from "@openfront/engine/execution/nation/NationWarshipBehavior";
-import { Game, Player, Unit } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-lib/configuration/Config";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationAttackBehavior } from "@laukolaroser/engine/execution/nation/NationAttackBehavior";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { NationNukeBehavior } from "@laukolaroser/engine/execution/nation/NationNukeBehavior";
+import { NationWarshipBehavior } from "@laukolaroser/engine/execution/nation/NationWarshipBehavior";
+import { Game, Player, Unit } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 import { TestConfig } from "./util/TestConfig";
 

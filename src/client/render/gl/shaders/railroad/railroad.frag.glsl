@@ -30,7 +30,7 @@ uniform float uHoverOwner;           // Hovered territory's owner smallID (0 = n
 in vec2 vWorldPos;
 out vec4 fragColor;
 
-// Bridge pixel positions per rail type, from OpenFrontIO's RailroadSprites.ts.
+// Bridge pixel positions per rail type, from Laukolaroser's RailroadSprites.ts.
 // Tests whether 2x-pixel offset (lp) from a tile origin is a bridge pixel.
 // Bridge pixel positions from game's RailroadSprites.ts, with -2 offsets
 // shifted to -1 to close the gap (game's rail extends into neighbors, ours doesn't).

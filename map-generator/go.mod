@@ -1,4 +1,4 @@
-module github.com/openfrontio/OpenFrontIO/map-generator
+module github.com/laukolaroser/Laukolaroser/map-generator
 
 go 1.24.4
 

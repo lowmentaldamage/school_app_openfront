@@ -13,14 +13,14 @@ const MIN_SHELL_VERSION = "0.1.0";
 
 // Capability level this client line provides. The desktop shell refuses to
 // activate a release below its own required level -- see the handshake design
-// in the openfront-desktop repo. Raise this when the client starts REQUIRING
+// in the laukolaroser-desktop repo. Raise this when the client starts REQUIRING
 // something of the shell, not on every release.
 const CLIENT_API: number = clientApiConfig.clientApi;
 
 // ---------------------------------------------------------------------------
 // Mirror of the desktop shell's safeOverlayPath / safeManifestTarget.
 //
-// SOURCE OF TRUTH: openfront-desktop's src/main/update/descriptor.ts. The two
+// SOURCE OF TRUTH: laukolaroser-desktop's src/main/update/descriptor.ts. The two
 // repositories cannot import from each other, so this is duplicated on purpose
 // -- the same arrangement as multiplayerAllowed in src/client/DesktopShell.ts.
 // If the shell's rules change, change these to match.
@@ -36,7 +36,7 @@ const CLIENT_API: number = clientApiConfig.clientApi;
 const ALLOWED_ROOTS = ["assets/", "_assets/"];
 
 // Same mirror-of-the-shell rationale as ALLOWED_ROOTS above: parseDescriptor
-// in openfront-desktop's src/main/update/descriptor.ts requires `sha256` to be
+// in laukolaroser-desktop's src/main/update/descriptor.ts requires `sha256` to be
 // 64 lowercase hex characters and `bytes` a non-negative integer, and throws
 // on the first entry that isn't -- aborting the parse of the WHOLE descriptor.
 // asset-hashes.json is generated, not hand-written, but a bug in

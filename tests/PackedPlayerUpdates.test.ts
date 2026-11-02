@@ -8,15 +8,15 @@ import {
   GameType,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   GameUpdateViewData,
-} from "@openfront/engine-api/game/GameUpdates";
-import { Executor } from "@openfront/engine/execution/ExecutionManager";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
-import { GameRunner } from "@openfront/engine/GameRunner";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { Executor } from "@laukolaroser/engine/execution/ExecutionManager";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
+import { GameRunner } from "@laukolaroser/engine/GameRunner";
 import { setup } from "./util/Setup";
 
 const gameID = "game_id";

@@ -21,7 +21,7 @@ The **Tutorial** buttons (the play page card and the help modal) start the new t
 
 ### Steps
 
-It opens with a welcome card that describes OpenFront in one sentence, with a **Start** button.
+It opens with a welcome card that describes Laukolaroser in one sentence, with a **Start** button.
 
 1. **Spawn.** A glowing zone marks the spawn area. Only a click inside it counts.
 2. **Expand.** Click the empty land next to your territory.
@@ -75,7 +75,7 @@ All step text, warnings and the victory screen go through `translateText()`, wit
 
 ## Entry points
 
-- **First visit (not on a portal).** A modal: "New to OpenFront? Play the 2-minute tutorial" with **Start tutorial** and **Skip**. It shows while the player has played no games and hasn't finished or skipped the tutorial (a new `UserSettings` flag).
+- **First visit (not on a portal).** A modal: "New to Laukolaroser? Play the 2-minute tutorial" with **Start tutorial** and **Skip**. It shows while the player has played no games and hasn't finished or skipped the tutorial (a new `UserSettings` flag).
 - **First visit on Poki or CrazyGames.** Skip the homepage and the modal and drop straight into the tutorial once the game has loaded, unless the portal sent the player to a lobby (an invite, or instant multiplayer). Portal players expect to be playing within seconds, and every extra click loses some of them. Joining the tutorial counts as a game played, so it happens once.
 - **Tutorial card and help modal.** Start the tutorial at any time. The card keeps its current rule: it shows until the player has played 5 games (`TUTORIAL_CARD_MAX_GAMES`).
 

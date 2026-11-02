@@ -5,7 +5,7 @@ vi.mock("../../src/client/Utils", () => ({
     params ? `${key}:${JSON.stringify(params)}` : key,
 }));
 
-import type { GameXpEligible } from "@openfront/shared/ApiSchemas";
+import type { GameXpEligible } from "@laukolaroser/shared/ApiSchemas";
 import "../../src/client/components/GameXpPanel";
 import type { GameXpPanel } from "../../src/client/components/GameXpPanel";
 

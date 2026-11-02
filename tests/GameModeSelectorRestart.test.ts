@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { PublicGames } from "@openfront/shared/WireSchemas";
+import type { PublicGames } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { capturePagePin, resetPagePinForTests } from "../src/client/PagePin";
 
@@ -134,7 +134,7 @@ describe("GameModeSelector update prompt on the replay shell host", () => {
   });
 
   it("suppresses the prompt on replay.<domain>", () => {
-    vi.stubGlobal("location", { hostname: "replay.openfront.io" });
+    vi.stubGlobal("location", { hostname: "replay.laukolaroser.com" });
     const selector = new GameModeSelector() as any;
 
     selector.handleUpdateAvailable();
@@ -144,7 +144,7 @@ describe("GameModeSelector update prompt on the replay shell host", () => {
   });
 
   it("still prompts on ordinary hosts", () => {
-    vi.stubGlobal("location", { hostname: "openfront.io" });
+    vi.stubGlobal("location", { hostname: "laukolaroser.com" });
     const selector = new GameModeSelector() as any;
 
     selector.handleUpdateAvailable();
@@ -167,7 +167,7 @@ describe("GameModeSelector update prompt on a pinned /v/<commit>/ page", () => {
 
   it("suppresses the prompt when the page is pinned to a version", () => {
     vi.stubGlobal("location", {
-      hostname: "openfront.io",
+      hostname: "laukolaroser.com",
       pathname: "/v/5ccc50a7/game/dAbCd12345",
     });
     // isPinnedToAVersion answers from the pin captured at boot (PagePin.ts),
@@ -183,7 +183,7 @@ describe("GameModeSelector update prompt on a pinned /v/<commit>/ page", () => {
 
   it("still prompts at a version-free path", () => {
     vi.stubGlobal("location", {
-      hostname: "openfront.io",
+      hostname: "laukolaroser.com",
       pathname: "/game/dAbCd12345",
     });
     capturePagePin();

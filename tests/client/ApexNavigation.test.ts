@@ -26,12 +26,12 @@ describe("apex-aware navigation", () => {
     window.BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       cluster: {
-        c: { host: "blue.openfront.io", numWorkers: 2 },
-        d: { host: "green.openfront.io", numWorkers: 2 },
+        c: { host: "blue.laukolaroser.com", numWorkers: 2 },
+        d: { host: "green.laukolaroser.com", numWorkers: 2 },
       },
       instanceLetter: "d",
       turnstileSiteKey: "k",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "i",
       gitCommit: "abc",
       ...(siteHost === undefined ? {} : { siteHost }),
@@ -59,36 +59,40 @@ describe("apex-aware navigation", () => {
   });
 
   it("homeHref leaves a deployment host for the apex", () => {
-    stubPage("green.openfront.io", "/", "openfront.io");
-    expect(homeHref()).toBe("https://openfront.io/");
+    stubPage("green.laukolaroser.com", "/", "laukolaroser.com");
+    expect(homeHref()).toBe("https://laukolaroser.com/");
   });
 
   it("homeHref stays local on the apex and on standalone deployments", () => {
-    stubPage("openfront.io", "/", "openfront.io");
+    stubPage("laukolaroser.com", "/", "laukolaroser.com");
     expect(homeHref()).toBe("/");
-    stubPage("beta.openfront.io", "/");
+    stubPage("beta.laukolaroser.com", "/");
     expect(homeHref()).toBe("/");
   });
 
   it("reloadForUpdate re-enters through the apex, keeping the game path", () => {
-    stubPage("green.openfront.io", "/w1/game/dAbCd12345", "openfront.io");
+    stubPage(
+      "green.laukolaroser.com",
+      "/w1/game/dAbCd12345",
+      "laukolaroser.com",
+    );
     reloadForUpdate();
     expect(replace).toHaveBeenCalledTimes(1);
     const url = new URL(replace.mock.calls[0][0]);
-    expect(url.host).toBe("openfront.io");
+    expect(url.host).toBe("laukolaroser.com");
     // Worker prefixes are origin-specific; letter routing re-resolves.
     expect(url.pathname).toBe("/game/dAbCd12345");
     expect(url.searchParams.has("v")).toBe(true);
   });
 
   it("reloadForUpdate stays same-origin on the apex and standalone hosts", () => {
-    stubPage("openfront.io", "/", "openfront.io");
+    stubPage("laukolaroser.com", "/", "laukolaroser.com");
     reloadForUpdate();
-    stubPage("beta.openfront.io", "/");
+    stubPage("beta.laukolaroser.com", "/");
     reloadForUpdate();
     for (const call of replace.mock.calls) {
       const url = new URL(call[0]);
-      expect(["openfront.io", "beta.openfront.io"]).toContain(url.host);
+      expect(["laukolaroser.com", "beta.laukolaroser.com"]).toContain(url.host);
       expect(url.searchParams.has("v")).toBe(true);
     }
   });
@@ -99,11 +103,15 @@ describe("apex-aware navigation", () => {
   // pins it. The update prompt has to ask for the version-free path, which
   // the site answers with `latest`.
   it("reloadForUpdate leaves a /v/<commit>/ page for the version-free path", () => {
-    stubPage("openfront.io", "/v/5ccc50a7/game/dAbCd12345", "openfront.io");
+    stubPage(
+      "laukolaroser.com",
+      "/v/5ccc50a7/game/dAbCd12345",
+      "laukolaroser.com",
+    );
     reloadForUpdate();
     expect(replace).toHaveBeenCalledTimes(1);
     const url = new URL(replace.mock.calls[0][0]);
-    expect(url.host).toBe("openfront.io");
+    expect(url.host).toBe("laukolaroser.com");
     expect(url.pathname).toBe("/game/dAbCd12345");
     expect(url.searchParams.has("v")).toBe(true);
   });
@@ -112,39 +120,47 @@ describe("apex-aware navigation", () => {
     // Both prefixes go, in either order and on either branch: /w1/ was
     // resolved against the old worker count, which the new version may have
     // changed.
-    stubPage("openfront.io", "/v/5ccc50a7/w1/game/dAbCd12345", "openfront.io");
+    stubPage(
+      "laukolaroser.com",
+      "/v/5ccc50a7/w1/game/dAbCd12345",
+      "laukolaroser.com",
+    );
     reloadForUpdate();
     const url = new URL(replace.mock.calls[0][0]);
-    expect(url.host).toBe("openfront.io");
+    expect(url.host).toBe("laukolaroser.com");
     expect(url.pathname).toBe("/game/dAbCd12345");
   });
 
   it("reloadForUpdate drops the version prefix on a standalone host too", () => {
     // No siteHost injected: the reload stays on this host, but still must
     // not ask for the pinned version again.
-    stubPage("beta.openfront.io", "/v/5ccc50a7/");
+    stubPage("beta.laukolaroser.com", "/v/5ccc50a7/");
     reloadForUpdate();
     const url = new URL(replace.mock.calls[0][0]);
-    expect(url.host).toBe("beta.openfront.io");
+    expect(url.host).toBe("beta.laukolaroser.com");
     expect(url.pathname).toBe("/");
   });
 
   it("reloadForUpdate drops both prefixes when re-entering through the apex", () => {
     stubPage(
-      "green.openfront.io",
+      "green.laukolaroser.com",
       "/v/5ccc50a7/w1/game/dAbCd12345",
-      "openfront.io",
+      "laukolaroser.com",
     );
     reloadForUpdate();
     const url = new URL(replace.mock.calls[0][0]);
-    expect(url.host).toBe("openfront.io");
+    expect(url.host).toBe("laukolaroser.com");
     expect(url.pathname).toBe("/game/dAbCd12345");
   });
 
   it("homeHref leaves a versioned page for the version-free root", () => {
     // "Leave to the menu" should land the player on `latest`, not back on
     // the build they were told to leave.
-    stubPage("openfront.io", "/v/5ccc50a7/game/dAbCd12345", "openfront.io");
+    stubPage(
+      "laukolaroser.com",
+      "/v/5ccc50a7/game/dAbCd12345",
+      "laukolaroser.com",
+    );
     expect(homeHref()).toBe("/");
   });
 
@@ -152,7 +168,11 @@ describe("apex-aware navigation", () => {
   // one must reload THE BUNDLE THIS PAGE IS RUNNING. A version-free path in
   // history would hand a pinned player `latest` instead, mid-game.
   it("currentPagePath re-applies the page's own version prefix", () => {
-    stubPage("openfront.io", "/v/5ccc50a7/game/dAbCd12345", "openfront.io");
+    stubPage(
+      "laukolaroser.com",
+      "/v/5ccc50a7/game/dAbCd12345",
+      "laukolaroser.com",
+    );
     expect(currentPagePath("/w1/game/dAbCd12345?live")).toBe(
       "/v/5ccc50a7/w1/game/dAbCd12345?live",
     );
@@ -160,7 +180,7 @@ describe("apex-aware navigation", () => {
   });
 
   it("currentPagePath leaves a version-free page alone", () => {
-    stubPage("openfront.io", "/w1/game/dAbCd12345", "openfront.io");
+    stubPage("laukolaroser.com", "/w1/game/dAbCd12345", "laukolaroser.com");
     expect(currentPagePath("/game/dAbCd12345")).toBe("/game/dAbCd12345");
   });
 
@@ -171,7 +191,11 @@ describe("apex-aware navigation", () => {
   // mid-game would hand a pinned player `latest`. capturePagePin() at boot
   // is what keeps the answer from moving with the address bar.
   it("keeps the pin after the share-URL rewrite drops the prefix", () => {
-    stubPage("openfront.io", "/v/5ccc50a7/game/dAbCd12345", "openfront.io");
+    stubPage(
+      "laukolaroser.com",
+      "/v/5ccc50a7/game/dAbCd12345",
+      "laukolaroser.com",
+    );
     capturePagePin();
     expect(isPinnedToAVersion()).toBe(true);
 

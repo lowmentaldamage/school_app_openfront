@@ -28,7 +28,7 @@ vi.mock("../../../../src/client/Utils", () => ({
   getSvgAspectRatio: vi.fn(() => 1),
   formatKeyForDisplay: vi.fn(() => "F"),
 }));
-vi.mock("@openfront/engine-lib/Format", () => ({
+vi.mock("@laukolaroser/engine-lib/Format", () => ({
   renderNumber: vi.fn(() => "0"),
   renderTroops: vi.fn(() => "0"),
 }));
@@ -40,8 +40,8 @@ vi.mock("../../../../src/client/hud/PlayerIcons", () => ({
   getPlayerIcons: vi.fn(() => []),
 }));
 
-import { PlayerType, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { PlayerType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   afterEach,
   beforeEach,

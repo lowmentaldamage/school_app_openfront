@@ -56,14 +56,14 @@ describe("update.sh traefik host rule", () => {
   // the one place a regression would be invisible in code review and total in
   // production: every deployment on the domain would stop matching.
   it("emits a single Host() when GAME_DOMAIN is absent", () => {
-    expect(hostRuleFor("main", "openfront.dev")).toBe(
-      "Host(`main.openfront.dev`)",
+    expect(hostRuleFor("main", "laukolaroser.dev")).toBe(
+      "Host(`main.laukolaroser.dev`)",
     );
   });
 
   it("treats an empty GAME_DOMAIN exactly like an absent one", () => {
-    expect(hostRuleFor("blue", "openfront.io", "")).toBe(
-      "Host(`blue.openfront.io`)",
+    expect(hostRuleFor("blue", "laukolaroser.com", "")).toBe(
+      "Host(`blue.laukolaroser.com`)",
     );
   });
 
@@ -71,8 +71,10 @@ describe("update.sh traefik host rule", () => {
   // point sockets and /api, and the page host keeps working until the static
   // Worker is actually routed there.
   it("matches the page host and the game host when GAME_DOMAIN is set", () => {
-    expect(hostRuleFor("main", "openfront.dev", "server.openfront.dev")).toBe(
-      "Host(`main.openfront.dev`) || Host(`main.server.openfront.dev`)",
+    expect(
+      hostRuleFor("main", "laukolaroser.dev", "server.laukolaroser.dev"),
+    ).toBe(
+      "Host(`main.laukolaroser.dev`) || Host(`main.server.laukolaroser.dev`)",
     );
   });
 
@@ -82,11 +84,13 @@ describe("update.sh traefik host rule", () => {
     expect(
       hostRuleFor(
         "main",
-        "openfront.dev",
-        "server.openfront.dev",
-        "main.server.openfront.dev",
+        "laukolaroser.dev",
+        "server.laukolaroser.dev",
+        "main.server.laukolaroser.dev",
       ),
-    ).toBe("Host(`main.openfront.dev`) || Host(`main.server.openfront.dev`)");
+    ).toBe(
+      "Host(`main.laukolaroser.dev`) || Host(`main.server.laukolaroser.dev`)",
+    );
   });
 
   // A machine-scoped host has no page host of its own -- its page is the
@@ -96,17 +100,21 @@ describe("update.sh traefik host rule", () => {
     expect(
       hostRuleFor(
         "blue",
-        "openfront.dev",
-        "server.openfront.dev",
-        "blue.staging2.server.openfront.dev",
+        "laukolaroser.dev",
+        "server.laukolaroser.dev",
+        "blue.staging2.server.laukolaroser.dev",
       ),
-    ).toBe("Host(`blue.staging2.server.openfront.dev`)");
+    ).toBe("Host(`blue.staging2.server.laukolaroser.dev`)");
   });
 
   // Traefik's matcher syntax: the names must be backticked, or the rule is a
   // parse error and the router never comes up.
   it("backticks every host name", () => {
-    const rule = hostRuleFor("main", "openfront.dev", "server.openfront.dev");
+    const rule = hostRuleFor(
+      "main",
+      "laukolaroser.dev",
+      "server.laukolaroser.dev",
+    );
     expect(rule.match(/`/g)).toHaveLength(4);
     expect(rule).not.toContain('"');
   });

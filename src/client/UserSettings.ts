@@ -1,6 +1,6 @@
-import { Emoji, flattenedEmojiTable } from "@openfront/engine-api/Schemas";
-import { Cosmetics } from "@openfront/shared/CosmeticSchemas";
-import { PlayerPattern } from "@openfront/shared/WireSchemas";
+import { Emoji, flattenedEmojiTable } from "@laukolaroser/engine-api/Schemas";
+import { Cosmetics } from "@laukolaroser/shared/CosmeticSchemas";
+import { PlayerPattern } from "@laukolaroser/shared/WireSchemas";
 import {
   GraphicsOverrides,
   GraphicsOverridesSchema,

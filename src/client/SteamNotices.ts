@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { steamGrantOf } from "./SteamGrantNotices";
 
 export const STEAM_LICENCE_INTRO_NOTICE = "steam_licence_intro";

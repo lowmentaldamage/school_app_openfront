@@ -3,8 +3,8 @@ import {
   boatUnits,
   bombUnits,
   otherUnits,
-} from "@openfront/engine-api/StatsSchemas";
-import { renderNumber } from "@openfront/engine-lib/Format";
+} from "@laukolaroser/engine-api/StatsSchemas";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
 import { LitElement, html, nothing, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../../../Utils";

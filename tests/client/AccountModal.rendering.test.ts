@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mocks (mirrors tests/client/clan/ClanModalTestUtils.ts factories) ──────
@@ -31,7 +31,7 @@ vi.mock("../../src/client/Utils", () => ({
   getMapName: vi.fn((m: string) => m),
   renderDuration: vi.fn(() => ""),
 }));
-vi.mock("@openfront/engine-lib/Format", () => ({
+vi.mock("@laukolaroser/engine-lib/Format", () => ({
   renderNumber: vi.fn((n: number) => String(n)),
 }));
 
@@ -102,7 +102,7 @@ describe("AccountModal — rendering", () => {
   afterEach(() => {
     document.body.removeChild(modal);
     vi.clearAllMocks();
-    delete (window as { openfrontDesktop?: unknown }).openfrontDesktop;
+    delete (window as { laukolaroserDesktop?: unknown }).laukolaroserDesktop;
   });
 
   // Directly install a resolved userMeResponse and flip off the loading state,
@@ -189,7 +189,7 @@ describe("AccountModal — rendering", () => {
   });
 
   // Desktop re-entry to the account-linking gate. The Electron preload exposes
-  // `window.openfrontDesktop.showLinkGate()` for exactly this purpose; it is
+  // `window.laukolaroserDesktop.showLinkGate()` for exactly this purpose; it is
   // absent entirely on plain web, which is the signal the action guards on.
   describe("desktop link-gate action", () => {
     function findLinkGateButton(): HTMLButtonElement | undefined {
@@ -200,7 +200,9 @@ describe("AccountModal — rendering", () => {
 
     it("renders and calls showLinkGate() when the desktop bridge is present", async () => {
       const showLinkGate = vi.fn(async () => undefined);
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         showLinkGate,
       };
 
@@ -241,7 +243,9 @@ describe("AccountModal — rendering", () => {
     // actually call, not a sibling property. A bridge exposing `linkGate` but
     // no callable `showLinkGate` must not render a dead button.
     it("does not render when the bridge exists but showLinkGate is not a function", async () => {
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         linkGate: { open: vi.fn() },
       };
 
@@ -298,7 +302,7 @@ describe("AccountModal — rendering", () => {
   });
 
   // OPE-343. On the desktop shell the provider buttons cannot run an OAuth
-  // redirect (the redirect_uri would be app://openfront), so Auth.ts routes
+  // redirect (the redirect_uri would be app://laukolaroser), so Auth.ts routes
   // them through the shell's browser link flow -- and the captions must say
   // so, keyed on the same bridge check Auth.ts routes on. On the web the
   // login screen is untouched.
@@ -310,7 +314,9 @@ describe("AccountModal — rendering", () => {
     }
 
     it("captions the provider buttons as continuing in the browser when the bridge is present", async () => {
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         showLinkGate: vi.fn(async () => undefined),
       };
       modal.open();
@@ -331,7 +337,9 @@ describe("AccountModal — rendering", () => {
     });
 
     it("hides Clear Session on Steam, where the ticket restores the session", async () => {
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         steam: {},
       };
       modal.open();
@@ -359,7 +367,9 @@ describe("AccountModal — rendering", () => {
     // update prompt), so the web caption is wrong on every shell, bridge or
     // not.
     it("keeps the browser captions when the bridge lacks showLinkGate", async () => {
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         linkGate: {},
       };
       modal.open();
@@ -375,7 +385,9 @@ describe("AccountModal — rendering", () => {
     // and its caption says so. Matched on the whole caption, since the web
     // key is a prefix of the desktop one.
     it("captions the Google link button as opening the website on desktop", async () => {
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         showLinkGate: vi.fn(async () => undefined),
       };
       await setLoggedInUser(
@@ -485,7 +497,9 @@ describe("AccountModal — rendering", () => {
   it("offers no Steam sign-in or link inside the desktop shell", async () => {
     // A shell player already holds the Steam identity through the native
     // ticket, so both surfaces would be no-ops that look like options.
-    (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {};
+    (
+      window as unknown as { laukolaroserDesktop: unknown }
+    ).laukolaroserDesktop = {};
     await setLoggedInUser(
       makeUserMe({
         discord: {

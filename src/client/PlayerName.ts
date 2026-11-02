@@ -1,12 +1,12 @@
 import {
   RENDERABLE_NAME_CHAR_RE,
   RENDERABLE_NAME_HAS_ALNUM_RE,
-} from "@openfront/engine-api/Schemas";
-import { ANON_WORDS, anonWordName } from "@openfront/shared/AnonNames";
+} from "@laukolaroser/engine-api/Schemas";
+import { ANON_WORDS, anonWordName } from "@laukolaroser/shared/AnonNames";
 import {
   isTemporaryUsername,
   type UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import {
   ACCOUNT_NAME_CHAR_RE,
   MAX_ACCOUNT_USERNAME_LENGTH,

@@ -7,12 +7,12 @@ import {
   Quads,
   Trios,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { TeamCountConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   DOOMSDAY_CLOCK_SPEEDS,
   DoomsdayClockSpeed,
-} from "@openfront/engine-lib/game/DoomsdayClock";
+} from "@laukolaroser/engine-lib/game/DoomsdayClock";
 import {
   LitElement,
   SVGTemplateResult,

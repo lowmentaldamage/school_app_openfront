@@ -94,7 +94,7 @@ function fakeBridge(initial: DesktopDisplaySnapshot = snapshot()) {
   return {
     bridge,
     install() {
-      window.openfrontDesktop = { shell: { api: 3 }, display: bridge };
+      window.laukolaroserDesktop = { shell: { api: 3 }, display: bridge };
     },
     /** What the next getPrefs() answers with. */
     setStored(next: DesktopDisplaySnapshot) {
@@ -152,7 +152,7 @@ function choose(select: HTMLSelectElement, value: string): void {
 // tests/domTeardown.ts, which runs after this file's own hooks. Only the
 // globals this file installs need undoing here.
 afterEach(() => {
-  window.openfrontDesktop = undefined;
+  window.laukolaroserDesktop = undefined;
   vi.useRealTimers();
 });
 
@@ -171,24 +171,24 @@ describe("Display tab visibility", () => {
   beforeEach(resetDom);
 
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   // The web build. No Display tab, and no bridge reference is ever evaluated.
   it("is absent with no desktop shell", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     const el = await mount();
     expect(tabKeys(el)).not.toContain("display");
   });
 
   it("is absent on a shell older than the display bridge", async () => {
-    window.openfrontDesktop = { shell: { api: 2 } };
+    window.laukolaroserDesktop = { shell: { api: 2 } };
     const el = await mount();
     expect(tabKeys(el)).not.toContain("display");
   });
 
   it("is absent on a display namespace missing setPrefs", async () => {
-    window.openfrontDesktop = { display: { getPrefs: () => undefined } };
+    window.laukolaroserDesktop = { display: { getPrefs: () => undefined } };
     const el = await mount();
     expect(tabKeys(el)).not.toContain("display");
   });
@@ -196,7 +196,7 @@ describe("Display tab visibility", () => {
   // A deep link or a stale bookmark must not reach the tab body on the web:
   // BaseModal validates the requested tab against tabs[].
   it("cannot be opened by name without a bridge", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     const el = await mount();
     el.open({ tab: "display" });
     await flush(el);
@@ -298,7 +298,7 @@ describe("Display tab contents", () => {
   beforeEach(resetDom);
 
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   // The in-game entry point: SettingsModal opens this same modal on a named
@@ -457,7 +457,7 @@ describe("Display tab writes", () => {
   beforeEach(resetDom);
 
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     vi.useRealTimers();
   });
 
@@ -714,7 +714,7 @@ describe("Display tab UI scale", () => {
   beforeEach(resetDom);
 
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   const scaled = (uiScale: number) =>
@@ -823,7 +823,7 @@ describe("Display tab subscription lifecycle", () => {
   beforeEach(resetDom);
 
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     vi.useRealTimers();
   });
 
@@ -997,7 +997,7 @@ describe("Display tab subscription lifecycle", () => {
   // work -- subscribe is not part of the availability test.
   it("works against a bridge with no subscribe", async () => {
     const fake = fakeBridge();
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       display: {
         getPrefs: fake.bridge.getPrefs,
         setPrefs: fake.bridge.setPrefs,

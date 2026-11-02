@@ -1,7 +1,10 @@
-import { GameMapType, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { resolveTribeNameData } from "@openfront/engine-lib/execution/utils/TribeNames";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { createRandomName } from "@openfront/shared/SharedUtil";
+import {
+  GameMapType,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { resolveTribeNameData } from "@laukolaroser/engine-lib/execution/utils/TribeNames";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { createRandomName } from "@laukolaroser/shared/SharedUtil";
 
 describe("resolveTribeNameData", () => {
   test("returns default theme when called with no arguments", () => {

@@ -1,4 +1,4 @@
-import { GameID } from "@openfront/engine-api/Schemas";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
 import { ClientEnv } from "./ClientEnv";
 import { clientPlatform } from "./ClientPlatform";
 

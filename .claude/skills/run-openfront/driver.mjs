@@ -1,5 +1,5 @@
-// Headless-Chromium driver for OpenFront. Run from the repo root:
-//   node .claude/skills/run-openfront/driver.mjs          # smoke flow
+// Headless-Chromium driver for Laukolaroser. Run from the repo root:
+//   node .claude/skills/run-laukolaroser/driver.mjs          # smoke flow
 // or import { launch, gotoHome, openSoloModal } from it in an ad-hoc
 // script placed inside the repo (so `playwright` resolves from
 // node_modules). Requires setup.sh to have been run once on this machine.
@@ -9,9 +9,9 @@ import path from "path";
 import { chromium } from "playwright";
 
 const CACHE =
-  process.env.OPENFRONT_RUN_CACHE ??
-  path.join(os.homedir(), ".cache", "openfront-run");
-export const BASE_URL = process.env.OPENFRONT_URL ?? "http://localhost:9000";
+  process.env.LAUKOLAROSER_RUN_CACHE ??
+  path.join(os.homedir(), ".cache", "laukolaroser-run");
+export const BASE_URL = process.env.LAUKOLAROSER_URL ?? "http://localhost:9000";
 
 // Launch chromium with the locally-extracted system libraries and fontconfig
 // (see setup.sh). Without them the headless shell dies on libnspr4.so, and
@@ -94,7 +94,7 @@ export async function openSoloModal(page) {
 const isMain =
   process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  const outDir = "/tmp/openfront-run";
+  const outDir = "/tmp/laukolaroser-run";
   fs.mkdirSync(outDir, { recursive: true });
   const { browser, page } = await launch();
   await gotoHome(page);

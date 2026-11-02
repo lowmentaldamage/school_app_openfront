@@ -2,7 +2,7 @@ import {
   GameMapType,
   listedMaps,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { describe, expect, test } from "vitest";
 
 describe("listedMaps", () => {

@@ -1,4 +1,4 @@
-import { PlayerLiveStats } from "@openfront/shared/WireSchemas";
+import { PlayerLiveStats } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { registerAdminBotRoutes } from "../../src/server/AdminBotRoutes";
 import { Client } from "../../src/server/Client";

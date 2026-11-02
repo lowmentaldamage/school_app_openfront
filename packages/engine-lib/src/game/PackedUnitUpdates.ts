@@ -1,8 +1,8 @@
-import { TrainType, UnitType } from "@openfront/engine-api/game/GameTypes";
+import { TrainType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 
 export const UNIT_UPDATE_STRIDE = 21;
 

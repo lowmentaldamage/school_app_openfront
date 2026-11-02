@@ -1,5 +1,5 @@
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
-import { TileSet } from "@openfront/engine-lib/game/TileSet";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { TileSet } from "@laukolaroser/engine-lib/game/TileSet";
 import { describe, expect, it } from "vitest";
 
 describe("GameMap BFS & bfsSearch", () => {

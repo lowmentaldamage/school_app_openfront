@@ -1,4 +1,4 @@
-import { zb } from "@openfront/zbin";
+import { zb } from "@laukolaroser/zbin";
 import quickChatData from "resources/QuickChat.json";
 import { z } from "zod";
 import {

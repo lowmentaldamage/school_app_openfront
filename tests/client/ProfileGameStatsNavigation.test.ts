@@ -90,7 +90,7 @@ import {
   GameType,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { fetchPublicPlayerGames } from "../../src/client/Api";
 import { GameStatsModal } from "../../src/client/GameStatsModal";
 import { modalRouter } from "../../src/client/ModalRouter";

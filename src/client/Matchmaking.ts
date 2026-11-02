@@ -1,6 +1,6 @@
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { CloseCode, isTerminalClose } from "@openfront/shared/CloseCodes";
-import { isCommitLike } from "@openfront/shared/ServerList";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { CloseCode, isTerminalClose } from "@laukolaroser/shared/CloseCodes";
+import { isCommitLike } from "@laukolaroser/shared/ServerList";
 import { html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";

@@ -144,7 +144,7 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
 }`,
         );
     };
-    material.customProgramCacheKey = () => "worldfront-water-v1";
+    material.customProgramCacheKey = () => "laukolaroser-water-v1";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

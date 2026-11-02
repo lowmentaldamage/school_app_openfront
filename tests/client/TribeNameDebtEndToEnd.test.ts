@@ -53,7 +53,7 @@ vi.mock("../../src/client/Utils", async (importOriginal) => ({
     vars ? `${key}:${JSON.stringify(vars)}` : key,
 }));
 
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { ClientEnv } from "../../src/client/ClientEnv";
 import "../../src/client/components/TribesPanel";
 import type { TribesPanel } from "../../src/client/components/TribesPanel";
@@ -77,10 +77,10 @@ describe("buying a tribe name in debt, panel through Api", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "test",
-      serverHost: "main.openfront.dev",
+      serverHost: "main.laukolaroser.dev",
     };
     ClientEnv.reset();
     fetchMock = vi.fn();

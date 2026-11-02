@@ -2,11 +2,11 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { DefensePostExecution } from "@openfront/engine/execution/DefensePostExecution";
-import { ShellExecution } from "@openfront/engine/execution/ShellExecution";
-import { WarshipExecution } from "@openfront/engine/execution/WarshipExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { DefensePostExecution } from "@laukolaroser/engine/execution/DefensePostExecution";
+import { ShellExecution } from "@laukolaroser/engine/execution/ShellExecution";
+import { WarshipExecution } from "@laukolaroser/engine/execution/WarshipExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 
 const coastX = 7;

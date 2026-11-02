@@ -1,6 +1,6 @@
 # CLAUDE.md — `src/client/render3d/`
 
-Three.js 3D world renderer (World Front 3D). Architecture, decisions and the
+Three.js 3D world renderer (Laukolaroser). Architecture, decisions and the
 increment log are in `docs/World3D.md` — read it first.
 
 Rules for this folder:

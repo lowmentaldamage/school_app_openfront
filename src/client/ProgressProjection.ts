@@ -2,7 +2,7 @@ import type {
   GameXpEligible,
   Progress,
   ProgressionConfig,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 
 // Where an amount of XP would take a player on the level track. Its own small
 // module, without the XP formula, so the homepage can project the player's

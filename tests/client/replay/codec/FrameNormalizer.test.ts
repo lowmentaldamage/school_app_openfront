@@ -4,7 +4,7 @@
  * placements, and routing of misc updates.
  */
 
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 import { FrameNormalizer } from "../../../../src/client/replay/codec/FrameNormalizer";
 import {
   frame,

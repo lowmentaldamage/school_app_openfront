@@ -1,4 +1,4 @@
-import { GAME_ID_REGEX } from "@openfront/engine-api/Schemas";
+import { GAME_ID_REGEX } from "@laukolaroser/engine-api/Schemas";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { ServerEnv } from "../../src/server/ServerEnv";
 
@@ -21,22 +21,22 @@ describe("ServerEnv identity", () => {
   });
 
   test("reads the letter and worker count deploy.sh wrote", () => {
-    stubIdentity("green", "openfront.io", "d", "20");
+    stubIdentity("green", "laukolaroser.com", "d", "20");
     expect(ServerEnv.instanceLetter()).toBe("d");
     expect(ServerEnv.numWorkers()).toBe(20);
   });
 
   test("synthesizes a one-entry map naming this server", () => {
-    stubIdentity("green", "openfront.io", "d", "20");
+    stubIdentity("green", "laukolaroser.com", "d", "20");
     expect(ServerEnv.cluster()).toEqual({
-      d: { host: "green.openfront.io", numWorkers: 20 },
+      d: { host: "green.laukolaroser.com", numWorkers: 20 },
     });
   });
 
   test("names the bare DOMAIN in the map when SUBDOMAIN is empty", () => {
-    stubIdentity("", "openfront.example", "c", "1");
+    stubIdentity("", "laukolaroser.example", "c", "1");
     expect(ServerEnv.cluster()).toEqual({
-      c: { host: "openfront.example", numWorkers: 1 },
+      c: { host: "laukolaroser.example", numWorkers: 1 },
     });
   });
 
@@ -45,21 +45,21 @@ describe("ServerEnv identity", () => {
   // must carry that same name, or a page would pin itself to a host the
   // registry does not know.
   test("names GAME_HOST in the map when deploy.sh wrote one", () => {
-    stubIdentity("blue", "openfront.dev", "f", "2");
-    vi.stubEnv("GAME_DOMAIN", "server.openfront.dev");
-    vi.stubEnv("GAME_HOST", "blue.nbg2.server.openfront.dev");
+    stubIdentity("blue", "laukolaroser.dev", "f", "2");
+    vi.stubEnv("GAME_DOMAIN", "server.laukolaroser.dev");
+    vi.stubEnv("GAME_HOST", "blue.nbg2.server.laukolaroser.dev");
     expect(ServerEnv.cluster()).toEqual({
-      f: { host: "blue.nbg2.server.openfront.dev", numWorkers: 2 },
+      f: { host: "blue.nbg2.server.laukolaroser.dev", numWorkers: 2 },
     });
   });
 
   test.each(["ab", "A", "1", "-"])("refuses INSTANCE_LETTER %j", (letter) => {
-    stubIdentity("blue", "openfront.io", letter);
+    stubIdentity("blue", "laukolaroser.com", letter);
     expect(() => ServerEnv.instanceLetter()).toThrow(/Invalid INSTANCE_LETTER/);
   });
 
   test.each(["0", "-1", "1.5", "two"])("refuses NUM_WORKERS %j", (n) => {
-    stubIdentity("blue", "openfront.io", "a", n);
+    stubIdentity("blue", "laukolaroser.com", "a", n);
     expect(() => ServerEnv.numWorkers()).toThrow(/Invalid NUM_WORKERS/);
   });
 
@@ -84,7 +84,7 @@ describe("ServerEnv game id minting", () => {
   });
 
   test("mints 10-char ids under the own instance letter", () => {
-    stubIdentity("blue", "openfront.io");
+    stubIdentity("blue", "laukolaroser.com");
     for (let i = 0; i < 20; i++) {
       const id = ServerEnv.generateGameId();
       expect(id).toHaveLength(10);
@@ -94,7 +94,7 @@ describe("ServerEnv game id minting", () => {
   });
 
   test("generateGameIdForWorker hashes the full id to the worker", () => {
-    stubIdentity("blue", "openfront.io");
+    stubIdentity("blue", "laukolaroser.com");
     for (const workerId of [0, 1, 2, 3]) {
       const id = ServerEnv.generateGameIdForWorker(workerId);
       expect(id).not.toBeNull();
@@ -129,8 +129,8 @@ describe("ServerEnv.jwtAudience", () => {
   });
 
   test("returns DOMAIN when set", () => {
-    vi.stubEnv("DOMAIN", "openfront.io");
-    expect(ServerEnv.jwtAudience()).toBe("openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
+    expect(ServerEnv.jwtAudience()).toBe("laukolaroser.com");
   });
 
   test("throws when DOMAIN unset", () => {
@@ -150,8 +150,8 @@ describe("ServerEnv.jwtIssuer", () => {
   });
 
   test("derives api.<audience> for non-localhost", () => {
-    vi.stubEnv("DOMAIN", "openfront.io");
-    expect(ServerEnv.jwtIssuer()).toBe("https://api.openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
+    expect(ServerEnv.jwtIssuer()).toBe("https://api.laukolaroser.com");
   });
 });
 
@@ -188,8 +188,8 @@ describe("ServerEnv.publicHost", () => {
 
   test("is the deployment's own host, subdomain.domain", () => {
     vi.stubEnv("SUBDOMAIN", "blue");
-    vi.stubEnv("DOMAIN", "openfront.io");
-    expect(ServerEnv.publicHost()).toBe("blue.openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
+    expect(ServerEnv.publicHost()).toBe("blue.laukolaroser.com");
   });
 
   test("is undefined without a subdomain (dev)", () => {
@@ -203,16 +203,16 @@ describe("ServerEnv.publicHost", () => {
   // what publicHost means — sockets and /api come straight here.
   test("uses GAME_DOMAIN when one is set", () => {
     vi.stubEnv("SUBDOMAIN", "main");
-    vi.stubEnv("DOMAIN", "openfront.dev");
-    vi.stubEnv("GAME_DOMAIN", "server.openfront.dev");
-    expect(ServerEnv.publicHost()).toBe("main.server.openfront.dev");
-    expect(ServerEnv.gameDomain()).toBe("server.openfront.dev");
+    vi.stubEnv("DOMAIN", "laukolaroser.dev");
+    vi.stubEnv("GAME_DOMAIN", "server.laukolaroser.dev");
+    expect(ServerEnv.publicHost()).toBe("main.server.laukolaroser.dev");
+    expect(ServerEnv.gameDomain()).toBe("server.laukolaroser.dev");
   });
 
   test("falls back to DOMAIN when GAME_DOMAIN is unset", () => {
     vi.stubEnv("SUBDOMAIN", "main");
-    vi.stubEnv("DOMAIN", "openfront.dev");
-    expect(ServerEnv.publicHost()).toBe("main.openfront.dev");
+    vi.stubEnv("DOMAIN", "laukolaroser.dev");
+    expect(ServerEnv.publicHost()).toBe("main.laukolaroser.dev");
     expect(ServerEnv.gameDomain()).toBeUndefined();
   });
 
@@ -222,18 +222,20 @@ describe("ServerEnv.publicHost", () => {
   // and GAME_DOMAIN, so the written value wins over the derivation.
   test("prefers GAME_HOST when deploy.sh resolved one", () => {
     vi.stubEnv("SUBDOMAIN", "blue");
-    vi.stubEnv("DOMAIN", "openfront.dev");
-    vi.stubEnv("GAME_DOMAIN", "server.openfront.dev");
-    vi.stubEnv("GAME_HOST", "blue.staging2.server.openfront.dev");
-    expect(ServerEnv.publicHost()).toBe("blue.staging2.server.openfront.dev");
+    vi.stubEnv("DOMAIN", "laukolaroser.dev");
+    vi.stubEnv("GAME_DOMAIN", "server.laukolaroser.dev");
+    vi.stubEnv("GAME_HOST", "blue.staging2.server.laukolaroser.dev");
+    expect(ServerEnv.publicHost()).toBe(
+      "blue.staging2.server.laukolaroser.dev",
+    );
   });
 
   test("treats an empty GAME_HOST as unset", () => {
     vi.stubEnv("SUBDOMAIN", "main");
-    vi.stubEnv("DOMAIN", "openfront.dev");
-    vi.stubEnv("GAME_DOMAIN", "server.openfront.dev");
+    vi.stubEnv("DOMAIN", "laukolaroser.dev");
+    vi.stubEnv("GAME_DOMAIN", "server.laukolaroser.dev");
     vi.stubEnv("GAME_HOST", "");
-    expect(ServerEnv.publicHost()).toBe("main.server.openfront.dev");
+    expect(ServerEnv.publicHost()).toBe("main.server.laukolaroser.dev");
   });
 
   // An empty repo variable is how GitHub delivers "not set", and deploy.sh
@@ -242,9 +244,9 @@ describe("ServerEnv.publicHost", () => {
   // itself on a bare subdomain.
   test("treats an empty GAME_DOMAIN as unset", () => {
     vi.stubEnv("SUBDOMAIN", "blue");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("GAME_DOMAIN", "");
-    expect(ServerEnv.publicHost()).toBe("blue.openfront.io");
+    expect(ServerEnv.publicHost()).toBe("blue.laukolaroser.com");
     expect(ServerEnv.gameDomain()).toBeUndefined();
   });
 });
@@ -255,8 +257,8 @@ describe("ServerEnv.siteHost", () => {
   });
 
   test("returns the configured load balancer host", () => {
-    vi.stubEnv("SITE_HOST", "openfront.io");
-    expect(ServerEnv.siteHost()).toBe("openfront.io");
+    vi.stubEnv("SITE_HOST", "laukolaroser.com");
+    expect(ServerEnv.siteHost()).toBe("laukolaroser.com");
   });
 
   test("is undefined when unset or empty (standalone deployment)", () => {

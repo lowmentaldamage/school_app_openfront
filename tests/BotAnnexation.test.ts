@@ -2,14 +2,14 @@ import {
   Difficulty,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { CHEAPEST_TROOP_RATIO } from "@openfront/engine/configuration/EngineConfig";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { planBotAttacks } from "@openfront/engine/execution/nation/BotAnnexation";
-import { NationAttackBehavior } from "@openfront/engine/execution/nation/NationAttackBehavior";
-import { PlayerExecution } from "@openfront/engine/execution/PlayerExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { CHEAPEST_TROOP_RATIO } from "@laukolaroser/engine/configuration/EngineConfig";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { planBotAttacks } from "@laukolaroser/engine/execution/nation/BotAnnexation";
+import { NationAttackBehavior } from "@laukolaroser/engine/execution/nation/NationAttackBehavior";
+import { PlayerExecution } from "@laukolaroser/engine/execution/PlayerExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 import { UseRealAttackLogic } from "./util/TestConfig";
 import { executeTicks } from "./util/utils";

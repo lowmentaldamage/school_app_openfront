@@ -3,7 +3,7 @@ import type {
   Progress,
   ProgressionConfig,
   UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { z } from "zod";
 import type { GameXpFetchResult } from "./ProgressionApi";
 import { projectProgress } from "./ProgressProjection";

@@ -1,6 +1,6 @@
-import { CloseCode } from "@openfront/shared/CloseCodes";
-import { PublicGames } from "@openfront/shared/WireSchemas";
-import { decodeLobbyMessage } from "@openfront/shared/ZbinWire";
+import { CloseCode } from "@laukolaroser/shared/CloseCodes";
+import { PublicGames } from "@laukolaroser/shared/WireSchemas";
+import { decodeLobbyMessage } from "@laukolaroser/shared/ZbinWire";
 import { ClientEnv, NoServerError } from "src/client/ClientEnv";
 import { clientPlatform } from "./ClientPlatform";
 import { showInGameAlert } from "./InGameModal";
@@ -167,7 +167,7 @@ export class PublicLobbySocket {
       this.lastFull = null;
 
       // WS origin comes from ClientEnv (same-origin on web, audience-derived on
-      // the desktop app://openfront origin), not window.location.host.
+      // the desktop app://laukolaroser origin), not window.location.host.
       // ?platform= is only for the server's per-platform lobby gauge: the
       // lobby socket has no join message to carry it in.
       const wsUrl = `${ClientEnv.serverWsBase()}${this.workerPath}/lobbies?platform=${clientPlatform()}`;

@@ -11,7 +11,7 @@
  *
  * Usage:
  *   npm run replay:game -- <gameID | path/to/record.json>
- *                          [--api-base https://api.openfront.io]
+ *                          [--api-base https://api.laukolaroser.com]
  *                          [--teams 0,1,0,1]
  *
  * A bare game ID is fetched from the public API. --teams overrides each
@@ -21,26 +21,29 @@
  *
  * Exits non-zero if the replay diverges from the recorded hashes.
  */
-import { PlayerInfo, PlayerType } from "@openfront/engine-api/game/GameTypes";
+import {
+  PlayerInfo,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameStartInfo } from "@openfront/engine-api/Schemas";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { simpleHash } from "@openfront/engine-lib/Util";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { Executor } from "@openfront/engine/execution/ExecutionManager";
-import { createGame } from "@openfront/engine/game/GameImpl";
-import { createNationsForGame } from "@openfront/engine/game/NationCreation";
-import { GameRunner } from "@openfront/engine/GameRunner";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { Executor } from "@laukolaroser/engine/execution/ExecutionManager";
+import { createGame } from "@laukolaroser/engine/game/GameImpl";
+import { createNationsForGame } from "@laukolaroser/engine/game/NationCreation";
+import { GameRunner } from "@laukolaroser/engine/GameRunner";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import {
   decompressGameRecord,
   toWireGameStartInfo,
-} from "@openfront/shared/SharedUtil";
-import { GameRecord, GameRecordSchema } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/SharedUtil";
+import { GameRecord, GameRecordSchema } from "@laukolaroser/shared/WireSchemas";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -61,7 +64,7 @@ interface Options {
 function parseArgs(argv: string[]): Options {
   const opts: Options = {
     source: "",
-    apiBase: "https://api.openfront.io",
+    apiBase: "https://api.laukolaroser.com",
     teams: null,
   };
   for (let i = 0; i < argv.length; i++) {

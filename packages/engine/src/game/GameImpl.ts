@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Cell,
   ColoredTeams,
@@ -21,33 +21,33 @@ import {
   Tick,
   Trios,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdate,
   GameUpdateType,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   ReadonlyTileSet,
   UnitPredicate,
-} from "@openfront/engine-api/game/ReadViews";
+} from "@laukolaroser/engine-api/game/ReadViews";
 import {
   AllPlayersStats,
   ClientID,
   Winner,
-} from "@openfront/engine-api/Schemas";
-import { ATTACK_INDEX_SENT } from "@openfront/engine-api/StatsSchemas";
-import { renderNumber } from "@openfront/engine-lib/Format";
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
+} from "@laukolaroser/engine-api/Schemas";
+import { ATTACK_INDEX_SENT } from "@laukolaroser/engine-api/StatsSchemas";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
 import {
   MotionPlanRecord,
   packMotionPlans,
-} from "@openfront/engine-lib/game/MotionPlans";
+} from "@laukolaroser/engine-lib/game/MotionPlans";
 import {
   assignTeams,
   resolveTeamsList,
-} from "@openfront/engine-lib/game/TeamAssignment";
-import { TerraNulliusImpl } from "@openfront/engine-lib/game/TerraNulliusImpl";
-import { UnitGrid } from "@openfront/engine-lib/game/UnitGrid";
+} from "@laukolaroser/engine-lib/game/TeamAssignment";
+import { TerraNulliusImpl } from "@laukolaroser/engine-lib/game/TerraNulliusImpl";
+import { UnitGrid } from "@laukolaroser/engine-lib/game/UnitGrid";
 import {
   readVersioned,
   snapshotType,
@@ -55,8 +55,8 @@ import {
   zInt,
   zPlayerRef,
   zRef,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { EngineConfig } from "../configuration/EngineConfig";
 import {

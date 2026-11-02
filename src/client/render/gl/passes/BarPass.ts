@@ -12,9 +12,9 @@
  *   UnitState.veterancy → one instance per level (x, y, slot) → solid gold rect
  */
 
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import type { Config } from "@openfront/engine-lib/configuration/Config";
-import { maxHealthWithVeterancy } from "@openfront/engine-lib/game/Veterancy";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { maxHealthWithVeterancy } from "@laukolaroser/engine-lib/game/Veterancy";
 import type { RendererConfig, UnitState } from "../../types";
 import { UT_MISSILE_SILO, UT_SAM_LAUNCHER } from "../../types";
 import type { RenderSettings } from "../RenderSettings";

@@ -1,8 +1,8 @@
-import { RankedType } from "@openfront/engine-api/game/GameTypes";
+import { RankedType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   PlayerLeaderboardEntry,
   RankedLeaderboardEntry,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement, nothing, PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { fetchPlayerLeaderboard, getUserMe } from "../../Api";

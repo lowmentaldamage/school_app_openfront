@@ -4,9 +4,9 @@ import {
   Nation,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { NationExecution } from "@openfront/engine/execution/NationExecution";
-import { GameImpl } from "@openfront/engine/game/GameImpl";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { NationExecution } from "@laukolaroser/engine/execution/NationExecution";
+import { GameImpl } from "@laukolaroser/engine/game/GameImpl";
 import { createGame, L } from "./core/pathfinding/_fixtures";
 
 describe("Nation spawns with team spawn areas", () => {

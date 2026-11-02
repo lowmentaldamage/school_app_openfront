@@ -1,4 +1,4 @@
-import { GameID } from "@openfront/engine-api/Schemas";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
 import {
   commitsMatch,
   isCommitLike,
@@ -10,7 +10,7 @@ import {
   servesBuild,
   versionedPathForGame,
   versionMatches,
-} from "@openfront/shared/ServerList";
+} from "@laukolaroser/shared/ServerList";
 import { z } from "zod";
 import { getApiBase } from "./ApiBase";
 import { ClientEnv } from "./ClientEnv";
@@ -186,11 +186,11 @@ export function resetServerList(): void {
  * players load the page from, so branch previews, main, nightly and prod
  * never share one. Decided by the shell, not by whether serverHost is
  * present: while game servers still render the page they inject serverHost
- * as their own host (blue.openfront.io), which is not a site.
+ * as their own host (blue.laukolaroser.com), which is not a site.
  *
  * - Desktop: the injected serverHost, whose values are exactly the sites
- *   (openfront.io, nightly.openfront.dev, main.openfront.dev). Under
- *   app://openfront the document host means nothing.
+ *   (laukolaroser.com, nightly.laukolaroser.dev, main.laukolaroser.dev). Under
+ *   app://laukolaroser the document host means nothing.
  * - Web: the apex when the page was rendered behind one (siteHost), else
  *   the document host. A page fetched straight from a deployment host
  *   still asks for its site's list rather than a host nobody registers.
@@ -738,7 +738,7 @@ function apply(): ServerListStatus {
  * **A server-rendered page prefers its own server.** Before v2 a page always
  * talked to the colour that rendered it; the list's random pick can send it
  * to a sibling instead, and the two do not have to agree about that sibling.
- * On dev (`openfront.dev`, a blue/green pair behind the apex, then still
+ * On dev (`laukolaroser.dev`, a blue/green pair behind the apex, then still
  * draining by an apex colour poll) the registry listed both colours `open` on the
  * same build while the apex poll had green considering itself draining: a
  * page rendered by blue that drew green got a lobby feed reporting
@@ -755,7 +755,7 @@ function apply(): ServerListStatus {
  * lagging-registry cases through it to "fallback", exactly as before.
  *
  * The desktop shell carries an injected `serverHost` too, but its value is a
- * SITE (openfront.io, main.openfront.dev) rather than a deployment the
+ * SITE (laukolaroser.com, main.laukolaroser.dev) rather than a deployment the
  * registry lists, so it names no entry and the list's pick stands — except
  * on a standalone deployment whose one server IS that host, where the two
  * answers are the same server anyway.
@@ -860,19 +860,19 @@ export function reloadWouldRescue(listStatus: ServerListStatus): boolean {
  *   `latest` from the static Worker, which is by definition not one
  *   deployment.
  * - Behind an apex — siteHost defined, not the page's own server, and the
- *   site's list has siblings (prod: page openfront.io, servers blue and
- *   green.openfront.io) — reloadForUpdate re-enters through the site host,
+ *   site's list has siblings (prod: page laukolaroser.com, servers blue and
+ *   green.laukolaroser.com) — reloadForUpdate re-enters through the site host,
  *   which the load balancer answers from a live deployment.
  * - Standalone (no siteHost, or siteHost IS the page's own server, or the
- *   site has only this server — dev's main.openfront.dev, previews, beta):
+ *   site has only this server — dev's main.laukolaroser.dev, previews, beta):
  *   the reload re-serves the same page from the same server. If that server
  *   is gone the reload fails with it; if it is alive with a
  *   WebSocket-specific problem, the prompt loops. Nothing a prompt can do
  *   helps.
  *
  * The siblings check is what catches a standalone deployment with
- * GAME_DOMAIN set: its page host (main.openfront.dev) and game host
- * (main.server.openfront.dev) differ, yet both names reach the one
+ * GAME_DOMAIN set: its page host (main.laukolaroser.dev) and game host
+ * (main.server.laukolaroser.dev) differ, yet both names reach the one
  * container behind Traefik, so a differing siteHost alone proves nothing.
  */
 function reloadCanLandElsewhere(): boolean {

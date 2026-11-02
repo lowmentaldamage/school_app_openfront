@@ -5,14 +5,14 @@ import {
   GameMode,
   GameType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ADMIN_BOT_CLIENT_ID,
   GameConfig,
   StampedIntent,
   Turn,
-} from "@openfront/engine-api/Schemas";
-import { replacer } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/engine-api/Schemas";
+import { replacer } from "@laukolaroser/shared/SharedUtil";
 import {
   ClientMessage,
   ClientMessageSchema,
@@ -21,7 +21,7 @@ import {
   PublicLobbyMessageSchema,
   ServerMessage,
   ServerMessageSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import {
   createGameWireContext,
   decodeClientMessage,
@@ -30,8 +30,8 @@ import {
   encodeClientMessage,
   encodeLobbyMessage,
   encodeServerMessage,
-} from "@openfront/shared/ZbinWire";
-import { ZbDecodeError } from "@openfront/zbin";
+} from "@laukolaroser/shared/ZbinWire";
+import { ZbDecodeError } from "@laukolaroser/zbin";
 import { describe, expect, it } from "vitest";
 
 const PLAYERS = [

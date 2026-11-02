@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
 import { columnById } from "../src/client/hud/layers/lib/StatsColumns";
 import {
   aggregateTeamValues,

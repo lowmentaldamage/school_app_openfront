@@ -6,8 +6,8 @@
  * against the hashes the "live" clients recorded.
  */
 
-import { GameMapType, GameMode } from "@openfront/engine-api/game/GameTypes";
-import { WirePlayer } from "@openfront/shared/WireSchemas";
+import { GameMapType, GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { WirePlayer } from "@laukolaroser/shared/WireSchemas";
 import { PlayerTypeEnum } from "../../../../src/client/render/types";
 import { ReplayReader } from "../../../../src/client/replay/codec/decode/ReplayReader";
 import type {
