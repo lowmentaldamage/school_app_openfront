@@ -231,6 +231,7 @@ function queuedIntent(game: Game, p: Player, tick: number): Intent | null {
     },
     { type: "mark_disconnected", isDisconnected: false },
     { type: "toggle_pause", paused: false },
+    { type: "fire_weapon", weapon: "artillery", tile: other.spawnTile() ?? 0 },
   ];
   return queued[(tick - 20) / 2] ?? null;
 }
@@ -484,7 +485,7 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     if (bombIntent !== null) return bombIntent;
   }
 
-  switch (rand.nextInt(0, 22)) {
+  switch (rand.nextInt(0, 23)) {
     case 0:
     case 1:
     case 2: {
@@ -579,6 +580,19 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
       const s = pick(rand, own([UnitType.DefensePost, UnitType.City]));
       if (s === null || !rand.chance(4)) return null;
       return { type: "delete_unit", unitId: s.id() };
+    }
+    case 22: {
+      // Weapon strikes: a rocket from a silo, else artillery or naval fire.
+      if (other === null) return null;
+      const tile = randomOwnedTile(rand, other);
+      if (tile === null) return null;
+      const weapon =
+        own([UnitType.MissileSilo]).length > 0
+          ? "rocket"
+          : own([UnitType.Warship]).length > 0
+            ? "naval"
+            : "artillery";
+      return { type: "fire_weapon", weapon, tile };
     }
     case 21:
       return {

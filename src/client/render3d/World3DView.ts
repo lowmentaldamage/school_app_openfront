@@ -17,6 +17,7 @@ import type { ScreenProjector } from "../TransformHandler";
 import type { Camera2DState } from "./camera/CameraController";
 import { OrbitControls } from "./camera/OrbitControls";
 import { LabelOverlay, type LabelEntry, type LabelText } from "./LabelOverlay";
+import type { WeaponAim } from "./overlays/OverlayRenderer";
 import { WorldRenderer, type WorldFrame } from "./WorldRenderer";
 
 /** The player fields labels need (implemented by the client's PlayerView). */
@@ -69,6 +70,11 @@ export class World3DView implements ScreenProjector {
   /** Build-mode ghost (mirrors MapRenderer.updateGhostPreview). */
   setGhostPreview(data: GhostPreviewData | null): void {
     this.world.overlays.setGhost(data);
+  }
+
+  /** Weapon aim reticle; null hides it. */
+  setWeaponAim(aim: WeaponAim | null): void {
+    this.world.overlays.setAim(aim);
   }
 
   /** Nuke flight preview (mirrors MapRenderer.updateNukeTrajectory). */

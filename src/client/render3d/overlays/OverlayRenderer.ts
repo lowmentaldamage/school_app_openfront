@@ -4,7 +4,9 @@
  *     (green = can build, red = cannot), with its range ring,
  *   - nuke trajectory: the planned flight as a 3D arc, white where SAMs
  *     can hit it, amber where it is out of reach, red past the first SAM
- *     intercept, plus a target ring.
+ *     intercept, plus a target ring,
+ *   - weapon aim: a pulsing blast-radius reticle under the cursor, green
+ *     when a ready launcher is in range, red when not.
  *
  * Fed by the same controller calls that drive the 2D renderer
  * (MapRenderer.updateGhostPreview / updateNukeTrajectory).
@@ -39,6 +41,16 @@ const SAFE = new Color(0xf5f5f5);
 const OUT_OF_REACH = new Color(0xfbbf24);
 const INTERCEPT = new Color(0xef4444);
 
+export interface WeaponAim {
+  /** Continuous tile coordinates of the aim point. */
+  x: number;
+  y: number;
+  /** Blast radius, tiles. */
+  radius: number;
+  /** A ready launcher can reach this point. */
+  inRange: boolean;
+}
+
 export class OverlayRenderer {
   readonly group = new Group();
   private readonly ghost: Mesh;
@@ -64,6 +76,15 @@ export class OverlayRenderer {
     depthWrite: false,
   });
   private ghostData: GhostPreviewData | null = null;
+  private readonly aim: Mesh;
+  private readonly aimInner: Mesh;
+  private readonly aimMat = new MeshBasicMaterial({
+    transparent: true,
+    opacity: 0.85,
+    depthTest: false,
+    depthWrite: false,
+  });
+  private aimData: WeaponAim | null = null;
 
   constructor(private readonly hf: Heightfield) {
     this.group.name = "overlays";
@@ -80,7 +101,28 @@ export class OverlayRenderer {
     (this.target.material as MeshBasicMaterial).color.copy(INTERCEPT);
     this.target.visible = false;
     this.target.renderOrder = 11;
-    this.group.add(this.ghost, this.range, this.target);
+    this.aim = new Mesh(ring, this.aimMat);
+    this.aimInner = new Mesh(ring, this.aimMat);
+    this.aim.visible = false;
+    this.aimInner.visible = false;
+    this.aim.renderOrder = 12;
+    this.aimInner.renderOrder = 12;
+    this.group.add(
+      this.ghost,
+      this.range,
+      this.target,
+      this.aim,
+      this.aimInner,
+    );
+  }
+
+  /** Weapon aiming reticle; null hides it. */
+  setAim(aim: WeaponAim | null): void {
+    this.aimData = aim;
+    const on = aim !== null;
+    this.aim.visible = on;
+    this.aimInner.visible = on;
+    if (aim) this.aimMat.color.copy(aim.inRange ? OK : BAD);
   }
 
   setGhost(data: GhostPreviewData | null): void {
@@ -176,7 +218,16 @@ export class OverlayRenderer {
   }
 
   /** Per frame: place the ghost (it scales with zoom like real buildings). */
-  update(cameraDistance: number): void {
+  update(cameraDistance: number, timeSeconds = 0): void {
+    const a = this.aimData;
+    if (a) {
+      const h = Math.max(0, this.hf.sample(a.x, a.y)) + 0.3;
+      const pulse = 1 + 0.08 * Math.sin(timeSeconds * 6);
+      this.aim.position.set(a.x, h, a.y);
+      this.aim.scale.setScalar(a.radius * pulse);
+      this.aimInner.position.set(a.x, h, a.y);
+      this.aimInner.scale.setScalar(Math.max(0.6, a.radius * 0.25));
+    }
     const d = this.ghostData;
     if (d === null) return;
     const x = d.tileX + 0.5;

@@ -17,6 +17,13 @@
 
 - Mobile-tuned rendering quality and layout
 
+💥 **Weapons**
+
+- Artillery barrages from Defense Posts, naval bombardment from Warships, rocket strikes from Missile Silos
+- Pick a weapon on the left, tap a target; the reticle shows the blast and turns green when in range
+- Strikes kill enemy troops, sink ships and damage buildings — but only attacks take land
+- AI nations use them in their wars too
+
 🎨 **New identity**
 
 - The game is now called Laukolaroser, with a new logo and icon

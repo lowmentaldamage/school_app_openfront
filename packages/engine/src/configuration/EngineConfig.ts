@@ -392,6 +392,9 @@ export class EngineConfig extends Config {
       case UnitType.MIRVWarhead:
       case UnitType.TradeShip:
       case UnitType.Train:
+      // Weapon strikes charge their own price (WeaponSpec.cost).
+      case UnitType.ArtilleryShell:
+      case UnitType.Rocket:
         return () => 0n;
       default:
         assertNever(type);

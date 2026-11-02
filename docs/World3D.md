@@ -212,10 +212,41 @@ spawn-phase highlight.
 - Verified in Chromium (desktop + emulated phone): forests, rotated and
   tilted view, ghost + range ring, nuke arc, compass widget, tap-to-spawn.
 
+### Increment 5 — Aim-and-fire weapons (done)
+
+Strategic strikes that keep the territorial style: they never capture land,
+they bleed the target nation's troops in proportion to how much of its
+land they hit, sink/damage ships, and rockets knock buildings down a level.
+
+| Weapon            | Fired from   | Range | Cost | Shots | Blast | Extra                             |
+| ----------------- | ------------ | ----- | ---- | ----- | ----- | --------------------------------- |
+| Artillery barrage | Defense Post | 45    | 40k  | 3     | 3     | 15 s reload                       |
+| Naval bombardment | Warship      | 35    | 30k  | 2     | 3     | 12 s reload                       |
+| Rocket strike     | Missile Silo | 220   | 150k | 1     | 5     | uses a silo slot; hits a building |
+
+- Engine: `engine-lib/weapons/Weapons.ts` (shared rules, integer maths),
+  `fire_weapon` intent, `WeaponStrikeExecution` (validate, pay, cooldown,
+  launch) and `ProjectileExecution` (parabolic flight, impact), new unit
+  types `Artillery Shell` and `Rocket`, snapshot support. Allies, teammates
+  and own land cannot be targeted.
+- AI: `NationWeaponBehavior` — nations at war fire strikes when they can
+  afford several (never on Easy); it seeds its own random so other AI
+  behavior is unchanged.
+- Client: `WeaponsPanel` (left side, all screen sizes): pick a weapon, tap a
+  target, Esc to cancel; ready-launcher badges and costs. 3D: shell and
+  rocket models flying arcs, impact explosions, pulsing blast-radius
+  reticle (green in range / red out of range).
+- Tests: `tests/WeaponStrike.test.ts` (damage, cooldown, rejections, rocket
+  vs building, save/restore mid-flight); the scripted full-game snapshot
+  test now fires weapons; the nation economy benchmark snapshot was
+  updated for the new rules.
+- Verified in a Solo game: built a defense post with hotkey 4, fired an
+  artillery barrage from the panel at an enemy, three shells flew in 3D,
+  40k gold charged.
+
 ### Next stages (agreed)
 
-1. Aim-and-fire weapons (artillery, rockets, naval guns) as simulation
-   intents, with 3D projectiles and impacts; more weapon, ship and train types.
+1. More ship and train types.
 2. Own backend: accounts, profiles, leaderboards, stats.
 3. In-game 3D map editor (paint terrain, place nations, save/share).
 4. Settings page and simplified interface; forests and terrain detail;

@@ -33,6 +33,7 @@ import { TransportShipExecution } from "./TransportShipExecution";
 import { TribeSpawner } from "./TribeSpawner";
 import { UpgradeStructureExecution } from "./UpgradeStructureExecution";
 import { PlayerSpawner } from "./utils/PlayerSpawner";
+import { WeaponStrikeExecution } from "./WeaponStrikeExecution";
 
 export class Executor {
   // private random = new PseudoRandom(999)
@@ -78,6 +79,8 @@ export class Executor {
         return new RetreatExecution(player, intent.attackID);
       case "cancel_boat":
         return new BoatRetreatExecution(player, intent.unitID);
+      case "fire_weapon":
+        return new WeaponStrikeExecution(player, intent.weapon, intent.tile);
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

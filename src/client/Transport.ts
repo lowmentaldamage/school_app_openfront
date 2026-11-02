@@ -6,6 +6,7 @@ import {
   PlayerID,
   Tick,
   UnitType,
+  type WeaponId,
 } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AllPlayersStats,
@@ -234,6 +235,13 @@ export class NewLobbyEvent implements GameEvent {
   constructor(public readonly gameID: string) {}
 }
 
+export class FireWeaponIntentEvent implements GameEvent {
+  constructor(
+    public readonly weapon: WeaponId,
+    public readonly tile: TileRef,
+  ) {}
+}
+
 export class MoveWarshipIntentEvent implements GameEvent {
   constructor(
     public readonly unitIds: number[],
@@ -358,6 +366,9 @@ export class Transport {
       this.onCancelBoatIntentEvent(e),
     );
 
+    this.subscribe(FireWeaponIntentEvent, (e) => {
+      this.sendIntent({ type: "fire_weapon", weapon: e.weapon, tile: e.tile });
+    });
     this.subscribe(MoveWarshipIntentEvent, (e) => {
       this.onMoveWarshipEvent(e);
     });

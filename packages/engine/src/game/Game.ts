@@ -64,6 +64,14 @@ export interface UnitParamsMap {
 
   [UnitType.Shell]: Record<string, never>;
 
+  [UnitType.ArtilleryShell]: {
+    targetTile?: TileRef;
+  };
+
+  [UnitType.Rocket]: {
+    targetTile?: TileRef;
+  };
+
   [UnitType.SAMMissile]: {
     targetUnit: Unit;
   };

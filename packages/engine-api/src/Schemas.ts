@@ -15,6 +15,7 @@ import {
   RankedType,
   Trios,
   UnitType,
+  WEAPON_IDS,
 } from "./game/GameTypes";
 import { PlayerStatsSchema } from "./StatsSchemas";
 
@@ -46,9 +47,11 @@ export type Intent =
   | KickPlayerIntent
   | TogglePauseIntent
   | UpdateGameConfigIntent
-  | ToggleGameStartTimer;
+  | ToggleGameStartTimer
+  | FireWeaponIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
+export type FireWeaponIntent = z.infer<typeof FireWeaponIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>;
 export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>;
@@ -521,6 +524,13 @@ export const MoveWarshipIntentSchema = z.object({
   tile: zb.uint(),
 });
 
+/** Fire a weapon strike at a tile (see engine-lib/weapons/Weapons.ts). */
+export const FireWeaponIntentSchema = z.object({
+  type: z.literal("fire_weapon"),
+  weapon: z.enum(WEAPON_IDS),
+  tile: zb.uint(),
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -593,6 +603,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   TogglePauseIntentSchema,
   UpdateGameConfigIntentSchema,
   ToggleGameStartTimerIntentSchema,
+  FireWeaponIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

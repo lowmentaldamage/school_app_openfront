@@ -23,6 +23,8 @@ const BY_TYPE: Record<string, ModelKind> = {
   "MIRV Warhead": "mirvWarhead",
   SAMMissile: "samMissile",
   Shell: "shell",
+  "Artillery Shell": "artilleryShell",
+  Rocket: "rocket",
   City: "city",
   Port: "port",
   Factory: "factory",
@@ -53,6 +55,8 @@ export const TRAIN_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
 ]);
 
 export const BALLISTIC_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
+  "artilleryShell",
+  "rocket",
   "atomBomb",
   "hydrogenBomb",
   "mirv",
@@ -73,6 +77,8 @@ export function modelKindFor(u: UnitLike): ModelKind | null {
 /** Peak altitude (tiles) of a ballistic flight covering `distance` tiles. */
 export function arcPeak(kind: ModelKind, distance: number): number {
   if (kind === "shell") return Math.min(6, 1 + distance * 0.12);
+  if (kind === "artilleryShell") return Math.min(16, 2 + distance * 0.3);
+  if (kind === "rocket") return Math.max(8, distance * 0.2);
   return Math.max(14, distance * 0.32);
 }
 

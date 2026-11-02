@@ -15,6 +15,7 @@ import { ClientID, GameID } from "@laukolaroser/engine-api/Schemas";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import { findClosestBy } from "@laukolaroser/engine-lib/Util";
+import { WEAPONS } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { EventBus } from "@laukolaroser/shared/EventBus";
 import { GameMapLoader } from "@laukolaroser/shared/GameMapLoader";
 import { replacer } from "@laukolaroser/shared/SharedUtil";
@@ -35,6 +36,7 @@ import { createRenderer, GameRenderer } from "./hud/GameRenderer";
 import { goldRateTracker } from "./hud/layers/lib/GoldRateTracker";
 import { OnboardingOverlay } from "./hud/layers/OnboardingOverlay";
 import { UnitDisplay } from "./hud/layers/UnitDisplay";
+import { isLauncherReady } from "./hud/layers/WeaponsPanel";
 import { showInGameAlert } from "./InGameModal";
 import {
   AutoUpgradeEvent,
@@ -47,6 +49,7 @@ import {
   InputHandler,
   MouseMoveEvent,
   MouseUpEvent,
+  WeaponAimEvent,
   TickMetricsEvent,
   ToggleRenderDebugGuiEvent,
 } from "./InputHandler";
@@ -78,9 +81,10 @@ import {
   terrainMapFileLoader,
 } from "./TerrainMapFileLoader";
 import { themeProvider } from "./theme/ThemeProvider";
-import { GoToPlayerEvent } from "./TransformHandler";
+import { GoToPlayerEvent, type TransformHandler } from "./TransformHandler";
 import {
   counterAttackTroops,
+  FireWeaponIntentEvent,
   MoveWarshipIntentEvent,
   NewLobbyEvent,
   SendAllianceExtensionIntentEvent,
@@ -94,6 +98,7 @@ import {
   SendUpgradeStructureIntentEvent,
   Transport,
 } from "./Transport";
+import type { UIState } from "./UIState";
 import {
   GRAPHICS_KEY,
   USER_SETTINGS_CHANGED_EVENT,
@@ -711,6 +716,53 @@ function mountWebGLFrameLoop(
 }
 
 /**
+ * While a weapon is being aimed, show its blast radius under the pointer in
+ * 3D — green when one of the player's ready launchers can reach it, red when
+ * not. Touch screens have no hover, so the reticle starts at screen centre.
+ */
+function wireWeaponAim(
+  eventBus: EventBus,
+  gameView: GameView,
+  uiState: UIState,
+  transformHandler: TransformHandler,
+  world3d: World3DView,
+): void {
+  const update = (sx: number, sy: number): void => {
+    const weapon = uiState.weaponTargeting;
+    const me = gameView.myPlayer();
+    if (!weapon || !me) {
+      world3d.setWeaponAim(null);
+      return;
+    }
+    const spec = WEAPONS[weapon];
+    const p = transformHandler.screenToWorldCoordinatesFloat(sx, sy);
+    const tick = gameView.ticks();
+    const r2 = spec.range * spec.range;
+    const inRange = me.units(spec.launcher).some((u) => {
+      if (!isLauncherReady(u, spec, tick)) return false;
+      const dx = gameView.x(u.tile()) - p.x;
+      const dy = gameView.y(u.tile()) - p.y;
+      return dx * dx + dy * dy <= r2;
+    });
+    world3d.setWeaponAim({ x: p.x, y: p.y, radius: spec.radius, inRange });
+  };
+  let last = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  eventBus.on(MouseMoveEvent, (e) => {
+    last = { x: e.x, y: e.y };
+    if (uiState.weaponTargeting) update(e.x, e.y);
+  });
+  eventBus.on(WeaponAimEvent, (e) => {
+    if (e.weapon === null) {
+      world3d.setWeaponAim(null);
+      return;
+    }
+    const touch = globalThis.matchMedia?.("(pointer: coarse)").matches;
+    if (touch) last = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    update(last.x, last.y);
+  });
+}
+
+/**
  * The build/nuke controllers push previews to the 2D MapRenderer. Mirror
  * those calls to the 3D view so placement ghosts, range rings, nuke
  * trajectories and hover highlights appear on the 3D map too (the 2D
@@ -968,10 +1020,18 @@ async function createClientGame(
       glCanvas.style.visibility = "hidden";
       gameRenderer.transformHandler.setProjector(world3d);
       mirrorOverlaysTo3D(view, world3d);
+      wireWeaponAim(
+        eventBus,
+        gameView,
+        gameRenderer.uiState,
+        gameRenderer.transformHandler,
+        world3d,
+      );
       // Debug/test handles, like window.__webglView for the 2D renderer.
       (window as unknown as { __world3d?: unknown }).__world3d = world3d;
       (window as unknown as { __camera?: unknown }).__camera =
         gameRenderer.transformHandler;
+      (window as unknown as { __gameView?: unknown }).__gameView = gameView;
     }
 
     const metrics = new GameMetrics(lobbyConfig.gameID, clientID);
@@ -1362,6 +1422,15 @@ export class ClientGameRunner {
       event.y,
     );
     if (!this.gameView.isValidCoord(cell.x, cell.y)) {
+      return;
+    }
+    // Aiming a weapon: this click fires it, then aiming ends.
+    const weapon = this.renderer.uiState.weaponTargeting;
+    if (weapon) {
+      const tile = this.gameView.ref(cell.x, cell.y);
+      this.eventBus.emit(new FireWeaponIntentEvent(weapon, tile));
+      this.renderer.uiState.weaponTargeting = null;
+      this.eventBus.emit(new WeaponAimEvent(null));
       return;
     }
     console.log(`clicked cell ${cell}`);

@@ -149,6 +149,7 @@ export class EffectsRenderer {
     if (
       spec.kind === "nuke" ||
       spec.kind === "building" ||
+      spec.kind === "shellHit" ||
       spec.kind === "ship"
     ) {
       this.rings.spawn(

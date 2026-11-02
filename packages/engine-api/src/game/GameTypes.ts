@@ -214,7 +214,14 @@ export enum UnitType {
   MIRVWarhead = "MIRV Warhead",
   Train = "Train",
   Factory = "Factory",
+  // Weapon projectiles (see engine-lib/weapons/Weapons.ts).
+  ArtilleryShell = "Artillery Shell",
+  Rocket = "Rocket",
 }
+
+/** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
+export const WEAPON_IDS = ["artillery", "naval", "rocket"] as const;
+export type WeaponId = (typeof WEAPON_IDS)[number];
 
 export enum TrainType {
   Engine = "Engine",

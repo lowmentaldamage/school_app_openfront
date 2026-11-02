@@ -15,6 +15,7 @@ desktop or on your phone.
 
 - **3D battlefield** — terrain with mountains, coasts and snow, animated water, living territory borders, 3D ships, trains, missiles and buildings, explosions and mushroom clouds, lighting, fog and shadows (Three.js).
 - **Real-time strategy** — expand, attack, defend, trade, nuke.
+- **Weapons** — aim-and-fire artillery, naval bombardment and rocket strikes.
 - **Multiplayer** — deterministic lockstep simulation over WebSockets, lobbies and solo games against nations and bots.
 - **Phone ready** — touch controls, adaptive rendering quality and a mobile-first layout.
 - **Many maps** — real-world regions and fictional worlds.

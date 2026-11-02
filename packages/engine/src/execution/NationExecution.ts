@@ -39,6 +39,7 @@ import { NationMIRVBehavior } from "./nation/NationMIRVBehavior";
 import { NationNukeBehavior } from "./nation/NationNukeBehavior";
 import { NationStructureBehavior } from "./nation/NationStructureBehavior";
 import { NationWarshipBehavior } from "./nation/NationWarshipBehavior";
+import { NationWeaponBehavior } from "./nation/NationWeaponBehavior";
 import { tutorialCollapse } from "./nation/TutorialCollapse";
 import { tutorialSilo, tutorialWarship } from "./nation/TutorialSilo";
 import { SpawnExecution } from "./SpawnExecution";
@@ -55,6 +56,7 @@ export class NationExecution implements Execution {
   private warshipBehavior!: NationWarshipBehavior;
   private nukeBehavior!: NationNukeBehavior;
   private structureBehavior!: NationStructureBehavior;
+  private weaponBehavior!: NationWeaponBehavior;
   private mg: Game;
   private player: Player | null = null;
 
@@ -244,6 +246,7 @@ export class NationExecution implements Execution {
     this.attackBehavior.maybeAttack();
     this.warshipBehavior.counterWarshipInfestation();
     this.nukeBehavior.maybeSendNuke();
+    this.weaponBehavior.maybeFire();
   }
 
   private initializeBehaviors(): void {
@@ -295,6 +298,7 @@ export class NationExecution implements Execution {
       this.mg,
       this.player,
     );
+    this.weaponBehavior = new NationWeaponBehavior(this.mg, this.player);
     this.behaviorsInitialized = true;
   }
 
@@ -500,6 +504,8 @@ export class NationExecution implements Execution {
     this.attackBehavior = attack;
     this.nukeBehavior = nuke;
     this.structureBehavior = structure;
+    // Stateless (seeds its own random per decision), so nothing to restore.
+    this.weaponBehavior = new NationWeaponBehavior(r.game, player);
   }
 }
 

@@ -217,7 +217,7 @@ export class WorldRenderer {
     cc.step(this.lastDtMs);
     cc.sync(camera);
     this.forests.update(t, cc.distance);
-    this.overlays.update(cc.distance);
+    this.overlays.update(cc.distance, t);
     this.units.animate(nowMs, cc.distance);
     const fov = (cc.camera.fov * Math.PI) / 180;
     const bufferH = this.cssHeight * this.renderer.getPixelRatio();

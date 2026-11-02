@@ -4,6 +4,7 @@ import {
   PlayerBuildableUnitType,
   PlayerID,
   UnitType,
+  type WeaponId,
 } from "@laukolaroser/engine-api/game/GameTypes";
 import { EventBus, GameEvent } from "@laukolaroser/shared/EventBus";
 import { favoriteSlotForKey } from "./EmojiKeys";
@@ -31,6 +32,11 @@ export class MouseOverEvent implements GameEvent {
     public readonly y: number,
   ) {}
 }
+/** The weapon being aimed changed (null = aiming cancelled). */
+export class WeaponAimEvent implements GameEvent {
+  constructor(public readonly weapon: WeaponId | null) {}
+}
+
 export class TouchEvent implements GameEvent {
   constructor(
     public readonly x: number,
@@ -818,6 +824,12 @@ export class InputHandler {
             closedUI = true;
           }
 
+          if (this.uiState.weaponTargeting) {
+            this.uiState.weaponTargeting = null;
+            this.eventBus.emit(new WeaponAimEvent(null));
+            closedUI = true;
+          }
+
           if (this.selectionBoxActive) {
             this.selectionBoxActive = false;
             this.eventBus.emit(new WarshipSelectionBoxCancelEvent());
@@ -1231,6 +1243,13 @@ export class InputHandler {
       Math.abs(event.x - this.lastPointerDownX) +
       Math.abs(event.y - this.lastPointerDownY);
     if (dist < this.DRAG_THRESHOLD_PX) {
+      // Aiming a weapon: any tap or click fires it (no menus).
+      if (this.uiState.weaponTargeting) {
+        this.suppressNextTap = false;
+        this.eventBus.emit(new MouseUpEvent(event.x, event.y));
+        event.preventDefault();
+        return;
+      }
       if (event.pointerType === "touch") {
         if (this.suppressNextTap) {
           this.suppressNextTap = false;

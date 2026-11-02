@@ -67,6 +67,16 @@ export function explosionFor(
   if (unitType === "SAMMissile") {
     return { kind: "airburst", radius: 2, altitude: 10, intensity: 0.5 };
   }
+  if (unitType === "Artillery Shell") {
+    return reachedTarget
+      ? { kind: "shellHit", radius: 3, altitude: 0, intensity: 0.8 }
+      : null;
+  }
+  if (unitType === "Rocket") {
+    return reachedTarget
+      ? { kind: "building", radius: 5, altitude: 0, intensity: 1.2 }
+      : null;
+  }
   if (unitType === "Shell") {
     return reachedTarget
       ? { kind: "shellHit", radius: 1.2, altitude: 0, intensity: 0.4 }

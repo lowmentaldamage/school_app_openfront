@@ -48,6 +48,7 @@ import { SettingsModal } from "./layers/SettingsModal";
 import { SpawnTimer } from "./layers/SpawnTimer";
 import { TutorialPanel } from "./layers/TutorialPanel";
 import { UnitDisplay } from "./layers/UnitDisplay";
+import { WeaponsPanel } from "./layers/WeaponsPanel";
 import { WinModal } from "./layers/WinModal";
 import { loadAllSprites } from "./SpriteLoader";
 
@@ -65,6 +66,7 @@ export function createRenderer(
   const uiState: UIState = {
     attackRatio: 20,
     ghostStructure: null,
+    weaponTargeting: null,
     rocketDirectionUp: true,
     upgradeMultiplier: 1,
   };
@@ -237,6 +239,14 @@ export function createRenderer(
   unitDisplay.eventBus = eventBus;
   unitDisplay.uiState = uiState;
 
+  const weaponsPanel = document.querySelector("weapons-panel") as WeaponsPanel;
+  if (!(weaponsPanel instanceof WeaponsPanel)) {
+    console.error("weapons panel not found");
+  }
+  weaponsPanel.game = game;
+  weaponsPanel.eventBus = eventBus;
+  weaponsPanel.uiState = uiState;
+
   const playerPanel = document.querySelector("player-panel") as PlayerPanel;
   if (!(playerPanel instanceof PlayerPanel)) {
     console.error("player panel not found");
@@ -368,6 +378,7 @@ export function createRenderer(
     immunityTimer,
     gameLeftSidebar,
     unitDisplay,
+    weaponsPanel,
     gameRightSidebar,
     controlPanel,
     playerInfo,

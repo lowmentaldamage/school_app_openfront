@@ -899,6 +899,7 @@
     "alliance_renewed": "Your alliance with {name} has been renewed",
     "alliance_request_sent": "Alliance request sent to {name}.",
     "alliance_request_status": "{name} {status} your alliance request",
+    "artillery_strike_hit": "{name} shelled you with artillery: {troops} troops lost",
     "atom_bomb_detonated": "{name} - atom bomb detonated",
     "atom_bomb_inbound": "{name} - atom bomb inbound",
     "attack_cancelled_retreat": "Attack cancelled, {troops} soldiers killed during retreat",
@@ -916,6 +917,7 @@
     "mirv_inbound": "⚠️⚠️⚠️ {name} - MIRV INBOUND ⚠️⚠️⚠️",
     "missile_intercepted": "SAM intercepted {unit}",
     "naval_invasion_inbound": "Naval invasion incoming from {name} ({troops})",
+    "naval_strike_hit": "{name}'s warships bombarded you: {troops} troops lost",
     "no_boats_available": "No boats available, max {max}",
     "received_gold_from_captured_ship": "Received {gold} gold from ship captured from {name}",
     "received_gold_from_conquest": "Conquered {name}, received {gold} gold",
@@ -925,6 +927,7 @@
     "renew_alliance": "Request to renew",
     "request_alliance": "{name} requests an alliance!",
     "retreating": "retreating",
+    "rocket_strike_hit": "{name} hit you with a rocket: {troops} troops lost",
     "sent_emoji": "Sent {name}: {emoji}",
     "sent_emoji_all": "Sent everyone: {emoji}",
     "sent_gold_to_player": "Sent {gold} gold to {name}",
@@ -2879,6 +2882,19 @@
     "verified_use": "Use verified",
     "verified_use_custom": "Switch back to a custom name",
     "verified_use_hint": "Play under your verified account name"
+  },
+  "weapons": {
+    "aim_hint": "Tap a target for {weapon}. Esc to cancel.",
+    "artillery": "Artillery barrage",
+    "naval": "Naval bombardment",
+    "need_gold": "Not enough gold",
+    "needs_artillery": "Build a Defense Post to fire artillery",
+    "needs_naval": "Build a Warship for naval fire",
+    "needs_rocket": "Build a Missile Silo to fire rockets",
+    "reloading": "Reloading",
+    "rocket": "Rocket strike",
+    "tap_target": "Ready: tap a target",
+    "title": "Weapons"
   },
   "win_modal": {
     "died": "You died",

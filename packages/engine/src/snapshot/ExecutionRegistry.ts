@@ -26,6 +26,7 @@ import { NukeExecutionSnapshot } from "../execution/NukeExecution";
 import { PauseExecutionSnapshot } from "../execution/PauseExecution";
 import { PlayerExecutionSnapshot } from "../execution/PlayerExecution";
 import { PortExecutionSnapshot } from "../execution/PortExecution";
+import { ProjectileExecutionSnapshot } from "../execution/ProjectileExecution";
 import { QuickChatExecutionSnapshot } from "../execution/QuickChatExecution";
 import { RecomputeRailClusterExecutionSnapshot } from "../execution/RecomputeRailClusterExecution";
 import { RetreatExecutionSnapshot } from "../execution/RetreatExecution";
@@ -42,6 +43,7 @@ import { TransportShipExecutionSnapshot } from "../execution/TransportShipExecut
 import { TribeExecutionSnapshot } from "../execution/TribeExecution";
 import { UpgradeStructureExecutionSnapshot } from "../execution/UpgradeStructureExecution";
 import { WarshipExecutionSnapshot } from "../execution/WarshipExecution";
+import { WeaponStrikeExecutionSnapshot } from "../execution/WeaponStrikeExecution";
 import { WinCheckExecutionSnapshot } from "../execution/WinCheckExecution";
 import type { ExecutionSnapshotType } from "./ExecutionSnapshot";
 
@@ -80,6 +82,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   PauseExecutionSnapshot,
   PlayerExecutionSnapshot,
   PortExecutionSnapshot,
+  ProjectileExecutionSnapshot,
   QuickChatExecutionSnapshot,
   RecomputeRailClusterExecutionSnapshot,
   RetreatExecutionSnapshot,
@@ -96,5 +99,6 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   TribeExecutionSnapshot,
   UpgradeStructureExecutionSnapshot,
   WarshipExecutionSnapshot,
+  WeaponStrikeExecutionSnapshot,
   WinCheckExecutionSnapshot,
 ] as unknown as readonly ExecutionSnapshotType<unknown>[];

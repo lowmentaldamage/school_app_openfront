@@ -255,6 +255,8 @@ export class Config {
       case UnitType.MIRVWarhead:
       case UnitType.TradeShip:
       case UnitType.Train:
+      case UnitType.ArtilleryShell:
+      case UnitType.Rocket:
         info = {};
         break;
       default:

@@ -23,6 +23,8 @@ export type ModelKind =
   | "mirvWarhead"
   | "samMissile"
   | "shell"
+  | "artilleryShell"
+  | "rocket"
   | "city"
   | "port"
   | "factory"
@@ -176,6 +178,26 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
         pos: [0.22, 0, 0],
       })
       .build(),
+
+  artilleryShell: () =>
+    new ModelBuilder()
+      .cylinder(0.12, 0.12, 0.5, 8, {
+        color: BRASS,
+        rot: [0, 0, -PI / 2],
+        pos: [-0.25, 0, 0],
+      })
+      .cone(0.12, 0.3, 8, {
+        color: 0x6b5b3a,
+        rot: [0, 0, -PI / 2],
+        pos: [0.25, 0, 0],
+      })
+      .cylinder(0.125, 0.125, 0.08, 8, {
+        team: true,
+        rot: [0, 0, -PI / 2],
+        pos: [-0.05, 0, 0],
+      })
+      .build(),
+  rocket: () => missile(1.3, 0.12, 0xc9ced3),
 
   // Structures: origin at ground level, centred on their tile.
   city: () =>
