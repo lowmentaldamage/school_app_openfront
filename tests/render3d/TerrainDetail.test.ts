@@ -2,6 +2,8 @@ import { LAND_BIT } from "../../src/client/render3d/terrain/TerrainCodec";
 import {
   buildTerrainDetail,
   detailHeightfield,
+  detailScaleFor,
+  upscaleTerrainDetail,
 } from "../../src/client/render3d/terrain/TerrainDetail";
 
 describe("TerrainDetail", () => {
@@ -47,5 +49,59 @@ describe("TerrainDetail", () => {
     const peak = d.values[(4 * 9 + 4) * 2];
     const flat = d.values[0];
     expect(peak - flat).toBeGreaterThan(0.5);
+  });
+});
+
+describe("upscaleTerrainDetail", () => {
+  // Random-ish coastline with single-tile islands and one-tile straits.
+  const w = 24;
+  const h = 18;
+  const terrain = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const land = (x * 7 + y * 13) % 5 < 2 || x < 6;
+      terrain[y * w + x] = land ? LAND_BIT | ((x * y) % 30) : 2;
+    }
+  }
+  const base = buildTerrainDetail(terrain, detailHeightfield(terrain, w, h));
+  const up = upscaleTerrainDetail(base, 2);
+
+  test("doubles the resolution", () => {
+    expect(up.width).toBe(w * 2);
+    expect(up.height).toBe(h * 2);
+    expect(up.scale).toBe(2);
+    expect(up.values).toHaveLength(w * h * 4 * 2);
+  });
+
+  test("every sub-texel stays on its tile's side of the coastline", () => {
+    for (let Y = 0; Y < up.height; Y++) {
+      for (let X = 0; X < up.width; X++) {
+        const tileLand = terrain[(Y >> 1) * w + (X >> 1)] >= LAND_BIT;
+        const o = (Y * up.width + X) * 2;
+        if (tileLand) {
+          expect(up.values[o + 1]).toBeGreaterThan(0.5);
+          expect(up.values[o]).toBeGreaterThan(0);
+        } else {
+          expect(up.values[o + 1]).toBeLessThan(0.5);
+          expect(up.values[o]).toBeLessThan(0);
+        }
+      }
+    }
+  });
+
+  test("is deterministic", () => {
+    const again = upscaleTerrainDetail(base, 2);
+    expect(Array.from(again.values)).toEqual(Array.from(up.values));
+  });
+
+  test("scale 1 returns the native data", () => {
+    expect(upscaleTerrainDetail(base, 1)).toBe(base);
+  });
+
+  test("detailScaleFor respects texture size and budget", () => {
+    expect(detailScaleFor(2000, 1000, 8192, 9_000_000)).toBe(2);
+    expect(detailScaleFor(2000, 1000, 2048, 9_000_000)).toBe(1);
+    expect(detailScaleFor(4744, 2628, 16384, 9_000_000)).toBe(1);
+    expect(detailScaleFor(2000, 1000, 8192, 0)).toBe(1);
   });
 });

@@ -33,7 +33,12 @@ import { ForestRenderer } from "./environment/ForestRenderer";
 import { WaterRenderer } from "./environment/WaterRenderer";
 import { OverlayRenderer } from "./overlays/OverlayRenderer";
 import { Heightfield } from "./terrain/Heightfield";
-import { buildTerrainDetail, detailHeightfield } from "./terrain/TerrainDetail";
+import {
+  buildTerrainDetail,
+  detailHeightfield,
+  detailScaleFor,
+  upscaleTerrainDetail,
+} from "./terrain/TerrainDetail";
 import {
   createTerrainDetailTexture,
   createTerrainMaterial,
@@ -123,14 +128,25 @@ export class WorldRenderer {
       init.mapWidth,
       init.mapHeight,
     );
-    this.terrainDetail = createTerrainDetailTexture(
-      buildTerrainDetail(init.terrain, detailHf),
+    // Desktop: 2 texels per tile (smoothed coasts, finer relief); phones
+    // and huge maps stay at 1. Gameplay tiles are never changed.
+    const detailScale = detailScaleFor(
+      init.mapWidth,
+      init.mapHeight,
+      this.renderer.capabilities.maxTextureSize,
+      this.profile.mobile ? 0 : 9_000_000,
     );
+    const detail = upscaleTerrainDetail(
+      buildTerrainDetail(init.terrain, detailHf),
+      detailScale,
+    );
+    this.terrainDetail = createTerrainDetailTexture(detail);
     const { material, uniforms } = createTerrainMaterial(
       this.territory.ownerTexture,
       this.territory.paletteTexture,
       this.territory.railTexture,
       this.terrainDetail,
+      detail.scale,
       init.mapWidth,
       init.mapHeight,
     );

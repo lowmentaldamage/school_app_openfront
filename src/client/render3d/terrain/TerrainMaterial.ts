@@ -47,6 +47,8 @@ float tFbm(vec2 p) {
   return v;
 }
 uniform sampler2D uTerrainDetail;
+// Tiles per detail texel (1 at native resolution, 0.5 when upscaled).
+uniform float uDetailStep;
 // Full-resolution tile data: r = height, g = land mask (see TerrainDetail.ts).
 vec2 terrainDetailAt(vec2 p) {
   return texture2D(uTerrainDetail, p / uMapSize).rg;
@@ -56,20 +58,20 @@ vec2 terrainDetailAt(vec2 p) {
 // fades it to the mesh normal once a tile is smaller than a pixel.
 // True (unexaggerated) slope: 1 on flat ground, used for rock-on-cliffs.
 float terrainSlopeUp(vec3 wp) {
-  float hl = terrainDetailAt(wp.xz - vec2(1.0, 0.0)).r;
-  float hr = terrainDetailAt(wp.xz + vec2(1.0, 0.0)).r;
-  float hd = terrainDetailAt(wp.xz - vec2(0.0, 1.0)).r;
-  float hu = terrainDetailAt(wp.xz + vec2(0.0, 1.0)).r;
-  return normalize(vec3(hl - hr, 2.0, hd - hu)).y;
+  float hl = terrainDetailAt(wp.xz - vec2(uDetailStep, 0.0)).r;
+  float hr = terrainDetailAt(wp.xz + vec2(uDetailStep, 0.0)).r;
+  float hd = terrainDetailAt(wp.xz - vec2(0.0, uDetailStep)).r;
+  float hu = terrainDetailAt(wp.xz + vec2(0.0, uDetailStep)).r;
+  return normalize(vec3(hl - hr, 2.0 * uDetailStep, hd - hu)).y;
 }
 vec3 terrainDetailNormal(vec3 wp) {
-  float hl = terrainDetailAt(wp.xz - vec2(1.0, 0.0)).r;
-  float hr = terrainDetailAt(wp.xz + vec2(1.0, 0.0)).r;
-  float hd = terrainDetailAt(wp.xz - vec2(0.0, 1.0)).r;
-  float hu = terrainDetailAt(wp.xz + vec2(0.0, 1.0)).r;
+  float hl = terrainDetailAt(wp.xz - vec2(uDetailStep, 0.0)).r;
+  float hr = terrainDetailAt(wp.xz + vec2(uDetailStep, 0.0)).r;
+  float hd = terrainDetailAt(wp.xz - vec2(0.0, uDetailStep)).r;
+  float hu = terrainDetailAt(wp.xz + vec2(0.0, uDetailStep)).r;
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
-  vec3 n = vec3((hl - hr) * 2.4, 2.0, (hd - hu) * 2.4);
+  vec3 n = vec3((hl - hr) * 2.4, 2.0 * uDetailStep, (hd - hu) * 2.4);
   // Micro relief on land (rocks, field furrows), fading out with distance.
   float land = terrainDetailAt(wp.xz).g;
   float foot = length(fwidth(wp.xz));
@@ -122,6 +124,7 @@ vec3 terrainAlbedo(vec3 wp, float up) {
 
 export interface TerrainMaterialUniforms {
   uTerrainDetail: { value: Texture };
+  uDetailStep: { value: number };
   uOwnerTex: { value: Texture };
   uPaletteTex: { value: Texture };
   uRailTex: { value: Texture };
@@ -137,11 +140,13 @@ export function createTerrainMaterial(
   paletteTex: Texture,
   railTex: Texture,
   detailTex: Texture,
+  detailScale: number,
   mapWidth: number,
   mapHeight: number,
 ): { material: MeshStandardMaterial; uniforms: TerrainMaterialUniforms } {
   const uniforms: TerrainMaterialUniforms = {
     uTerrainDetail: { value: detailTex },
+    uDetailStep: { value: 1 / detailScale },
     uOwnerTex: { value: ownerTex },
     uPaletteTex: { value: paletteTex },
     uRailTex: { value: railTex },
