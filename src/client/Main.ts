@@ -118,6 +118,7 @@ import {
 } from "./PresenceGroup";
 import { fetchMyGameXp, fetchProgressionConfig } from "./ProgressionApi";
 import { startProvisionalProgress } from "./ProvisionalProgress";
+import { isWorld3DEnabled } from "./render3d/World3DFlag";
 import type { RewardsModal } from "./RewardsModal";
 import {
   ensureServerList,
@@ -403,6 +404,9 @@ class Client {
     // URL, so take the value while it is still the URL we were served at.
     // See PagePin.ts.
     capturePagePin();
+    // Likewise read (and persist) the `?renderer=3d|2d` switch before any
+    // history write drops the query string. See render3d/World3DFlag.ts.
+    isWorld3DEnabled();
     document.documentElement.style.setProperty(
       "--hud-opacity",
       String(this.userSettings.hudOpacity()),

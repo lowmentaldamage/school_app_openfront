@@ -1,0 +1,94 @@
+/**
+ * EnvironmentRenderer — sky, atmospheric fog and lighting.
+ *
+ * One directional "sun" casts shadows. Rather than a single shadow map
+ * stretched over the whole (possibly 6000-tile) map, the shadow camera is
+ * re-centred on the camera's focus point every frame and sized to the
+ * visible area, so shadow resolution tracks zoom. Fog density also scales
+ * with view distance so zoomed-out views stay readable while close views
+ * get depth haze.
+ */
+
+import {
+  Color,
+  DirectionalLight,
+  FogExp2,
+  HemisphereLight,
+  type Scene,
+  Vector3,
+} from "three";
+
+export interface QualitySettings {
+  shadows: boolean;
+  shadowMapSize: number;
+}
+
+const SKY = new Color(0x9fc4e4);
+const SUN_DIR = new Vector3(-0.55, 0.75, -0.35).normalize();
+
+export class EnvironmentRenderer {
+  readonly sun: DirectionalLight;
+  readonly hemi: HemisphereLight;
+  private readonly fog: FogExp2;
+
+  constructor(
+    private readonly scene: Scene,
+    quality: QualitySettings,
+  ) {
+    scene.background = SKY.clone();
+    this.fog = new FogExp2(SKY.getHex(), 0.0015);
+    scene.fog = this.fog;
+
+    this.hemi = new HemisphereLight(0xdfeeff, 0x4a3f2c, 1.1);
+    scene.add(this.hemi);
+
+    this.sun = new DirectionalLight(0xfff1dc, 2.6);
+    this.sun.castShadow = quality.shadows;
+    this.sun.shadow.mapSize.set(quality.shadowMapSize, quality.shadowMapSize);
+    this.sun.shadow.bias = -0.0004;
+    this.sun.shadow.normalBias = 0.3;
+    scene.add(this.sun);
+    scene.add(this.sun.target);
+  }
+
+  /**
+   * Re-fit the sun's shadow frustum around the camera focus.
+   * @param focus world-space point the camera looks at
+   * @param viewRadius approx. radius (world units) of the visible ground
+   * @param cameraDistance distance from camera to focus
+   */
+  update(focus: Vector3, viewRadius: number, cameraDistance: number): void {
+    const r = Math.max(20, viewRadius * 1.2);
+    this.sun.target.position.copy(focus);
+    this.sun.position.copy(focus).addScaledVector(SUN_DIR, r * 2 + 50);
+    const cam = this.sun.shadow.camera;
+    if (cam.right !== r) {
+      cam.left = -r;
+      cam.right = r;
+      cam.top = r;
+      cam.bottom = -r;
+      cam.near = 1;
+      cam.far = r * 4 + 120;
+      cam.updateProjectionMatrix();
+    }
+    this.sun.target.updateMatrixWorld();
+    // Keep fog roughly proportional to view distance: haze begins to bite
+    // at ~2× the camera distance whatever the zoom.
+    this.fog.density = 0.55 / Math.max(50, cameraDistance * 2.2);
+  }
+
+  setQuality(quality: QualitySettings): void {
+    this.sun.castShadow = quality.shadows;
+    if (this.sun.shadow.mapSize.x !== quality.shadowMapSize) {
+      this.sun.shadow.mapSize.set(quality.shadowMapSize, quality.shadowMapSize);
+      this.sun.shadow.map?.dispose();
+      this.sun.shadow.map = null;
+    }
+  }
+
+  dispose(): void {
+    this.sun.shadow.map?.dispose();
+    this.scene.remove(this.sun, this.sun.target, this.hemi);
+    this.scene.fog = null;
+  }
+}

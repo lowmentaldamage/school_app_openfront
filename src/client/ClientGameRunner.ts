@@ -65,7 +65,10 @@ import {
   showGLGate,
   trackGLInit,
 } from "./render/gl";
+import { PALETTE_SIZE } from "./render/gl/utils/PlayerPalette";
 import { ALL_UNIT_TYPES, UnitState } from "./render/types";
+import { isWorld3DEnabled } from "./render3d/World3DFlag";
+import type { World3DView } from "./render3d/World3DView";
 import { versionedPathForMismatchedGame } from "./ServerList";
 import { audioMixer, initAudioMixer } from "./sound/AudioMixer";
 import { SoundManager } from "./sound/SoundManager";
@@ -569,6 +572,7 @@ function mountWebGLFrameLoop(
   gameView: GameView,
   eventBus: EventBus,
   onFrame: (nowMs: number) => void,
+  world3d: World3DView | null,
 ): { builder: WebGLFrameBuilder; stopFrameLoop: () => void } {
   const gameMap = terrainMap.gameMap;
   const mapWidth = gameMap.width();
@@ -601,6 +605,21 @@ function mountWebGLFrameLoop(
       transformHandler.offsetY +
       mapHeight / 2 +
       (cachedCanvasH - mapHeight) / (2 * scale);
+    if (world3d !== null) {
+      // The 3D view replaces the 2D map drawing; the 2D renderer still
+      // receives state uploads so switching back needs no resync.
+      world3d.render(
+        {
+          centerX,
+          centerY,
+          scale,
+          viewWidth: cachedCanvasW,
+          viewHeight: cachedCanvasH,
+        },
+        performance.now(),
+      );
+      return;
+    }
     view.setCameraState(centerX, centerY, scale * dpr);
     // Invoke the WebGL renderer's frame callback synchronously, with the just-
     // updated camera state. The callback re-arms itself via captureRaf, so
@@ -649,6 +668,11 @@ function mountWebGLFrameLoop(
   };
 
   const builder = new WebGLFrameBuilder(view);
+  if (world3d !== null) {
+    builder.addFrameListener((gv, palette) =>
+      world3d.onTick(gv.frameData(), palette),
+    );
+  }
 
   // When context is lost and restored, WebGL loses all textures and geometry.
   // Force a full re-upload of the simulation state.
@@ -679,6 +703,40 @@ function mountWebGLFrameLoop(
   };
 
   return { builder, stopFrameLoop };
+}
+
+/**
+ * Build the opt-in 3D world view (see render3d/World3DFlag). Loaded with
+ * import() so three.js is only downloaded when the 3D view is enabled. Any
+ * failure falls back to the 2D renderer rather than blocking the game.
+ */
+async function createWorld3DView(
+  terrainMap: TerrainMapData,
+): Promise<World3DView | null> {
+  if (!isWorld3DEnabled()) return null;
+  try {
+    const t0 = performance.now();
+    const { World3DView } = await import("./render3d/World3DView");
+    const gameMap = terrainMap.gameMap;
+    const w = gameMap.width();
+    const h = gameMap.height();
+    const terrain = new Uint8Array(w * h);
+    for (let i = 0; i < terrain.length; i++)
+      terrain[i] = gameMap.terrainByte(i);
+    const view = new World3DView({
+      mapWidth: w,
+      mapHeight: h,
+      terrain,
+      paletteSize: PALETTE_SIZE,
+    });
+    console.log(
+      `[World3D] ready: ${w}x${h} map in ${Math.round(performance.now() - t0)}ms`,
+    );
+    return view;
+  } catch (e) {
+    console.error("[World3D] failed to start, using 2D renderer", e);
+    return null;
+  }
 }
 
 async function createClientGame(
@@ -875,6 +933,12 @@ async function createClientGame(
       mapLayerController,
     );
 
+    const world3d = await createWorld3DView(gameMap);
+    if (world3d !== null) {
+      glCanvas.style.visibility = "hidden";
+      gameRenderer.transformHandler.setProjector(world3d);
+    }
+
     const metrics = new GameMetrics(lobbyConfig.gameID, clientID);
     const { builder: webglBuilder, stopFrameLoop } = mountWebGLFrameLoop(
       gameMap,
@@ -885,6 +949,7 @@ async function createClientGame(
       gameView,
       eventBus,
       (nowMs) => metrics.recordFrame(nowMs),
+      world3d,
     );
 
     // Releases all WebGL/DOM resources this game created. Without it, stopping
@@ -897,6 +962,7 @@ async function createClientGame(
       rendererDisposed = true;
       gameRenderer.dispose();
       stopFrameLoop();
+      world3d?.dispose();
       view.dispose();
       glCanvas.remove();
       inputOverlay.remove();

@@ -160,6 +160,30 @@ export class WebGLFrameBuilder {
   // player's update arrives (may take several ticks during join).
   private localPlayerSmallID = 0;
 
+  /**
+   * Extra renderers (e.g. the 3D world view) that consume the same per-tick
+   * frame data and player palette. Called after the 2D upload each tick and
+   * after a palette refresh.
+   */
+  private readonly frameListeners: ((
+    gameView: GameView,
+    palette: Float32Array,
+  ) => void)[] = [];
+
+  addFrameListener(
+    fn: (gameView: GameView, palette: Float32Array) => void,
+  ): () => void {
+    this.frameListeners.push(fn);
+    return () => {
+      const i = this.frameListeners.indexOf(fn);
+      if (i >= 0) this.frameListeners.splice(i, 1);
+    };
+  }
+
+  private notifyFrameListeners(gameView: GameView): void {
+    for (const fn of this.frameListeners) fn(gameView, this.palette);
+  }
+
   constructor(private readonly view: MapRenderer) {
     this.palette = new Float32Array(PALETTE_SIZE * 2 * 4);
     this.effectPalette = new Float32Array(
@@ -197,6 +221,7 @@ export class WebGLFrameBuilder {
       );
     }
     this.view.updatePalette(this.palette);
+    this.notifyFrameListeners(gameView);
   }
 
   /**
@@ -243,6 +268,7 @@ export class WebGLFrameBuilder {
     this.syncNukeImpacts(gameView);
     this.resolveDeadUnitExplosions(gameView);
     uploadFrameData(this.view, gameView.frameData());
+    this.notifyFrameListeners(gameView);
   }
 
   /**

@@ -30,7 +30,36 @@ export const GOTO_INTERVAL_MS = 16;
 export const CAMERA_MAX_SPEED = 15;
 export const CAMERA_SMOOTHING = 0.03;
 
+/**
+ * Optional replacement for the flat 2D screen↔world mapping, installed when
+ * the map is drawn by a perspective (3D) renderer. Coordinates are canvas
+ * pixels (relative to the input overlay) and continuous tile positions.
+ * TransformHandler still owns the camera state (pan/zoom); the projector
+ * only changes how that camera maps pixels to tiles.
+ */
+export interface ScreenProjector {
+  canvasToTile(
+    canvasX: number,
+    canvasY: number,
+  ): { x: number; y: number } | null;
+  tileToCanvas(tileX: number, tileY: number): { x: number; y: number };
+  visibleTileBounds(): {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+  };
+}
+
 export class TransformHandler {
+  private projector: ScreenProjector | null = null;
+
+  /** Install (or clear with null) a perspective screen↔world projector. */
+  setProjector(projector: ScreenProjector | null): void {
+    this.projector = projector;
+    this.changed = true;
+  }
+
   public scale: number = 1.8;
   private _boundingRect: DOMRect;
   public offsetX: number = -350;
@@ -90,6 +119,7 @@ export class TransformHandler {
   }
 
   worldToCanvasCoordinates(cell: Cell): { x: number; y: number } {
+    if (this.projector) return this.projector.tileToCanvas(cell.x, cell.y);
     // Step 1: Convert from Cell coordinates to game coordinates
     // (reverse of Math.floor operation - we'll use the exact values)
     const gameX = cell.x;
@@ -130,6 +160,10 @@ export class TransformHandler {
     screenY: number,
   ): { x: number; y: number } {
     const canvasCoords = this.screenToCanvasCoordinates(screenX, screenY);
+    if (this.projector) {
+      const t = this.projector.canvasToTile(canvasCoords.x, canvasCoords.y);
+      if (t !== null) return t;
+    }
     const gameX =
       (canvasCoords.x - this.game.width() / 2) / this.scale +
       this.offsetX +
@@ -161,6 +195,13 @@ export class TransformHandler {
   }
 
   screenBoundingRect(): [Cell, Cell] {
+    if (this.projector) {
+      const b = this.projector.visibleTileBounds();
+      return [
+        new Cell(Math.floor(b.minX), Math.floor(b.minY)),
+        new Cell(Math.floor(b.maxX), Math.floor(b.maxY)),
+      ];
+    }
     const canvasRect = this.boundingRect();
     const canvasWidth = canvasRect.width;
     const canvasHeight = canvasRect.height;
