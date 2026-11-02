@@ -9,11 +9,23 @@
  * required and nothing tiles visibly at any zoom.
  */
 
-import { MeshStandardMaterial, Vector2, type Texture } from "three";
+import {
+  ClampToEdgeWrapping,
+  DataTexture,
+  DataUtils,
+  HalfFloatType,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  MeshStandardMaterial,
+  RGFormat,
+  Vector2,
+  type Texture,
+} from "three";
 import {
   TERRITORY_FUNCTIONS_GLSL,
   TERRITORY_UNIFORMS_GLSL,
 } from "../territory/TerritoryShader";
+import type { TerrainDetailData } from "./TerrainDetail";
 
 const TERRAIN_ALBEDO_GLSL = /* glsl */ `
 float tHash(vec2 p) {
@@ -34,31 +46,82 @@ float tFbm(vec2 p) {
   for (int i = 0; i < 4; i++) { v += a * tNoise(p); p *= 2.03; a *= 0.5; }
   return v;
 }
+uniform sampler2D uTerrainDetail;
+// Full-resolution tile data: r = height, g = land mask (see TerrainDetail.ts).
+vec2 terrainDetailAt(vec2 p) {
+  return texture2D(uTerrainDetail, p / uMapSize).rg;
+}
+// Per-pixel normal from the tile heights (central differences, 1 tile),
+// so relief is lit at tile resolution whatever the mesh density. The caller
+// fades it to the mesh normal once a tile is smaller than a pixel.
+// True (unexaggerated) slope: 1 on flat ground, used for rock-on-cliffs.
+float terrainSlopeUp(vec3 wp) {
+  float hl = terrainDetailAt(wp.xz - vec2(1.0, 0.0)).r;
+  float hr = terrainDetailAt(wp.xz + vec2(1.0, 0.0)).r;
+  float hd = terrainDetailAt(wp.xz - vec2(0.0, 1.0)).r;
+  float hu = terrainDetailAt(wp.xz + vec2(0.0, 1.0)).r;
+  return normalize(vec3(hl - hr, 2.0, hd - hu)).y;
+}
+vec3 terrainDetailNormal(vec3 wp) {
+  float hl = terrainDetailAt(wp.xz - vec2(1.0, 0.0)).r;
+  float hr = terrainDetailAt(wp.xz + vec2(1.0, 0.0)).r;
+  float hd = terrainDetailAt(wp.xz - vec2(0.0, 1.0)).r;
+  float hu = terrainDetailAt(wp.xz + vec2(0.0, 1.0)).r;
+  // Shading relief is exaggerated: game heights are low, and real
+  // landscapes read through their light and shadow.
+  vec3 n = vec3((hl - hr) * 2.4, 2.0, (hd - hu) * 2.4);
+  // Micro relief on land (rocks, field furrows), fading out with distance.
+  float land = terrainDetailAt(wp.xz).g;
+  float foot = length(fwidth(wp.xz));
+  float micro = land * (1.0 - smoothstep(0.08, 0.5, foot));
+  if (micro > 0.0) {
+    vec2 q = wp.xz * 2.3;
+    float e = 0.15;
+    float c0 = tNoise(q);
+    float gx = tNoise(q + vec2(e, 0.0)) - c0;
+    float gz = tNoise(q + vec2(0.0, e)) - c0;
+    float steep = 0.35 + 0.65 * smoothstep(0.6, 3.0, terrainDetailAt(wp.xz).r);
+    n.xz -= vec2(gx, gz) / e * 0.35 * steep * micro;
+  }
+  return normalize(n);
+}
 vec3 terrainAlbedo(vec3 wp, float up) {
-  float h = wp.y;
-  float n = tFbm(wp.xz * 0.11);
-  float n2 = tNoise(wp.xz * 1.7);
-  vec3 seabed = vec3(0.32, 0.30, 0.22);
-  vec3 sand = vec3(0.76, 0.70, 0.50);
-  vec3 grass = mix(vec3(0.24, 0.42, 0.16), vec3(0.36, 0.50, 0.20), n);
-  vec3 dry = mix(vec3(0.46, 0.46, 0.26), vec3(0.52, 0.44, 0.30), n);
-  vec3 rock = mix(vec3(0.38, 0.35, 0.32), vec3(0.50, 0.47, 0.43), n2);
+  vec2 td = terrainDetailAt(wp.xz);
+  float h = td.r;
+  float land = td.g;
+  float n = tFbm(wp.xz * 0.08);
+  float n2 = tFbm(wp.xz * 0.55 + 17.0);
+  float grain = tNoise(wp.xz * 3.1);
+  vec3 seabed = vec3(0.30, 0.31, 0.24);
+  vec3 sand = mix(vec3(0.78, 0.72, 0.52), vec3(0.70, 0.64, 0.46), n2);
+  vec3 grass = mix(vec3(0.22, 0.40, 0.14), vec3(0.38, 0.52, 0.21), n);
+  grass = mix(grass, vec3(0.30, 0.44, 0.17), n2 * 0.5);
+  vec3 dry = mix(vec3(0.46, 0.45, 0.26), vec3(0.55, 0.46, 0.31), n);
+  vec3 rock = mix(vec3(0.36, 0.34, 0.31), vec3(0.52, 0.49, 0.45), n2);
   vec3 snow = vec3(0.93, 0.94, 0.97);
 
   vec3 c = seabed;
-  c = mix(c, sand, smoothstep(-0.25, 0.05, h));
-  c = mix(c, grass, smoothstep(0.22, 0.45, h + (n - 0.5) * 0.15));
+  c = mix(c, sand, smoothstep(-0.6, -0.05, h));
+  c = mix(c, grass, smoothstep(0.24, 0.42, h + (n - 0.5) * 0.15));
   c = mix(c, dry, smoothstep(1.3, 2.4, h + (n - 0.5) * 0.6));
   c = mix(c, rock, smoothstep(3.0, 4.2, h + (n - 0.5) * 0.8));
   // Steep faces are rock regardless of altitude.
-  c = mix(c, rock, smoothstep(0.86, 0.72, up) * step(0.2, h));
-  c = mix(c, snow, smoothstep(6.6, 7.6, h + (n - 0.5) * 1.2) * smoothstep(0.6, 0.8, up));
+  c = mix(c, rock, smoothstep(0.86, 0.70, up) * step(0.2, h));
+  c = mix(c, snow, smoothstep(6.6, 7.6, h + (n - 0.5) * 1.2) * smoothstep(0.55, 0.8, up));
+  // Beach: a thin sand rim exactly along the tile coastline.
+  float beach = smoothstep(0.5, 0.56, land) * (1.0 - smoothstep(0.62, 0.8, land));
+  c = mix(c, sand, beach * (1.0 - smoothstep(0.8, 1.6, h)));
+  // Water tiles (by the tile mask, not the mesh height) read as shallow
+  // water even where the coarse mesh pokes above the water plane.
+  vec3 shallowWater = mix(vec3(0.22, 0.52, 0.55), seabed, 0.25);
+  c = mix(shallowWater, c, smoothstep(0.46, 0.52, land));
   // Authored in sRGB; convert to linear for lighting.
-  return pow(c * (0.9 + 0.2 * n2), vec3(2.2));
+  return pow(c * (0.93 + 0.14 * grain), vec3(2.2));
 }
 `;
 
 export interface TerrainMaterialUniforms {
+  uTerrainDetail: { value: Texture };
   uOwnerTex: { value: Texture };
   uPaletteTex: { value: Texture };
   uRailTex: { value: Texture };
@@ -73,10 +136,12 @@ export function createTerrainMaterial(
   ownerTex: Texture,
   paletteTex: Texture,
   railTex: Texture,
+  detailTex: Texture,
   mapWidth: number,
   mapHeight: number,
 ): { material: MeshStandardMaterial; uniforms: TerrainMaterialUniforms } {
   const uniforms: TerrainMaterialUniforms = {
+    uTerrainDetail: { value: detailTex },
     uOwnerTex: { value: ownerTex },
     uPaletteTex: { value: paletteTex },
     uRailTex: { value: railTex },
@@ -102,6 +167,7 @@ export function createTerrainMaterial(
         "#include <project_vertex>",
         "#include <project_vertex>\nvTerrainWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvTerrainUp = objectNormal.y;",
       );
+    const detailNormal = "vec3 terrainN = terrainDetailNormal(vTerrainWorld);";
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
@@ -116,9 +182,34 @@ export function createTerrainMaterial(
       )
       .replace(
         "#include <color_fragment>",
-        "#include <color_fragment>\ndiffuseColor.rgb = applyTerritory(terrainAlbedo(vTerrainWorld, vTerrainUp), vTerrainWorld.xz);",
+        `#include <color_fragment>
+${detailNormal}
+diffuseColor.rgb = applyTerritory(terrainAlbedo(vTerrainWorld, min(vTerrainUp, terrainSlopeUp(vTerrainWorld))), vTerrainWorld.xz);`,
+      )
+      .replace(
+        "#include <normal_fragment_maps>",
+        `#include <normal_fragment_maps>
+float terrainFoot = smoothstep(1.5, 4.0, length(fwidth(vTerrainWorld.xz)));
+normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v2";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v3";
   return { material, uniforms };
+}
+
+/** Uploads TerrainDetail data as a mipmapped, linearly filtered RG16F texture. */
+export function createTerrainDetailTexture(d: TerrainDetailData): DataTexture {
+  const half = new Uint16Array(d.values.length);
+  for (let i = 0; i < half.length; i++) {
+    half[i] = DataUtils.toHalfFloat(d.values[i]);
+  }
+  const tex = new DataTexture(half, d.width, d.height, RGFormat, HalfFloatType);
+  tex.magFilter = LinearFilter;
+  tex.minFilter = LinearMipmapLinearFilter;
+  tex.generateMipmaps = true;
+  tex.wrapS = ClampToEdgeWrapping;
+  tex.wrapT = ClampToEdgeWrapping;
+  tex.flipY = false;
+  tex.needsUpdate = true;
+  return tex;
 }

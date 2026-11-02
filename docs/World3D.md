@@ -299,6 +299,27 @@ land they hit, sink/damage ships, and rockets knock buildings down a level.
 - Verified in a Solo game: built a port, then a Warship, Destroyer and
   Battleship from the build bar; all three in the 3D view.
 
+### Increment 8 — Sharp terrain (done)
+
+Problem: terrain colour, lighting and coastlines came only from the mesh,
+which is sampled every 2+ tiles on big maps with heights blurred over ~9
+tiles, so coasts were soft halos, relief looked flat and the rock noise was
+blocky.
+
+- `terrain/TerrainDetail.ts`: full-resolution RG16F texture (lightly
+  smoothed height + land mask), mipmapped.
+- Terrain shader: per-pixel normals from tile heights (exaggerated for
+  shading, plus fading micro relief), biome colour from per-pixel height,
+  smooth fBm instead of blocky value noise, a thin beach along the exact
+  tile coastline; water tiles read as shallow water even where the coarse
+  mesh pokes above the plane.
+- Water: discards over land tiles (coast = the tile coastline, not the
+  mesh crossing), depth/foam from the detail heights.
+- The source map is 1 tile = 1 unit (World is 2000×1000), so very close
+  zoom still shows tile-scale shapes; that is the map data's resolution.
+- Tests: `tests/render3d/TerrainDetail.test.ts`. Verified with before /
+  after screenshots at three zoom levels.
+
 ### Next stages
 
 See [Roadmap.md](Roadmap.md) for the full feature list and order.

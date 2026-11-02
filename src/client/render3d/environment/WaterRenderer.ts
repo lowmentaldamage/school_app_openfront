@@ -21,6 +21,7 @@ import {
   Vector2,
   ClampToEdgeWrapping,
 } from "three";
+import type { Texture } from "three";
 import type { Heightfield } from "../terrain/Heightfield";
 
 /** Depth (in tiles) mapped to the full 0..1 range of the depth texture. */
@@ -60,14 +61,20 @@ export class WaterRenderer {
     uTime: { value: number };
     uDepthTex: { value: DataTexture };
     uMapSize: { value: Vector2 };
+    uTerrainDetail: { value: Texture };
   };
 
-  constructor(hf: Heightfield) {
+  /**
+   * `hf` should be the lightly smoothed detail heightfield and `detailTex`
+   * the TerrainDetail texture, so the shoreline follows the tiles exactly.
+   */
+  constructor(hf: Heightfield, detailTex: Texture) {
     this.depthTex = buildDepthTexture(hf);
     this.uniforms = {
       uTime: { value: 0 },
       uDepthTex: { value: this.depthTex },
       uMapSize: { value: new Vector2(hf.width, hf.height) },
+      uTerrainDetail: { value: detailTex },
     };
     // Wide enough that the plane's edge always sits inside the horizon fog.
     const margin = Math.max(hf.width, hf.height) * 4;
@@ -104,6 +111,12 @@ varying vec3 vWaterWorld;
 uniform float uTime;
 uniform sampler2D uDepthTex;
 uniform vec2 uMapSize;
+uniform sampler2D uTerrainDetail;
+float waterLand() {
+  vec2 uv = vWaterWorld.xz / uMapSize;
+  if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 0.0;
+  return texture2D(uTerrainDetail, uv).g;
+}
 float waterDepth01() {
   vec2 uv = vWaterWorld.xz / uMapSize;
   if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 1.0;
@@ -122,11 +135,15 @@ vec2 waveGrad(vec2 p, float t) {
         .replace(
           "#include <color_fragment>",
           `#include <color_fragment>
+// Crisp shoreline: the water stops exactly at the tile coastline (the 0.5
+// contour of the filtered land mask), not where the coarse mesh dips.
+float wLand = waterLand();
+if (wLand > 0.5) discard;
 float wDepth = waterDepth01();
 vec3 shallow = pow(vec3(0.20, 0.58, 0.62), vec3(2.2));
 vec3 deep = pow(vec3(0.03, 0.14, 0.30), vec3(2.2));
 diffuseColor.rgb = mix(shallow, deep, smoothstep(0.0, 0.85, wDepth));
-float foam = (1.0 - smoothstep(0.02, 0.10, wDepth))
+float foam = max(1.0 - smoothstep(0.02, 0.10, wDepth), smoothstep(0.3, 0.5, wLand))
            * (0.6 + 0.4 * sin(uTime * 1.6 + (vWaterWorld.x + vWaterWorld.z) * 1.3));
 diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9), clamp(foam, 0.0, 1.0) * 0.55);
 diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
@@ -144,7 +161,7 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v1";
+    material.customProgramCacheKey = () => "laukolaroser-water-v2";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

@@ -15,6 +15,7 @@
 
 import {
   ACESFilmicToneMapping,
+  type DataTexture,
   PCFShadowMap,
   Scene,
   SRGBColorSpace,
@@ -32,7 +33,9 @@ import { ForestRenderer } from "./environment/ForestRenderer";
 import { WaterRenderer } from "./environment/WaterRenderer";
 import { OverlayRenderer } from "./overlays/OverlayRenderer";
 import { Heightfield } from "./terrain/Heightfield";
+import { buildTerrainDetail, detailHeightfield } from "./terrain/TerrainDetail";
 import {
+  createTerrainDetailTexture,
   createTerrainMaterial,
   type TerrainMaterialUniforms,
 } from "./terrain/TerrainMaterial";
@@ -65,6 +68,7 @@ export interface WorldFrame {
 export class WorldRenderer {
   readonly scene = new Scene();
   readonly heightfield: Heightfield;
+  private readonly terrainDetail: DataTexture;
   readonly cameraController: CameraController;
   private readonly renderer: WebGLRenderer;
   private readonly territory: TerritoryTextures;
@@ -113,10 +117,20 @@ export class WorldRenderer {
       init.mapHeight,
       init.paletteSize,
     );
+    // Full-resolution tile data for per-pixel shading and the coastline.
+    const detailHf = detailHeightfield(
+      init.terrain,
+      init.mapWidth,
+      init.mapHeight,
+    );
+    this.terrainDetail = createTerrainDetailTexture(
+      buildTerrainDetail(init.terrain, detailHf),
+    );
     const { material, uniforms } = createTerrainMaterial(
       this.territory.ownerTexture,
       this.territory.paletteTexture,
       this.territory.railTexture,
+      this.terrainDetail,
       init.mapWidth,
       init.mapHeight,
     );
@@ -134,7 +148,7 @@ export class WorldRenderer {
     });
     this.scene.add(this.terrain.group);
 
-    this.water = new WaterRenderer(this.heightfield);
+    this.water = new WaterRenderer(detailHf, this.terrainDetail);
     this.scene.add(this.water.mesh);
 
     this.forests = new ForestRenderer(
@@ -247,6 +261,7 @@ export class WorldRenderer {
     this.forests.dispose();
     this.overlays.dispose();
     this.water.dispose();
+    this.terrainDetail.dispose();
     this.environment.dispose();
     this.territory.dispose();
     this.renderer.dispose();
