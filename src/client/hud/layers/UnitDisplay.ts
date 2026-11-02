@@ -18,8 +18,10 @@ import { resolveKeybindLabel, translateText } from "../../Utils";
 import { GameView } from "../../view";
 import {
   atomBombIcon,
+  battleshipIcon,
   cityIcon,
   defensePostIcon,
+  destroyerIcon,
   factoryIcon,
   goldCoinIcon,
   hydrogenBombIcon,
@@ -42,6 +44,8 @@ export class UnitDisplay extends LitElement implements Controller {
   private keyboardLayout = new KeyboardLayoutController(this);
   private _cities = 0;
   private _warships = 0;
+  private _destroyers = 0;
+  private _battleships = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -108,6 +112,8 @@ export class UnitDisplay extends LitElement implements Controller {
           (player?.units(UnitType.MissileSilo).length ?? 0) > 0
         );
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
         return (
           this.cost(item) <= (player?.gold() ?? 0n) &&
           (player?.units(UnitType.Port).length ?? 0) > 0
@@ -133,6 +139,8 @@ export class UnitDisplay extends LitElement implements Controller {
     this._samLauncher = player.totalUnitLevels(UnitType.SAMLauncher);
     this._factories = player.totalUnitLevels(UnitType.Factory);
     this._warships = player.totalUnitLevels(UnitType.Warship);
+    this._destroyers = player.totalUnitLevels(UnitType.Destroyer);
+    this._battleships = player.totalUnitLevels(UnitType.Battleship);
     this.requestUpdate();
   }
 
@@ -209,6 +217,20 @@ export class UnitDisplay extends LitElement implements Controller {
             UnitType.Warship,
             "warship",
             this.getHotkey("buildWarship", "Digit7"),
+          )}
+          ${this.renderUnitItem(
+            destroyerIcon,
+            this._destroyers,
+            UnitType.Destroyer,
+            "destroyer",
+            "",
+          )}
+          ${this.renderUnitItem(
+            battleshipIcon,
+            this._battleships,
+            UnitType.Battleship,
+            "battleship",
+            "",
           )}
           ${this.renderUnitItem(
             atomBombIcon,
@@ -337,6 +359,8 @@ export class UnitDisplay extends LitElement implements Controller {
                 );
                 break;
               case UnitType.Warship:
+              case UnitType.Destroyer:
+              case UnitType.Battleship:
                 this.eventBus?.emit(new ToggleStructureEvent([UnitType.Port]));
                 break;
               default:

@@ -10,6 +10,7 @@ import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
+import { NAVAL_CLASSES } from "../naval/NavalClasses";
 import { assertNever } from "../Util";
 
 export interface NukeMagnitude {
@@ -212,7 +213,9 @@ export class Config {
     let info: UnitInfo;
     switch (type) {
       case UnitType.Warship:
-        info = { maxHealth: 1000 };
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
+        info = { maxHealth: NAVAL_CLASSES[type].maxHealth };
         break;
       case UnitType.Shell:
         info = { damage: 250 };

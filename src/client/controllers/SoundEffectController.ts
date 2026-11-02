@@ -158,6 +158,8 @@ export class SoundEffectController implements Controller {
         this.emit("mirv-launch");
         break;
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
         if (unit.owner() === myPlayer) this.emit("build-warship");
         break;
       case UnitType.City:

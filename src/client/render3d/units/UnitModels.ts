@@ -12,6 +12,8 @@ import { ModelBuilder } from "./ModelBuilder";
 
 export type ModelKind =
   | "warship"
+  | "destroyer"
+  | "battleship"
   | "transport"
   | "tradeShip"
   | "trainEngine"
@@ -63,6 +65,62 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .box(0.5, 0.05, 0.05, { color: BLACK, pos: [-1.25, 0.36, -0.05] })
       .box(3.0, 0.05, 0.82, { team: true, pos: [-0.05, 0.02, 0] })
       .build(),
+
+  // Long, narrow and low: one gun forward, torpedo tubes, raked funnel.
+  destroyer: () =>
+    new ModelBuilder()
+      .hull(3.0, 0.55, 0.26, { color: 0x7d8790 })
+      .box(2.4, 0.05, 0.42, { color: DARK_STEEL, pos: [-0.1, 0.22, 0] })
+      .box(0.55, 0.26, 0.34, { color: 0x7d8790, pos: [0.15, 0.27, 0] })
+      .box(0.3, 0.14, 0.28, { team: true, pos: [0.15, 0.47, 0] })
+      .cylinder(0.025, 0.025, 0.45, 5, {
+        color: DARK_STEEL,
+        pos: [0.1, 0.7, 0],
+      })
+      .cylinder(0.08, 0.1, 0.3, 6, {
+        color: BLACK,
+        pos: [-0.35, 0.38, 0],
+        rot: [0, 0, 0.25],
+      })
+      .cylinder(0.12, 0.13, 0.09, 8, {
+        color: DARK_STEEL,
+        pos: [0.85, 0.26, 0],
+      })
+      .box(0.42, 0.04, 0.04, { color: BLACK, pos: [1.08, 0.3, 0] })
+      .box(0.5, 0.07, 0.07, { color: DARK_STEEL, pos: [-0.8, 0.27, 0.1] })
+      .box(0.5, 0.07, 0.07, { color: DARK_STEEL, pos: [-0.8, 0.27, -0.1] })
+      .box(2.8, 0.04, 0.58, { team: true, pos: [-0.05, 0.02, 0] })
+      .build(),
+
+  // Big and wide: tall superstructure, three triple-gun turrets.
+  battleship: () => {
+    const b = new ModelBuilder()
+      .hull(4.2, 1.05, 0.4, { color: 0x5f6870 })
+      .box(3.5, 0.07, 0.86, { color: DARK_STEEL, pos: [-0.1, 0.36, 0] })
+      .box(1.1, 0.42, 0.62, { color: 0x5f6870, pos: [-0.15, 0.48, 0] })
+      .box(0.6, 0.38, 0.48, { color: 0x5f6870, pos: [-0.1, 0.86, 0] })
+      .box(0.36, 0.22, 0.4, { team: true, pos: [-0.05, 1.15, 0] })
+      .cylinder(0.035, 0.035, 0.7, 5, {
+        color: DARK_STEEL,
+        pos: [-0.1, 1.55, 0],
+      })
+      .cylinder(0.11, 0.13, 0.36, 7, { color: BLACK, pos: [-0.55, 0.85, 0] })
+      .box(4.0, 0.06, 1.08, { team: true, pos: [-0.05, 0.02, 0] });
+    for (const [x, dir, y] of [
+      [1.05, 1, 0.42],
+      [0.62, 1, 0.56],
+      [-1.25, -1, 0.42],
+    ] as const) {
+      b.cylinder(0.24, 0.27, 0.16, 10, { color: DARK_STEEL, pos: [x, y, 0] });
+      for (const z of [-0.09, 0, 0.09]) {
+        b.box(0.62, 0.05, 0.05, {
+          color: BLACK,
+          pos: [x + dir * 0.36, y + 0.06, z],
+        });
+      }
+    }
+    return b.build();
+  },
 
   transport: () =>
     new ModelBuilder()

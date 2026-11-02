@@ -191,8 +191,10 @@
   "build_menu": {
     "desc": {
       "atom_bomb": "Small explosion",
+      "battleship": "Slow, very tough siege ship. Heavy long-range guns; shells enemy coasts during a land war.",
       "city": "Increases max population",
       "defense_post": "Increases defenses of nearby borders",
+      "destroyer": "Fast, cheap escort. Hunts transports and trade ships; light guns.",
       "factory": "Creates railroads and spawns trains",
       "hydrogen_bomb": "Large explosion",
       "mirv": "Huge explosion, only targets selected player",
@@ -2664,9 +2666,11 @@
   },
   "unit_type": {
     "atom_bomb": "Atom Bomb",
+    "battleship": "Battleship",
     "boat": "Boat",
     "city": "City",
     "defense_post": "Defense Post",
+    "destroyer": "Destroyer",
     "factory": "Factory",
     "hydrogen_bomb": "Hydrogen Bomb",
     "mirv": "MIRV",

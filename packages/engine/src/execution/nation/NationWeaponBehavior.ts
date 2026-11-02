@@ -48,10 +48,12 @@ export class NationWeaponBehavior {
 
     for (const { weapon, reserve } of PLAN) {
       const spec = WEAPONS[weapon];
-      if (this.mg.config().isUnitDisabled(spec.launcher)) continue;
+      if (spec.launchers.every((t) => this.mg.config().isUnitDisabled(t))) {
+        continue;
+      }
       if (this.player.gold() < spec.cost * reserve) continue;
       let tried = 0;
-      for (const launcher of this.player.units(spec.launcher)) {
+      for (const launcher of this.player.units(spec.launchers)) {
         if (tried >= MAX_LAUNCHERS_TRIED) break;
         if (!launcherReady(this.mg, launcher, spec)) continue;
         tried++;

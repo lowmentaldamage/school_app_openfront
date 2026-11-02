@@ -22,8 +22,8 @@ export {
 
 export interface WeaponSpec {
   id: WeaponId;
-  /** Unit that fires it; the nearest ready one in range is used. */
-  launcher: UnitType;
+  /** Units that fire it; the nearest ready one in range is used. */
+  launchers: readonly UnitType[];
   /** Projectile unit flown to the target. */
   projectile: UnitType.ArtilleryShell | UnitType.Rocket;
   /** Max launcher → target distance, tiles. */
@@ -60,7 +60,7 @@ export interface WeaponSpec {
 export const WEAPONS: Readonly<Record<WeaponId, WeaponSpec>> = {
   artillery: {
     id: "artillery",
-    launcher: UnitType.DefensePost,
+    launchers: [UnitType.DefensePost],
     projectile: UnitType.ArtilleryShell,
     range: 45,
     cost: 40_000n,
@@ -77,7 +77,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponSpec>> = {
   },
   naval: {
     id: "naval",
-    launcher: UnitType.Warship,
+    launchers: [UnitType.Warship, UnitType.Destroyer, UnitType.Battleship],
     projectile: UnitType.ArtilleryShell,
     range: 35,
     cost: 30_000n,
@@ -94,7 +94,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponSpec>> = {
   },
   rocket: {
     id: "rocket",
-    launcher: UnitType.MissileSilo,
+    launchers: [UnitType.MissileSilo],
     projectile: UnitType.Rocket,
     range: 220,
     cost: 150_000n,

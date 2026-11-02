@@ -8,7 +8,7 @@
  * through InputHandler → MouseMoveEvent on the EventBus, so we just listen.
  */
 
-import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { CombatShips, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { EventBus } from "@laukolaroser/shared/EventBus";
 import { Controller } from "../Controller";
 import { MouseMoveEvent } from "../InputHandler";
@@ -59,7 +59,7 @@ export class HoverHighlightController implements Controller {
       let closestUnit: UnitView | null = null;
       let closestDistSquared = 2500;
       for (const u of this.game.units(
-        UnitType.Warship,
+        ...CombatShips.types,
         UnitType.TradeShip,
         UnitType.TransportShip,
       )) {

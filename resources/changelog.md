@@ -34,3 +34,10 @@
 - Admins add, remove, disable players, reset passwords and make other admins from the in-game menu
 - Anyone logged in can create and join lobbies
 - One-command Docker setup capped at 2 GB RAM; play over the internet with HTTPS (see docs/SelfHosting.md)
+
+⚓ **New warships**
+
+- **Destroyer**: cheap and fast escort with light guns — hunts transports and trade ships
+- **Battleship**: slow, very tough siege ship with heavy long-range guns; shells enemy coasts on its own while you fight a land war
+- Both are built from ports, take move orders like warships and fire naval strikes
+- AI nations build them too; switch either off in the lobby's disabled units

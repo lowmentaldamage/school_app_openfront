@@ -46,6 +46,8 @@ import {
   UT_SHELL,
   UT_TRADE_SHIP,
   UT_TRAIN,
+  UT_BATTLESHIP,
+  UT_DESTROYER,
   UT_TRANSPORT,
   UT_WARSHIP,
 } from "../../types";
@@ -94,6 +96,13 @@ const HYDROGEN_BOMB_COL = UNIT_ORDER.indexOf(UT_HYDROGEN_BOMB);
 
 /** Atlas column of the warship — gates the warship cosmetic effect. */
 const WARSHIP_COL = UNIT_ORDER.indexOf(UT_WARSHIP);
+
+/** Combat ship classes drawn with the warship sprite. */
+const COMBAT_SHIP_TYPES: ReadonlySet<string> = new Set([
+  UT_WARSHIP,
+  UT_DESTROYER,
+  UT_BATTLESHIP,
+]);
 
 /** First atlas column of the train sprites (engine, carriage, loaded
  *  carriage are contiguous) — gates the train cosmetic effect. */
@@ -284,6 +293,9 @@ export class UnitPass {
       );
       if (col >= 0) {
         this.typeToAtlasCol.set(header.unitTypes[i], col);
+      } else if (COMBAT_SHIP_TYPES.has(header.unitTypes[i])) {
+        // Destroyers and battleships use the warship sprite in 2D.
+        this.typeToAtlasCol.set(header.unitTypes[i], WARSHIP_COL);
       }
     }
 
@@ -476,9 +488,9 @@ export class UnitPass {
       if (atlasIdx === undefined) continue;
 
       const isRetreatingWarship =
-        unit.unitType === UT_WARSHIP && unit.retreating;
+        COMBAT_SHIP_TYPES.has(unit.unitType) && unit.retreating;
       const isAngryWarship =
-        unit.unitType === UT_WARSHIP && unit.targetUnitId !== null;
+        COMBAT_SHIP_TYPES.has(unit.unitType) && unit.targetUnitId !== null;
       const isFlicker = FLICKER_TYPES.has(unit.unitType);
 
       // Alt-view trade ship color from owner + destination port owner:

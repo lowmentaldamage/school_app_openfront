@@ -1,5 +1,6 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
+  CombatShips,
   MessageType,
   NukeState,
   SamLauncherState,
@@ -117,6 +118,8 @@ export class UnitImpl implements Unit {
 
     switch (this._type) {
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
       case UnitType.Port:
       case UnitType.MissileSilo:
       case UnitType.DefensePost:
@@ -251,6 +254,8 @@ export class UnitImpl implements Unit {
     this.clearPendingDeletion();
     switch (this._type) {
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
       case UnitType.Port:
       case UnitType.MissileSilo:
       case UnitType.DefensePost:
@@ -389,6 +394,8 @@ export class UnitImpl implements Unit {
         case UnitType.Port:
         case UnitType.SAMLauncher:
         case UnitType.Warship:
+        case UnitType.Destroyer:
+        case UnitType.Battleship:
         case UnitType.Factory:
           this.mg.stats().unitDestroy(destroyer, this._type);
           this.mg.stats().unitLose(this.owner(), this._type);
@@ -400,10 +407,7 @@ export class UnitImpl implements Unit {
   private displayMessageOnDeleted(): void {
     // Only warships and transport ships are worth notifying about; everything
     // else is either visible on the map or too low-stakes to surface.
-    if (
-      this._type !== UnitType.Warship &&
-      this._type !== UnitType.TransportShip
-    ) {
+    if (!CombatShips.has(this._type) && this._type !== UnitType.TransportShip) {
       return;
     }
 
@@ -675,7 +679,7 @@ export class UnitImpl implements Unit {
     if (this._warshipState === undefined) {
       return;
     }
-    if (targetType === UnitType.Warship) {
+    if (CombatShips.has(targetType)) {
       // Final blow on an enemy warship: instant level, and the partial
       // transport/capture progress toward the next level is wiped.
       this._warshipState.veterancyProgress = 0;

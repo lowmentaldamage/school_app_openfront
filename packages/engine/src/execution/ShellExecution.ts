@@ -1,5 +1,6 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
-import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { CombatShips, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { navalClass } from "@laukolaroser/engine-lib/naval/NavalClasses";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   zInt,
@@ -81,7 +82,7 @@ export class ShellExecution implements Execution {
           targetWasActive &&
           !this.target.isActive() &&
           this.ownerUnit.isActive() &&
-          this.ownerUnit.type() === UnitType.Warship
+          CombatShips.has(this.ownerUnit.type())
         ) {
           this.ownerUnit.recordKill(targetType);
         }
@@ -109,6 +110,12 @@ export class ShellExecution implements Execution {
       damageMultiplier = Math.floor(
         (damageMultiplier * (100 + veterancy * bonusPercent)) / 100,
       );
+    }
+
+    // Naval class: destroyers hit lighter, battleships much harder.
+    const pct = navalClass(this.ownerUnit.type()).damagePercent;
+    if (pct !== 100 && CombatShips.has(this.ownerUnit.type())) {
+      damageMultiplier = Math.floor((damageMultiplier * pct) / 100);
     }
 
     return Math.round((baseDamage / 250) * damageMultiplier);

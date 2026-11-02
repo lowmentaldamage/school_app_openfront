@@ -738,7 +738,7 @@ function wireWeaponAim(
     const p = transformHandler.screenToWorldCoordinatesFloat(sx, sy);
     const tick = gameView.ticks();
     const r2 = spec.range * spec.range;
-    const inRange = me.units(spec.launcher).some((u) => {
+    const inRange = me.units(...spec.launchers).some((u) => {
       if (!isLauncherReady(u, spec, tick)) return false;
       const dx = gameView.x(u.tile()) - p.x;
       const dy = gameView.y(u.tile()) - p.y;

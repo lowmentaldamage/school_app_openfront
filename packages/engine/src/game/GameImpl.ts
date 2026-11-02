@@ -1,5 +1,6 @@
 import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
+  CombatShips,
   Cell,
   ColoredTeams,
   Duos,
@@ -1622,8 +1623,7 @@ export class GameImpl implements Game {
         .units()
         .filter(
           (u) =>
-            u.type() === UnitType.Warship ||
-            u.type() === UnitType.TransportShip,
+            CombatShips.has(u.type()) || u.type() === UnitType.TransportShip,
         );
 
       for (const ship of ships) {

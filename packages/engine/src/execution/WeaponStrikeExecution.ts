@@ -69,7 +69,7 @@ export function findLauncher(
   const range2 = spec.range * spec.range;
   let best: Unit | null = null;
   let bestD = Infinity;
-  for (const u of player.units(spec.launcher)) {
+  for (const u of player.units(spec.launchers)) {
     const d = mg.euclideanDistSquared(u.tile(), tile);
     if (d > range2 || d >= bestD) continue;
     if (!launcherReady(mg, u, spec)) continue;

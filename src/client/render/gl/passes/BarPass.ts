@@ -15,6 +15,7 @@
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { maxHealthWithVeterancy } from "@laukolaroser/engine-lib/game/Veterancy";
+import { navalClass } from "@laukolaroser/engine-lib/naval/NavalClasses";
 import type { RendererConfig, UnitState } from "../../types";
 import { UT_MISSILE_SILO, UT_SAM_LAUNCHER } from "../../types";
 import type { RenderSettings } from "../RenderSettings";
@@ -147,7 +148,10 @@ export class BarPass {
       // Veteran warships have a higher effective max health, so a full veteran
       // ship reads as full. Shared with the engine's UnitImpl.maxHealth().
       const maxHealth = maxHealthWithVeterancy(
-        this.warshipMaxHealth,
+        unit.unitType === UnitType.Warship
+          ? this.warshipMaxHealth
+          : (navalClass(unit.unitType as UnitType).maxHealth ??
+              this.warshipMaxHealth),
         unit.veterancy,
         this.veterancyHealthBonus,
       );

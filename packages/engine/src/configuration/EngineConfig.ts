@@ -343,6 +343,16 @@ export class EngineConfig extends Config {
           (numUnits: number) => Math.min(1_000_000, (numUnits + 1) * 250_000),
           UnitType.Warship,
         );
+      case UnitType.Destroyer:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(500_000, (numUnits + 1) * 100_000),
+          UnitType.Destroyer,
+        );
+      case UnitType.Battleship:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(3_000_000, (numUnits + 1) * 750_000),
+          UnitType.Battleship,
+        );
       case UnitType.Port:
         return this.costWrapper(
           (numUnits: number) => Math.min(1_000_000, pow2(numUnits) * 125_000),

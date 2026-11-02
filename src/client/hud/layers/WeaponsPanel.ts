@@ -99,7 +99,7 @@ export class WeaponsPanel extends LitElement implements Controller {
     const owned = { artillery: 0, naval: 0, rocket: 0 };
     for (const id of WEAPON_IDS) {
       const spec = WEAPONS[id];
-      for (const u of me.units(spec.launcher)) {
+      for (const u of me.units(...spec.launchers)) {
         owned[id]++;
         if (isLauncherReady(u, spec, tick)) ready[id]++;
       }

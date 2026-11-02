@@ -172,12 +172,23 @@ describe("PlayerStatsTable", () => {
     expect(buildings?.querySelectorAll("tbody tr")).toHaveLength(6);
     expect(buildings?.textContent).not.toContain("unit_type.warship");
 
-    expect(columnsOf(table, "player_stats_table.warship_stats")).toEqual({
+    expect(
+      columnsOf(table, "player_stats_table.warship_stats", "unit_type.warship"),
+    ).toEqual({
+      "player_stats_table.ship_type": "unit_type.warship",
       "player_stats_table.built": "151",
       "player_stats_table.destroyed": "152",
       "player_stats_table.captured": "153",
       "player_stats_table.lost": "154",
     });
+    // Destroyers and battleships get rows of their own (zero here).
+    expect(
+      columnsOf(
+        table,
+        "player_stats_table.warship_stats",
+        "unit_type.battleship",
+      )["player_stats_table.built"],
+    ).toBe("0");
   });
 
   it("shows nuke columns in launched/landed/intercepted order", async () => {

@@ -1,6 +1,8 @@
 import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 
 export const warshipIcon = assetUrl("images/BattleshipIconWhite.svg");
+export const destroyerIcon = assetUrl("images/LightDestroyerIconWhite.svg");
+export const battleshipIcon = assetUrl("images/HeavyBattleshipIconWhite.svg");
 export const cityIcon = assetUrl("images/CityIconWhite.svg");
 export const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 export const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");

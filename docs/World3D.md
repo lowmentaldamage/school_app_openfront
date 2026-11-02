@@ -268,6 +268,37 @@ land they hit, sink/damage ships, and rockets knock buildings down a level.
   supervisor from; the npm install and client build stages were built in
   Docker.
 
+### Increment 7 — Navy I: Destroyer and Battleship (done)
+
+- New unit types `Destroyer` and `Battleship` in the `CombatShips` group
+  with `Warship`. They share `WarshipExecution` (patrol, fight, sink
+  transports, hunt trade ships, dock to repair, move orders); the numbers
+  live in `engine-lib/naval/NavalClasses.ts`:
+
+  | Class      | Speed (steps/6 ticks) | Health | Range | Reload | Damage | Cost (n-th)      |
+  | ---------- | --------------------- | ------ | ----- | ------ | ------ | ---------------- |
+  | Warship    | 6                     | 1000   | 100%  | 100%   | 100%   | 250k·n, max 1M   |
+  | Destroyer  | 10                    | 450    | 85%   | 50%    | 45%    | 100k·n, max 500k |
+  | Battleship | 4                     | 3500   | 140%  | 160%   | 220%   | 750k·n, max 3M   |
+
+- Battleships bombard: every 9 s, while their owner has a land attack in
+  either direction, two free naval-strike shells hit the nearest enemy
+  land within 40 tiles.
+- Warship behaviour is unchanged (exactly one step per tick).
+- Naval strikes can launch from any combat ship (`WeaponSpec.launchers`).
+- AI: `NationNavyBehavior` (own seeded RNG, stateless) builds destroyers
+  once it runs a warship (≤ 1 per port, ≤ 4) and battleships during land
+  wars (≤ 2); never on Easy.
+- Client: build bar, radial menu and lobby disabled-units toggles; box
+  selection / move orders; stats table rows; 2D uses the warship sprite;
+  3D models for both.
+- Tests: `tests/NavalClasses.test.ts` (class maths, costs, building from a
+  port, speed, cross-class combat, damage, move orders, bombardment only in
+  a land war, snapshot round trip, AI building). The nation economy
+  benchmark snapshot was updated (AI navies make wars deadlier).
+- Verified in a Solo game: built a port, then a Warship, Destroyer and
+  Battleship from the build bar; all three in the 3D view.
+
 ### Next stages
 
 See [Roadmap.md](Roadmap.md) for the full feature list and order.

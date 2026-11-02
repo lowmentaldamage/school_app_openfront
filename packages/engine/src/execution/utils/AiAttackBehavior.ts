@@ -1,5 +1,6 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
+  CombatShips,
   Difficulty,
   PlayerType,
   Structures,
@@ -436,7 +437,7 @@ export abstract class AiAttackBehavior {
 
   protected hostileWarships(): Unit[] {
     return this.game
-      .units(UnitType.Warship)
+      .units(...CombatShips.types)
       .filter(
         (w) =>
           w.owner() !== this.player &&

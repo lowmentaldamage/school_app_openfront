@@ -139,7 +139,11 @@ export class OverlayRenderer {
     });
     // Buildings and warships show a model; nukes show only their blast ring.
     const showModel =
-      kind !== null && (STRUCTURE_KINDS.has(kind) || kind === "warship");
+      kind !== null &&
+      (STRUCTURE_KINDS.has(kind) ||
+        kind === "warship" ||
+        kind === "destroyer" ||
+        kind === "battleship");
     if (showModel) this.ghost.geometry = modelGeometry(kind);
     const ok = data.canBuild || data.canUpgrade;
     this.ghostMat.color.copy(ok ? OK : BAD);

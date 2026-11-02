@@ -217,6 +217,9 @@ export enum UnitType {
   // Weapon projectiles (see engine-lib/weapons/Weapons.ts).
   ArtilleryShell = "Artillery Shell",
   Rocket = "Rocket",
+  // Naval classes (see engine-lib/naval/NavalClasses.ts).
+  Destroyer = "Destroyer",
+  Battleship = "Battleship",
 }
 
 /** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
@@ -241,6 +244,19 @@ export const BuildableAttacks = unitTypeGroup([
   UnitType.HydrogenBomb,
   UnitType.MIRV,
   UnitType.Warship,
+  UnitType.Destroyer,
+  UnitType.Battleship,
+] as const);
+
+/**
+ * Combat ships: they patrol, fight other combat ships, sink transports, hunt
+ * trade ships, dock at ports to repair, and obey move orders. They share
+ * the warship behaviour; the class only changes the numbers.
+ */
+export const CombatShips = unitTypeGroup([
+  UnitType.Warship,
+  UnitType.Destroyer,
+  UnitType.Battleship,
 ] as const);
 
 export const Structures = unitTypeGroup([

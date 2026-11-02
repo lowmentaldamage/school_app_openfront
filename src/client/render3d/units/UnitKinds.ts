@@ -15,6 +15,8 @@ export interface UnitLike {
 
 const BY_TYPE: Record<string, ModelKind> = {
   Warship: "warship",
+  Destroyer: "destroyer",
+  Battleship: "battleship",
   Transport: "transport",
   "Trade Ship": "tradeShip",
   "Atom Bomb": "atomBomb",
@@ -44,6 +46,8 @@ export const STRUCTURE_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
 
 export const SHIP_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
   "warship",
+  "destroyer",
+  "battleship",
   "transport",
   "tradeShip",
 ]);

@@ -62,6 +62,14 @@ export interface UnitParamsMap {
     patrolTile: TileRef;
   };
 
+  [UnitType.Destroyer]: {
+    patrolTile: TileRef;
+  };
+
+  [UnitType.Battleship]: {
+    patrolTile: TileRef;
+  };
+
   [UnitType.Shell]: Record<string, never>;
 
   [UnitType.ArtilleryShell]: {

@@ -13,6 +13,7 @@
 
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
+  CombatShips,
   MessageType,
   Structures,
   UnitType,
@@ -161,11 +162,9 @@ export class ProjectileExecution implements Execution {
       unit.delete(true, this.player);
       res.unitsDestroyed++;
     }
-    for (const { unit } of mg.nearbyUnits(
-      this.dst,
-      spec.radius,
-      UnitType.Warship,
-    )) {
+    for (const { unit } of mg.nearbyUnits(this.dst, spec.radius, [
+      ...CombatShips.types,
+    ])) {
       if (!unit.isActive() || !this.isEnemy(unit.owner())) continue;
       unit.modifyHealth(-spec.warshipDamage, this.player);
       res.warshipsHit++;

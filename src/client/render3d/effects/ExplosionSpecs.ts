@@ -36,7 +36,13 @@ const STRUCTURES = new Set([
   "Missile Silo",
 ]);
 
-const SHIPS = new Set(["Warship", "Transport", "Trade Ship"]);
+const SHIPS = new Set([
+  "Warship",
+  "Destroyer",
+  "Battleship",
+  "Transport",
+  "Trade Ship",
+]);
 
 /**
  * @param unitType the dead unit's type string

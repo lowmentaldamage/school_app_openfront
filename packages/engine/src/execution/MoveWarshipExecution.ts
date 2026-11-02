@@ -1,5 +1,5 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
-import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { CombatShips } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   zNum,
   zPlayerRef,
@@ -29,7 +29,7 @@ export class MoveWarshipExecution implements Execution {
     const newPatrolTileWaterComponent = mg.getWaterComponent(this.position);
     // Cache warship list and build a lookup map — avoids repeated iteration
     const warshipMap = new Map(
-      this.owner.units(UnitType.Warship).map((u) => [u.id(), u]),
+      this.owner.units(...CombatShips.types).map((u) => [u.id(), u]),
     );
     // Deduplicate ids so each warship is only moved once
     for (const unitId of new Set(this.unitIds)) {
