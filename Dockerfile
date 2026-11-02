@@ -23,7 +23,7 @@ COPY vite.config.ts ./
 COPY index.html ./
 COPY client-api.json ./
 COPY resources ./resources
-COPY proprietary ./proprietary
+# (No proprietary/ directory in Laukolaroser: the build uses resources/.)
 COPY src ./src
 COPY packages ./packages
 # build-prod runs scripts/buildAssetHashes.ts after vite, to emit
@@ -105,6 +105,13 @@ RUN <<'EOF' tee /usr/local/bin/start.sh
 #!/bin/sh
 # Generate the create-game nginx upstream from NUM_WORKERS before nginx starts.
 /usr/local/bin/generate-nginx-upstream.sh
+
+# Self-hosted mode keeps accounts and the session secret in a volume that
+# the (non-root) game server must be able to write.
+if [ -n "${SELFHOST_DATA_DIR:-}" ]; then
+    mkdir -p "$SELFHOST_DATA_DIR"
+    chown -R node:node "$SELFHOST_DATA_DIR"
+fi
 
 if [ "$DOMAIN" = laukolaroser.dev ] && [ "$SUBDOMAIN" != main ]; then
     exec timeout 25h /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

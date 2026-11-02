@@ -27,3 +27,10 @@
 🎨 **New identity**
 
 - The game is now called Laukolaroser, with a new logo and icon
+
+🏠 **Host your own server**
+
+- Private mode: every player logs in with a username and password you give them
+- Admins add, remove, disable players, reset passwords and make other admins from the in-game menu
+- Anyone logged in can create and join lobbies
+- One-command Docker setup capped at 2 GB RAM; play over the internet with HTTPS (see docs/SelfHosting.md)

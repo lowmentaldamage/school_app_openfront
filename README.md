@@ -19,6 +19,7 @@ desktop or on your phone.
 - **Multiplayer** — deterministic lockstep simulation over WebSockets, lobbies and solo games against nations and bots.
 - **Phone ready** — touch controls, adaptive rendering quality and a mobile-first layout.
 - **Many maps** — real-world regions and fictional worlds.
+- **Host it yourself** — private server with player accounts you manage; play from phone or PC anywhere ([docs/SelfHosting.md](docs/SelfHosting.md)).
 
 ## Quick start
 
@@ -35,6 +36,17 @@ The 3D battlefield is the default. Append `?renderer=2d` to the URL for the
 classic flat map (`?renderer=3d` switches back). See
 [docs/World3D.md](docs/World3D.md).
 
+## Your own server
+
+```bash
+cd deploy/selfhost && cp .env.example .env   # set ADMIN_USER / ADMIN_PASSWORD
+docker compose up -d --build                  # http://SERVER-IP:8080
+```
+
+Full guide (accounts, HTTPS, playing over the internet):
+[docs/SelfHosting.md](docs/SelfHosting.md). Planned features:
+[docs/Roadmap.md](docs/Roadmap.md).
+
 ## Commands
 
 ```bash
@@ -46,6 +58,8 @@ npm run typecheck
 npm run lint          # Oxlint
 npm run format        # Oxfmt
 npm run build-prod    # production build
+npm run start:selfhost                 # server in self-hosted (accounts) mode
+npm run selfhost:admin -- list         # manage accounts from the shell
 ```
 
 ## Architecture

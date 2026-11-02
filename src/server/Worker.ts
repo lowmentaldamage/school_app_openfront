@@ -708,6 +708,10 @@ export async function startWorker() {
           clientMsg.username,
           clientMsg.clanTag ?? null,
         );
+        // Self-hosted: the account name is the in-game name.
+        if (result.selfHostUsername !== undefined) {
+          username = result.selfHostUsername;
+        }
 
         // Gate the join and screen the display name in one API call: status
         // is the Turnstile verdict, and the response carries the

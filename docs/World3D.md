@@ -244,10 +244,30 @@ land they hit, sink/damage ships, and rockets knock buildings down a level.
   artillery barrage from the panel at an enemy, three shells flew in 3D,
   40k gold charged.
 
-### Next stages (agreed)
+### Increment 6 — Self-hosted server with accounts (done)
 
-1. More ship and train types.
-2. Own backend: accounts, profiles, leaderboards, stats.
-3. In-game 3D map editor (paint terrain, place nations, save/share).
-4. Settings page and simplified interface; forests and terrain detail;
-   positional audio.
+- `SELF_HOSTED=1` turns the server into a private server: accounts in
+  `$SELFHOST_DATA_DIR/accounts.json` (scrypt hashes), HS256 session
+  tokens signed with a per-server secret, admin/player roles, last-admin
+  guards, failed-login rate limit. Routes under `/api/selfhost`
+  (`src/server/selfhost/`); `verifyClientToken` accepts only these tokens
+  and uses the account name in game.
+- Client: login screen, account chip (change password, log out), admin
+  panel (add/remove/disable/reset/make admin); online-only pages hidden.
+- `deploy/selfhost/docker-compose.yml` (2 GB / 2 CPU cap, 2 workers) and
+  `scripts/selfhost-admin.ts`; guide in `docs/SelfHosting.md`.
+- Tests: `tests/server/SelfHost.test.ts` (hashing, token forgery/expiry,
+  store CRUD and guards, HTTP permissions, rate limit, join-token check).
+- Verified in the browser: admin login, add player, player login, solo
+  game under the account name, player-created lobby joined by a second
+  account, game started for both. Server processes used ~440 MB after
+  that game; ~210–290 MB idle inside Docker (2 GB / 2 CPU cap), where
+  `/api/selfhost/login` with the bootstrap admin also worked.
+- Not verified: the full Docker image build. This sandbox's network policy
+  blocks the Debian package mirror that the final stage installs nginx and
+  supervisor from; the npm install and client build stages were built in
+  Docker.
+
+### Next stages
+
+See [Roadmap.md](Roadmap.md) for the full feature list and order.

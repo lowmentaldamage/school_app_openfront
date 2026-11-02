@@ -30,6 +30,7 @@ import type { JoinLobbyModal } from "./JoinLobbyModal";
 import { whenModalLoaded } from "./LazyModals";
 import { PublicLobbySocket } from "./LobbySocket";
 import { JoinLobbyEvent } from "./Main";
+import { isSelfHosted } from "./selfhost/SelfHostSession";
 import {
   backendUnreachableConfirmed,
   isPinnedToAVersion,
@@ -120,6 +121,9 @@ const TUTORIAL_CARD_MAX_GAMES = 5;
  * 404 for a site with no list is a reachable backend.
  */
 export function multiplayerAllowedForBackend(backendOutage: boolean): boolean {
+  // A self-hosted server has no external backend; its own game server is
+  // what lobbies and games need, so "API unreachable" is not an outage.
+  if (isSelfHosted()) return true;
   return !backendOutage;
 }
 

@@ -1,0 +1,49 @@
+# Laukolaroser — private home server.
+#
+#   cd deploy/selfhost
+#   cp .env.example .env      # set ADMIN_USER / ADMIN_PASSWORD (first start)
+#   docker compose up -d --build
+#
+# Then open http://<server-ip>:8080 and log in as the admin.
+# See docs/SelfHosting.md for HTTPS and playing from anywhere.
+name: laukolaroser
+
+services:
+  game:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        GIT_COMMIT: selfhost
+    image: laukolaroser:latest
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      # The game server's built-in "dev" environment skips every external
+      # service (no Cloudflare, no third-party API); SELF_HOSTED puts the
+      # game behind your own accounts.
+      GAME_ENV: dev
+      SELF_HOSTED: "1"
+      SELFHOST_DATA_DIR: /data
+      SELFHOST_ADMIN_USER: ${ADMIN_USER:-}
+      SELFHOST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-localhost}
+      # 2 game workers: plenty for 2 games x 15 players (players' devices run
+      # the simulation; the server only relays their moves).
+      NUM_WORKERS: "2"
+      NODE_OPTIONS: --max-old-space-size=320
+      GIT_COMMIT: selfhost
+      TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      API_KEY: selfhosted-not-used
+      ADMIN_BOT_API_KEY: selfhosted-not-used
+    volumes:
+      - ./data:/data
+    # Hard caps for a small home server.
+    mem_limit: 2g
+    cpus: 2.0
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/api/selfhost/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

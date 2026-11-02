@@ -26,6 +26,11 @@ import { MasterLobbyService } from "./MasterLobbyService";
 import { setNoStoreHeaders } from "./NoStoreHeaders";
 import { startPolling } from "./PollingLoop";
 import { renderAppShell } from "./RenderHtml";
+import { selfHostEnabled, sessionSecret } from "./selfhost/SelfHost";
+import {
+  bootstrapAdmin,
+  createSelfHostRouter,
+} from "./selfhost/SelfHostRoutes";
 import { ServerEnv } from "./ServerEnv";
 import { applyStaticAssetCacheControl } from "./StaticAssetCache";
 
@@ -152,6 +157,11 @@ app.use("/api", (_req, res, next) => {
   next();
 });
 
+// Self-hosted private accounts (see selfhost/SelfHost.ts).
+if (selfHostEnabled()) {
+  app.use("/api/selfhost", createSelfHostRouter());
+}
+
 // Start the master process
 export async function startMaster() {
   if (!cluster.isPrimary) {
@@ -175,6 +185,12 @@ export async function startMaster() {
   process.env.INSTANCE_ID = INSTANCE_ID;
 
   log.info(`Instance ID: ${INSTANCE_ID}`);
+
+  if (selfHostEnabled()) {
+    // Create the session secret before workers fork so they share it.
+    sessionSecret();
+    log.info(bootstrapAdmin());
+  }
 
   // Join the site's shared public-lobby roster (LobbyCoordinatorClient.ts)
   // when LOBBY_COORDINATOR=api and this server has a public host to

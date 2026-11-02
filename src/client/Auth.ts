@@ -12,6 +12,7 @@ import type { DesktopSessionState, SessionFailureKind } from "./DesktopShell";
 import { desktopLinkGate, isDesktopShell } from "./DesktopShell";
 import { gamePortal, type GamePortalName } from "./GamePortal";
 import { showInGameAlert } from "./InGameModal";
+import { selfHostToken } from "./selfhost/SelfHostSession";
 import type { SteamTicketResult } from "./SteamSDK";
 import { steamSDK } from "./SteamSDK";
 import { generateCryptoRandomUUID, translateText } from "./Utils";
@@ -789,6 +790,9 @@ export async function sendMagicLink(email: string): Promise<boolean> {
 
 // WARNING: DO NOT EXPOSE THIS ID
 export async function getPlayToken(): Promise<string> {
+  // Self-hosted server: the account session is the play token.
+  const selfHosted = selfHostToken();
+  if (selfHosted !== null) return selfHosted;
   const result = await userAuth();
   if (result !== false) return result.jwt;
   return getPersistentIDFromLocalStorage();

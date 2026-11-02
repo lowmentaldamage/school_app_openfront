@@ -120,6 +120,7 @@ import { fetchMyGameXp, fetchProgressionConfig } from "./ProgressionApi";
 import { startProvisionalProgress } from "./ProvisionalProgress";
 import { isWorld3DEnabled } from "./render3d/World3DFlag";
 import type { RewardsModal } from "./RewardsModal";
+import { startSelfHostSession } from "./selfhost/SelfHostBoot";
 import {
   ensureServerList,
   redirectToGameVersion,
@@ -407,6 +408,8 @@ class Client {
     // Likewise read (and persist) the `?renderer=3d|2d` switch before any
     // history write drops the query string. See render3d/World3DFlag.ts.
     isWorld3DEnabled();
+    // Self-hosted server: log in with an admin-created account first.
+    if (!(await startSelfHostSession())) return;
     document.documentElement.style.setProperty(
       "--hud-opacity",
       String(this.userSettings.hudOpacity()),
