@@ -80,7 +80,7 @@ export class WaterRenderer {
 
     const material = new MeshStandardMaterial({
       color: 0x1d4f73,
-      roughness: 0.42,
+      roughness: 0.55,
       metalness: 0.05,
       transparent: true,
       opacity: 0.9,

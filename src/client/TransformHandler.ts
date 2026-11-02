@@ -49,6 +49,12 @@ export interface ScreenProjector {
     maxX: number;
     maxY: number;
   };
+  /** Screen drag (CSS px) → ground displacement in tiles (rotated cameras). */
+  screenDeltaToTiles?(
+    dx: number,
+    dy: number,
+    scale: number,
+  ): { x: number; y: number };
 }
 
 export class TransformHandler {
@@ -350,6 +356,27 @@ export class TransformHandler {
 
     const canvasCoords = this.screenToCanvasCoordinates(event.x, event.y);
 
+    // Perspective view: keep the ground point under the cursor fixed. With
+    // the camera distance proportional to 1/scale, ground offsets from the
+    // view centre scale by oldScale/newScale (exact on flat ground, for any
+    // yaw or tilt).
+    const anchor = this.projector?.canvasToTile(canvasCoords.x, canvasCoords.y);
+    if (anchor) {
+      const { width: cw, height: ch } = this.boundingRect();
+      const W = this.game.width();
+      const H = this.game.height();
+      const cx0 = this.offsetX + W / 2 + (cw - W) / (2 * oldScale);
+      const cy0 = this.offsetY + H / 2 + (ch - H) / (2 * oldScale);
+      const k = oldScale / this.scale;
+      const cx1 = anchor.x - (anchor.x - cx0) * k;
+      const cy1 = anchor.y - (anchor.y - cy0) * k;
+      this.offsetX = cx1 - W / 2 - (cw - W) / (2 * this.scale);
+      this.offsetY = cy1 - H / 2 - (ch - H) / (2 * this.scale);
+      this.clampOffsets();
+      this.changed = true;
+      return;
+    }
+
     // Calculate the world point we want to zoom towards
     const zoomPointX =
       (canvasCoords.x - this.game.width() / 2) / oldScale + this.offsetX;
@@ -403,8 +430,18 @@ export class TransformHandler {
 
   onMove(event: DragEvent) {
     this.clearTarget();
-    this.offsetX -= event.deltaX / this.scale;
-    this.offsetY -= event.deltaY / this.scale;
+    const d = this.projector?.screenDeltaToTiles?.(
+      event.deltaX,
+      event.deltaY,
+      this.scale,
+    );
+    if (d) {
+      this.offsetX -= d.x;
+      this.offsetY -= d.y;
+    } else {
+      this.offsetX -= event.deltaX / this.scale;
+      this.offsetY -= event.deltaY / this.scale;
+    }
     this.clampOffsets();
     this.changed = true;
   }

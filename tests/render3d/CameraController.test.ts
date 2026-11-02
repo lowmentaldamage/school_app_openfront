@@ -86,3 +86,61 @@ describe("CameraController", () => {
     expect(area()).toBeLessThan(far / 30);
   });
 });
+
+describe("CameraController orbit", () => {
+  it("drag deltas follow the camera's rotation", async () => {
+    const { map, terrain } = await loadTestTerrain("world");
+    const hf = Heightfield.fromTerrain(terrain, map.width(), map.height());
+    const cc = new CameraController(hf);
+    // North-up: dragging right moves along +x.
+    let d = cc.screenDeltaToTiles(10, 0, 1);
+    expect(d.x).toBeCloseTo(10);
+    expect(d.y).toBeCloseTo(0);
+    // Rotated 90°: screen-right now points along -y (north).
+    cc.rotateBy(90);
+    cc.step(1e6);
+    d = cc.screenDeltaToTiles(10, 0, 1);
+    expect(d.x).toBeCloseTo(0);
+    expect(d.y).toBeCloseTo(-10);
+  });
+
+  it("picking stays exact when rotated and tilted", async () => {
+    const { map, terrain } = await loadTestTerrain("world");
+    const hf = Heightfield.fromTerrain(terrain, map.width(), map.height());
+    const cc = new CameraController(hf);
+    cc.rotateBy(135);
+    cc.tiltBy(-20);
+    cc.step(1e6);
+    cc.sync({
+      centerX: 1000,
+      centerY: 300,
+      scale: 10,
+      viewWidth: 1280,
+      viewHeight: 720,
+    });
+    for (const [x, y] of [
+      [995, 296],
+      [1004, 307],
+    ]) {
+      const s = cc.tileToScreen(x, y);
+      const back = cc.screenToTile(s.x, s.y)!;
+      expect(back.x).toBeCloseTo(x, 1);
+      expect(back.y).toBeCloseTo(y, 1);
+    }
+  });
+
+  it("clamps tilt and resets to north-up", async () => {
+    const { map, terrain } = await loadTestTerrain("world");
+    const hf = Heightfield.fromTerrain(terrain, map.width(), map.height());
+    const cc = new CameraController(hf);
+    cc.tiltBy(500);
+    cc.step(1e6);
+    expect(cc.pitchDeg).toBeCloseTo(89);
+    cc.rotateBy(370);
+    cc.step(1e6);
+    cc.resetView();
+    cc.step(1e6);
+    expect(cc.yawDeg % 360).toBeCloseTo(0);
+    expect(cc.pitchDeg).toBeCloseTo(56);
+  });
+});

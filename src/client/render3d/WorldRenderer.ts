@@ -13,7 +13,13 @@
  *   Camera2DState ─► CameraController ─► EnvironmentRenderer (shadow fit)
  */
 
-import { PCFShadowMap, Scene, SRGBColorSpace, WebGLRenderer } from "three";
+import {
+  ACESFilmicToneMapping,
+  PCFShadowMap,
+  Scene,
+  SRGBColorSpace,
+  WebGLRenderer,
+} from "three";
 import { AdaptiveQuality } from "./AdaptiveQuality";
 import {
   CameraController,
@@ -22,7 +28,9 @@ import {
 import { detectDeviceProfile, type DeviceProfile } from "./DeviceProfile";
 import { EffectsRenderer, type DeadUnitEvent } from "./effects/EffectsRenderer";
 import { EnvironmentRenderer } from "./environment/EnvironmentRenderer";
+import { ForestRenderer } from "./environment/ForestRenderer";
 import { WaterRenderer } from "./environment/WaterRenderer";
+import { OverlayRenderer } from "./overlays/OverlayRenderer";
 import { Heightfield } from "./terrain/Heightfield";
 import {
   createTerrainMaterial,
@@ -66,11 +74,14 @@ export class WorldRenderer {
   private readonly terrainUniforms: TerrainMaterialUniforms;
   private readonly units: UnitRenderer;
   private readonly effects: EffectsRenderer;
+  private readonly forests: ForestRenderer;
+  readonly overlays: OverlayRenderer;
   private firstFrame = true;
   private readonly quality: AdaptiveQuality;
   readonly profile: DeviceProfile;
   private readonly startMs = performance.now();
   private lastFrameMs = 0;
+  private lastDtMs = 16;
   private cssWidth = 1;
   private cssHeight = 1;
   private disposed = false;
@@ -88,6 +99,8 @@ export class WorldRenderer {
       powerPreference: "high-performance",
     });
     this.renderer.outputColorSpace = SRGBColorSpace;
+    this.renderer.toneMapping = ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.05;
     this.renderer.shadowMap.type = PCFShadowMap;
 
     this.heightfield = Heightfield.fromTerrain(
@@ -123,6 +136,17 @@ export class WorldRenderer {
 
     this.water = new WaterRenderer(this.heightfield);
     this.scene.add(this.water.mesh);
+
+    this.forests = new ForestRenderer(
+      init.terrain,
+      this.heightfield,
+      { stride: this.profile.mobile ? 5 : 3, density: 1 },
+      this.profile.mobile ? 260 : 420,
+    );
+    this.scene.add(this.forests.group);
+
+    this.overlays = new OverlayRenderer(this.heightfield);
+    this.scene.add(this.overlays.group);
 
     this.units = new UnitRenderer(this.heightfield, init.mapWidth);
     this.scene.add(this.units.group);
@@ -178,6 +202,8 @@ export class WorldRenderer {
     ) {
       this.resize(camera.viewWidth, camera.viewHeight);
     }
+    this.lastDtMs =
+      this.lastFrameMs > 0 ? Math.min(100, nowMs - this.lastFrameMs) : 16;
     if (this.lastFrameMs > 0 && this.quality.sample(nowMs - this.lastFrameMs)) {
       this.applyQuality();
     }
@@ -188,12 +214,15 @@ export class WorldRenderer {
     this.water.update(t);
 
     const cc = this.cameraController;
+    cc.step(this.lastDtMs);
     cc.sync(camera);
+    this.forests.update(t, cc.distance);
+    this.overlays.update(cc.distance);
     this.units.animate(nowMs, cc.distance);
     const fov = (cc.camera.fov * Math.PI) / 180;
     const bufferH = this.cssHeight * this.renderer.getPixelRatio();
     this.effects.update(t, bufferH / (2 * Math.tan(fov / 2)));
-    this.environment.update(cc.focus, cc.viewRadius(), cc.distance);
+    this.environment.update(cc.focus, cc.viewRadius(), cc.distance, cc.camera);
     this.renderer.render(this.scene, cc.camera);
   }
 
@@ -215,6 +244,8 @@ export class WorldRenderer {
     this.terrain.dispose();
     this.units.dispose();
     this.effects.dispose();
+    this.forests.dispose();
+    this.overlays.dispose();
     this.water.dispose();
     this.environment.dispose();
     this.territory.dispose();

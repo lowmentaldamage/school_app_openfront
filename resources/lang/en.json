@@ -2896,5 +2896,12 @@
     "territory_pattern": "Purchase a territory skin to go ad-free!",
     "you_won": "You Won!",
     "your_team": "Your team won!"
+  },
+  "world3d": {
+    "reset_view": "Reset camera (north up)",
+    "rotate_left": "Rotate camera left",
+    "rotate_right": "Rotate camera right",
+    "tilt_down": "Tilt camera down",
+    "tilt_up": "Tilt camera up"
   }
 }

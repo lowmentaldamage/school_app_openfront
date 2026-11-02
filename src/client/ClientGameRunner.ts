@@ -711,7 +711,31 @@ function mountWebGLFrameLoop(
 }
 
 /**
- * Build the opt-in 3D world view (see render3d/World3DFlag). Loaded with
+ * The build/nuke controllers push previews to the 2D MapRenderer. Mirror
+ * those calls to the 3D view so placement ghosts, range rings, nuke
+ * trajectories and hover highlights appear on the 3D map too (the 2D
+ * renderer still receives them, so switching back needs no resync).
+ */
+function mirrorOverlaysTo3D(view: MapRenderer, world3d: World3DView): void {
+  const ghost = view.updateGhostPreview.bind(view);
+  view.updateGhostPreview = (d) => {
+    ghost(d);
+    world3d.setGhostPreview(d);
+  };
+  const nuke = view.updateNukeTrajectory.bind(view);
+  view.updateNukeTrajectory = (d) => {
+    nuke(d);
+    world3d.setNukeTrajectory(d);
+  };
+  const highlight = view.setHighlightOwner.bind(view);
+  view.setHighlightOwner = (id) => {
+    highlight(id);
+    world3d.setHighlightOwner(id);
+  };
+}
+
+/**
+ * Build the 3D world view (see render3d/World3DFlag). Loaded with
  * import() so three.js is only downloaded when the 3D view is enabled. Any
  * failure falls back to the 2D renderer rather than blocking the game.
  */
@@ -943,6 +967,7 @@ async function createClientGame(
     if (world3d !== null) {
       glCanvas.style.visibility = "hidden";
       gameRenderer.transformHandler.setProjector(world3d);
+      mirrorOverlaysTo3D(view, world3d);
       // Debug/test handles, like window.__webglView for the 2D renderer.
       (window as unknown as { __world3d?: unknown }).__world3d = world3d;
       (window as unknown as { __camera?: unknown }).__camera =

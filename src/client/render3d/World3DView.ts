@@ -12,8 +12,10 @@
  */
 
 import { renderTroops } from "@laukolaroser/engine-lib/Format";
+import type { GhostPreviewData, NukeTrajectoryData } from "../render/types";
 import type { ScreenProjector } from "../TransformHandler";
 import type { Camera2DState } from "./camera/CameraController";
+import { OrbitControls } from "./camera/OrbitControls";
 import { LabelOverlay, type LabelEntry, type LabelText } from "./LabelOverlay";
 import { WorldRenderer, type WorldFrame } from "./WorldRenderer";
 
@@ -35,6 +37,7 @@ export class World3DView implements ScreenProjector {
   readonly canvas: HTMLCanvasElement;
   readonly world: WorldRenderer;
   private readonly labels: LabelOverlay;
+  private readonly orbit: OrbitControls;
 
   constructor(init: World3DViewInit) {
     const canvas = document.createElement("canvas");
@@ -57,6 +60,33 @@ export class World3DView implements ScreenProjector {
       throw e;
     }
     this.labels = new LabelOverlay(canvas);
+    this.orbit = new OrbitControls(
+      this.world.cameraController,
+      document.getElementById("game-input-overlay") ?? document.body,
+    );
+  }
+
+  /** Build-mode ghost (mirrors MapRenderer.updateGhostPreview). */
+  setGhostPreview(data: GhostPreviewData | null): void {
+    this.world.overlays.setGhost(data);
+  }
+
+  /** Nuke flight preview (mirrors MapRenderer.updateNukeTrajectory). */
+  setNukeTrajectory(data: NukeTrajectoryData | null): void {
+    this.world.overlays.setTrajectory(data);
+  }
+
+  /** Hovered player's borders glow (mirrors MapRenderer.setHighlightOwner). */
+  setHighlightOwner(smallID: number): void {
+    this.world.setHighlightOwner(smallID);
+  }
+
+  screenDeltaToTiles(
+    dx: number,
+    dy: number,
+    scale: number,
+  ): { x: number; y: number } {
+    return this.world.cameraController.screenDeltaToTiles(dx, dy, scale);
   }
 
   /** Per simulation tick. */
@@ -82,7 +112,9 @@ export class World3DView implements ScreenProjector {
   /** Per animation frame. */
   render(camera: Camera2DState, nowMs: number): void {
     this.world.render(camera, nowMs);
-    const key = `${camera.centerX.toFixed(2)},${camera.centerY.toFixed(2)},${camera.scale.toFixed(4)},${camera.viewWidth},${camera.viewHeight}`;
+    this.orbit.update();
+    const cc = this.world.cameraController;
+    const key = `${cc.yawDeg.toFixed(2)},${cc.pitchDeg.toFixed(2)},${camera.centerX.toFixed(2)},${camera.centerY.toFixed(2)},${camera.scale.toFixed(4)},${camera.viewWidth},${camera.viewHeight}`;
     this.labels.draw(
       (x, y) => this.world.tileToScreen(x, y),
       camera.viewWidth,
@@ -113,6 +145,7 @@ export class World3DView implements ScreenProjector {
   }
 
   dispose(): void {
+    this.orbit.dispose();
     this.labels.dispose();
     this.world.dispose();
     this.canvas.remove();

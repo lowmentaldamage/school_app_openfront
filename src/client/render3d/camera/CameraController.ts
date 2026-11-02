@@ -39,6 +39,10 @@ export const DEFAULT_CAMERA_TUNING: CameraTuning = {
   yawDeg: 0,
 };
 
+/** Tilt limits: 30° (cinematic, low) … 89° (straight down, like the 2D map). */
+export const MIN_PITCH_DEG = 30;
+export const MAX_PITCH_DEG = 89;
+
 const tmpNear = new Vector3();
 const tmpFar = new Vector3();
 const tmpDir = new Vector3();
@@ -50,17 +54,82 @@ export class CameraController {
   distance = 100;
   private viewWidth = 1;
   private viewHeight = 1;
+  /** Orbit targets; the live yaw/pitch ease towards them each frame. */
+  private targetYaw: number;
+  private targetPitch: number;
 
   constructor(
     private readonly hf: Heightfield,
     private tuning: CameraTuning = DEFAULT_CAMERA_TUNING,
   ) {
     this.camera = new PerspectiveCamera(tuning.fovDeg, 1, 0.5, 20000);
+    this.tuning = { ...tuning };
+    this.targetYaw = tuning.yawDeg;
+    this.targetPitch = tuning.pitchDeg;
   }
 
   setTuning(t: Partial<CameraTuning>): void {
     this.tuning = { ...this.tuning, ...t };
     this.camera.fov = this.tuning.fovDeg;
+    this.targetYaw = this.tuning.yawDeg;
+    this.targetPitch = this.tuning.pitchDeg;
+  }
+
+  get yawDeg(): number {
+    return this.tuning.yawDeg;
+  }
+
+  get pitchDeg(): number {
+    return this.tuning.pitchDeg;
+  }
+
+  /** Orbit around the focus point (degrees, positive = counter-clockwise). */
+  rotateBy(deg: number): void {
+    this.targetYaw += deg;
+  }
+
+  /** Tilt (degrees, positive = steeper / more top-down). */
+  tiltBy(deg: number): void {
+    this.targetPitch = MathUtils.clamp(
+      this.targetPitch + deg,
+      MIN_PITCH_DEG,
+      MAX_PITCH_DEG,
+    );
+  }
+
+  /** Back to north-up at the default tilt. */
+  resetView(): void {
+    // Unwind to the nearest full turn so the reset takes the short way round.
+    this.targetYaw = Math.round(this.tuning.yawDeg / 360) * 360;
+    this.targetPitch = DEFAULT_CAMERA_TUNING.pitchDeg;
+  }
+
+  /** Ease yaw/pitch towards their targets; call once per frame. */
+  step(dtMs: number): void {
+    const k = 1 - Math.exp(-Math.max(0, dtMs) / 90);
+    this.tuning.yawDeg += (this.targetYaw - this.tuning.yawDeg) * k;
+    this.tuning.pitchDeg += (this.targetPitch - this.tuning.pitchDeg) * k;
+  }
+
+  /**
+   * A screen-space drag (CSS px) converted to a ground displacement in
+   * tiles, honouring the camera's yaw and tilt, so dragging moves the map
+   * under the finger whichever way the camera faces.
+   */
+  screenDeltaToTiles(
+    dx: number,
+    dy: number,
+    scale: number,
+  ): { x: number; y: number } {
+    const yaw = MathUtils.degToRad(this.tuning.yawDeg);
+    const pitch = MathUtils.degToRad(this.tuning.pitchDeg);
+    const sx = dx / scale;
+    const sy = dy / scale / Math.max(0.3, Math.sin(pitch));
+    // Screen right = (cos yaw, -sin yaw); screen down = (sin yaw, cos yaw).
+    return {
+      x: sx * Math.cos(yaw) + sy * Math.sin(yaw),
+      y: -sx * Math.sin(yaw) + sy * Math.cos(yaw),
+    };
   }
 
   /** Apply a 2D camera state; call once per frame before rendering. */

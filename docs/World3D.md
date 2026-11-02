@@ -188,8 +188,29 @@ Known gaps (planned next):
   cities, an in-game explosion; every model posed on the map with the game
   paused; nuke blast → smoke column.
 
-Not yet in 3D: build ghost preview, nuke trajectory preview, warship
-selection box, attack rings, SAM range circles, spawn-phase highlight.
+Not yet in 3D: warship selection box, attack rings, SAM range circles,
+spawn-phase highlight.
+
+### Increment 4 — Forests, sky, orbit camera, 3D previews (done)
+
+- `environment/ForestPlacement.ts` + `ForestRenderer.ts`: deterministic,
+  clustered forests (conifers at altitude, broadleaf lower; none on
+  beaches, snow or steep rock); ~14.5k trees on the World map at desktop
+  density, a third of that on phones. Instanced per 256-tile region
+  (frustum-culled), wind sway in the shader, hidden when zoomed far out.
+- Sky dome (zenith → horizon gradient, sun glow) with matching fog; ACES
+  filmic tone mapping.
+- `camera/OrbitControls.ts`: rotate (`[` `]`, compass buttons, two-finger
+  twist), tilt (Page Up/Down, buttons; 30°–89°), reset (Home, tap compass).
+  Eased motion. Panning and zoom-to-cursor are rotation-aware
+  (`ScreenProjector.screenDeltaToTiles`, perspective zoom anchoring in
+  `TransformHandler.onZoom`).
+- `overlays/OverlayRenderer.ts`: build ghost (green/red model + range
+  ring), nuke trajectory as a 3D arc (white / amber out of SAM reach / red
+  after intercept) with target ring, hover border highlight — mirrored from
+  the existing 2D controller calls.
+- Verified in Chromium (desktop + emulated phone): forests, rotated and
+  tilted view, ghost + range ring, nuke arc, compass widget, tap-to-spawn.
 
 ### Next stages (agreed)
 

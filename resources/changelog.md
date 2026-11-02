@@ -8,6 +8,9 @@
 - Explosions, shockwaves and mushroom clouds; railroads and fallout on the map
 - Territory colours, animated borders and player names live on the terrain
 - Clicks and taps land on the exact tile under the pointer, even on mountains
+- Forests, a living sky and cinematic lighting
+- Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
+- Build previews, range rings and nuke flight paths shown in 3D
 - Classic flat map still available with `?renderer=2d`
 
 📱 **Phones**
