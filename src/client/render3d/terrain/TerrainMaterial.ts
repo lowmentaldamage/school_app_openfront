@@ -61,6 +61,7 @@ vec3 terrainAlbedo(vec3 wp, float up) {
 export interface TerrainMaterialUniforms {
   uOwnerTex: { value: Texture };
   uPaletteTex: { value: Texture };
+  uRailTex: { value: Texture };
   uMapSize: { value: Vector2 };
   uTime: { value: number };
   uFillStrength: { value: number };
@@ -71,12 +72,14 @@ export interface TerrainMaterialUniforms {
 export function createTerrainMaterial(
   ownerTex: Texture,
   paletteTex: Texture,
+  railTex: Texture,
   mapWidth: number,
   mapHeight: number,
 ): { material: MeshStandardMaterial; uniforms: TerrainMaterialUniforms } {
   const uniforms: TerrainMaterialUniforms = {
     uOwnerTex: { value: ownerTex },
     uPaletteTex: { value: paletteTex },
+    uRailTex: { value: railTex },
     uMapSize: { value: new Vector2(mapWidth, mapHeight) },
     uTime: { value: 0 },
     uFillStrength: { value: 0.75 },
@@ -116,6 +119,6 @@ export function createTerrainMaterial(
         "#include <color_fragment>\ndiffuseColor.rgb = applyTerritory(terrainAlbedo(vTerrainWorld, vTerrainUp), vTerrainWorld.xz);",
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v1";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v2";
   return { material, uniforms };
 }

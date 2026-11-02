@@ -10,8 +10,9 @@
  * RGBA8 is used (rather than a 2-byte format) because three.js partial
  * texture uploads (`Texture.addUpdateRange`) only support 4-byte texels.
  *
- * Changes are tracked as a dirty row range so a tick that touches a handful
- * of rows uploads only those rows. This module has no three.js dependency
+ * Changes are tracked per row (three.js partial texture uploads are
+ * single-row), so a tick that touches a handful of rows uploads only those
+ * rows. This module has no three.js dependency
  * and is unit tested directly against simulation tile state.
  */
 
@@ -24,12 +25,16 @@ export class OwnerBuffer {
   /** Inclusive dirty row range; dirtyMin > dirtyMax means clean. */
   dirtyMin = Number.POSITIVE_INFINITY;
   dirtyMax = Number.NEGATIVE_INFINITY;
+  /** Rows changed since the last clearDirty(), each listed once. */
+  readonly dirtyRows: number[] = [];
+  private readonly rowFlag: Uint8Array;
 
   constructor(
     readonly width: number,
     readonly height: number,
   ) {
     this.data = new Uint8Array(width * height * 4);
+    this.rowFlag = new Uint8Array(height);
   }
 
   /** Re-encode every tile (first tick, seek, context restore). */
@@ -43,6 +48,7 @@ export class OwnerBuffer {
     for (let i = 0; i < n; i++) this.encode(i, tileState[i]);
     this.dirtyMin = 0;
     this.dirtyMax = this.height - 1;
+    for (let r = 0; r < this.height; r++) this.markRow(r);
   }
 
   /** Re-encode only the listed tiles and widen the dirty row range. */
@@ -54,6 +60,7 @@ export class OwnerBuffer {
       const row = (ref / w) | 0;
       if (row < this.dirtyMin) this.dirtyMin = row;
       if (row > this.dirtyMax) this.dirtyMax = row;
+      this.markRow(row);
     }
   }
 
@@ -64,6 +71,15 @@ export class OwnerBuffer {
   clearDirty(): void {
     this.dirtyMin = Number.POSITIVE_INFINITY;
     this.dirtyMax = Number.NEGATIVE_INFINITY;
+    for (const r of this.dirtyRows) this.rowFlag[r] = 0;
+    this.dirtyRows.length = 0;
+  }
+
+  private markRow(row: number): void {
+    if (this.rowFlag[row] === 0) {
+      this.rowFlag[row] = 1;
+      this.dirtyRows.push(row);
+    }
   }
 
   ownerAt(ref: number): number {

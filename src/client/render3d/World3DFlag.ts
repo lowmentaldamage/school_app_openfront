@@ -6,8 +6,9 @@
 const STORAGE_KEY = "laukolaroser.renderer";
 
 /**
- * The 3D view is opt-in while it is being built out: `?renderer=3d` in the
- * URL (persisted to localStorage), `?renderer=2d` to switch back.
+ * The 3D view is the default. `?renderer=2d` in the URL switches to the
+ * classic flat map (remembered in localStorage); `?renderer=3d` switches
+ * back. If the 3D view fails to start, the game falls back to 2D.
  */
 export function isWorld3DEnabled(): boolean {
   try {
@@ -18,8 +19,8 @@ export function isWorld3DEnabled(): boolean {
       globalThis.localStorage?.setItem(STORAGE_KEY, param);
       return param === "3d";
     }
-    return globalThis.localStorage?.getItem(STORAGE_KEY) === "3d";
+    return globalThis.localStorage?.getItem(STORAGE_KEY) !== "2d";
   } catch {
-    return false;
+    return true;
   }
 }

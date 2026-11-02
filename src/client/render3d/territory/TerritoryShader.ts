@@ -15,6 +15,7 @@
 export const TERRITORY_UNIFORMS_GLSL = /* glsl */ `
 uniform sampler2D uOwnerTex;
 uniform sampler2D uPaletteTex;
+uniform sampler2D uRailTex;
 uniform vec2 uMapSize;
 uniform float uTime;
 uniform float uFillStrength;
@@ -60,6 +61,34 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
   vec4 fill = territoryFill(o00) * w00 + territoryFill(o10) * w10
             + territoryFill(o01) * w01 + territoryFill(o11) * w11;
   vec3 color = mix(albedo, fill.rgb, clamp(fill.a * uFillStrength, 0.0, 1.0));
+
+  ivec2 tile = ivec2(floor(tilePos));
+  // Nuclear fallout: scorched, sickly ground (owner texture B channel).
+  float fallout = texelFetch(uOwnerTex, clamp(tile, ivec2(0), ivec2(uMapSize) - 1), 0).b;
+  if (fallout > 0.5) {
+    float n = fract(sin(dot(vec2(tile), vec2(12.9898, 78.233))) * 43758.5453);
+    color = mix(color, vec3(0.06, 0.09, 0.03) + vec3(0.05, 0.12, 0.0) * n, 0.7);
+  }
+
+  // Railroads: 1 vertical, 2 horizontal, 3..6 corners (TL, TR, BL, BR).
+  int rail = int(texelFetch(uRailTex, clamp(tile, ivec2(0), ivec2(uMapSize) - 1), 0).r * 255.0 + 0.5);
+  if (rail > 0) {
+    vec2 f = fract(tilePos);
+    float w = 0.16;
+    bool v = abs(f.x - 0.5) < w;
+    bool h = abs(f.y - 0.5) < w;
+    bool top = f.y < 0.5 + w;
+    bool bottom = f.y > 0.5 - w;
+    bool left = f.x < 0.5 + w;
+    bool right = f.x > 0.5 - w;
+    bool on =
+      (rail == 1 && v) || (rail == 2 && h) ||
+      (rail == 3 && ((v && top) || (h && left))) ||
+      (rail == 4 && ((v && top) || (h && right))) ||
+      (rail == 5 && ((v && bottom) || (h && left))) ||
+      (rail == 6 && ((v && bottom) || (h && right)));
+    if (on) color = vec3(0.05, 0.045, 0.04);
+  }
 
   int self = territoryOwnerAt(ivec2(floor(tilePos)));
   if (self != 0) {

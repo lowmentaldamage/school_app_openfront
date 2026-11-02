@@ -5,25 +5,22 @@
  * (tile ownership deltas) and the player palette, and per-frame camera
  * state. It never reads or writes authoritative game state.
  *
- *   FrameData ──► TerritoryTextures ─┐
+ *   FrameData ─┬─► TerritoryTextures (owners, rails, fallout) ─┐
+ *              ├─► UnitRenderer (ships, trains, missiles, buildings)
+ *              └─► EffectsRenderer (explosions from dead-unit events)
  *   terrain bytes ─► Heightfield ─► TerrainRenderer (chunked LOD)
  *                               └─► WaterRenderer
  *   Camera2DState ─► CameraController ─► EnvironmentRenderer (shadow fit)
  */
 
-import {
-  Clock,
-  PCFSoftShadowMap,
-  Scene,
-  SRGBColorSpace,
-  WebGLRenderer,
-} from "three";
+import { PCFShadowMap, Scene, SRGBColorSpace, WebGLRenderer } from "three";
 import { AdaptiveQuality } from "./AdaptiveQuality";
 import {
   CameraController,
   type Camera2DState,
 } from "./camera/CameraController";
 import { detectDeviceProfile, type DeviceProfile } from "./DeviceProfile";
+import { EffectsRenderer, type DeadUnitEvent } from "./effects/EffectsRenderer";
 import { EnvironmentRenderer } from "./environment/EnvironmentRenderer";
 import { WaterRenderer } from "./environment/WaterRenderer";
 import { Heightfield } from "./terrain/Heightfield";
@@ -33,6 +30,7 @@ import {
 } from "./terrain/TerrainMaterial";
 import { baseStrideFor, TerrainRenderer } from "./terrain/TerrainRenderer";
 import { TerritoryTextures } from "./territory/TerritoryTextures";
+import { UnitRenderer, type UnitInput } from "./units/UnitRenderer";
 
 export interface WorldRendererInit {
   canvas: HTMLCanvasElement;
@@ -46,9 +44,14 @@ export interface WorldRendererInit {
   profile?: DeviceProfile;
 }
 
-export interface TerritoryFrame {
+/** The FrameData fields the 3D world consumes each tick. */
+export interface WorldFrame {
   readonly tileState: Uint16Array;
   readonly changedTiles: readonly number[] | null;
+  readonly units: ReadonlyMap<number, UnitInput>;
+  readonly railroadState: Uint8Array;
+  readonly railroadDirty: boolean;
+  readonly events: { readonly deadUnits: readonly DeadUnitEvent[] };
 }
 
 export class WorldRenderer {
@@ -61,9 +64,12 @@ export class WorldRenderer {
   private readonly water: WaterRenderer;
   private readonly environment: EnvironmentRenderer;
   private readonly terrainUniforms: TerrainMaterialUniforms;
+  private readonly units: UnitRenderer;
+  private readonly effects: EffectsRenderer;
+  private firstFrame = true;
   private readonly quality: AdaptiveQuality;
   readonly profile: DeviceProfile;
-  private readonly clock = new Clock();
+  private readonly startMs = performance.now();
   private lastFrameMs = 0;
   private cssWidth = 1;
   private cssHeight = 1;
@@ -82,7 +88,7 @@ export class WorldRenderer {
       powerPreference: "high-performance",
     });
     this.renderer.outputColorSpace = SRGBColorSpace;
-    this.renderer.shadowMap.type = PCFSoftShadowMap;
+    this.renderer.shadowMap.type = PCFShadowMap;
 
     this.heightfield = Heightfield.fromTerrain(
       init.terrain,
@@ -97,6 +103,7 @@ export class WorldRenderer {
     const { material, uniforms } = createTerrainMaterial(
       this.territory.ownerTexture,
       this.territory.paletteTexture,
+      this.territory.railTexture,
       init.mapWidth,
       init.mapHeight,
     );
@@ -117,19 +124,38 @@ export class WorldRenderer {
     this.water = new WaterRenderer(this.heightfield);
     this.scene.add(this.water.mesh);
 
+    this.units = new UnitRenderer(this.heightfield, init.mapWidth);
+    this.scene.add(this.units.group);
+    this.effects = new EffectsRenderer(this.heightfield, init.mapWidth, {
+      particles: this.profile.mobile ? 2500 : 8000,
+      smoke: this.profile.mobile ? 2000 : 6000,
+      lights: !this.profile.mobile,
+    });
+    this.scene.add(this.effects.group);
+
     this.environment = new EnvironmentRenderer(this.scene, this.quality.level);
     this.cameraController = new CameraController(this.heightfield);
     this.applyQuality();
   }
 
-  /** Per simulation tick: sync territory ownership. */
-  updateTerritory(frame: TerritoryFrame): void {
-    this.territory.updateOwners(frame.tileState, frame.changedTiles);
-  }
-
-  /** Sync player colours (same Float32Array the 2D renderer uses). */
-  updatePalette(palette: Float32Array): void {
+  /**
+   * Per simulation tick: territory, rails, units and new explosions.
+   * `palette` is the same Float32Array the 2D renderer uses.
+   */
+  updateFrame(frame: WorldFrame, palette: Float32Array, nowMs: number): void {
     this.territory.updatePalette(palette);
+    this.territory.updateOwners(frame.tileState, frame.changedTiles);
+    if (frame.railroadDirty || this.firstFrame) {
+      this.territory.updateRails(frame.railroadState);
+    }
+    this.firstFrame = false;
+    this.units.update(
+      frame.units,
+      palette,
+      nowMs,
+      this.cameraController.distance,
+    );
+    this.effects.onEvents(frame.events.deadUnits);
   }
 
   /** Brighten the borders of one player (e.g. hover); -1 clears. */
@@ -157,12 +183,16 @@ export class WorldRenderer {
     }
     this.lastFrameMs = nowMs;
 
-    const t = this.clock.getElapsedTime();
+    const t = (nowMs - this.startMs) / 1000;
     this.terrainUniforms.uTime.value = t;
     this.water.update(t);
 
     const cc = this.cameraController;
     cc.sync(camera);
+    this.units.animate(nowMs, cc.distance);
+    const fov = (cc.camera.fov * Math.PI) / 180;
+    const bufferH = this.cssHeight * this.renderer.getPixelRatio();
+    this.effects.update(t, bufferH / (2 * Math.tan(fov / 2)));
     this.environment.update(cc.focus, cc.viewRadius(), cc.distance);
     this.renderer.render(this.scene, cc.camera);
   }
@@ -183,6 +213,8 @@ export class WorldRenderer {
     if (this.disposed) return;
     this.disposed = true;
     this.terrain.dispose();
+    this.units.dispose();
+    this.effects.dispose();
     this.water.dispose();
     this.environment.dispose();
     this.territory.dispose();
@@ -203,5 +235,7 @@ export class WorldRenderer {
       });
     }
     this.environment.setQuality(q);
+    this.effects.density =
+      this.quality.index <= 0 ? 0.5 : this.quality.index === 1 ? 0.75 : 1;
   }
 }

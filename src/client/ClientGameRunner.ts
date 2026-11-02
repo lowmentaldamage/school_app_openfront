@@ -670,7 +670,12 @@ function mountWebGLFrameLoop(
   const builder = new WebGLFrameBuilder(view);
   if (world3d !== null) {
     builder.addFrameListener((gv, palette) =>
-      world3d.onTick(gv.frameData(), palette),
+      world3d.onTick(
+        gv.frameData(),
+        palette,
+        gv.players(),
+        gv.myPlayer()?.id() ?? null,
+      ),
     );
   }
 
@@ -938,6 +943,10 @@ async function createClientGame(
     if (world3d !== null) {
       glCanvas.style.visibility = "hidden";
       gameRenderer.transformHandler.setProjector(world3d);
+      // Debug/test handles, like window.__webglView for the 2D renderer.
+      (window as unknown as { __world3d?: unknown }).__world3d = world3d;
+      (window as unknown as { __camera?: unknown }).__camera =
+        gameRenderer.transformHandler;
     }
 
     const metrics = new GameMetrics(lobbyConfig.gameID, clientID);

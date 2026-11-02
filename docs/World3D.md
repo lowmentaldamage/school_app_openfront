@@ -83,6 +83,16 @@ colour-blind mode and team colours match.
 | `environment/EnvironmentRenderer.ts` | Sky, fog, hemisphere + sun light, camera-fitted shadow frustum           |
 | `environment/WaterRenderer.ts`       | Sea plane: depth colour, foam, anti-aliased animated wave normals        |
 | `camera/CameraController.ts`         | 2D camera state → perspective camera; screen ↔ tile picking              |
+| `units/ModelBuilder.ts`              | Merges primitives into one geometry with base colour + team-colour mask  |
+| `units/UnitModels.ts`                | Procedural low-poly catalogue: ships, trains, missiles, 6 building types |
+| `units/UnitKinds.ts`                 | Pure: unit → model, ballistic arc maths, zoom scaling                    |
+| `units/InstancedPool.ts`             | Growable `InstancedMesh` per model kind (one draw call each)             |
+| `units/UnitRenderer.ts`              | Places buildings per tick; interpolates/poses movers per frame           |
+| `effects/ExplosionSpecs.ts`          | Pure: dead-unit event → explosion kind/size                              |
+| `effects/ParticleSystem.ts`          | GPU ring-buffer particles (fire, sparks, smoke, flash), one draw call    |
+| `effects/ShockwaveRings.ts`          | Instanced expanding blast rings                                          |
+| `effects/EffectsRenderer.ts`         | Fireballs, debris, smoke, mushroom clouds, rings, flash lights           |
+| `LabelOverlay.ts`                    | Player names + troops on a 2D canvas, redrawn only on change             |
 
 Integration points touched outside this folder (all additive):
 
@@ -150,11 +160,42 @@ Known gaps (planned next):
   the same software GPU, 3D went from 3.0 to 13.3 fps after the mobile
   profile (the 2D renderer measured 1.3 fps there).
 
-### Next increments
+### Increment 3 — Full 3D battlefield, 3D by default (done)
 
-2. `UnitRenderer` / `ArmyRenderer` — instanced 3D units (warships, transports, trains) from `FrameData.units`.
-3. `BuildingRenderer` — instanced structures (cities, ports, silos, SAMs, factories) with levels.
-4. `EnvironmentRenderer` scatter — instanced forests/rocks by biome, culled per chunk.
-5. `EffectsRenderer` — pooled particle explosions, smoke, fire, nuke shockwaves from `FrameData.events`.
-6. Names/flags as world-space labels; selection & hover highlight (`SelectionManager`).
-7. Camera rotate/tilt input, `AudioManager` positional audio (Howler), settings UI toggle.
+- Every unit and structure is a 3D model: warships (turrets), transports,
+  trade ships (containers), train engines and carriages (loaded/empty),
+  atom/hydrogen bombs, MIRVs and warheads, SAM missiles, shells; cities
+  (grow with level), ports (crane), factories, defense posts, SAM launchers,
+  missile silos. Team-coloured parts use the owner's palette colour; build
+  sites are greyed and half height.
+- One `InstancedMesh` per model kind (18 draw calls total, independent of
+  unit count). Movers are interpolated across ticks at the measured tick
+  rate; ships bob and roll; trains follow the terrain; nukes fly parabolic
+  arcs from launch to target, pitched along the arc; SAMs climb to their
+  target's altitude. Models scale up as the camera pulls back.
+- Explosions from simulation events: fireball, debris sparks, smoke, flash
+  light, shockwave ring; nukes add a rising mushroom cloud; intercepted
+  missiles burst in the air; sunk ships and destroyed buildings explode.
+  Pooled GPU particles (8k + 6k desktop, 2.5k + 2k mobile), density follows
+  adaptive quality, no per-particle CPU work.
+- Player names + troop counts follow territory size, as in 2D.
+- Railroads (with orientation) and nuclear fallout drawn on the terrain.
+- 3D is now the default; `?renderer=2d` switches to the flat map.
+- Fixed: owner-texture partial uploads now use single-row ranges
+  (three.js uploads each range as one row; multi-row ranges raised
+  `INVALID_VALUE`).
+- Verified in a Solo game in Chromium: names, an AI transport at sea, AI
+  cities, an in-game explosion; every model posed on the map with the game
+  paused; nuke blast → smoke column.
+
+Not yet in 3D: build ghost preview, nuke trajectory preview, warship
+selection box, attack rings, SAM range circles, spawn-phase highlight.
+
+### Next stages (agreed)
+
+1. Aim-and-fire weapons (artillery, rockets, naval guns) as simulation
+   intents, with 3D projectiles and impacts; more weapon, ship and train types.
+2. Own backend: accounts, profiles, leaderboards, stats.
+3. In-game 3D map editor (paint terrain, place nations, save/share).
+4. Settings page and simplified interface; forests and terrain detail;
+   positional audio.

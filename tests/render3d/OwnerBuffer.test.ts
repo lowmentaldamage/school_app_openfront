@@ -93,3 +93,16 @@ describe("OwnerBuffer ↔ simulation", () => {
     expect(buf.isDirty()).toBe(false);
   });
 });
+
+describe("OwnerBuffer dirty rows", () => {
+  it("lists each changed row once, for single-row texture uploads", () => {
+    const buf = new OwnerBuffer(4, 5);
+    const state = new Uint16Array(20).fill(3);
+    buf.applyChanged(state, [1, 2, 13, 14, 1]);
+    expect(buf.dirtyRows.sort()).toEqual([0, 3]);
+    buf.clearDirty();
+    expect(buf.dirtyRows).toEqual([]);
+    buf.applyChanged(state, [5]);
+    expect(buf.dirtyRows).toEqual([1]);
+  });
+});

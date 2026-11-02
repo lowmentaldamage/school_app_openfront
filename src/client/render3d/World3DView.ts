@@ -11,9 +11,18 @@
  * is enabled, so three.js stays out of the default bundle.
  */
 
+import { renderTroops } from "@laukolaroser/engine-lib/Format";
 import type { ScreenProjector } from "../TransformHandler";
 import type { Camera2DState } from "./camera/CameraController";
-import { WorldRenderer, type TerritoryFrame } from "./WorldRenderer";
+import { LabelOverlay, type LabelEntry, type LabelText } from "./LabelOverlay";
+import { WorldRenderer, type WorldFrame } from "./WorldRenderer";
+
+/** The player fields labels need (implemented by the client's PlayerView). */
+export interface LabelPlayer {
+  id(): string;
+  displayName(): string;
+  troops(): number;
+}
 
 export interface World3DViewInit {
   mapWidth: number;
@@ -25,6 +34,7 @@ export interface World3DViewInit {
 export class World3DView implements ScreenProjector {
   readonly canvas: HTMLCanvasElement;
   readonly world: WorldRenderer;
+  private readonly labels: LabelOverlay;
 
   constructor(init: World3DViewInit) {
     const canvas = document.createElement("canvas");
@@ -46,15 +56,40 @@ export class World3DView implements ScreenProjector {
       canvas.remove();
       throw e;
     }
+    this.labels = new LabelOverlay(canvas);
   }
 
-  onTick(frame: TerritoryFrame, palette: Float32Array): void {
-    this.world.updatePalette(palette);
-    this.world.updateTerritory(frame);
+  /** Per simulation tick. */
+  onTick(
+    frame: WorldFrame & { readonly names: ReadonlyMap<string, LabelEntry> },
+    palette: Float32Array,
+    players: Iterable<LabelPlayer>,
+    myPlayerID: string | null,
+  ): void {
+    this.world.updateFrame(frame, palette, performance.now());
+    const texts = new Map<string, LabelText>();
+    for (const p of players) {
+      const id = p.id();
+      texts.set(id, {
+        name: p.displayName(),
+        troops: renderTroops(p.troops()),
+        mine: id === myPlayerID,
+      });
+    }
+    this.labels.setLabels([...frame.names.values()], texts);
   }
 
+  /** Per animation frame. */
   render(camera: Camera2DState, nowMs: number): void {
     this.world.render(camera, nowMs);
+    const key = `${camera.centerX.toFixed(2)},${camera.centerY.toFixed(2)},${camera.scale.toFixed(4)},${camera.viewWidth},${camera.viewHeight}`;
+    this.labels.draw(
+      (x, y) => this.world.tileToScreen(x, y),
+      camera.viewWidth,
+      camera.viewHeight,
+      key,
+      this.world.profile.mobile ? 2 : 1.5,
+    );
   }
 
   canvasToTile(
@@ -78,6 +113,7 @@ export class World3DView implements ScreenProjector {
   }
 
   dispose(): void {
+    this.labels.dispose();
     this.world.dispose();
     this.canvas.remove();
   }

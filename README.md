@@ -2,8 +2,8 @@
   <img src="resources/images/LaukolaroserLogo.svg" alt="Laukolaroser" width="320">
 </p>
 
-**Laukolaroser** is a real-time multiplayer strategy game with a 3D
-battlefield renderer. Grow your nation across real-world maps, conquer neighbours,
+**Laukolaroser** is a real-time multiplayer strategy game on a 3D
+battlefield. Grow your nation across real-world maps, conquer neighbours,
 build cities, ports and defences, forge alliances — in the browser, on
 desktop or on your phone.
 
@@ -13,7 +13,7 @@ desktop or on your phone.
 
 ## Features
 
-- **3D battlefield** — terrain with mountains, coasts and snow, animated water, dynamic territory borders, lighting, fog and shadows (Three.js).
+- **3D battlefield** — terrain with mountains, coasts and snow, animated water, living territory borders, 3D ships, trains, missiles and buildings, explosions and mushroom clouds, lighting, fog and shadows (Three.js).
 - **Real-time strategy** — expand, attack, defend, trade, nuke.
 - **Multiplayer** — deterministic lockstep simulation over WebSockets, lobbies and solo games against nations and bots.
 - **Phone ready** — touch controls, adaptive rendering quality and a mobile-first layout.
@@ -30,10 +30,9 @@ npm run inst          # npm ci --ignore-scripts
 npm run dev           # client (http://localhost:9000) + game server
 ```
 
-The 3D world view is enabled with `?renderer=3d` (remembered;
-`?renderer=2d` switches back). Units, structures and effects are still drawn
-only by the 2D renderer, so 2D stays the default until they are ported —
-see [docs/World3D.md](docs/World3D.md).
+The 3D battlefield is the default. Append `?renderer=2d` to the URL for the
+classic flat map (`?renderer=3d` switches back). See
+[docs/World3D.md](docs/World3D.md).
 
 ## Commands
 
