@@ -17,6 +17,10 @@ export type ModelKind =
   | "transport"
   | "tradeShip"
   | "trainEngine"
+  | "expressEngine"
+  | "armoredTrain"
+  | "troopTrain"
+  | "railSam"
   | "trainCarriage"
   | "trainCarriageLoaded"
   | "atomBomb"
@@ -160,6 +164,102 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .cylinder(0.12, 0.12, 0.56, 8, {
         color: DARK_STEEL,
         pos: [-0.35, 0.12, -0.28],
+        rot: [PI / 2, 0, 0],
+      })
+      .build(),
+
+  // Streamlined, low and long: nose cone, team stripe, silver body.
+  expressEngine: () =>
+    new ModelBuilder()
+      .box(1.5, 0.1, 0.5, { color: BLACK, pos: [0, 0.08, 0] })
+      .box(1.0, 0.42, 0.5, { color: 0xc9ced3, pos: [-0.2, 0.34, 0] })
+      .cylinder(0.21, 0.25, 0.5, 10, {
+        color: 0xc9ced3,
+        pos: [0.52, 0.32, 0],
+        rot: [0, 0, -PI / 2],
+      })
+      .box(1.42, 0.07, 0.52, { team: true, pos: [0.05, 0.3, 0] })
+      .box(0.3, 0.12, 0.46, { color: GLASS, pos: [0.38, 0.48, 0] })
+      .cylinder(0.11, 0.11, 0.56, 8, {
+        color: DARK_STEEL,
+        pos: [0.45, 0.11, -0.28],
+        rot: [PI / 2, 0, 0],
+      })
+      .cylinder(0.11, 0.11, 0.56, 8, {
+        color: DARK_STEEL,
+        pos: [-0.45, 0.11, -0.28],
+        rot: [PI / 2, 0, 0],
+      })
+      .build(),
+
+  // Riveted armour box with a gun turret.
+  armoredTrain: () =>
+    new ModelBuilder()
+      .box(1.5, 0.12, 0.56, { color: BLACK, pos: [0, 0.08, 0] })
+      .box(1.4, 0.4, 0.58, { color: 0x4b5a3c, pos: [0, 0.34, 0] })
+      .box(1.42, 0.06, 0.6, { team: true, pos: [0, 0.2, 0] })
+      .cylinder(0.2, 0.24, 0.16, 10, { color: 0x3c4830, pos: [0.15, 0.62, 0] })
+      .box(0.62, 0.06, 0.06, { color: BLACK, pos: [0.5, 0.66, 0] })
+      .box(0.3, 0.16, 0.4, { color: 0x3c4830, pos: [-0.45, 0.6, 0] })
+      .cylinder(0.12, 0.12, 0.6, 8, {
+        color: DARK_STEEL,
+        pos: [0.45, 0.12, -0.3],
+        rot: [PI / 2, 0, 0],
+      })
+      .cylinder(0.12, 0.12, 0.6, 8, {
+        color: DARK_STEEL,
+        pos: [-0.45, 0.12, -0.3],
+        rot: [PI / 2, 0, 0],
+      })
+      .build(),
+
+  // Passenger-style coach in team colour with a row of windows.
+  troopTrain: () => {
+    const b = new ModelBuilder()
+      .box(1.4, 0.1, 0.5, { color: BLACK, pos: [0, 0.08, 0] })
+      .box(1.3, 0.42, 0.5, { team: true, pos: [0, 0.34, 0] })
+      .box(1.34, 0.06, 0.54, { color: 0x5d6b5a, pos: [0, 0.58, 0] });
+    for (const x of [-0.45, -0.15, 0.15, 0.45]) {
+      b.box(0.18, 0.12, 0.52, { color: GLASS, pos: [x, 0.42, 0] });
+    }
+    return b
+      .cylinder(0.11, 0.11, 0.56, 8, {
+        color: DARK_STEEL,
+        pos: [0.42, 0.11, -0.28],
+        rot: [PI / 2, 0, 0],
+      })
+      .cylinder(0.11, 0.11, 0.56, 8, {
+        color: DARK_STEEL,
+        pos: [-0.42, 0.11, -0.28],
+        rot: [PI / 2, 0, 0],
+      })
+      .build();
+  },
+
+  // Flatcar carrying a tilted twin missile launcher.
+  railSam: () =>
+    new ModelBuilder()
+      .box(1.4, 0.12, 0.54, { color: BLACK, pos: [0, 0.08, 0] })
+      .box(1.36, 0.08, 0.56, { team: true, pos: [0, 0.18, 0] })
+      .box(0.5, 0.2, 0.4, { color: STEEL, pos: [-0.1, 0.32, 0] })
+      .cylinder(0.06, 0.06, 0.8, 8, {
+        color: WHITE,
+        pos: [0.15, 0.62, 0.1],
+        rot: [0, 0, -1.0],
+      })
+      .cylinder(0.06, 0.06, 0.8, 8, {
+        color: WHITE,
+        pos: [0.15, 0.62, -0.1],
+        rot: [0, 0, -1.0],
+      })
+      .cylinder(0.11, 0.11, 0.56, 8, {
+        color: DARK_STEEL,
+        pos: [0.42, 0.11, -0.28],
+        rot: [PI / 2, 0, 0],
+      })
+      .cylinder(0.11, 0.11, 0.56, 8, {
+        color: DARK_STEEL,
+        pos: [-0.42, 0.11, -0.28],
         rot: [PI / 2, 0, 0],
       })
       .build(),

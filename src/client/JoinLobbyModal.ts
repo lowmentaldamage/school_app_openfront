@@ -29,6 +29,10 @@ import { getApiBase } from "./Api";
 import { BaseModal } from "./components/BaseModal";
 import { GameStartAlertController } from "./components/GameStartAlertController";
 import { hasMapDetails, renderMapDetails } from "./components/map/MapDetails";
+import {
+  fallbackToThumbnail,
+  mapImageSrc,
+} from "./components/map/MapPreviewImage";
 import { inviteFriendsButton } from "./components/ui/InviteFriendsButton";
 import { DEFAULT_TITLE_CLASS, modalHeader } from "./components/ui/ModalHeader";
 import { gamePortal } from "./GamePortal";
@@ -717,6 +721,12 @@ export class JoinLobbyModal extends BaseModal {
     const thumbnailUrl = assetUrl(
       `maps/${encodeURIComponent(normalizedMap)}/thumbnail.webp`,
     );
+    const previewUrl = mapImageSrc({
+      webpPath: thumbnailUrl,
+      preview3dPath: assetUrl(
+        `maps/${encodeURIComponent(normalizedMap)}/preview3d.webp`,
+      ),
+    });
     const modeSubtitle = getGameModeLabel(c);
 
     const tags = notableLobbySettings(c, this.nationCount).map(
@@ -747,11 +757,18 @@ export class JoinLobbyModal extends BaseModal {
           } shrink-0 rounded-lg border border-white/10 bg-black/20 overflow-hidden"
         >
           <img
-            src=${thumbnailUrl}
+            src=${previewUrl}
             alt=${mapName ?? c.gameMap}
             class="block w-full max-h-60 object-contain"
             @error=${(e: Event) => {
-              const frame = (e.target as HTMLElement).parentElement;
+              // A missing 3D preview falls back to the flat thumbnail; if
+              // that fails too, the frame hides itself.
+              const img = e.target as HTMLImageElement;
+              if (previewUrl !== thumbnailUrl && img.dataset.fellBack !== "1") {
+                fallbackToThumbnail(thumbnailUrl)(e);
+                return;
+              }
+              const frame = img.parentElement;
               if (frame) frame.style.display = "none";
             }}
           />

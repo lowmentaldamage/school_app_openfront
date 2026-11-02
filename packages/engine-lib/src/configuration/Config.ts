@@ -11,6 +11,7 @@ import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
 import { NAVAL_CLASSES } from "../naval/NavalClasses";
+import { RAIL_UNITS } from "../rail/RailUnits";
 import { assertNever } from "../Util";
 
 export interface NukeMagnitude {
@@ -216,6 +217,11 @@ export class Config {
       case UnitType.Destroyer:
       case UnitType.Battleship:
         info = { maxHealth: NAVAL_CLASSES[type].maxHealth };
+        break;
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        info = { maxHealth: RAIL_UNITS[type].maxHealth };
         break;
       case UnitType.Shell:
         info = { damage: 250 };

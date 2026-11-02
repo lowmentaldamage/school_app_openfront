@@ -46,9 +46,12 @@ import {
   UT_SHELL,
   UT_TRADE_SHIP,
   UT_TRAIN,
+  UT_ARMORED_TRAIN,
   UT_BATTLESHIP,
   UT_DESTROYER,
+  UT_RAIL_SAM,
   UT_TRANSPORT,
+  UT_TROOP_TRAIN,
   UT_WARSHIP,
 } from "../../types";
 import { DynamicInstanceBuffer } from "../DynamicBuffer";
@@ -96,6 +99,13 @@ const HYDROGEN_BOMB_COL = UNIT_ORDER.indexOf(UT_HYDROGEN_BOMB);
 
 /** Atlas column of the warship — gates the warship cosmetic effect. */
 const WARSHIP_COL = UNIT_ORDER.indexOf(UT_WARSHIP);
+
+/** Military trains drawn with the train engine sprite. */
+const RAIL_UNIT_TYPES: ReadonlySet<string> = new Set([
+  UT_ARMORED_TRAIN,
+  UT_TROOP_TRAIN,
+  UT_RAIL_SAM,
+]);
 
 /** Combat ship classes drawn with the warship sprite. */
 const COMBAT_SHIP_TYPES: ReadonlySet<string> = new Set([
@@ -296,6 +306,9 @@ export class UnitPass {
       } else if (COMBAT_SHIP_TYPES.has(header.unitTypes[i])) {
         // Destroyers and battleships use the warship sprite in 2D.
         this.typeToAtlasCol.set(header.unitTypes[i], WARSHIP_COL);
+      } else if (RAIL_UNIT_TYPES.has(header.unitTypes[i])) {
+        // Military trains use the train engine sprite in 2D.
+        this.typeToAtlasCol.set(header.unitTypes[i], TRAIN_ENGINE_COL);
       }
     }
 

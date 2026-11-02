@@ -17,6 +17,7 @@ import { UserSettings } from "../../UserSettings";
 import { resolveKeybindLabel, translateText } from "../../Utils";
 import { GameView } from "../../view";
 import {
+  armoredTrainIcon,
   atomBombIcon,
   battleshipIcon,
   cityIcon,
@@ -28,7 +29,9 @@ import {
   mirvIcon,
   missileSiloIcon,
   portIcon,
+  railSamIcon,
   samLauncherIcon,
+  troopTrainIcon,
   warshipIcon,
 } from "../HotbarIcons";
 import { TutorialHighlight, TutorialHighlightEvent } from "../Tutorial";
@@ -46,6 +49,9 @@ export class UnitDisplay extends LitElement implements Controller {
   private _warships = 0;
   private _destroyers = 0;
   private _battleships = 0;
+  private _armoredTrains = 0;
+  private _troopTrains = 0;
+  private _railSams = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -141,6 +147,9 @@ export class UnitDisplay extends LitElement implements Controller {
     this._warships = player.totalUnitLevels(UnitType.Warship);
     this._destroyers = player.totalUnitLevels(UnitType.Destroyer);
     this._battleships = player.totalUnitLevels(UnitType.Battleship);
+    this._armoredTrains = player.totalUnitLevels(UnitType.ArmoredTrain);
+    this._troopTrains = player.totalUnitLevels(UnitType.TroopTrain);
+    this._railSams = player.totalUnitLevels(UnitType.RailSAM);
     this.requestUpdate();
   }
 
@@ -230,6 +239,27 @@ export class UnitDisplay extends LitElement implements Controller {
             this._battleships,
             UnitType.Battleship,
             "battleship",
+            "",
+          )}
+          ${this.renderUnitItem(
+            armoredTrainIcon,
+            this._armoredTrains,
+            UnitType.ArmoredTrain,
+            "armored_train",
+            "",
+          )}
+          ${this.renderUnitItem(
+            troopTrainIcon,
+            this._troopTrains,
+            UnitType.TroopTrain,
+            "troop_train",
+            "",
+          )}
+          ${this.renderUnitItem(
+            railSamIcon,
+            this._railSams,
+            UnitType.RailSAM,
+            "rail_sam",
             "",
           )}
           ${this.renderUnitItem(
@@ -362,6 +392,17 @@ export class UnitDisplay extends LitElement implements Controller {
               case UnitType.Destroyer:
               case UnitType.Battleship:
                 this.eventBus?.emit(new ToggleStructureEvent([UnitType.Port]));
+                break;
+              case UnitType.ArmoredTrain:
+              case UnitType.TroopTrain:
+              case UnitType.RailSAM:
+                this.eventBus?.emit(
+                  new ToggleStructureEvent([
+                    UnitType.City,
+                    UnitType.Port,
+                    UnitType.Factory,
+                  ]),
+                );
                 break;
               default:
                 this.eventBus?.emit(new ToggleStructureEvent([unitType]));

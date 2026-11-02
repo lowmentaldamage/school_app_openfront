@@ -16,6 +16,11 @@ import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { maxHealthWithVeterancy } from "@laukolaroser/engine-lib/game/Veterancy";
 import { navalClass } from "@laukolaroser/engine-lib/naval/NavalClasses";
+import {
+  isRailUnit,
+  RAIL_UNITS,
+  type RailUnitType,
+} from "@laukolaroser/engine-lib/rail/RailUnits";
 import type { RendererConfig, UnitState } from "../../types";
 import { UT_MISSILE_SILO, UT_SAM_LAUNCHER } from "../../types";
 import type { RenderSettings } from "../RenderSettings";
@@ -150,8 +155,9 @@ export class BarPass {
       const maxHealth = maxHealthWithVeterancy(
         unit.unitType === UnitType.Warship
           ? this.warshipMaxHealth
-          : (navalClass(unit.unitType as UnitType).maxHealth ??
-              this.warshipMaxHealth),
+          : isRailUnit(unit.unitType as UnitType)
+            ? RAIL_UNITS[unit.unitType as RailUnitType].maxHealth
+            : navalClass(unit.unitType as UnitType).maxHealth,
         unit.veterancy,
         this.veterancyHealthBonus,
       );

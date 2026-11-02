@@ -14,6 +14,10 @@ import { NukeType } from "@laukolaroser/engine-api/StatsSchemas";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { exp, log, pow2 } from "@laukolaroser/engine-lib/DetMath";
 import {
+  RAIL_UNITS,
+  railUnitCost,
+} from "@laukolaroser/engine-lib/rail/RailUnits";
+import {
   assertNever,
   sigmoid,
   toInt,
@@ -353,6 +357,15 @@ export class EngineConfig extends Config {
           (numUnits: number) => Math.min(3_000_000, (numUnits + 1) * 750_000),
           UnitType.Battleship,
         );
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM: {
+        const spec = RAIL_UNITS[type];
+        return this.costWrapper(
+          (numUnits: number) => railUnitCost(spec, numUnits),
+          type,
+        );
+      }
       case UnitType.Port:
         return this.costWrapper(
           (numUnits: number) => Math.min(1_000_000, pow2(numUnits) * 125_000),

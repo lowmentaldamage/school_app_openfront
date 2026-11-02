@@ -2,6 +2,7 @@ import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { EXPRESS_TRAIN } from "@laukolaroser/engine-lib/rail/RailUnits";
 import {
   snapshotType,
   zInt,
@@ -31,13 +32,16 @@ class TradeStationStopHandler implements TrainStopHandler {
   ): void {
     const stationOwner = station.unit.owner();
     const trainOwner = trainExecution.owner();
-    const gold = mg
+    let gold = mg
       .config()
       .trainGold(
         rel(trainOwner, stationOwner),
         trainExecution.tradeStopsVisited(),
         trainOwner,
       );
+    if (trainExecution.isExpress()) {
+      gold = (gold * BigInt(EXPRESS_TRAIN.goldPercent)) / 100n;
+    }
     // Share revenue with the station owner if it's not the current player
     if (trainOwner !== stationOwner) {
       stationOwner.addGold(gold, station.tile());

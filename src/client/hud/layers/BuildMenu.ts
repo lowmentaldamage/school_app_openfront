@@ -29,6 +29,9 @@ import { GameView } from "../../view";
 const warshipIcon = assetUrl("images/BattleshipIconWhite.svg");
 const destroyerIcon = assetUrl("images/LightDestroyerIconWhite.svg");
 const battleshipIcon = assetUrl("images/HeavyBattleshipIconWhite.svg");
+const armoredTrainIcon = assetUrl("images/ArmoredTrainIconWhite.svg");
+const troopTrainIcon = assetUrl("images/TroopTrainIconWhite.svg");
+const railSamIcon = assetUrl("images/RailSamIconWhite.svg");
 const cityIcon = assetUrl("images/CityIconWhite.svg");
 const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");
@@ -90,6 +93,27 @@ const buildTable: BuildItemDisplay[][] = [
       icon: battleshipIcon,
       description: "build_menu.desc.battleship",
       key: "unit_type.battleship",
+      countable: true,
+    },
+    {
+      unitType: UnitType.ArmoredTrain,
+      icon: armoredTrainIcon,
+      description: "build_menu.desc.armored_train",
+      key: "unit_type.armored_train",
+      countable: true,
+    },
+    {
+      unitType: UnitType.TroopTrain,
+      icon: troopTrainIcon,
+      description: "build_menu.desc.troop_train",
+      key: "unit_type.troop_train",
+      countable: true,
+    },
+    {
+      unitType: UnitType.RailSAM,
+      icon: railSamIcon,
+      description: "build_menu.desc.rail_sam",
+      key: "unit_type.rail_sam",
       countable: true,
     },
     {

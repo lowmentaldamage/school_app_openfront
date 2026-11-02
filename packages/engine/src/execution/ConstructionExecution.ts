@@ -21,6 +21,7 @@ import { MirvExecution } from "./MIRVExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
+import { RailUnitExecution } from "./RailUnitExecution";
 import { SAMLauncherExecution } from "./SAMLauncherExecution";
 import { WarshipExecution } from "./WarshipExecution";
 
@@ -146,6 +147,17 @@ export class ConstructionExecution implements Execution {
           new WarshipExecution({
             owner: player,
             patrolTile: this.tile,
+            type: this.constructionType,
+          }),
+        );
+        break;
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        this.mg.addExecution(
+          new RailUnitExecution({
+            owner: player,
+            tile: this.tile,
             type: this.constructionType,
           }),
         );

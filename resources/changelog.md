@@ -41,3 +41,16 @@
 - **Battleship**: slow, very tough siege ship with heavy long-range guns; shells enemy coasts on its own while you fight a land war
 - Both are built from ports, take move orders like warships and fire naval strikes
 - AI nations build them too; switch either off in the lobby's disabled units
+
+🚂 **Trains**
+
+- **Express cargo**: once you have a level 2 factory, some trains run as faster, shorter expresses that earn 60% more per stop
+- **Armored Train**: patrols your railways and shells enemy land next to the tracks during a land war
+- **Troop Train**: patrols your railways and brings reinforcements to every city it reaches
+- **Rail SAM**: mobile air defence on your railways that shoots down enemy nukes flying nearby
+- Build military trains from the build bar on a city, port or factory with railways; AI nations use them too; each can be switched off in the lobby
+
+🗺️ **Maps in 3D**
+
+- Sharper 3D terrain on every map: twice the detail, smooth coastlines, finer mountains (looks only — the game map is unchanged)
+- Map picker and lobby show each map rendered in 3D

@@ -58,6 +58,8 @@ export interface WorldRendererInit {
   paletteSize: number;
   /** Device budgets; detected from the browser when omitted. */
   profile?: DeviceProfile;
+  /** Keep the frame readable after render (offline previews only). */
+  preserveDrawingBuffer?: boolean;
 }
 
 /** The FrameData fields the 3D world consumes each tick. */
@@ -106,6 +108,7 @@ export class WorldRenderer {
       canvas: init.canvas,
       antialias: this.profile.antialias,
       powerPreference: "high-performance",
+      preserveDrawingBuffer: init.preserveDrawingBuffer ?? false,
     });
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.toneMapping = ACESFilmicToneMapping;

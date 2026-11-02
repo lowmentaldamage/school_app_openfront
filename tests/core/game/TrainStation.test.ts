@@ -68,6 +68,7 @@ describe("TrainStation", () => {
       owner: vi.fn().mockReturnValue(player),
       level: vi.fn(),
       tradeStopsVisited: vi.fn().mockReturnValue(0),
+      isExpress: vi.fn().mockReturnValue(false),
     } as any;
   });
 

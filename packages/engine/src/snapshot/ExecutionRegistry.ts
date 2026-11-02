@@ -28,6 +28,7 @@ import { PlayerExecutionSnapshot } from "../execution/PlayerExecution";
 import { PortExecutionSnapshot } from "../execution/PortExecution";
 import { ProjectileExecutionSnapshot } from "../execution/ProjectileExecution";
 import { QuickChatExecutionSnapshot } from "../execution/QuickChatExecution";
+import { RailUnitExecutionSnapshot } from "../execution/RailUnitExecution";
 import { RecomputeRailClusterExecutionSnapshot } from "../execution/RecomputeRailClusterExecution";
 import { RetreatExecutionSnapshot } from "../execution/RetreatExecution";
 import { SAMLauncherExecutionSnapshot } from "../execution/SAMLauncherExecution";
@@ -83,6 +84,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   PlayerExecutionSnapshot,
   PortExecutionSnapshot,
   ProjectileExecutionSnapshot,
+  RailUnitExecutionSnapshot,
   QuickChatExecutionSnapshot,
   RecomputeRailClusterExecutionSnapshot,
   RetreatExecutionSnapshot,

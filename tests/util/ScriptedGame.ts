@@ -358,6 +358,28 @@ function buildStructureIntent(
   return null;
 }
 
+const RAIL_UNIT_TYPES = [
+  UnitType.ArmoredTrain,
+  UnitType.TroopTrain,
+  UnitType.RailSAM,
+] as const;
+
+function buildRailUnitIntent(
+  game: Game,
+  p: Player,
+  rand: PseudoRandom,
+): Intent | null {
+  const type = RAIL_UNIT_TYPES[rand.nextInt(0, RAIL_UNIT_TYPES.length)];
+  const station = pick(
+    rand,
+    p
+      .units([UnitType.City, UnitType.Factory])
+      .filter((u) => p.canBuild(type, u.tile()) !== false),
+  );
+  if (station === null) return null;
+  return { type: "build_unit", unit: type, tile: station.tile() };
+}
+
 function buildWarshipIntent(
   game: Game,
   p: Player,
@@ -511,7 +533,10 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     case 6:
       return buildStructureIntent(game, p, rand);
     case 7:
-      return buildWarshipIntent(game, p, rand);
+      // Military trains when there is a rail station, else warships.
+      return (
+        buildRailUnitIntent(game, p, rand) ?? buildWarshipIntent(game, p, rand)
+      );
     case 8:
       return launchBombIntent(game, p, rand, other);
     case 9: {

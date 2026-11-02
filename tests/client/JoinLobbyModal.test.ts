@@ -425,7 +425,18 @@ describe("JoinLobbyModal map preview", () => {
       gameMap: GameMapType.Africa,
     }).querySelector<HTMLImageElement>(`${PREVIEW} img`);
 
-    expect(image?.getAttribute("src")).toContain("maps/africa/thumbnail.webp");
+    // The 3D view is the default, so the 3D-rendered preview comes first.
+    expect(image?.getAttribute("src")).toContain("maps/africa/preview3d.webp");
+  });
+
+  it("falls back to the flat thumbnail when the 3D preview is missing", () => {
+    const image = renderConfig({
+      gameMap: GameMapType.Africa,
+    }).querySelector<HTMLImageElement>(`${PREVIEW} img`)!;
+
+    image.dispatchEvent(new Event("error"));
+
+    expect(image.getAttribute("src")).toContain("maps/africa/thumbnail.webp");
   });
 
   // The preview used to be an 80px square with object-cover, which cropped
@@ -442,8 +453,12 @@ describe("JoinLobbyModal map preview", () => {
 
   it("hides itself when the thumbnail fails to load", () => {
     const preview = renderConfig({}).querySelector<HTMLElement>(PREVIEW)!;
+    const img = preview.querySelector("img")!;
 
-    preview.querySelector("img")!.dispatchEvent(new Event("error"));
+    // First error: 3D preview missing → thumbnail. Second: thumbnail too.
+    img.dispatchEvent(new Event("error"));
+    expect(preview.style.display).not.toBe("none");
+    img.dispatchEvent(new Event("error"));
 
     expect(preview.style.display).toBe("none");
   });

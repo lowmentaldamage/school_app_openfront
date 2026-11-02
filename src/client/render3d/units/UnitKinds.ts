@@ -17,6 +17,9 @@ const BY_TYPE: Record<string, ModelKind> = {
   Warship: "warship",
   Destroyer: "destroyer",
   Battleship: "battleship",
+  "Armored Train": "armoredTrain",
+  "Troop Train": "troopTrain",
+  "Rail SAM": "railSam",
   Transport: "transport",
   "Trade Ship": "tradeShip",
   "Atom Bomb": "atomBomb",
@@ -54,6 +57,10 @@ export const SHIP_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
 
 export const TRAIN_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
   "trainEngine",
+  "expressEngine",
+  "armoredTrain",
+  "troopTrain",
+  "railSam",
   "trainCarriage",
   "trainCarriageLoaded",
 ]);
@@ -72,7 +79,10 @@ export const BALLISTIC_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
 export function modelKindFor(u: UnitLike): ModelKind | null {
   if (u.unitType === "Train") {
     // 0 = Engine, 1 = TailEngine, 2 = Carriage
-    if (u.trainType === 0 || u.trainType === 1) return "trainEngine";
+    // An engine marked loaded is an express cargo train (see TrainExecution).
+    if (u.trainType === 0 || u.trainType === 1) {
+      return u.loaded ? "expressEngine" : "trainEngine";
+    }
     return u.loaded ? "trainCarriageLoaded" : "trainCarriage";
   }
   return BY_TYPE[u.unitType] ?? null;

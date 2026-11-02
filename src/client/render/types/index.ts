@@ -57,4 +57,7 @@ export {
   UT_WARSHIP,
   UT_DESTROYER,
   UT_BATTLESHIP,
+  UT_ARMORED_TRAIN,
+  UT_TROOP_TRAIN,
+  UT_RAIL_SAM,
 } from "./UnitType";

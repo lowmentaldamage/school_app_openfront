@@ -16,6 +16,11 @@ export interface MapData {
   manifest: () => Promise<MapManifest>;
   webpPath: string;
   /**
+   * The map rendered in the 3D look (scripts/maps-3d.cjs --write). May be
+   * missing for a map; callers fall back to `webpPath`.
+   */
+  preview3dPath?: string;
+  /**
    * Load a map layer image by layer id. `compact` selects the map4x-sized
    * variant (`<id>.4x.webp`; ids cannot contain dots, so it never collides
    * with another layer), which Compact games draw on directly.

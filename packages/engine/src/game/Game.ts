@@ -70,6 +70,10 @@ export interface UnitParamsMap {
     patrolTile: TileRef;
   };
 
+  [UnitType.ArmoredTrain]: Record<string, never>;
+  [UnitType.TroopTrain]: Record<string, never>;
+  [UnitType.RailSAM]: Record<string, never>;
+
   [UnitType.Shell]: Record<string, never>;
 
   [UnitType.ArtilleryShell]: {

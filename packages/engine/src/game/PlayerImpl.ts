@@ -39,6 +39,7 @@ import {
 } from "@laukolaroser/engine-lib/game/GameMapImpl";
 import { TileSet } from "@laukolaroser/engine-lib/game/TileSet";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { RAIL_UNIT_SPAWN_RADIUS } from "@laukolaroser/engine-lib/rail/RailUnits";
 import {
   snapshotType,
   zInt,
@@ -1618,6 +1619,10 @@ export class PlayerImpl implements Player {
       case UnitType.Destroyer:
       case UnitType.Battleship:
         return this.warshipSpawn(targetTile);
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        return this.railUnitSpawn(targetTile);
       case UnitType.Shell:
       case UnitType.SAMMissile:
       case UnitType.ArtilleryShell:
@@ -1719,6 +1724,33 @@ export class PlayerImpl implements Player {
     );
 
     return bestPort?.tile() ?? false;
+  }
+
+  /**
+   * Military trains start at the player's nearest own train station (with
+   * at least one railroad) within RAIL_UNIT_SPAWN_RADIUS of the tile.
+   */
+  railUnitSpawn(tile: TileRef): TileRef | false {
+    const stations = this.mg.railNetwork().stationManager();
+    const r2 = RAIL_UNIT_SPAWN_RADIUS * RAIL_UNIT_SPAWN_RADIUS;
+    let best: TileRef | false = false;
+    let bestD = Infinity;
+    for (const u of this.units(
+      UnitType.City,
+      UnitType.Port,
+      UnitType.Factory,
+    )) {
+      if (!u.isActive() || u.isUnderConstruction()) continue;
+      const st = stations.findStation(u);
+      if (st === null || !st.isActive() || st.getRailroads().size === 0) {
+        continue;
+      }
+      const d = this.mg.euclideanDistSquared(u.tile(), tile);
+      if (d > r2 || d >= bestD) continue;
+      best = u.tile();
+      bestD = d;
+    }
+    return best;
   }
 
   landBasedUnitSpawn(tile: TileRef): TileRef | false {

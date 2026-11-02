@@ -38,6 +38,7 @@ import { NationEmojiBehavior } from "./nation/NationEmojiBehavior";
 import { NationMIRVBehavior } from "./nation/NationMIRVBehavior";
 import { NationNavyBehavior } from "./nation/NationNavyBehavior";
 import { NationNukeBehavior } from "./nation/NationNukeBehavior";
+import { NationRailBehavior } from "./nation/NationRailBehavior";
 import { NationStructureBehavior } from "./nation/NationStructureBehavior";
 import { NationWarshipBehavior } from "./nation/NationWarshipBehavior";
 import { NationWeaponBehavior } from "./nation/NationWeaponBehavior";
@@ -59,6 +60,7 @@ export class NationExecution implements Execution {
   private structureBehavior!: NationStructureBehavior;
   private weaponBehavior!: NationWeaponBehavior;
   private navyBehavior!: NationNavyBehavior;
+  private railBehavior!: NationRailBehavior;
   private mg: Game;
   private player: Player | null = null;
 
@@ -250,6 +252,7 @@ export class NationExecution implements Execution {
     this.nukeBehavior.maybeSendNuke();
     this.weaponBehavior.maybeFire();
     this.navyBehavior.maybeBuild();
+    this.railBehavior.maybeBuild();
   }
 
   private initializeBehaviors(): void {
@@ -303,6 +306,7 @@ export class NationExecution implements Execution {
     );
     this.weaponBehavior = new NationWeaponBehavior(this.mg, this.player);
     this.navyBehavior = new NationNavyBehavior(this.mg, this.player);
+    this.railBehavior = new NationRailBehavior(this.mg, this.player);
     this.behaviorsInitialized = true;
   }
 
@@ -511,6 +515,7 @@ export class NationExecution implements Execution {
     // Stateless (seeds its own random per decision), so nothing to restore.
     this.weaponBehavior = new NationWeaponBehavior(r.game, player);
     this.navyBehavior = new NationNavyBehavior(r.game, player);
+    this.railBehavior = new NationRailBehavior(r.game, player);
   }
 }
 

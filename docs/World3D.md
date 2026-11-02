@@ -320,6 +320,52 @@ blocky.
 - Tests: `tests/render3d/TerrainDetail.test.ts`. Verified with before /
   after screenshots at three zoom levels.
 
+### Increment 9 — 2x terrain, 3D map previews, all-maps check (done)
+
+- `upscaleTerrainDetail`: desktop terrain detail at 2 texels per tile
+  (smoothed land field that never moves a tile across the coastline, plus
+  deterministic fBm relief scaled by elevation). Render-only: gameplay
+  tiles are unchanged. Phones and maps over 9 M texels stay at 1x.
+- `scripts/maps-3d.cjs` (`npm run maps:3d`, needs `npm run dev` and
+  Playwright Chromium): renders every map through
+  `render3d/tools/MapPreviewPage.ts` with no game running.
+  - `--write` saves `resources/maps/<map>/preview3d.webp`, cropped to the
+    map's projected outline.
+  - Always checks each render (render errors, GL/shader errors, blank,
+    black, too dark, washed out, no land visible; `PreviewStats.ts`) and
+    writes `map-3d-report.json`; exits 1 if any map fails.
+- Menus (`MapDisplay`, `EarthMap`, `JoinLobbyModal`) show the 3D preview
+  in the 3D view, falling back to `thumbnail.webp` when a map has none.
+  The Go map generator does not touch `preview3d.webp`.
+
+### Increment 10 — Trains (done)
+
+- Express cargo (`EXPRESS_TRAIN`): owners with a level 2+ factory send one
+  trade train in three as an express (speed 3, 3 cars, 160% gold per stop).
+  Decided from tick + station id (no random draw). Its engine is marked
+  loaded so clients draw the express engine.
+- Military trains `ArmoredTrain`, `TroopTrain`, `RailSAM`
+  (`engine-lib/rail/RailUnits.ts`, `RailUnitExecution`): built on an own
+  station with railroads, they ride between the owner's stations in the
+  same rail cluster (seeded picks).
+  - Armored: two free artillery shells at the nearest enemy land within
+    16 tiles every 6 s during a land war.
+  - Troop: +0.6% of max troops (+0.2% per city level above 1) at each own
+    city it reaches.
+  - Rail SAM: fires a SAM missile at the nearest hostile nuke within 40
+    tiles every 7 s.
+  - A train whose stations are all lost is scrapped after 30 s.
+- AI: `NationRailBehavior` (armored ≤ 2 and troop ≤ 1 at war, rail SAM ≤ 2
+  against nuclear neighbours; never on Easy).
+- Client: build bar, build menu, lobby toggles, icons, health bars, 2D
+  (train engine sprite), 3D models (armored, troop, SAM flatcar, express).
+- Tests: `tests/RailUnits.test.ts` (movement, placement, reinforcements,
+  shelling only at war, nuke interception, express trains, snapshot round
+  trip, AI); scripted full-game snapshot now builds military trains; the
+  nation economy benchmark was updated.
+- Verified in a Solo game: factory + 4 cities, then all three military
+  trains built from the build bar, riding the rails in 3D.
+
 ### Next stages
 
 See [Roadmap.md](Roadmap.md) for the full feature list and order.

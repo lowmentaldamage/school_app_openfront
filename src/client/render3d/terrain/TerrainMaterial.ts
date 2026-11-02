@@ -118,7 +118,9 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   vec3 shallowWater = mix(vec3(0.22, 0.52, 0.55), seabed, 0.25);
   c = mix(shallowWater, c, smoothstep(0.46, 0.52, land));
   // Authored in sRGB; convert to linear for lighting.
-  return pow(c * (0.93 + 0.14 * grain), vec3(2.2));
+  // Fine grain only where it is larger than a pixel (no distant sparkle).
+  float grainAmt = 1.0 - smoothstep(0.3, 1.2, length(fwidth(wp.xz)));
+  return pow(c * (1.0 + (grain - 0.5) * 0.14 * grainAmt), vec3(2.2));
 }
 `;
 
@@ -194,11 +196,11 @@ diffuseColor.rgb = applyTerritory(terrainAlbedo(vTerrainWorld, min(vTerrainUp, t
       .replace(
         "#include <normal_fragment_maps>",
         `#include <normal_fragment_maps>
-float terrainFoot = smoothstep(1.5, 4.0, length(fwidth(vTerrainWorld.xz)));
+float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v3";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v4";
   return { material, uniforms };
 }
 

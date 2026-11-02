@@ -1,5 +1,6 @@
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { EXPRESS_TRAIN } from "@laukolaroser/engine-lib/rail/RailUnits";
 import {
   zInt,
   zRandom,
@@ -101,13 +102,26 @@ export class TrainStationExecution implements Execution {
     if (destination === null) return;
     if (destination === station) return;
 
+    // Express cargo: owners with a level 2+ factory send one train in
+    // EXPRESS_TRAIN.oneIn as an express. Decided from the tick and unit id
+    // (no random draw), so the station's random sequence is unchanged.
+    const express =
+      (currentTick + this.unit.id()) % EXPRESS_TRAIN.oneIn === 0 &&
+      owner
+        .units(UnitType.Factory)
+        .some(
+          (f) =>
+            f.level() >= EXPRESS_TRAIN.minFactoryLevel &&
+            !f.isUnderConstruction(),
+        );
     this.mg.addExecution(
       new TrainExecution(
         this.mg.railNetwork(),
         owner,
         station,
         destination,
-        this.numCars,
+        express ? EXPRESS_TRAIN.cars : this.numCars,
+        express,
       ),
     );
     this.lastSpawnTick = currentTick;

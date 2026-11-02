@@ -190,6 +190,7 @@
   },
   "build_menu": {
     "desc": {
+      "armored_train": "Patrols your railways and shells enemy land next to the tracks during a land war.",
       "atom_bomb": "Small explosion",
       "battleship": "Slow, very tough siege ship. Heavy long-range guns; shells enemy coasts during a land war.",
       "city": "Increases max population",
@@ -200,7 +201,9 @@
       "mirv": "Huge explosion, only targets selected player",
       "missile_silo": "Used to launch nukes",
       "port": "Sends trade ships to generate gold",
+      "rail_sam": "Mobile air defence on your railways: shoots down enemy nukes flying nearby.",
       "sam_launcher": "Defends against incoming nukes",
+      "troop_train": "Patrols your railways and brings reinforcements to every city it reaches.",
       "warship": "Captures trade ships, destroys ships and boats"
     },
     "not_enough_money": "Not enough money",
@@ -2665,6 +2668,7 @@
     "title": "Tutorial"
   },
   "unit_type": {
+    "armored_train": "Armored Train",
     "atom_bomb": "Atom Bomb",
     "battleship": "Battleship",
     "boat": "Boat",
@@ -2676,7 +2680,9 @@
     "mirv": "MIRV",
     "missile_silo": "Missile Silo",
     "port": "Port",
+    "rail_sam": "Rail SAM",
     "sam_launcher": "SAM Launcher",
+    "troop_train": "Troop Train",
     "warship": "Warship"
   },
   "update_available": {
