@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="resources/images/Logo.svg" alt="Laukolaroser" width="320">
+  <img src="resources/images/LaukolaroserLogo.svg" alt="Laukolaroser" width="320">
 </p>
 
 **Laukolaroser** is a real-time multiplayer strategy game with a 3D
