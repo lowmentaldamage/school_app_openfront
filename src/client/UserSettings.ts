@@ -537,6 +537,24 @@ export class UserSettings {
     this.setBool(MAP_LAYERS_KEY, !this.mapLayers());
   }
 
+  /** 3D view: sun moves through a day/night cycle (visual only). */
+  dayNightCycle() {
+    return this.getBool("settings.dayNightCycle", true);
+  }
+
+  toggleDayNightCycle() {
+    this.setBool("settings.dayNightCycle", !this.dayNightCycle());
+  }
+
+  /** 3D view: clouds, rain, fog and storms (visual only). */
+  weatherEffects() {
+    return this.getBool("settings.weatherEffects", true);
+  }
+
+  toggleWeatherEffects() {
+    this.setBool("settings.weatherEffects", !this.weatherEffects());
+  }
+
   toggleAlertFrame() {
     this.setBool("settings.alertFrame", !this.alertFrame());
   }

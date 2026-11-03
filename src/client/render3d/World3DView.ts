@@ -116,6 +116,15 @@ export class World3DView implements ScreenProjector {
     this.labels.setLabels([...frame.names.values()], texts);
   }
 
+  /** Day/night and weather; call each tick with the game tick. */
+  setAtmosphere(
+    tick: number,
+    options: { dayNight: boolean; weather: boolean },
+    seed = 0,
+  ): void {
+    this.world.setAtmosphere(tick, options, seed);
+  }
+
   /** Per animation frame. */
   render(camera: Camera2DState, nowMs: number): void {
     this.world.render(camera, nowMs);

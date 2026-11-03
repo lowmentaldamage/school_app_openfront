@@ -18,6 +18,14 @@ import { analysePreview, type PreviewStats } from "./PreviewStats";
 declare global {
   interface Window {
     __mapPreviewMap?: string;
+    /** Optional sky for checking day/night and weather (default: classic). */
+    __mapPreviewSky?: {
+      tick: number;
+      dayNight: boolean;
+      weather: boolean;
+      seed?: number;
+      zoom?: number;
+    };
     __mapPreview?:
       | {
           ok: true;
@@ -79,7 +87,9 @@ async function run(): Promise<void> {
     world.resize(OUT_W, OUT_H);
     // Whole map in view, a little margin.
     // The camera is tilted, so the near (bottom) edge needs extra room.
-    const scale = Math.min(OUT_W / w, OUT_H / h) * 0.95;
+    const sky = window.__mapPreviewSky;
+    if (sky !== undefined) world.setAtmosphere(sky.tick, sky, sky.seed ?? 0);
+    const scale = Math.min(OUT_W / w, OUT_H / h) * 0.95 * (sky?.zoom ?? 1);
     const cam = {
       centerX: w / 2,
       centerY: h * 0.53,

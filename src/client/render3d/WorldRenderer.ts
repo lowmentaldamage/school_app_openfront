@@ -191,7 +191,11 @@ export class WorldRenderer {
     });
     this.scene.add(this.effects.group);
 
-    this.environment = new EnvironmentRenderer(this.scene, this.quality.level);
+    this.environment = new EnvironmentRenderer(
+      this.scene,
+      this.quality.level,
+      this.profile.mobile ? 1200 : 3000,
+    );
     this.cameraController = new CameraController(this.heightfield);
     this.applyQuality();
   }
@@ -220,6 +224,24 @@ export class WorldRenderer {
       mySmallID,
     );
     this.effects.onEvents(frame.events.deadUnits);
+  }
+
+  /**
+   * Day/night cycle and weather (visual only). `tick` is the game tick, so
+   * every player sees the same sky; `seed` varies the weather per game.
+   */
+  setAtmosphere(
+    tick: number,
+    options: { dayNight: boolean; weather: boolean },
+    seed = 0,
+  ): void {
+    this.environment.setOptions(options, seed);
+    this.environment.setTick(tick, performance.now());
+  }
+
+  /** Current sky state, or null before the first frame. */
+  atmosphereState() {
+    return this.environment.state;
   }
 
   /** Brighten the borders of one player (e.g. hover); -1 clears. */
@@ -262,7 +284,13 @@ export class WorldRenderer {
     const fov = (cc.camera.fov * Math.PI) / 180;
     const bufferH = this.cssHeight * this.renderer.getPixelRatio();
     this.effects.update(t, bufferH / (2 * Math.tan(fov / 2)));
-    this.environment.update(cc.focus, cc.viewRadius(), cc.distance, cc.camera);
+    this.environment.update(
+      cc.focus,
+      cc.viewRadius(),
+      cc.distance,
+      cc.camera,
+      nowMs,
+    );
     this.renderer.render(this.scene, cc.camera);
   }
 

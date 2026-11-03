@@ -201,7 +201,9 @@ Weapon strikes never capture land; only attacks do.
 
 - **Settings → Graphics**: the 3D view lowers its quality automatically to
   keep the frame rate at your screen's refresh rate. On an old device you
-  can also switch to the flat map (`?renderer=2d`).
+  can also switch to the flat map (`?renderer=2d`). **Day and Night**
+  and **Weather** (clouds, rain, fog, storms) switch the living sky on or
+  off; they are visual only and never affect the battle.
 - **Settings → Keybinds**: change every key.
 - **Settings → Gameplay**: _Left click to open menu_ (phone-style controls
   on PC), alert frame, build-cost cursor and more.

@@ -431,6 +431,14 @@ export class UserSettingModal extends BaseModal {
     console.log("🤡 Emojis:", this.userSettings.emojis() ? "ON" : "OFF");
   }
 
+  private toggleDayNight() {
+    this.userSettings.toggleDayNightCycle();
+  }
+
+  private toggleWeather() {
+    this.userSettings.toggleWeatherEffects();
+  }
+
   private toggleAlertFrame() {
     this.userSettings.toggleAlertFrame();
 
@@ -1913,6 +1921,22 @@ export class UserSettingModal extends BaseModal {
         id="graphics-advanced-toggle"
         .checked=${this.graphicsAdvancedOpen}
         @change=${this.toggleGraphicsAdvanced}
+      ></setting-toggle>
+
+      <setting-toggle
+        label="${translateText("user_setting.day_night_label")}"
+        description="${translateText("user_setting.day_night_desc")}"
+        id="day-night-toggle"
+        .checked=${this.userSettings.dayNightCycle()}
+        @change=${this.toggleDayNight}
+      ></setting-toggle>
+
+      <setting-toggle
+        label="${translateText("user_setting.weather_label")}"
+        description="${translateText("user_setting.weather_desc")}"
+        id="weather-toggle"
+        .checked=${this.userSettings.weatherEffects()}
+        @change=${this.toggleWeather}
       ></setting-toggle>
 
       ${

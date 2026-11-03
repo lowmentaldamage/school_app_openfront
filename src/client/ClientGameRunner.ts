@@ -675,15 +675,28 @@ function mountWebGLFrameLoop(
   const builder = new WebGLFrameBuilder(view);
   if (world3d !== null) {
     builder.setRendererUploadsEnabled(false);
-    builder.addFrameListener((gv, palette) =>
+    const skySettings = new UserSettings();
+    let skySeed = 0;
+    for (const ch of String(gameView.gameID())) {
+      skySeed = (Math.imul(skySeed, 31) + ch.charCodeAt(0)) | 0;
+    }
+    builder.addFrameListener((gv, palette) => {
+      world3d.setAtmosphere(
+        gv.ticks(),
+        {
+          dayNight: skySettings.dayNightCycle(),
+          weather: skySettings.weatherEffects(),
+        },
+        skySeed,
+      );
       world3d.onTick(
         gv.frameData(),
         palette,
         gv.players(),
         gv.myPlayer()?.id() ?? null,
         gv.myPlayer()?.smallID() ?? null,
-      ),
-    );
+      );
+    });
   }
 
   // When context is lost and restored, WebGL loses all textures and geometry.
