@@ -125,7 +125,7 @@ float waterDepth01() {
 vec2 waveGrad(vec2 p, float t) {
   // Four non-aligned octaves so the glints never form a visible lattice.
   vec2 g = vec2(0.0);
-  g += vec2(cos(dot(p, vec2(0.71, 0.33)) + t * 1.1), cos(dot(p, vec2(-0.27, 0.64)) - t * 0.9)) * 0.022;
+  g += vec2(cos(dot(p, vec2(0.71, 0.33)) + t * 1.1), cos(dot(p, vec2(-0.27, 0.64)) - t * 0.9)) * 0.034;
   g += vec2(cos(dot(p, vec2(1.37, -0.91)) - t * 1.7), cos(dot(p, vec2(0.83, 1.29)) + t * 1.4)) * 0.012;
   g += vec2(cos(dot(p, vec2(2.9, 1.7)) + t * 2.3), cos(dot(p, vec2(-1.9, 2.6)) - t * 2.1)) * 0.006;
   g += vec2(cos(dot(p, vec2(-4.3, -3.1)) - t * 2.9), cos(dot(p, vec2(3.7, -4.6)) + t * 2.6)) * 0.003;
@@ -146,6 +146,18 @@ diffuseColor.rgb = mix(shallow, deep, smoothstep(0.0, 0.85, wDepth));
 float foam = max(1.0 - smoothstep(0.02, 0.10, wDepth), smoothstep(0.3, 0.5, wLand))
            * (0.6 + 0.4 * sin(uTime * 1.6 + (vWaterWorld.x + vWaterWorld.z) * 1.3));
 diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9), clamp(foam, 0.0, 1.0) * 0.55);
+// Rolling swell (visible from far away) and travelling whitecaps out at sea.
+{
+  vec2 p = vWaterWorld.xz;
+  float swell = sin(dot(p, vec2(0.11, 0.07)) - uTime * 0.9)
+              * sin(dot(p, vec2(-0.05, 0.13)) - uTime * 0.6);
+  diffuseColor.rgb *= 1.0 + 0.14 * swell * smoothstep(0.1, 0.6, wDepth);
+  float cap = sin(dot(p, vec2(0.9, 0.4)) - uTime * 1.8)
+            * sin(dot(p, vec2(-0.3, 0.8)) - uTime * 1.3)
+            * sin(dot(p, vec2(0.21, -0.17)) + uTime * 0.7);
+  cap = smoothstep(0.55, 0.9, cap) * smoothstep(0.35, 1.0, wDepth);
+  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.93), cap * 0.4);
+}
 diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
         )
         .replace(
@@ -156,12 +168,16 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
   // than a pixel it only produces sparkle/moire, so flatten it.
   float footprint = length(fwidth(vWaterWorld.xz));
   vec2 g = waveGrad(vWaterWorld.xz, uTime) * (1.0 - smoothstep(0.15, 0.8, footprint));
+  // Long swell: low frequency, so it stays visible (and alias-free) zoomed out.
+  vec2 sp = vWaterWorld.xz;
+  g += vec2(cos(dot(sp, vec2(0.11, 0.07)) - uTime * 0.9) * 0.11,
+            cos(dot(sp, vec2(-0.05, 0.13)) - uTime * 0.6) * 0.13) * 0.12;
   vec3 wn = normalize(vec3(-g.x, 1.0, -g.y));
   normal = normalize((viewMatrix * vec4(wn, 0.0)).xyz);
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v2";
+    material.customProgramCacheKey = () => "laukolaroser-water-v3";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

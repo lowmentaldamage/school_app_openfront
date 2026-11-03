@@ -538,6 +538,15 @@ export class UserSettings {
     this.setBool(MAP_LAYERS_KEY, !this.mapLayers());
   }
 
+  /** Detailed help (use + exact numbers) on the build/forces bar. */
+  buildBarHelp() {
+    return this.getBool("settings.buildBarHelp", true);
+  }
+
+  toggleBuildBarHelp() {
+    this.setBool("settings.buildBarHelp", !this.buildBarHelp());
+  }
+
   /** 3D view: sun moves through a day/night cycle (visual only). */
   dayNightCycle() {
     return this.getBool("settings.dayNightCycle", true);

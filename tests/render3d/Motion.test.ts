@@ -98,3 +98,24 @@ describe("metroFactors", () => {
     expect(f.get(5)).toBeUndefined();
   });
 });
+
+describe("seaLifeSpots", () => {
+  test("boats and gulls sit in shallow coastal water, same every time", async () => {
+    const { seaLifeSpots } =
+      await import("../../src/client/render3d/environment/SeaLife");
+    const { Heightfield } =
+      await import("../../src/client/render3d/terrain/Heightfield");
+    const { loadTestTerrain } = await import("./util");
+    const { map, terrain } = await loadTestTerrain("world");
+    const hf = Heightfield.fromTerrain(terrain, map.width(), map.height());
+    const a = seaLifeSpots(hf, 50);
+    const b = seaLifeSpots(hf, 50);
+    expect(a.length).toBe(50);
+    expect(a).toEqual(b);
+    for (const s of a) {
+      const h = hf.sample(s.x, s.z);
+      expect(h).toBeLessThan(0);
+      expect(h).toBeGreaterThan(-2.3);
+    }
+  });
+});

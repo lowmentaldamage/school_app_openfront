@@ -9,8 +9,9 @@
  * written since the last frame are uploaded.
  *
  * Kinds: 0 = fire (hot core → orange → dark), 1 = spark (bright, falls
- * with gravity), 2 = smoke (dark, rises, expands), 3 = flash (very short,
- * very large).
+ * with gravity and lands on the ground), 2 = smoke (dark, rises, expands),
+ * 3 = flash (very short, very large), 4 = foam (white, flat, spreads and
+ * fades: ship wakes, splashes), 5 = dust (ground-hugging, brown, rolls out).
  */
 
 import {
@@ -27,6 +28,8 @@ export const P_FIRE = 0;
 export const P_SPARK = 1;
 export const P_SMOKE = 2;
 export const P_FLASH = 3;
+export const P_FOAM = 4;
+export const P_DUST = 5;
 
 const VERT = /* glsl */ `
 uniform float uTime;
@@ -54,13 +57,22 @@ void main() {
     p += aVel * (1.0 - exp(-age * 3.0)) / 3.0;
     size *= 0.6 + 0.9 * sin(min(t * 2.2, 1.0) * 1.5708);
   } else if (vKind < 1.5) {     // spark: ballistic with gravity
-    p += aVel * age + vec3(0.0, -9.0, 0.0) * age * age * 0.5;
-    size *= 1.0 - t;
+    // Air drag slows debris; it lands and rests instead of sinking.
+    float drag = (1.0 - exp(-age * 1.4)) / 1.4;
+    p += aVel * drag + vec3(0.0, -11.0, 0.0) * age * age * 0.5;
+    p.y = max(p.y, position.y - 0.15);
+    size *= 1.0 - t * 0.8;
   } else if (vKind < 2.5) {     // smoke: drifts, rises, expands
     p += aVel * (1.0 - exp(-age * 1.2)) / 1.2 + vec3(0.0, 0.6 * age, 0.0);
     size *= 0.5 + 1.5 * t;
-  } else {                      // flash
+  } else if (vKind < 3.5) {     // flash
     size *= 0.4 + 0.6 * t;
+  } else if (vKind < 4.5) {     // foam: stays on the water, spreads
+    p += aVel * (1.0 - exp(-age * 2.0)) / 2.0;
+    size *= 0.6 + 1.2 * t;
+  } else {                      // dust: rolls outward along the ground
+    p += aVel * (1.0 - exp(-age * 1.6)) / 1.6 + vec3(0.0, 0.25 * age, 0.0);
+    size *= 0.7 + 1.6 * t;
   }
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -92,9 +104,16 @@ void main() {
     float shade = 0.12 + 0.18 * vT + 0.06 * vSeed;
     col = vec3(shade, shade * 0.96, shade * 0.92);
     a = soft * 0.55 * sin(3.14159 * vT) * (0.7 + 0.3 * vSeed);
-  } else {
+  } else if (vKind < 3.5) {
     col = vec3(1.0, 0.97, 0.9);
     a = soft * (1.0 - vT) * (1.0 - vT);
+  } else if (vKind < 4.5) {
+    col = vec3(0.92, 0.96, 1.0);
+    a = soft * 0.55 * (1.0 - vT);
+  } else {
+    float shade = 0.42 + 0.1 * vSeed;
+    col = vec3(shade, shade * 0.86, shade * 0.68);
+    a = soft * 0.5 * sin(3.14159 * vT);
   }
   gl_FragColor = vec4(col, a);
 }

@@ -36,14 +36,17 @@ export function profileFor(s: DeviceSignals): DeviceProfile {
     ? {
         mobile,
         initialQuality: 1,
-        maxQuality: 2,
+        // Capable phones may climb to "high"; slow ones step back down.
+        maxQuality: 3,
         antialias: false,
         terrainVertexBudget: 300_000,
       }
     : {
         mobile,
         initialQuality: 3,
-        maxQuality: 3,
+        // "ultra": full 2× pixel ratio and 4096 shadows when the GPU keeps
+        // up with the display's refresh rate.
+        maxQuality: 4,
         antialias: true,
         terrainVertexBudget: 1_500_000,
       };

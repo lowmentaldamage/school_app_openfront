@@ -16,6 +16,7 @@ import { UIState } from "../../UIState";
 import { UserSettings } from "../../UserSettings";
 import { resolveKeybindLabel, translateText } from "../../Utils";
 import { GameView } from "../../view";
+import { buildHelp, stackingTip } from "../BuildHelp";
 import {
   airbaseIcon,
   radarIcon,
@@ -204,8 +205,15 @@ export class UnitDisplay extends LitElement implements Controller {
       >
         <div class="flex items-center gap-1 w-fit mx-auto">
           <span
-            class="w-14 shrink-0 text-[9px] font-bold uppercase tracking-[0.15em] text-sky-400"
-            >${translateText("unit_display.group_build")}</span
+            class="w-14 shrink-0 text-[9px] font-bold uppercase tracking-[0.15em] text-sky-400 flex items-center gap-1"
+            >${translateText("unit_display.group_build")}<button
+              class="w-4 h-4 rounded-full text-[9px] leading-none border ${this.helpOn() ? "bg-sky-500 border-sky-300 text-white" : "border-white/30 text-white/60"}"
+              title=${translateText("build_help.toggle")}
+              aria-pressed=${this.helpOn()}
+              @click=${() => this.toggleHelp()}
+            >
+              ?
+            </button></span
           >
           ${this.renderUnitItem(
             cityIcon,
@@ -380,6 +388,37 @@ export class UnitDisplay extends LitElement implements Controller {
     );
   }
 
+  private helpSettings = new UserSettings();
+
+  private helpOn(): boolean {
+    return this.helpSettings.buildBarHelp();
+  }
+
+  private toggleHelp(): void {
+    this.helpSettings.toggleBuildBarHelp();
+    this.requestUpdate();
+  }
+
+  /** Detailed "how to use" + exact numbers (toggle with the ? button). */
+  private renderHelp(unitType: UnitType) {
+    if (!this.helpOn()) return nothing;
+    const info = buildHelp(unitType, this.game.config());
+    if (info === null) return nothing;
+    return html`<div
+      class="mx-1 mb-1 px-2 py-1.5 text-left text-[11px] max-w-72 whitespace-normal rounded bg-black/40 border border-white/10"
+    >
+      <div class="text-sky-300 mb-1">${info.use}</div>
+      ${info.stats.map(
+        (s) =>
+          html`<div class="flex justify-between gap-3">
+            <span class="text-white/60">${s.label}</span
+            ><span class="font-semibold text-white">${s.value}</span>
+          </div>`,
+      )}
+      <div class="mt-1 text-[10px] text-white/50">${stackingTip(unitType)}</div>
+    </div>`;
+  }
+
   private renderUnitItem(
     icon: string,
     number: number | null,
@@ -424,9 +463,10 @@ export class UnitDisplay extends LitElement implements Controller {
                       hotkey ? ` [${displayHotkey}]` : ""
                     }
                   </div>
-                  <div class="p-2">
+                  <div class="p-2 max-w-72 whitespace-normal">
                     ${translateText("build_menu.desc." + structureKey)}
                   </div>
+                  ${this.renderHelp(unitType)}
                   ${
                     unitType === UnitType.Warship
                       ? html`<div

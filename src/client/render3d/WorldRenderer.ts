@@ -30,6 +30,7 @@ import { detectDeviceProfile, type DeviceProfile } from "./DeviceProfile";
 import { EffectsRenderer, type DeadUnitEvent } from "./effects/EffectsRenderer";
 import { EnvironmentRenderer } from "./environment/EnvironmentRenderer";
 import { ForestRenderer } from "./environment/ForestRenderer";
+import { SeaLife } from "./environment/SeaLife";
 import { WaterRenderer } from "./environment/WaterRenderer";
 import { OverlayRenderer } from "./overlays/OverlayRenderer";
 import { Heightfield } from "./terrain/Heightfield";
@@ -93,6 +94,7 @@ export class WorldRenderer {
   private readonly units: UnitRenderer;
   private readonly effects: EffectsRenderer;
   private readonly forests: ForestRenderer;
+  private readonly seaLife: SeaLife;
   readonly overlays: OverlayRenderer;
   private firstFrame = true;
   private readonly quality: AdaptiveQuality;
@@ -156,6 +158,11 @@ export class WorldRenderer {
       detailScale,
     );
     this.terrainDetail = createTerrainDetailTexture(detail);
+    // Sharp terrain at grazing angles (tilted camera).
+    this.terrainDetail.anisotropy = Math.min(
+      8,
+      this.renderer.capabilities.getMaxAnisotropy(),
+    );
     const { material, uniforms } = createTerrainMaterial(
       this.territory.ownerTexture,
       this.territory.paletteTexture,
@@ -190,6 +197,12 @@ export class WorldRenderer {
       this.territory.ownerTexture,
     );
     this.scene.add(this.forests.group);
+
+    this.seaLife = new SeaLife(
+      this.heightfield,
+      this.profile.mobile ? 60 : 160,
+    );
+    this.scene.add(this.seaLife.group);
 
     this.overlays = new OverlayRenderer(this.heightfield);
     this.scene.add(this.overlays.group);
@@ -300,8 +313,10 @@ export class WorldRenderer {
     cc.step(this.lastDtMs);
     cc.sync(camera);
     this.forests.update(t, cc.distance);
+    this.seaLife.update(t, cc.distance);
     this.overlays.update(cc.distance, t);
     this.units.animate(nowMs, cc.distance);
+    this.effects.wake(this.units.wakes);
     const sky = this.environment.state;
     this.units.setNight(sky === null ? 0 : 1 - sky.daylight);
     const fov = (cc.camera.fov * Math.PI) / 180;
@@ -360,6 +375,7 @@ export class WorldRenderer {
     this.units.dispose();
     this.effects.dispose();
     this.forests.dispose();
+    this.seaLife.dispose();
     this.overlays.dispose();
     this.water.dispose();
     this.terrainDetail.dispose();

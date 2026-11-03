@@ -15,8 +15,10 @@ import { Group, PointLight } from "three";
 import type { Heightfield } from "../terrain/Heightfield";
 import { explosionFor, type ExplosionSpec } from "./ExplosionSpecs";
 import {
+  P_DUST,
   P_FIRE,
   P_FLASH,
+  P_FOAM,
   P_SMOKE,
   P_SPARK,
   ParticleSystem,
@@ -145,6 +147,28 @@ export class EffectsRenderer {
         P_SMOKE,
       );
     }
+    // Ground blasts kick up a ring of dust that rolls outward; blasts on
+    // water throw up white spray instead.
+    if (spec.altitude <= 0.5) {
+      const water = this.hf.sample(x, z) < 0;
+      const dustCount = Math.round((spec.kind === "nuke" ? 36 : 10) * k) + 2;
+      for (let i = 0; i < dustCount; i++) {
+        const a = (i / dustCount) * Math.PI * 2 + Math.random() * 0.4;
+        const speed = r * (1.4 + Math.random() * 1.2);
+        this.smoke.spawn(
+          x,
+          ground + 0.2,
+          z,
+          Math.cos(a) * speed,
+          water ? 2 + Math.random() * 3 : 0.3,
+          Math.sin(a) * speed,
+          now + Math.random() * 0.1,
+          water ? 1.2 + Math.random() : 2 + Math.random() * 1.5,
+          r * (water ? 0.5 : 0.7),
+          water ? P_FOAM : P_DUST,
+        );
+      }
+    }
     if (spec.kind === "nuke") this.mushroom(x, ground, z, r, now, k);
     if (
       spec.kind === "nuke" ||
@@ -162,6 +186,39 @@ export class EffectsRenderer {
       );
     }
     this.flashLight(x, y + r * 0.5, z, r, now);
+  }
+
+  /**
+   * Foam behind moving ships: call per frame with each ship's position,
+   * heading (radians) and size; emits a little white water at the stern.
+   */
+  wake(ships: readonly { x: number; z: number; yaw: number; scale: number }[]) {
+    const now = this.time;
+    // A fleet must not flood the shared smoke buffer (explosions use it).
+    let budget = 24;
+    const chance =
+      Math.min(0.35, 24 / Math.max(1, ships.length)) * this.density;
+    for (const s of ships) {
+      if (budget <= 0) break;
+      if (Math.random() > chance) continue;
+      budget--;
+      const back = 1.2 * s.scale;
+      const cx = s.x - Math.cos(s.yaw) * back;
+      const cz = s.z + Math.sin(s.yaw) * back;
+      const side = (Math.random() - 0.5) * 0.6;
+      this.smoke.spawn(
+        cx + Math.sin(s.yaw) * side * s.scale,
+        0.05,
+        cz + Math.cos(s.yaw) * side * s.scale,
+        Math.sin(s.yaw) * side * 2,
+        0,
+        Math.cos(s.yaw) * side * 2,
+        now,
+        1.6 + Math.random() * 0.8,
+        0.5 * s.scale,
+        P_FOAM,
+      );
+    }
   }
 
   /** Per frame. */

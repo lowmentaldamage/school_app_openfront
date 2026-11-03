@@ -229,6 +229,10 @@ export class UnitRenderer {
     { at: number; building: boolean }
   >();
   private rising: Rising[] = [];
+  /** Shells dropped by a bomber: they fall from its altitude. */
+  private readonly bombs = new Set<number>();
+  /** Moving surface ships this frame (for wakes). */
+  readonly wakes: { x: number; z: number; yaw: number; scale: number }[] = [];
   /** Icon badge above every building (always readable, any zoom). */
   private readonly markers = new StructureMarkers();
   private lastAnimMs = 0;
@@ -298,6 +302,12 @@ export class UnitRenderer {
     // them readable), so they never cover the map.
     const structScale = zoomScale(cameraDistance, 110, 2.2);
     const metro = metroFactors(units.values(), w);
+    const bomberTiles: { x: number; y: number }[] = [];
+    for (const u of units.values()) {
+      if (u.isActive && u.unitType === "Bomber") {
+        bomberTiles.push({ x: u.pos % w, y: Math.floor(u.pos / w) });
+      }
+    }
 
     for (const u of units.values()) {
       if (!u.isActive || u.waitTicks > 0) continue;
@@ -368,6 +378,17 @@ export class UnitRenderer {
         if (o === undefined) {
           o = { x: mover.x0, y: mover.y0 };
           this.origins.set(u.id, o);
+          // A shell born under a bomber is a bomb.
+          if (kind === "artilleryShell") {
+            for (const b of bomberTiles) {
+              const ex = b.x - o.x;
+              const ey = b.y - o.y;
+              if (ex * ex + ey * ey <= 16) {
+                this.bombs.add(u.id);
+                break;
+              }
+            }
+          }
         }
         mover.ox = o.x;
         mover.oy = o.y;
@@ -383,6 +404,7 @@ export class UnitRenderer {
 
     for (const id of this.origins.keys())
       if (!seen.has(id)) this.origins.delete(id);
+    for (const id of this.bombs) if (!seen.has(id)) this.bombs.delete(id);
     for (const id of this.headings.keys())
       if (!seen.has(id)) this.headings.delete(id);
     for (const id of this.poses.keys())
@@ -418,6 +440,7 @@ export class UnitRenderer {
     const airScale = zoomScale(cameraDistance, 90, 7);
     this.airHeight.clear();
 
+    this.wakes.length = 0;
     // Ballistic first, so SAM missiles can read their target's altitude.
     for (let pass = 0; pass < 2; pass++) {
       for (const mv of this.movers) {
@@ -470,8 +493,13 @@ export class UnitRenderer {
             mv.kind === "battleship" || mv.kind === "carrier" ? 0.5 : 1;
           roll += Math.sin(t * 1.1 + phase) * 0.05 * heavy;
           pitch = Math.sin(t * 1.3 + phase * 0.7) * 0.025 * heavy;
-          // Bow lifts a little under way.
-          if (dx * dx + dy * dy > 1e-6) pitch += 0.03;
+          // Bow lifts a little under way, and leaves a wake.
+          if (dx * dx + dy * dy > 1e-6) {
+            pitch += 0.03;
+            if (mv.kind !== "submarine" && scale > 0) {
+              this.wakes.push({ x, z: y, yaw, scale });
+            }
+          }
         } else if (AIR_KINDS.has(mv.kind)) {
           scale = airScale * (mv.kind === "bomber" ? 1.4 : 1);
           const cruise = mv.kind === "bomber" ? 9 : 11;
@@ -492,7 +520,15 @@ export class UnitRenderer {
           scale = zoomScale(cameraDistance, 130, 4);
         } else if (ballistic) {
           scale = airScale;
-          if (Number.isFinite(mv.ox)) {
+          if (this.bombs.has(mv.id) && Number.isFinite(mv.ox)) {
+            // Free fall from the bomber's height: carries its forward
+            // speed, accelerates down, noses over.
+            const f = flightProgress(mv.ox, mv.oy, x, y, mv.tx, mv.ty);
+            const ground = Math.max(0, this.hf.sample(x, y));
+            const p = f.progress;
+            h = ground + 0.3 + (9 - 0.3) * (1 - p * p);
+            pitch = -Math.atan(2 * p * 1.5);
+          } else if (Number.isFinite(mv.ox)) {
             const f = flightProgress(mv.ox, mv.oy, x, y, mv.tx, mv.ty);
             const peak = arcPeak(mv.kind, f.distance);
             const arc = arcAt(peak, f.distance, f.progress);
