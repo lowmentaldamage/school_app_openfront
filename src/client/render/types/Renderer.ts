@@ -81,6 +81,12 @@ export interface PlayerState {
   isDecaying: boolean;
   markedDoomsdayClockTick: number;
   betrayals: number;
+  /** Researched techs, bitmask (engine-lib/tech/Tech.ts). */
+  techMask?: number;
+  /** Tech index being researched, -1 for none. */
+  researchTech?: number;
+  /** Tick the research completes, -1 for none. */
+  researchEndsAt?: number;
   hasSpawned: boolean;
   /** TileRef the player picked as their spawn (undefined if not yet spawned). */
   spawnTile?: number;

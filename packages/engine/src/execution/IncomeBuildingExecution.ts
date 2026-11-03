@@ -7,6 +7,10 @@ import {
   OIL_RIG_RANGE,
 } from "@laukolaroser/engine-lib/economy/Economy";
 import { zInt, zRef } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import {
+  TECH_EFFECTS,
+  techPercentBig,
+} from "@laukolaroser/engine-lib/tech/Tech";
 import { z } from "zod";
 import { Execution, Game, Unit } from "../game/Game";
 import { execSnapshotType } from "../snapshot/ExecutionSnapshot";
@@ -57,7 +61,12 @@ export class IncomeBuildingExecution implements Execution {
     this.nextPay = ticks + INCOME_INTERVAL_TICKS;
     const spec = ECONOMY_BUILDINGS[b.type() as EconomyBuildingType];
     if (spec === undefined) return;
-    b.owner().addGold(incomePerInterval(spec, b.level()));
+    let pay = incomePerInterval(spec, b.level());
+    // Tech: Industrialization.
+    if (b.owner().hasTech("industry")) {
+      pay = techPercentBig(pay, TECH_EFFECTS.industryIncomePercent);
+    }
+    b.owner().addGold(pay);
   }
 
   isActive(): boolean {

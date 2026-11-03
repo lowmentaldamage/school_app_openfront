@@ -1518,6 +1518,16 @@ export class UserSettingModal extends BaseModal {
       ></setting-keybind>
 
       <setting-keybind
+        action="openResearch"
+        label=${translateText("user_setting.open_research")}
+        description=${translateText("user_setting.open_research_desc")}
+        .defaultKey=${this.defaultKeybinds.openResearch}
+        .value=${this.getKeyValue("openResearch")}
+        .display=${this.getKeyChar("openResearch")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
+      <setting-keybind
         action="pauseGame"
         label=${translateText("user_setting.pause_game")}
         description=${translateText("user_setting.pause_game_desc")}

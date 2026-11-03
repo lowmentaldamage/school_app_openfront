@@ -700,6 +700,7 @@ export function getMessageTypeClasses(type: MessageType): string {
     case MessageType.ATTACK_REQUEST:
     case MessageType.DONATION_SENT:
     case MessageType.DONATION_RECEIVED:
+    case MessageType.RESEARCH_COMPLETE:
       return severityColors["blue"];
     case MessageType.MIRV_INBOUND:
     case MessageType.NUKE_INBOUND:

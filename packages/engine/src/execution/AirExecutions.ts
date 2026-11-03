@@ -18,6 +18,7 @@ import {
   zRef,
   zTile,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
 import { WEAPONS } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
@@ -108,14 +109,27 @@ export class BomberExecution implements Execution {
   private antiAirFire(): boolean {
     const mg = this.mg!;
     const bomber = this.bomber!;
-    for (const { unit } of mg.nearbyUnits(bomber.tile(), ANTI_AIR.range, [
-      UnitType.SAMLauncher,
-      UnitType.RailSAM,
-    ])) {
+    const maxRange = Math.floor(
+      (ANTI_AIR.range * TECH_EFFECTS.samRangePercent) / 100,
+    );
+    for (const { unit, distSquared } of mg.nearbyUnits(
+      bomber.tile(),
+      maxRange,
+      [UnitType.SAMLauncher, UnitType.RailSAM],
+    )) {
       if (unit.isUnderConstruction() || !hostile(unit.owner(), this.player)) {
         continue;
       }
-      bomber.modifyHealth(-ANTI_AIR.damage, unit.owner());
+      // Tech: SAM Radar (range) and Interceptors (damage).
+      const owner = unit.owner();
+      const range = owner.hasTech("sam_radar") ? maxRange : ANTI_AIR.range;
+      if (distSquared > range * range) continue;
+      const damage = owner.hasTech("interceptors")
+        ? Math.floor(
+            (ANTI_AIR.damage * TECH_EFFECTS.interceptorDamagePercent) / 100,
+          )
+        : ANTI_AIR.damage;
+      bomber.modifyHealth(-damage, owner);
       // modifyHealth removes a unit whose health reaches 0.
       if (!bomber.isActive() || bomber.health() <= 0) {
         if (bomber.isActive()) bomber.delete(true, unit.owner());
@@ -132,7 +146,13 @@ export class BomberExecution implements Execution {
     const rand = new PseudoRandom(ticks * 7_919 + this.target);
     const tx = mg.x(this.target);
     const ty = mg.y(this.target);
-    for (let i = 0; i < spec.shots; i++) {
+    // Tech: Heavy Bombers.
+    const shots =
+      spec.shots +
+      (this.player.hasTech("heavy_bombers")
+        ? TECH_EFFECTS.heavyBomberExtraShots
+        : 0);
+    for (let i = 0; i < shots; i++) {
       let dst = this.target;
       if (i > 0) {
         const x = Math.max(
@@ -271,7 +291,13 @@ export class FighterExecution implements Execution {
   private attack(): void {
     const t = this.target;
     if (!t.isActive()) return;
-    t.modifyHealth(-FIGHTER.damage, this.player);
+    // Tech: Interceptors.
+    const damage = this.player.hasTech("interceptors")
+      ? Math.floor(
+          (FIGHTER.damage * TECH_EFFECTS.interceptorDamagePercent) / 100,
+        )
+      : FIGHTER.damage;
+    t.modifyHealth(-damage, this.player);
     if (t.isActive() && t.health() <= 0) t.delete(true, this.player);
   }
 

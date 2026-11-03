@@ -13,6 +13,7 @@ import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
 import { NAVAL_CLASSES } from "../naval/NavalClasses";
 import { RAIL_UNITS } from "../rail/RailUnits";
+import { hasTech, TECH_EFFECTS } from "../tech/Tech";
 import { assertNever } from "../Util";
 
 export interface NukeMagnitude {
@@ -459,6 +460,11 @@ export class Config {
         default:
           assertNever(this._gameConfig.difficulty);
       }
+    }
+
+    // Tech: Conscription.
+    if (player.techMask && hasTech(player.techMask(), "conscription")) {
+      toAdd = (toAdd * TECH_EFFECTS.conscriptionGrowthPercent) / 100;
     }
 
     return Math.min(player.troops() + toAdd, max) - player.troops();

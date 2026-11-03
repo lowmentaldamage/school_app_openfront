@@ -27,6 +27,8 @@ export interface PlayerLike {
   troops(): number;
   gold(): Gold;
   units(type: UnitType): readonly UnitLike[];
+  /** Researched techs (bitmask, engine-lib/tech/Tech.ts); absent = none. */
+  techMask?(): number;
 }
 
 export interface UnitLike {

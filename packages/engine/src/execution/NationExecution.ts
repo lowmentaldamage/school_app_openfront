@@ -41,6 +41,7 @@ import { NationNavyBehavior } from "./nation/NationNavyBehavior";
 import { NationNukeBehavior } from "./nation/NationNukeBehavior";
 import { NationRailBehavior } from "./nation/NationRailBehavior";
 import { NationStructureBehavior } from "./nation/NationStructureBehavior";
+import { NationTechBehavior } from "./nation/NationTechBehavior";
 import { NationWarshipBehavior } from "./nation/NationWarshipBehavior";
 import { NationWeaponBehavior } from "./nation/NationWeaponBehavior";
 import { tutorialCollapse } from "./nation/TutorialCollapse";
@@ -63,6 +64,7 @@ export class NationExecution implements Execution {
   private navyBehavior!: NationNavyBehavior;
   private railBehavior!: NationRailBehavior;
   private economyBehavior!: NationEconomyBehavior;
+  private techBehavior!: NationTechBehavior;
   private mg: Game;
   private player: Player | null = null;
 
@@ -256,6 +258,7 @@ export class NationExecution implements Execution {
     this.navyBehavior.maybeBuild();
     this.railBehavior.maybeBuild();
     this.economyBehavior.maybeBuild();
+    this.techBehavior.maybeResearch();
   }
 
   private initializeBehaviors(): void {
@@ -311,6 +314,7 @@ export class NationExecution implements Execution {
     this.navyBehavior = new NationNavyBehavior(this.mg, this.player);
     this.railBehavior = new NationRailBehavior(this.mg, this.player);
     this.economyBehavior = new NationEconomyBehavior(this.mg, this.player);
+    this.techBehavior = new NationTechBehavior(this.mg, this.player);
     this.behaviorsInitialized = true;
   }
 
@@ -521,6 +525,7 @@ export class NationExecution implements Execution {
     this.navyBehavior = new NationNavyBehavior(r.game, player);
     this.railBehavior = new NationRailBehavior(r.game, player);
     this.economyBehavior = new NationEconomyBehavior(r.game, player);
+    this.techBehavior = new NationTechBehavior(r.game, player);
   }
 }
 

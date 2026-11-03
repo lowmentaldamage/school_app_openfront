@@ -15,6 +15,7 @@ import {
   RankedType,
   Trios,
   UnitType,
+  TECH_IDS,
   WEAPON_IDS,
 } from "./game/GameTypes";
 import { PlayerStatsSchema } from "./StatsSchemas";
@@ -48,10 +49,12 @@ export type Intent =
   | TogglePauseIntent
   | UpdateGameConfigIntent
   | ToggleGameStartTimer
-  | FireWeaponIntent;
+  | FireWeaponIntent
+  | ResearchIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type FireWeaponIntent = z.infer<typeof FireWeaponIntentSchema>;
+export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>;
 export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>;
@@ -314,6 +317,8 @@ export const GameConfigSchema = z.object({
   // Fog of war (display): enemy units and buildings only show inside the
   // sight of the player and allies (land, units, radar). See client/fog.
   fogOfWar: z.boolean().nullable().optional(),
+  // Tech tree: on unless set to true (classic games without research).
+  disableTechTree: z.boolean().nullable().optional(),
   randomSpawn: z.boolean(),
   // The onboarding tutorial (docs/OnboardingTutorial.md): nations and tribes
   // only grow into free land, and the game ends once the human is alone.
@@ -534,6 +539,12 @@ export const FireWeaponIntentSchema = z.object({
   tile: zb.uint(),
 });
 
+/** Start researching a tech (see engine-lib/tech/Tech.ts). */
+export const ResearchIntentSchema = z.object({
+  type: z.literal("research"),
+  tech: z.enum(TECH_IDS),
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -607,6 +618,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   UpdateGameConfigIntentSchema,
   ToggleGameStartTimerIntentSchema,
   FireWeaponIntentSchema,
+  ResearchIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

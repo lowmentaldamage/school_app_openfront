@@ -4,6 +4,7 @@ import {
   GameType,
   Gold,
   PlayerID,
+  type TechId,
   Tick,
   UnitType,
   type WeaponId,
@@ -235,6 +236,10 @@ export class NewLobbyEvent implements GameEvent {
   constructor(public readonly gameID: string) {}
 }
 
+export class ResearchIntentEvent implements GameEvent {
+  constructor(public readonly tech: TechId) {}
+}
+
 export class FireWeaponIntentEvent implements GameEvent {
   constructor(
     public readonly weapon: WeaponId,
@@ -366,6 +371,9 @@ export class Transport {
       this.onCancelBoatIntentEvent(e),
     );
 
+    this.subscribe(ResearchIntentEvent, (e) => {
+      this.sendIntent({ type: "research", tech: e.tech });
+    });
     this.subscribe(FireWeaponIntentEvent, (e) => {
       this.sendIntent({ type: "fire_weapon", weapon: e.weapon, tile: e.tile });
     });

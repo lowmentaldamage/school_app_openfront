@@ -6,6 +6,7 @@ import {
   GameMapType,
   GameMode,
   GameType,
+  TECH_IDS,
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
 import {
@@ -531,7 +532,7 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     if (bombIntent !== null) return bombIntent;
   }
 
-  switch (rand.nextInt(0, 23)) {
+  switch (rand.nextInt(0, 24)) {
     case 0:
     case 1:
     case 2: {
@@ -661,6 +662,12 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
         if (best !== null) return { type: "fire_weapon", weapon, tile: best };
       }
       return { type: "fire_weapon", weapon, tile };
+    }
+    case 23: {
+      // Research: the first tech not yet researched (rejected when busy,
+      // locked or too poor, which is exercised too).
+      const tech = TECH_IDS.find((t) => !p.hasTech(t));
+      return tech === undefined ? null : { type: "research", tech };
     }
     case 21:
       return {

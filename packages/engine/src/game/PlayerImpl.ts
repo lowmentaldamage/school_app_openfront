@@ -53,6 +53,13 @@ import {
   zTiles,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import {
+  hasTech,
+  techIndex,
+  TECH_IDS,
+  type TechId,
+  withTech,
+} from "@laukolaroser/engine-lib/tech/Tech";
+import {
   assertNever,
   findClosestBy,
   minInt,
@@ -161,6 +168,10 @@ export class PlayerImpl implements Player {
   /** Tick territory rot last took land from this player (-1 = never). */
   private rottedAtTick = -1;
   private _betrayalCount: number = 0;
+  /** Researched techs (bit = TECHS index, engine-lib/tech/Tech.ts). */
+  private _techMask: number = 0;
+  /** Research in progress, if any. */
+  private _research: { tech: TechId; endsAt: number } | null = null;
 
   private embargoes = new Map<PlayerID, Embargo>();
 
@@ -420,6 +431,10 @@ export class PlayerImpl implements Player {
       hasSpawned: this.hasSpawned(),
       spawnTile: this._spawnTile,
       betrayals: this._betrayalCount,
+      techMask: this._techMask,
+      researchTech:
+        this._research === null ? -1 : techIndex(this._research.tech),
+      researchEndsAt: this._research === null ? -1 : this._research.endsAt,
       lastDeleteUnitTick: this.lastDeleteUnitTick,
       isLobbyCreator: this.isLobbyCreator(),
     };
@@ -929,6 +944,30 @@ export class PlayerImpl implements Player {
   isDecaying(): boolean {
     if (!this.inDoomsdayClock() || this.rottedAtTick < 0) return false;
     return this.mg.ticks() - this.rottedAtTick <= DECAY_CUE_GRACE_TICKS;
+  }
+
+  techMask(): number {
+    return this._techMask;
+  }
+
+  hasTech(id: TechId): boolean {
+    return hasTech(this._techMask, id);
+  }
+
+  research(): { tech: TechId; endsAt: number } | null {
+    return this._research;
+  }
+
+  startResearch(tech: TechId, endsAt: number): void {
+    this._research = { tech, endsAt };
+  }
+
+  finishResearch(): TechId | null {
+    if (this._research === null) return null;
+    const tech = this._research.tech;
+    this._techMask = withTech(this._techMask, tech);
+    this._research = null;
+    return tech;
   }
 
   betrayals(): number {
@@ -2095,6 +2134,8 @@ export class PlayerImpl implements Player {
       markedDoomsdayClockTick: this.markedDoomsdayClockTick,
       rottedAtTick: this.rottedAtTick,
       betrayalCount: this._betrayalCount,
+      techMask: this._techMask,
+      research: this._research === null ? null : { ...this._research },
       embargoes: [...this.embargoes.values()].map((e) => ({
         target: w.player(e.target),
         createdAt: e.createdAt,
@@ -2167,6 +2208,8 @@ export class PlayerImpl implements Player {
     this.markedDoomsdayClockTick = s.markedDoomsdayClockTick;
     this.rottedAtTick = s.rottedAtTick;
     this._betrayalCount = s.betrayalCount;
+    this._techMask = s.techMask ?? 0;
+    this._research = s.research ? { ...s.research } : null;
     this.embargoes = new Map();
     for (const e of s.embargoes) {
       this.embargoes.set(r.playerID(e.target), {
@@ -2288,6 +2331,12 @@ export const PlayerSnapshot = snapshotType({
       .nullable()
       .optional(),
     numUnitsConstructed: z.array(z.tuple([UnitTypeSchema, zInt()])),
+    // Tech tree (optional: older snapshots have none).
+    techMask: zInt().optional(),
+    research: z
+      .object({ tech: z.enum(TECH_IDS), endsAt: zInt() })
+      .nullable()
+      .optional(),
   }),
 });
 export type PlayerState = z.infer<typeof PlayerSnapshot.schema>;

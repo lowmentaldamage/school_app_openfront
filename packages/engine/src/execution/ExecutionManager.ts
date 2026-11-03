@@ -26,6 +26,7 @@ import { NationExecution } from "./NationExecution";
 import { NoOpExecution } from "./NoOpExecution";
 import { PauseExecution } from "./PauseExecution";
 import { QuickChatExecution } from "./QuickChatExecution";
+import { ResearchExecution } from "./ResearchExecution";
 import { RetreatExecution } from "./RetreatExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
@@ -81,6 +82,8 @@ export class Executor {
         return new BoatRetreatExecution(player, intent.unitID);
       case "fire_weapon":
         return new WeaponStrikeExecution(player, intent.weapon, intent.tile);
+      case "research":
+        return new ResearchExecution(player, intent.tech);
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

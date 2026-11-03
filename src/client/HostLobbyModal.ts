@@ -108,6 +108,7 @@ export class HostLobbyModal extends BaseModal {
   @state() private allowedPublicIds: string = "";
   @state() private waterNukes: boolean = false;
   @state() private fogOfWar: boolean = true;
+  @state() private techTree: boolean = true;
   @state() private lobbyId = "";
   @state() private lobbyUrlSuffix = "";
   @state() private clients: ClientInfo[] = [];
@@ -750,6 +751,10 @@ export class HostLobbyModal extends BaseModal {
                     checked: this.fogOfWar,
                   },
                   {
+                    labelKey: "game_settings.tech_tree",
+                    checked: this.techTree,
+                  },
+                  {
                     labelKey: "game_settings.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -1108,6 +1113,7 @@ export class HostLobbyModal extends BaseModal {
     this.allowedPublicIds = "";
     this.waterNukes = false;
     this.fogOfWar = true;
+    this.techTree = true;
     this.hostCheatsEnabled = false;
     this.hostCheatInfiniteGold = false;
     this.hostCheatInfiniteTroops = false;
@@ -1213,6 +1219,10 @@ export class HostLobbyModal extends BaseModal {
         break;
       case "game_settings.fog_of_war":
         this.fogOfWar = checked;
+        void this.putGameConfig();
+        break;
+      case "game_settings.tech_tree":
+        this.techTree = checked;
         void this.putGameConfig();
         break;
       case "game_settings.doomsday_clock":
@@ -1802,6 +1812,7 @@ export class HostLobbyModal extends BaseModal {
               : [],
             waterNukes: this.waterNukes ? true : null,
             fogOfWar: this.fogOfWar ? true : null,
+            disableTechTree: this.techTree ? null : true,
             hostCheats: this.hostCheatsEnabled
               ? {
                   infiniteGold: this.hostCheatInfiniteGold || undefined,

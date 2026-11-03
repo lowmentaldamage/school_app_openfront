@@ -20,6 +20,7 @@ import {
   zTile,
   zTiles,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
 import { assertNever } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { AttackLogicInput } from "../configuration/EngineConfig";
@@ -350,7 +351,7 @@ export class AttackExecution implements Execution {
           this.attackLogicInput(troopCount, tileToConquer, borderSize),
         );
       tickBudget -= tickFraction;
-      troopCount -= attackerTroopLoss;
+      troopCount -= this.techAdjustedLoss(attackerTroopLoss, targetPlayer);
       this.attack.setTroops(troopCount);
       if (targetPlayer) {
         targetPlayer.removeTroops(defenderTroopLoss);
@@ -481,6 +482,19 @@ export class AttackExecution implements Execution {
 
       this.toConquer.enqueue(neighbor, priority);
     }
+  }
+
+  /** Tech: Infantry Drill (attacker) and Fortification (defender). */
+  private techAdjustedLoss(
+    loss: number,
+    targetPlayer: Player | null | undefined,
+  ): number {
+    let pct = 100;
+    if (this._owner.hasTech("drill")) pct = TECH_EFFECTS.drillLossPercent;
+    if (targetPlayer && targetPlayer.hasTech("fortify")) {
+      pct = (pct * TECH_EFFECTS.fortifyAttackerLossPercent) / 100;
+    }
+    return pct === 100 ? loss : (loss * pct) / 100;
   }
 
   private handleDeadDefender() {

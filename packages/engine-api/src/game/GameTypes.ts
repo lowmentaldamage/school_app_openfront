@@ -247,6 +247,23 @@ export const WEAPON_IDS = [
 ] as const;
 export type WeaponId = (typeof WEAPON_IDS)[number];
 
+/** Tech tree ids; rules live in engine-lib/tech/Tech.ts. Only append. */
+export const TECH_IDS = [
+  "drill",
+  "fortify",
+  "conscription",
+  "gunnery",
+  "hulls",
+  "engines",
+  "sam_radar",
+  "heavy_bombers",
+  "interceptors",
+  "trade",
+  "industry",
+  "construction",
+] as const;
+export type TechId = (typeof TECH_IDS)[number];
+
 export enum TrainType {
   Engine = "Engine",
   TailEngine = "TailEngine",
@@ -548,6 +565,7 @@ export enum MessageType {
   DONATION_RECEIVED,
   CHAT,
   RENEW_ALLIANCE,
+  RESEARCH_COMPLETE,
 }
 
 // Message categories used for filtering events in the EventsDisplay
@@ -582,6 +600,7 @@ export const MESSAGE_TYPE_CATEGORIES: Record<MessageType, MessageCategory> = {
   [MessageType.RENEW_ALLIANCE]: MessageCategory.ALLIANCE,
   [MessageType.DONATION_SENT]: MessageCategory.TRADE,
   [MessageType.DONATION_RECEIVED]: MessageCategory.TRADE,
+  [MessageType.RESEARCH_COMPLETE]: MessageCategory.TRADE,
   [MessageType.CHAT]: MessageCategory.CHAT,
 } as const;
 

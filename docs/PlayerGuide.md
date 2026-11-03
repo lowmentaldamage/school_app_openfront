@@ -196,6 +196,20 @@ Enemy buildings stay on your map once you have seen them. Incoming nukes
 and missiles are always shown. A Radar Station also lets **every** warship
 of yours (and your allies') hunt enemy submarines inside its circle.
 
+## 7e. Research (tech tree)
+
+Press **I** or the **🔬** button (bottom-left). Pay gold to research one
+tech at a time; a project takes 30 s (tier 1), 60 s (tier 2) or 90 s
+(tier 3). Each tier needs the one before it in the same branch. The host
+can switch the tech tree off in the lobby.
+
+| Branch         | Tier 1 (150k)                      | Tier 2 (400k)                             | Tier 3 (900k)                                 |
+| -------------- | ---------------------------------- | ----------------------------------------- | --------------------------------------------- |
+| Army           | Infantry Drill: −10% attack losses | Fortification: attackers lose +15%        | Conscription: troops regrow 15% faster        |
+| Navy           | Naval Gunnery: shells +20%         | Armored Hulls: warships take −25% damage  | Turbine Engines: warships sail faster         |
+| Air & missiles | SAM Radar: SAM range +25%          | Heavy Bombers: +2 bombs per raid          | Interceptors: fighters and anti-air +50%      |
+| Economy        | Trade Routes: trade/train gold +15% | Industrialization: mines/markets/rigs +25% | Prefab Construction: buildings −15% cost      |
+
 ## 8. Weapons
 
 Use the buttons on the left. Pick a weapon, point at the target — the circle

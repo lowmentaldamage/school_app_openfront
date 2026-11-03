@@ -66,6 +66,7 @@ export function getDefaultKeybinds(isMac: boolean): Record<string, string> {
     resetGfx: "KeyR",
     selectAllWarships: "KeyX",
     pauseGame: "KeyP",
+    openResearch: "KeyI",
     gameSpeedUp: "Period",
     gameSpeedDown: "Comma",
     altKey: "AltLeft",

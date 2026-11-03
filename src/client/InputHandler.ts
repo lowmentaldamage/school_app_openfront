@@ -229,6 +229,7 @@ export class ReplaySpeedChangeEvent implements GameEvent {
 }
 
 export class TogglePauseIntentEvent implements GameEvent {}
+export class ToggleResearchPanelEvent implements GameEvent {}
 
 export class GameSpeedUpIntentEvent implements GameEvent {}
 
@@ -477,6 +478,13 @@ export class InputHandler {
       },
       (e: KeyboardEvent) =>
         !e.altKey && !e.ctrlKey && !e.metaKey && !this.resetGfxModifierHeld(e),
+    );
+    this.addKeybindAndEvent(
+      this.keybinds.openResearch,
+      () => {
+        this.eventBus.emit(new ToggleResearchPanelEvent());
+      },
+      (e: KeyboardEvent) => !e.repeat && !e.altKey && !e.ctrlKey && !e.metaKey,
     );
     this.addKeybindAndEvent(
       this.keybinds.pauseGame,

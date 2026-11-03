@@ -41,6 +41,7 @@ import {
 } from "@laukolaroser/engine-api/game/ReadViews";
 import { AllPlayersStats, ClientID } from "@laukolaroser/engine-api/Schemas";
 import { MotionPlanRecord } from "@laukolaroser/engine-lib/game/MotionPlans";
+import type { TechId } from "@laukolaroser/engine-lib/tech/Tech";
 import type { EngineConfig } from "../configuration/EngineConfig";
 import { AbstractGraph } from "../pathfinding/algorithms/AbstractGraph";
 import { PathFinder } from "../pathfinding/types";
@@ -479,6 +480,13 @@ export interface Player extends PlayerLike {
   removeAllAlliances(): void;
   createAllianceRequest(recipient: Player): AllianceRequest | null;
   betrayals(): number;
+  /** Tech tree (engine-lib/tech/Tech.ts). */
+  techMask(): number;
+  hasTech(id: TechId): boolean;
+  research(): { tech: TechId; endsAt: number } | null;
+  startResearch(tech: TechId, endsAt: number): void;
+  /** Completes the research in progress; returns its tech. */
+  finishResearch(): TechId | null;
 
   // Targeting
   canTarget(other: Player): boolean;

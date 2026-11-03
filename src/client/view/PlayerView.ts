@@ -22,6 +22,7 @@ import {
 } from "@laukolaroser/engine-api/game/GameUpdates";
 import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { ClientID } from "@laukolaroser/engine-api/Schemas";
+import { TECH_IDS, type TechId } from "@laukolaroser/engine-lib/tech/Tech";
 import { PatternDecoder } from "@laukolaroser/shared/PatternDecoder";
 import { createRandomName } from "@laukolaroser/shared/SharedUtil";
 import { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
@@ -605,6 +606,18 @@ export class PlayerView implements PlayerLike {
       ? this.game.ticks() - this.state.markedDoomsdayClockTick
       : 0;
   }
+  /** Researched techs (bitmask, engine-lib/tech/Tech.ts). */
+  techMask(): number {
+    return this.state.techMask ?? 0;
+  }
+
+  /** The tech being researched and when it completes, or null. */
+  research(): { tech: TechId; endsAt: number } | null {
+    const i = this.state.researchTech ?? -1;
+    if (i < 0 || i >= TECH_IDS.length) return null;
+    return { tech: TECH_IDS[i], endsAt: this.state.researchEndsAt ?? -1 };
+  }
+
   betrayals(): number {
     return this.state.betrayals;
   }

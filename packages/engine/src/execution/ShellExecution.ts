@@ -9,6 +9,7 @@ import {
   zRef,
   zTile,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { PathFinding } from "../pathfinding/PathFinder";
@@ -116,6 +117,19 @@ export class ShellExecution implements Execution {
     const pct = navalClass(this.ownerUnit.type()).damagePercent;
     if (pct !== 100 && CombatShips.has(this.ownerUnit.type())) {
       damageMultiplier = Math.floor((damageMultiplier * pct) / 100);
+    }
+
+    // Tech: Naval Gunnery (shooter) and Armored Hulls (target).
+    if (this._owner.hasTech("gunnery")) {
+      damageMultiplier = Math.floor(
+        (damageMultiplier * TECH_EFFECTS.gunneryDamagePercent) / 100,
+      );
+    }
+    const targetOwner = this.target.owner();
+    if (CombatShips.has(this.target.type()) && targetOwner.hasTech("hulls")) {
+      damageMultiplier = Math.floor(
+        (damageMultiplier * TECH_EFFECTS.hullsDamageTakenPercent) / 100,
+      );
     }
 
     return Math.round((baseDamage / 250) * damageMultiplier);

@@ -123,6 +123,11 @@ export function notableLobbySettings(
       label: translateText("public_game_modifier.disable_alliances_label"),
       value: renderDuration(c.customAllianceDuration * 60),
     });
+  if (c.disableTechTree)
+    items.push({
+      label: translateText("game_settings.tech_tree"),
+      value: translateText("common.disabled"),
+    });
   if (c.fogOfWar)
     items.push({
       label: translateText("game_settings.fog_of_war"),

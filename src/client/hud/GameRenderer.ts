@@ -44,6 +44,7 @@ import { PerformanceOverlay } from "./layers/PerformanceOverlay";
 import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 import { PlayerPanel } from "./layers/PlayerPanel";
 import { ReplayPanel } from "./layers/ReplayPanel";
+import { ResearchPanel } from "./layers/ResearchPanel";
 import { SettingsModal } from "./layers/SettingsModal";
 import { SpawnTimer } from "./layers/SpawnTimer";
 import { TutorialPanel } from "./layers/TutorialPanel";
@@ -247,6 +248,15 @@ export function createRenderer(
   weaponsPanel.eventBus = eventBus;
   weaponsPanel.uiState = uiState;
 
+  const researchPanel = document.querySelector(
+    "research-panel",
+  ) as ResearchPanel;
+  if (!(researchPanel instanceof ResearchPanel)) {
+    console.error("research panel not found");
+  }
+  researchPanel.game = game;
+  researchPanel.eventBus = eventBus;
+
   const playerPanel = document.querySelector("player-panel") as PlayerPanel;
   if (!(playerPanel instanceof PlayerPanel)) {
     console.error("player panel not found");
@@ -379,6 +389,7 @@ export function createRenderer(
     gameLeftSidebar,
     unitDisplay,
     weaponsPanel,
+    researchPanel,
     gameRightSidebar,
     controlPanel,
     playerInfo,

@@ -19,6 +19,7 @@ import {
   zRef,
   zTile,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
 import { findMinimumBy } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import {
@@ -785,7 +786,7 @@ export class WarshipExecution implements Execution {
 
   private huntDownTradeShip() {
     this.warship.updateWarshipState({ isInCombat: true });
-    const moves = 2 * navalStepsOnTick(this.naval, this.mg.ticks());
+    const moves = 2 * navalStepsOnTick(this.speedSpec(), this.mg.ticks());
     for (let i = 0; i < moves; i++) {
       const target = this.warship.targetUnit()!;
       const targetTile = target.tile();
@@ -842,8 +843,18 @@ export class WarshipExecution implements Execution {
     return best;
   }
 
+  /** The naval class, faster with the Turbine Engines tech. */
+  private speedSpec(): NavalClassSpec {
+    if (!this.warship.owner().hasTech("engines")) return this.naval;
+    return {
+      ...this.naval,
+      stepsPer6Ticks:
+        this.naval.stepsPer6Ticks + TECH_EFFECTS.enginesExtraSteps,
+    };
+  }
+
   private patrol() {
-    const steps = navalStepsOnTick(this.naval, this.mg.ticks());
+    const steps = navalStepsOnTick(this.speedSpec(), this.mg.ticks());
     for (let i = 0; i < steps && this.warship.isActive(); i++) {
       this.patrolStep();
     }
