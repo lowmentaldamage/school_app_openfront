@@ -255,6 +255,16 @@ export class WebGLFrameBuilder {
   }
 
   private readonly highlightSetBuf = new Uint8Array(PALETTE_SIZE);
+  private uploadsEnabled = true;
+
+  /**
+   * Stop pushing per-tick state to the 2D renderer. Used while the 3D view
+   * draws the map instead: the hidden 2D renderer would only burn CPU and
+   * GPU upload bandwidth. Frame listeners (the 3D view) still run.
+   */
+  setRendererUploadsEnabled(enabled: boolean): void {
+    this.uploadsEnabled = enabled;
+  }
   private glowRescanTick = 0;
 
   update(gameView: GameView): void {
@@ -267,7 +277,7 @@ export class WebGLFrameBuilder {
     this.syncTerrainDeltas(gameView);
     this.syncNukeImpacts(gameView);
     this.resolveDeadUnitExplosions(gameView);
-    uploadFrameData(this.view, gameView.frameData());
+    if (this.uploadsEnabled) uploadFrameData(this.view, gameView.frameData());
     this.notifyFrameListeners(gameView);
   }
 

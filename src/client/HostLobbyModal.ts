@@ -75,7 +75,7 @@ export class HostLobbyModal extends BaseModal {
     super();
     this.id = "page-host-lobby";
   }
-  @state() private bots: number = 400;
+  @state() private bots: number = 100;
   @state() private spawnImmunity: boolean = false;
   @state() private spawnImmunityDurationMinutes: number | undefined = undefined;
   @state() private infiniteGold: boolean = false;
@@ -1063,7 +1063,7 @@ export class HostLobbyModal extends BaseModal {
     this.defaultNationCount = 0;
     this.gameMode = GameMode.FFA;
     this.teamCount = 2;
-    this.bots = 400;
+    this.bots = 100;
     this.spawnImmunity = false;
     this.spawnImmunityDurationMinutes = undefined;
     this.infiniteGold = false;

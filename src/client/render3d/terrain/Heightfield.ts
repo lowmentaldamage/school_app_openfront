@@ -40,10 +40,12 @@ export function rawHeight(terrainByte: number): number {
     // Water magnitude is distance-to-land; deepen gently and cap.
     return -(0.35 + Math.min(m, 24) * 0.14);
   }
-  if (m >= IMPASSABLE_MAGNITUDE) return 10;
-  if (m < 10) return 0.3 + m * 0.09; // plains: 0.3 … 1.11
-  if (m < 20) return 1.2 + (m - 10) * 0.22; // highland: 1.2 … 3.18
-  return 3.4 + (m - 20) * 0.55; // mountains: 3.4 … 9.45
+  // Exaggerated relief: on a map thousands of tiles wide, true-to-scale
+  // mountains would be invisible bumps.
+  if (m >= IMPASSABLE_MAGNITUDE) return 22;
+  if (m < 10) return 0.3 + m * 0.1; // plains: 0.3 … 1.2
+  if (m < 20) return 1.3 + (m - 10) * 0.38; // highland: 1.3 … 4.72
+  return 5.0 + (m - 20) * 1.5; // mountains: 5.0 … 21.5
 }
 
 export class Heightfield {

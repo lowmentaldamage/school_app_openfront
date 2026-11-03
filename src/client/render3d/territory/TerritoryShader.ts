@@ -94,13 +94,32 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
   if (self != 0) {
     float same = (o00 == self ? w00 : 0.0) + (o10 == self ? w10 : 0.0)
                + (o01 == self ? w01 : 0.0) + (o11 == self ? w11 : 0.0);
+    // Tiles per screen pixel: borders keep a minimum on-screen width, so
+    // they stay visible when zoomed out instead of thinning to nothing.
+    float tpp = length(fwidth(tilePos));
+    float width = clamp(max(uBorderWidth, tpp * 2.2), 0.0, 0.5);
     // same == 1 deep inside, ~0.5 on the boundary.
-    float edge = 1.0 - smoothstep(0.5, 0.5 + uBorderWidth, same);
+    float edge = 1.0 - smoothstep(0.5, 0.5 + width, same);
+    // Zoomed far out a tile is smaller than a pixel: look further for a
+    // different owner so the border is still drawn a couple of pixels wide.
+    if (tpp > 0.35) {
+      float d = min(tpp * 2.0, 10.0);
+      if (territoryOwnerAt(ivec2(floor(tilePos + vec2(d, 0.0)))) != self ||
+          territoryOwnerAt(ivec2(floor(tilePos - vec2(d, 0.0)))) != self ||
+          territoryOwnerAt(ivec2(floor(tilePos + vec2(0.0, d)))) != self ||
+          territoryOwnerAt(ivec2(floor(tilePos - vec2(0.0, d)))) != self) {
+        edge = 1.0;
+      }
+    }
     if (edge > 0.0) {
-      float pulse = 0.85 + 0.15 * sin(uTime * 2.4 + (tilePos.x + tilePos.y) * 0.08);
+      float pulse = 0.9 + 0.1 * sin(uTime * 2.4 + (tilePos.x + tilePos.y) * 0.08);
       float hi = abs(float(self) - uHighlightOwner) < 0.5 ? 1.35 : 1.0;
       vec3 bc = territoryBorderColor(self) * pulse * hi;
       color = mix(color, bc, edge);
+      // Dark outline on the outer part of the band, for contrast on any
+      // terrain (snow, sand, pale player colours).
+      float outer = 1.0 - smoothstep(0.5, 0.5 + width * 0.4, same);
+      color = mix(color, color * 0.25, outer * 0.85);
     }
   }
   return color;

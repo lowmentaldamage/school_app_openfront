@@ -175,6 +175,7 @@ export class WorldRenderer {
       this.heightfield,
       { stride: this.profile.mobile ? 5 : 3, density: 1 },
       this.profile.mobile ? 260 : 420,
+      this.territory.ownerTexture,
     );
     this.scene.add(this.forests.group);
 

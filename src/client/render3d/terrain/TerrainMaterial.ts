@@ -71,7 +71,7 @@ vec3 terrainDetailNormal(vec3 wp) {
   float hu = terrainDetailAt(wp.xz + vec2(0.0, uDetailStep)).r;
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
-  vec3 n = vec3((hl - hr) * 2.4, 2.0 * uDetailStep, (hd - hu) * 2.4);
+  vec3 n = vec3((hl - hr) * 1.5, 2.0 * uDetailStep, (hd - hu) * 1.5);
   // Micro relief on land (rocks, field furrows), fading out with distance.
   float land = terrainDetailAt(wp.xz).g;
   float foot = length(fwidth(wp.xz));
@@ -105,11 +105,11 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   vec3 c = seabed;
   c = mix(c, sand, smoothstep(-0.6, -0.05, h));
   c = mix(c, grass, smoothstep(0.24, 0.42, h + (n - 0.5) * 0.15));
-  c = mix(c, dry, smoothstep(1.3, 2.4, h + (n - 0.5) * 0.6));
-  c = mix(c, rock, smoothstep(3.0, 4.2, h + (n - 0.5) * 0.8));
+  c = mix(c, dry, smoothstep(1.4, 2.8, h + (n - 0.5) * 0.6));
+  c = mix(c, rock, smoothstep(4.2, 6.2, h + (n - 0.5) * 1.2));
   // Steep faces are rock regardless of altitude.
   c = mix(c, rock, smoothstep(0.86, 0.70, up) * step(0.2, h));
-  c = mix(c, snow, smoothstep(6.6, 7.6, h + (n - 0.5) * 1.2) * smoothstep(0.55, 0.8, up));
+  c = mix(c, snow, smoothstep(13.0, 15.5, h + (n - 0.5) * 2.5) * smoothstep(0.45, 0.75, up));
   // Beach: a thin sand rim exactly along the tile coastline.
   float beach = smoothstep(0.5, 0.56, land) * (1.0 - smoothstep(0.62, 0.8, land));
   c = mix(c, sand, beach * (1.0 - smoothstep(0.8, 1.6, h)));
@@ -154,8 +154,8 @@ export function createTerrainMaterial(
     uRailTex: { value: railTex },
     uMapSize: { value: new Vector2(mapWidth, mapHeight) },
     uTime: { value: 0 },
-    uFillStrength: { value: 0.75 },
-    uBorderWidth: { value: 0.22 },
+    uFillStrength: { value: 0.88 },
+    uBorderWidth: { value: 0.3 },
     uHighlightOwner: { value: -1 },
   };
 
@@ -200,7 +200,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v4";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v5";
   return { material, uniforms };
 }
 

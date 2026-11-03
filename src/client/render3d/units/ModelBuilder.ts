@@ -108,7 +108,7 @@ export class ModelBuilder {
     return merged;
   }
 
-  private add(geom: BufferGeometry, o: PartOptions): this {
+  add(geom: BufferGeometry, o: PartOptions): this {
     const g = geom.index ? geom.toNonIndexed() : geom;
     if (g !== geom) geom.dispose();
     g.deleteAttribute("uv");

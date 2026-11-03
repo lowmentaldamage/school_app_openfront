@@ -81,11 +81,11 @@ export function placeTrees(
       else continue;
       const h = hf.sample(x, y);
       // No trees on beaches or above the snow line.
-      if (h < 0.42 || h > 6.4) continue;
+      if (h < 0.42 || h > 12.5) continue;
       const slope =
         Math.abs(hf.sample(x + 1, y) - hf.sample(x - 1, y)) +
         Math.abs(hf.sample(x, y + 1) - hf.sample(x, y - 1));
-      if (slope > 1.6) continue;
+      if (slope > 3.2) continue;
       const cover = forestCover(x, y);
       const p =
         base * options.density * Math.max(0, (cover - 0.42) / 0.58) * 2.2;

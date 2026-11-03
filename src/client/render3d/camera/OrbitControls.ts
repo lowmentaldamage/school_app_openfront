@@ -16,11 +16,18 @@ import type { CameraController } from "./CameraController";
 
 const ROTATE_STEP = 45;
 const TILT_STEP = 10;
+/** Compass drag: degrees of yaw / tilt per CSS pixel. */
+const DRAG_YAW_PER_PX = 0.6;
+const DRAG_TILT_PER_PX = 0.35;
+/** Two-finger vertical slide: degrees of tilt per CSS pixel. */
+const TOUCH_TILT_PER_PX = 0.25;
 
 export class OrbitControls {
   readonly widget: HTMLElement;
   private readonly needle: HTMLElement;
   private readonly abort = new AbortController();
+  private twoFinger: { midY: number; dist: number } | null = null;
+  private lastNeedle = "";
   private twistAngle: number | null = null;
 
   constructor(
@@ -43,10 +50,17 @@ export class OrbitControls {
         passive: true,
       },
     );
-    touchTarget.addEventListener("touchend", () => (this.twistAngle = null), {
-      signal,
-      passive: true,
-    });
+    touchTarget.addEventListener(
+      "touchend",
+      () => {
+        this.twistAngle = null;
+        this.twoFinger = null;
+      },
+      {
+        signal,
+        passive: true,
+      },
+    );
 
     const w = document.createElement("div");
     w.id = "world3d-compass";
@@ -70,9 +84,10 @@ export class OrbitControls {
         touch-action: manipulation; transition: background .15s, transform .1s; }
       .lkr-cam-btn:hover { background: rgba(39,39,42,.95); }
       .lkr-cam-btn:active { transform: scale(.92); }
-      .lkr-cam-compass { position: relative; width: 44px; height: 44px; border-radius: 50%;
+      .lkr-cam-compass { position: relative; width: 52px; height: 52px; border-radius: 50%;
         background: rgba(24,24,27,.82); border: 1px solid rgba(255,255,255,.18);
-        backdrop-filter: blur(6px); touch-action: manipulation; }
+        backdrop-filter: blur(6px); touch-action: none; cursor: grab; }
+      .lkr-cam-compass:active { cursor: grabbing; }
       .lkr-cam-needle { position: absolute; left: 50%; top: 50%; width: 6px; height: 30px;
         margin: -15px 0 0 -3px; border-radius: 3px;
         background: linear-gradient(#ef4444 0 50%, #e4e4e7 50% 100%); }
@@ -80,10 +95,50 @@ export class OrbitControls {
         color: #fca5a5; text-align: center; pointer-events: none; }
       body:not(.in-game) #world3d-compass { display: none; }`;
     w.prepend(style);
+    // Drag the compass to orbit freely: sideways turns the full 360°, up and
+    // down tilts. A drag never counts as a click on the compass (reset).
+    const compass = w.querySelector(".lkr-cam-compass") as HTMLElement;
+    let drag: { id: number; x: number; y: number; moved: number } | null = null;
+    let suppressClick = false;
+    compass.addEventListener(
+      "pointerdown",
+      (e) => {
+        drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 };
+        compass.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      },
+      { signal },
+    );
+    compass.addEventListener(
+      "pointermove",
+      (e) => {
+        if (drag === null || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x;
+        const dy = e.clientY - drag.y;
+        drag.x = e.clientX;
+        drag.y = e.clientY;
+        drag.moved += Math.abs(dx) + Math.abs(dy);
+        this.camera.rotateBy(-dx * DRAG_YAW_PER_PX);
+        this.camera.tiltBy(dy * DRAG_TILT_PER_PX);
+      },
+      { signal },
+    );
+    const endDrag = (e: PointerEvent) => {
+      if (drag === null || e.pointerId !== drag.id) return;
+      suppressClick = drag.moved > 6;
+      drag = null;
+    };
+    compass.addEventListener("pointerup", endDrag, { signal });
+    compass.addEventListener("pointercancel", endDrag, { signal });
+
     w.addEventListener(
       "click",
       (e) => {
         const act = (e.target as HTMLElement).closest("button")?.dataset.act;
+        if (act === "reset" && suppressClick) {
+          suppressClick = false;
+          return;
+        }
         if (act === "rot-left") this.camera.rotateBy(ROTATE_STEP);
         else if (act === "rot-right") this.camera.rotateBy(-ROTATE_STEP);
         else if (act === "tilt-up") this.camera.tiltBy(TILT_STEP);
@@ -99,7 +154,11 @@ export class OrbitControls {
 
   /** Per frame: keep the compass needle pointing north. */
   update(): void {
-    this.needle.style.transform = `rotate(${this.camera.yawDeg.toFixed(1)}deg)`;
+    const t = `rotate(${this.camera.yawDeg.toFixed(1)}deg)`;
+    if (t !== this.lastNeedle) {
+      this.needle.style.transform = t;
+      this.lastNeedle = t;
+    }
   }
 
   dispose(): void {
@@ -141,9 +200,21 @@ export class OrbitControls {
   private onTouchMove(e: TouchEvent): void {
     if (e.touches.length !== 2) {
       this.twistAngle = null;
+      this.twoFinger = null;
       return;
     }
     const [a, b] = [e.touches[0], e.touches[1]];
+    // Two fingers sliding up or down together (not pinching) tilt the view.
+    const midY = (a.clientY + b.clientY) / 2;
+    const dist = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+    if (this.twoFinger !== null) {
+      const dMid = midY - this.twoFinger.midY;
+      const dDist = Math.abs(dist - this.twoFinger.dist);
+      if (Math.abs(dMid) > 1.5 && dDist < Math.abs(dMid) * 0.5) {
+        this.camera.tiltBy(dMid * TOUCH_TILT_PER_PX);
+      }
+    }
+    this.twoFinger = { midY, dist };
     const angle =
       (Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180) /
       Math.PI;

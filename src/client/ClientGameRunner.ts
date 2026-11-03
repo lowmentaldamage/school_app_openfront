@@ -674,6 +674,7 @@ function mountWebGLFrameLoop(
 
   const builder = new WebGLFrameBuilder(view);
   if (world3d !== null) {
+    builder.setRendererUploadsEnabled(false);
     builder.addFrameListener((gv, palette) =>
       world3d.onTick(
         gv.frameData(),

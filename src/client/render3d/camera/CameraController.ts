@@ -39,8 +39,8 @@ export const DEFAULT_CAMERA_TUNING: CameraTuning = {
   yawDeg: 0,
 };
 
-/** Tilt limits: 30° (cinematic, low) … 89° (straight down, like the 2D map). */
-export const MIN_PITCH_DEG = 30;
+/** Tilt limits: 12° (almost at ground level) … 89° (straight down, like the 2D map). */
+export const MIN_PITCH_DEG = 12;
 export const MAX_PITCH_DEG = 89;
 
 const tmpNear = new Vector3();
@@ -143,7 +143,7 @@ export class CameraController {
     // Focus at sea level (or on land when zoomed in close, so hills don't
     // swallow the camera).
     const ground = Math.max(0, this.hf.sample(s.centerX, s.centerY));
-    const focusY = this.distance < 60 ? ground : 0;
+    const focusY = this.distance < 140 ? ground : 0;
     this.focus.set(s.centerX, focusY, s.centerY);
 
     const pitch = MathUtils.degToRad(this.tuning.pitchDeg);
@@ -154,6 +154,15 @@ export class CameraController {
       this.focus.y + this.distance * Math.sin(pitch),
       this.focus.z + Math.cos(yaw) * horiz,
     );
+    // Low angles near mountains: keep the camera above the terrain under it.
+    const under = this.hf.sample(
+      this.camera.position.x,
+      this.camera.position.z,
+    );
+    const clearance = Math.max(1.5, this.distance * 0.04);
+    if (this.camera.position.y < under + clearance) {
+      this.camera.position.y = under + clearance;
+    }
     this.camera.aspect = this.viewWidth / this.viewHeight;
     this.camera.near = Math.max(0.2, this.distance * 0.02);
     this.camera.far = this.distance * 12 + 2000;

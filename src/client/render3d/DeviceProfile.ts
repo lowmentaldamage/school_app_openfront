@@ -38,7 +38,7 @@ export function profileFor(s: DeviceSignals): DeviceProfile {
         initialQuality: 1,
         maxQuality: 2,
         antialias: false,
-        terrainVertexBudget: 600_000,
+        terrainVertexBudget: 300_000,
       }
     : {
         mobile,
