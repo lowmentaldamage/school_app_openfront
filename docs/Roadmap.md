@@ -14,12 +14,18 @@ Effort: S = a day, M = a few days, L = a week+, in this codebase.
 
 ---
 
-## 0. Already done
+## 0. Already done (v1.0.0)
 
-3D battlefield (terrain, water, forests, sky, shadows), 3D units and
-buildings, explosions/mushroom clouds, orbit camera, 3D previews,
-artillery / naval bombardment / rocket strikes (player + AI), rebrand,
-phone tuning.
+3D battlefield (terrain with 2x render detail, water, forests, sky,
+shadows), 3D units and buildings, explosions, free orbit camera,
+artillery / naval bombardment / rocket strikes, Destroyer and Battleship,
+express / armored / troop / rail-SAM trains, AI for all of them, private
+or public self-hosted server with accounts, 3D map previews for every map,
+military-command UI, phone layout, refresh-rate adaptive quality.
+
+Still open from this list: Submarine and Aircraft carrier, air units,
+day/night and weather, sound for the new units, fog of war, economy and
+defence buildings (§3), in-game map editor.
 
 ---
 

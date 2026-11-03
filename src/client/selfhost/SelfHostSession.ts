@@ -25,6 +25,7 @@ export interface SelfHostUser {
 }
 
 let enabled: boolean | null = null;
+let ownServer = false;
 
 /** Whether this server runs in self-hosted mode (cached after first call). */
 export async function detectSelfHost(): Promise<boolean> {
@@ -34,12 +35,23 @@ export async function detectSelfHost(): Promise<boolean> {
     const timer = setTimeout(() => ctrl.abort(), 4000);
     const res = await fetch("/api/selfhost/status", { signal: ctrl.signal });
     clearTimeout(timer);
-    enabled =
-      res.ok && ((await res.json()) as { enabled?: boolean }).enabled === true;
+    const body = res.ok
+      ? ((await res.json()) as { enabled?: boolean; ownServer?: boolean })
+      : {};
+    enabled = body.enabled === true;
+    ownServer = body.ownServer === true;
   } catch {
     enabled = false;
   }
   return enabled;
+}
+
+/**
+ * True on a Laukolaroser server you run yourself (private or public mode):
+ * lobbies and games need only that server, not the upstream API.
+ */
+export function isOwnServer(): boolean {
+  return ownServer || enabled === true;
 }
 
 /** Synchronous view once detectSelfHost() has resolved. */

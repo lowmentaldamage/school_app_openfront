@@ -1,4 +1,4 @@
-📦 **Laukolaroser — first release**
+📦 **Laukolaroser v1.0.0**
 
 🌍 **3D battlefield**
 
@@ -54,3 +54,14 @@
 
 - Sharper 3D terrain on every map: twice the detail, smooth coastlines, finer mountains (looks only — the game map is unchanged)
 - Map picker and lobby show each map rendered in 3D
+
+🎨 **Interface**
+
+- New military-command look across every screen
+- Build bar split into Build and Forces rows with bigger icons
+- Tutorial tips as a small card at the top; only shown in the guided Tutorial game
+- Simpler menu: Solo, Tutorial, Create Lobby, Join Lobby
+- Drag the compass to turn 360° and tilt; on phones slide two fingers to tilt
+- Clearer borders and colours, trees cleared from claimed land, taller mountains
+- Faster: much lighter forests and labels, quality follows your screen's refresh rate (up to 120 Hz and more)
+- Quick guide in Help for the 3D camera, ships, trains and weapons

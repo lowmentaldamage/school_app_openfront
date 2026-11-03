@@ -110,7 +110,7 @@ export function createSelfHostRouter(): express.Router {
   };
 
   router.get("/status", (_req, res) => {
-    res.json({ enabled: true });
+    res.json({ enabled: true, ownServer: true });
   });
 
   router.post(

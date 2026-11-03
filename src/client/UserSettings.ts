@@ -549,8 +549,13 @@ export class UserSettings {
     this.setBool("settings.helpMessages", !this.helpMessages());
   }
 
+  /**
+   * In-game tutorial hints. Off by default: new players get the guided
+   * game from the menu's Tutorial button, which switches the hints back on
+   * for the solo game it leads into (SinglePlayerModal.startSoloWithGuide).
+   */
   tutorialDismissed() {
-    return this.getBool("settings.tutorialDismissed", false);
+    return this.getBool("settings.tutorialDismissed", true);
   }
 
   setTutorialDismissed(value: boolean) {

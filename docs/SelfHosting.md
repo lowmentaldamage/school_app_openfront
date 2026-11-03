@@ -1,13 +1,19 @@
-# Run Laukolaroser on your own server
+# Laukolaroser — Server Admin Guide
 
-A private server for you and your friends: only people you add can play,
-anyone you add can create games, and you can play from anywhere on a phone
-or a PC.
+Run Laukolaroser on your own Linux machine and play from anywhere, on
+phones and PCs.
 
-**Requirements:** a Linux machine with Docker (any 64-bit distro), about
-**2 GB RAM** and 1–2 CPU cores for 2 games × 15 players. The game
-simulation runs on each player's device; the server only relays moves, so
-it stays light.
+Two modes (one setting, `PRIVATE` in `.env`):
+
+| Mode                       | Who can play                                                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Private** (`1`, default) | Only players you create, each with a username and password. Admins add/remove players; anyone logged in can create games. |
+| **Public** (`0`)           | Anyone with the link, no login.                                                                                           |
+
+**Requirements:** 64-bit Linux with Docker, **2 GB RAM** and 1–2 CPU cores
+for 2 games × 15 players. The game simulation runs on each player's
+device; the server only relays moves, so it stays light (about 210–290 MB
+idle and about 440 MB after a two-player game in testing).
 
 ---
 
@@ -15,58 +21,65 @@ it stays light.
 
 ```bash
 curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER   # log out and back in afterwards
+sudo usermod -aG docker $USER   # then log out and back in
 ```
 
 ## 2. Get the game and start it
 
 ```bash
-git clone https://github.com/lowmentaldamage/school_app_openfront laukolaroser
+git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
 cd laukolaroser/deploy/selfhost
 cp .env.example .env
-nano .env        # set ADMIN_USER and ADMIN_PASSWORD (your admin login)
+nano .env                 # PRIVATE, ADMIN_USER, ADMIN_PASSWORD, PORT, DOMAIN
 docker compose up -d --build
 ```
 
-The first build takes a few minutes. Then open **http://SERVER-IP:8080**
-from any device on your home network and log in with the admin account.
+The first build takes several minutes. Open **http://SERVER-IP:8080** from
+any device on your network. In private mode, log in with the admin account.
 
-> `ADMIN_USER` / `ADMIN_PASSWORD` are only used while no accounts exist.
-> After the first start you manage everything in the game.
+`.env` settings:
 
-## 3. Add players
+| Setting                         | Meaning                                                          |
+| ------------------------------- | ---------------------------------------------------------------- |
+| `PRIVATE`                       | `1` = accounts required (default), `0` = public                  |
+| `ADMIN_USER` / `ADMIN_PASSWORD` | First admin; only used while no accounts exist                   |
+| `PORT`                          | Port on your server (default 8080)                               |
+| `DOMAIN`                        | Your public hostname (e.g. `game.example.com`), else `localhost` |
 
-In the game menu, tap your name (bottom-left) → **Manage players**:
+After editing `.env`: `docker compose up -d`.
 
-- **Add player**: username + password (tick _Admin_ to make another admin)
-- **Reset password**, **Disable / Enable**, **Make admin**, **Remove**
+## 3. Players and admins (private mode)
 
-Changes apply immediately — a removed or disabled player is kicked out of
-new joins, and a reset password logs out their old sessions. Players can
-change their own password from the same menu. Anyone logged in can create
-lobbies (**Create Lobby**) and invite others with the link.
+In the game menu tap your name (bottom-left) → **Manage players**:
 
-From the server shell (e.g. if you forget your password):
+- **Add player**: username (3–24 letters, digits, `_ . -`) + password
+  (6+ characters); tick _Admin_ to create another admin.
+- **Reset password**, **Disable / Enable**, **Make admin / player**,
+  **Remove**.
+
+Changes apply immediately: a disabled or removed player cannot join new
+games, and a password reset logs out that player's old sessions. Players
+change their own password from the same menu. Logins last 30 days.
+
+From the server shell (e.g. if you forgot the admin password):
 
 ```bash
+cd laukolaroser/deploy/selfhost
 docker compose exec game npx tsx scripts/selfhost-admin.ts list
 docker compose exec game npx tsx scripts/selfhost-admin.ts passwd <user> <new-password>
 docker compose exec game npx tsx scripts/selfhost-admin.ts add <user> <password> admin
+docker compose exec game npx tsx scripts/selfhost-admin.ts disable <user>
+docker compose exec game npx tsx scripts/selfhost-admin.ts remove <user>
 ```
 
-Accounts live in `deploy/selfhost/data/accounts.json` (passwords are
-hashed with scrypt; never stored in plain text). Back up the `data/`
-folder to keep your players.
+The last admin cannot be removed, disabled or demoted, so you cannot lock
+yourself out from the menu.
 
 ## 4. Play from anywhere
 
-Pick one:
+### Option A — Cloudflare Tunnel (recommended, no router changes, free HTTPS)
 
-### Option A — Cloudflare Tunnel (recommended, no router changes)
-
-Free, gives you HTTPS, no ports opened on your home network.
-
-1. Put a domain on Cloudflare (or buy one there), e.g. `example.com`.
+1. Put a domain on Cloudflare, e.g. `example.com`.
 2. On the server:
    ```bash
    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
@@ -76,24 +89,26 @@ Free, gives you HTTPS, no ports opened on your home network.
    cloudflared tunnel route dns laukolaroser game.example.com
    cloudflared tunnel run --url http://localhost:8080 laukolaroser
    ```
-   (To keep it running: `sudo cloudflared service install` with a config
-   file — see Cloudflare's "Run as a service" guide.)
+   To keep it running after reboots: `sudo cloudflared service install`
+   with a config file (Cloudflare's "Run as a service" guide).
 3. Set `DOMAIN=game.example.com` in `.env`, then `docker compose up -d`.
 4. Everyone opens **https://game.example.com**.
 
 ### Option B — Port forwarding + HTTPS
 
-1. On your router, forward TCP **443** (and 80) to the server.
-2. Put a reverse proxy with automatic HTTPS in front, e.g. Caddy:
+1. On your router forward TCP **443** and **80** to the server.
+2. Put a reverse proxy with automatic HTTPS in front, e.g. Caddy
+   (`/etc/caddy/Caddyfile`):
    ```
    game.example.com {
        reverse_proxy localhost:8080
    }
    ```
-3. Point `game.example.com` at your home IP (use a dynamic-DNS service if
-   your IP changes). Set `DOMAIN` in `.env`.
+3. Point `game.example.com` at your home IP (use dynamic DNS if it
+   changes) and set `DOMAIN` in `.env`.
 
-WebSockets must be passed through (Caddy and Cloudflare do this by default).
+WebSockets must pass through the proxy (Caddy and Cloudflare do this by
+default). Use HTTPS when playing over the internet.
 
 ## 5. Install on phones and PCs
 
@@ -101,38 +116,67 @@ WebSockets must be passed through (Caddy and Cloudflare do this by default).
 - **Android (Chrome):** menu → _Install app_ / _Add to Home screen_.
 - **PC (Chrome/Edge):** the install icon in the address bar.
 
-It then opens full-screen like a normal app and remembers your login for
-30 days.
-
-## Updating
+## 6. Updating
 
 ```bash
 cd laukolaroser && git pull
 cd deploy/selfhost && docker compose up -d --build
 ```
 
-Accounts in `data/` are kept.
+Accounts in `deploy/selfhost/data/` are kept.
 
-## Resource limits
+## 7. Backups
+
+Everything worth keeping is in `deploy/selfhost/data/`:
+`accounts.json` (scrypt-hashed passwords, never plain text) and
+`session-secret` (signs logins; if lost, everyone logs in again).
+
+```bash
+tar czf laukolaroser-backup-$(date +%F).tgz -C laukolaroser/deploy/selfhost data
+```
+
+## 8. Resource limits
 
 `docker-compose.yml` caps the container at **2 GB RAM / 2 CPUs** and runs
-2 game workers with a 320 MB heap each. In testing, the game server used about
-210–290 MB of RAM idle in Docker, and about 440 MB (master + 2 workers)
-after a two-player game.
-The game simulation itself runs on the players' devices, so more players
-mostly adds network traffic, not server memory.
+2 game workers with a 320 MB heap each. To change: edit `mem_limit`,
+`cpus` and `NUM_WORKERS` there.
 
-## Security notes
+## 9. Troubleshooting
+
+| Problem                              | Fix                                                              |
+| ------------------------------------ | ---------------------------------------------------------------- |
+| Page does not load                   | `docker compose ps` (is it `healthy`?), `docker compose logs -f` |
+| Build fails downloading packages     | The server needs internet access during the build; retry         |
+| "Wrong username or password"         | Reset it: `selfhost-admin.ts passwd <user> <pw>`                 |
+| Too many failed logins               | Logins are rate-limited per IP; wait 10 minutes                  |
+| Works at home, not outside           | Check the tunnel / port forward and `DOMAIN`; use HTTPS          |
+| Players disconnect over the internet | Make sure the proxy passes WebSockets                            |
+| Out of memory                        | Fewer `NUM_WORKERS`, or raise `mem_limit`                        |
+
+## 10. Without Docker (testing only)
+
+For a quick test on a PC (Node.js 24 and npm 12 required):
+
+```bash
+npm run inst
+SELF_HOSTED=1 SELFHOST_DATA_DIR=./data \
+  SELFHOST_ADMIN_USER=admin SELFHOST_ADMIN_PASSWORD=change-me npm run dev
+```
+
+Open http://localhost:9000 (leave out `SELF_HOSTED=1` for public mode).
+This is the development server; for real hosting use Docker, which also
+serves the built game files through nginx.
+
+## 11. Security notes
 
 - Use strong passwords; failed logins are rate-limited per IP.
 - Use HTTPS (Option A or B) when playing over the internet.
-- Only admins can add/remove players; the last admin cannot be removed or
-  disabled, so you cannot lock yourself out from the UI.
-- Self-hosted mode turns off the original online services (store,
-  global leaderboard, sign-in providers); everything runs on your server.
+- Private mode turns off the upstream online services (store, global
+  leaderboard, sign-in providers); everything runs on your server.
 
 ## License
 
-Laukolaroser is licensed under the GNU AGPL v3. If you let others play on
-your server, the license requires that they can get the source code —
-the footer links to the repository.
+Laukolaroser is licensed under the GNU AGPL v3 (see `LICENSE`,
+`LICENSING.md`, `CREDITS.md`). If others play on your server, they must be
+able to get the source code — the footer links to the repository. Keep the
+"© OpenFront and Contributors" notice visible.

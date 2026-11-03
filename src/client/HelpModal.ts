@@ -121,6 +121,46 @@ export class HelpModal extends BaseModal {
             </button>
           </section>
 
+          <!-- Laukolaroser quick guide: 3D camera and the new forces -->
+          <div class="flex items-center gap-3 mb-3">
+            <h3
+              class="text-xl font-bold uppercase tracking-widest text-white/90"
+            >
+              ${translateText("help_modal.lk_title")}
+            </h3>
+            <div
+              class="flex-1 h-px bg-gradient-to-r from-sky-500/50 to-transparent"
+            ></div>
+          </div>
+          <section class="grid gap-3 sm:grid-cols-2 mb-8">
+            ${(
+              [
+                "camera",
+                "phone",
+                "build",
+                "ships",
+                "trains",
+                "weapons",
+                "economy",
+                "borders",
+              ] as const
+            ).map(
+              (k) =>
+                html`<div
+                  class="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                >
+                  <div
+                    class="text-xs font-bold uppercase tracking-[0.15em] text-sky-400 mb-1"
+                  >
+                    ${translateText(`help_modal.lk_${k}_title`)}
+                  </div>
+                  <p class="!mb-0 text-sm text-white/80">
+                    ${translateText(`help_modal.lk_${k}_desc`)}
+                  </p>
+                </div>`,
+            )}
+          </section>
+
           <!-- Video Tutorial Section -->
 
           <!-- Troubleshooting Section -->
@@ -163,10 +203,9 @@ export class HelpModal extends BaseModal {
                 @click="${this.openTroubleshooting}"
                 data-i18n="main.go_to_troubleshooting"
               >
-                <span
-                  class="relative z-10 text-2xl"
-                  data-i18n="main.go_to_troubleshooting"
-                ></span>
+                <span class="relative z-10"
+                  >${translateText("main.go_to_troubleshooting")}</span
+                >
               </button>
             </div>
           </section>

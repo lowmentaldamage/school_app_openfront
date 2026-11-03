@@ -1,4 +1,4 @@
-# Laukolaroser — private home server.
+# Laukolaroser — your own server (private with accounts, or public).
 #
 #   cd deploy/selfhost
 #   cp .env.example .env      # set ADMIN_USER / ADMIN_PASSWORD (first start)
@@ -21,10 +21,11 @@ services:
       - "${PORT:-8080}:80"
     environment:
       # The game server's built-in "dev" environment skips every external
-      # service (no Cloudflare, no third-party API); SELF_HOSTED puts the
-      # game behind your own accounts.
+      # service (no Cloudflare, no third-party API). PRIVATE=1 (default)
+      # puts the game behind your own accounts; PRIVATE=0 lets anyone with
+      # the link play without logging in.
       GAME_ENV: dev
-      SELF_HOSTED: "1"
+      SELF_HOSTED: ${PRIVATE:-1}
       SELFHOST_DATA_DIR: /data
       SELFHOST_ADMIN_USER: ${ADMIN_USER:-}
       SELFHOST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
@@ -43,7 +44,7 @@ services:
     mem_limit: 2g
     cpus: 2.0
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/api/selfhost/status"]
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/"]
       interval: 30s
       timeout: 5s
       retries: 3

@@ -16,17 +16,30 @@ desktop or on your phone.
 - **3D battlefield** — terrain with mountains, coasts and snow, animated water, living territory borders, 3D ships, trains, missiles and buildings, explosions and mushroom clouds, lighting, fog and shadows (Three.js).
 - **Real-time strategy** — expand, attack, defend, trade, nuke.
 - **Weapons** — aim-and-fire artillery, naval bombardment and rocket strikes.
+- **Navy** — warships, fast destroyers and coast-shelling battleships.
+- **Trains** — trade and express trains, armored trains, troop trains and rail SAMs.
+- **Free 3D camera** — turn 360° and tilt, on PC and phone.
 - **Multiplayer** — deterministic lockstep simulation over WebSockets, lobbies and solo games against nations and bots.
 - **Phone ready** — touch controls, adaptive rendering quality and a mobile-first layout.
 - **Many maps** — real-world regions and fictional worlds.
-- **Host it yourself** — private server with player accounts you manage; play from phone or PC anywhere ([docs/SelfHosting.md](docs/SelfHosting.md)).
+- **Host it yourself** — private server with player accounts you manage, or a public one; play from phone or PC anywhere.
+
+## Documentation
+
+| Guide                                     | For                                       |
+| ----------------------------------------- | ----------------------------------------- |
+| [Player Guide](docs/PlayerGuide.md)       | How to play: controls, units, tips        |
+| [Server Admin Guide](docs/SelfHosting.md) | Running your own server, accounts, HTTPS  |
+| [Developer Guide](docs/DeveloperGuide.md) | Code layout, adding units and maps, tests |
+| [3D renderer](docs/World3D.md)            | Design decisions and change log           |
+| [Roadmap](docs/Roadmap.md)                | Planned features                          |
 
 ## Quick start
 
 Requires Node.js 24 (≥ 24.15) and npm 12 (≥ 12.1).
 
 ```bash
-git clone https://github.com/lowmentaldamage/school_app_openfront laukolaroser
+git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
 cd laukolaroser
 npm run inst          # npm ci --ignore-scripts
 npm run dev           # client (http://localhost:9000) + game server

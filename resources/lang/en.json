@@ -1258,6 +1258,23 @@
     "info_target": "Place a target mark on the player, marking it for all allies, used to coordinate attacks.",
     "info_title": "Info menu",
     "info_trade": "Use \"Stop trading\" to stop giving the player gold and receiving their gold via trade ships. If you both click \"Start trading\" it will start again.",
+    "lk_borders_desc": "Each nation has its own colour and outline. Trees are cleared from claimed land. Small grey names with tiny numbers are bots: weak AI tribes that fill empty land.",
+    "lk_borders_title": "Reading the map",
+    "lk_build_desc": "Pick a building or unit on the bottom bar (or press its number key), then click where it goes. Ships are placed on water near your port; military trains on one of your cities, ports or factories that has railways.",
+    "lk_build_title": "Building",
+    "lk_camera_desc": "Drag the map to move, scroll or pinch to zoom. Drag the compass to turn 360° and tilt; [ ] rotate, Page Up / Page Down tilt, Home resets. Add ?renderer=2d to the address for the flat map.",
+    "lk_camera_title": "3D camera",
+    "lk_economy_desc": "Land and cities raise your troop limit; troops regrow over time. Gold comes from workers, trade ships, trains and captures. Attack with a share of your troops (slider) and let them regrow between attacks.",
+    "lk_economy_title": "Gold and troops",
+    "lk_phone_desc": "Tap land to open the menu, tap the sword to attack. Pinch to zoom, twist two fingers to rotate, slide two fingers up or down to tilt.",
+    "lk_phone_title": "On a phone",
+    "lk_ships_desc": "Warship: all-rounder. Destroyer: cheap and fast, hunts transports and trade ships. Battleship: slow and very tough, shells enemy coasts during a land war. Select ships and click water to move them.",
+    "lk_ships_title": "Navy",
+    "lk_title": "Quick guide",
+    "lk_trains_desc": "Factories link nearby cities and ports with railways; trade trains earn gold. With a level 2 factory some become fast Express trains. Armored Trains shell enemies near the tracks, Troop Trains bring reinforcements, Rail SAMs shoot down nukes.",
+    "lk_trains_title": "Trains",
+    "lk_weapons_desc": "Use the buttons on the left: artillery (needs a Defense Post), naval fire (needs a ship) and rockets (need a Missile Silo). Pick one, then click the target; the circle shows the blast and turns green when in range.",
+    "lk_weapons_title": "Weapons",
     "option_exit": "Exit button.",
     "option_pause": "Pause/Unpause the game - Unavailable in public games.",
     "option_settings": "Settings - Open the settings menu. Inside you can toggle things like Alternate view, Emojis, Dark Mode, Hidden names, action on left click and more.",
@@ -2667,6 +2684,10 @@
     },
     "title": "Tutorial"
   },
+  "unit_display": {
+    "group_build": "Build",
+    "group_forces": "Forces"
+  },
   "unit_type": {
     "armored_train": "Armored Train",
     "atom_bomb": "Atom Bomb",
@@ -2963,9 +2984,5 @@
     "rotate_right": "Rotate camera right",
     "tilt_down": "Tilt camera down",
     "tilt_up": "Tilt camera up"
-  },
-  "unit_display": {
-    "group_build": "Build",
-    "group_forces": "Forces"
   }
 }

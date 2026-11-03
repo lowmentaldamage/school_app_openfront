@@ -945,8 +945,8 @@ body.in-game tutorial-panel > div {
 }
 
 /* Camera compass: out of the middle of the map. Desktop: bottom-right
-   above the HUD. Phones: a small draggable compass under the top bar
-   (turn and tilt by dragging it or with two fingers). */
+   above the HUD. Phones: a small draggable compass bottom-right, above
+   the controls (turn and tilt by dragging it or with two fingers). */
 #world3d-compass {
   top: auto !important;
   bottom: 200px !important;
@@ -955,8 +955,8 @@ body.in-game tutorial-panel > div {
 }
 @media (pointer: coarse), (max-width: 640px) {
   #world3d-compass {
-    top: 64px !important;
-    bottom: auto !important;
+    top: auto !important;
+    bottom: calc(110px + env(safe-area-inset-bottom)) !important;
     right: 8px !important;
   }
   #world3d-compass .lkr-cam-btn {

@@ -7,6 +7,8 @@ import {
   listedMaps,
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
+import { isOwnServer } from "./selfhost/SelfHostSession";
+
 import type { SnapshotHeader } from "@laukolaroser/engine-api/game/SnapshotHeader";
 import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import { DoomsdayClockSpeed } from "@laukolaroser/engine-lib/game/DoomsdayClock";
@@ -312,7 +314,9 @@ export class SinglePlayerModal extends BaseModal {
   };
 
   private renderNotLoggedInBanner(): TemplateResult {
-    if (gamePortal.isOnGamePortal()) {
+    // Achievements live on the upstream account service, which a
+    // Laukolaroser server does not have: no sign-in prompt.
+    if (gamePortal.isOnGamePortal() || isOwnServer()) {
       return html``;
     }
     return html`<button

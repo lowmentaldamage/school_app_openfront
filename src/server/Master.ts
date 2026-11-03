@@ -160,6 +160,12 @@ app.use("/api", (_req, res, next) => {
 // Self-hosted private accounts (see selfhost/SelfHost.ts).
 if (selfHostEnabled()) {
   app.use("/api/selfhost", createSelfHostRouter());
+} else {
+  // Public mode on your own server: no accounts, but the client still learns
+  // that this server needs no external backend for lobbies and games.
+  app.get("/api/selfhost/status", (_req, res) => {
+    res.json({ enabled: false, ownServer: true });
+  });
 }
 
 // Start the master process
