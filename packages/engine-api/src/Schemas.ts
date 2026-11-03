@@ -311,6 +311,9 @@ export const GameConfigSchema = z.object({
   // that only know publicIds at create_game); resolved to clientID at lookup.
   nameRevealPublicIds: z.string().array().max(200).optional(),
   waterNukes: z.boolean().nullable().optional(),
+  // Fog of war (display): enemy units and buildings only show inside the
+  // sight of the player and allies (land, units, radar). See client/fog.
+  fogOfWar: z.boolean().nullable().optional(),
   randomSpawn: z.boolean(),
   // The onboarding tutorial (docs/OnboardingTutorial.md): nations and tribes
   // only grow into free land, and the game ends once the human is alone.

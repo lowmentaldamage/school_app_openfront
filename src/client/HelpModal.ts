@@ -143,6 +143,7 @@ export class HelpModal extends BaseModal {
                 "income",
                 "weapons",
                 "air",
+                "fog",
                 "economy",
                 "terrain",
                 "borders",

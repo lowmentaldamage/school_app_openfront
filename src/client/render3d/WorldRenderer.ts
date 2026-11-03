@@ -221,6 +221,7 @@ export class WorldRenderer {
     palette: Float32Array,
     nowMs: number,
     mySmallID: number | null = null,
+    visible: ((u: UnitInput) => boolean) | null = null,
   ): void {
     this.territory.updatePalette(palette);
     this.territory.updateOwners(
@@ -238,6 +239,7 @@ export class WorldRenderer {
       nowMs,
       this.cameraController.distance,
       mySmallID,
+      visible,
     );
     this.effects.onEvents(frame.events.deadUnits);
   }

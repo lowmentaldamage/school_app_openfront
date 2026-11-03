@@ -18,6 +18,7 @@ import { resolveKeybindLabel, translateText } from "../../Utils";
 import { GameView } from "../../view";
 import {
   airbaseIcon,
+  radarIcon,
   armoredTrainIcon,
   atomBombIcon,
   battleshipIcon,
@@ -64,6 +65,7 @@ export class UnitDisplay extends LitElement implements Controller {
   private _markets = 0;
   private _oilRigs = 0;
   private _airbases = 0;
+  private _radars = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -170,6 +172,7 @@ export class UnitDisplay extends LitElement implements Controller {
     this._markets = player.totalUnitLevels(UnitType.Market);
     this._oilRigs = player.totalUnitLevels(UnitType.OilRig);
     this._airbases = player.totalUnitLevels(UnitType.Airbase);
+    this._radars = player.totalUnitLevels(UnitType.RadarStation);
     this.requestUpdate();
   }
 
@@ -272,6 +275,13 @@ export class UnitDisplay extends LitElement implements Controller {
             this._airbases,
             UnitType.Airbase,
             "airbase",
+            "",
+          )}
+          ${this.renderUnitItem(
+            radarIcon,
+            this._radars,
+            UnitType.RadarStation,
+            "radar_station",
             "",
           )}
         </div>

@@ -242,6 +242,7 @@ export class Config {
       case UnitType.GoldMine:
       case UnitType.Market:
       case UnitType.Airbase:
+      case UnitType.RadarStation:
         info = {
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
           upgradable: true,

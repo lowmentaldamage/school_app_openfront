@@ -302,4 +302,26 @@ describe("Submarine and Aircraft Carrier", () => {
     expect(fighter).toBe(true);
     void enemy;
   });
+
+  test("a friendly radar lets any warship hunt submarines", () => {
+    const sub = ship(p2, UnitType.Submarine, 14, 2);
+    ship(p1, UnitType.Warship, 10, 14); // ~12.6 tiles: beyond detect range
+    p1.conquer(game.ref(COAST_X, 8));
+    game.addExecution(
+      new ConstructionExecution(
+        p1,
+        UnitType.RadarStation,
+        game.ref(COAST_X, 8),
+      ),
+    );
+    let hurt = false;
+    for (let i = 0; i < 80 && !hurt; i++) {
+      game.executeNextTick();
+      hurt =
+        !sub.isActive() ||
+        sub.health() < NAVAL_CLASSES[UnitType.Submarine].maxHealth;
+    }
+    expect(p1.units(UnitType.RadarStation)).toHaveLength(1);
+    expect(hurt).toBe(true);
+  });
 });

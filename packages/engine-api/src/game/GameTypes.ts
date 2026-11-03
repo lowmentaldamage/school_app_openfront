@@ -234,6 +234,8 @@ export enum UnitType {
   Airbase = "Airbase",
   Bomber = "Bomber",
   Fighter = "Fighter",
+  // Defense (see engine-lib/defense/Radar.ts).
+  RadarStation = "Radar Station",
 }
 
 /** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
@@ -302,6 +304,7 @@ export const Structures = unitTypeGroup([
   UnitType.GoldMine,
   UnitType.Market,
   UnitType.Airbase,
+  UnitType.RadarStation,
 ] as const);
 
 /** Income buildings (engine-lib/economy/Economy.ts). */

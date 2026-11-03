@@ -194,6 +194,9 @@ export class ConstructionExecution implements Execution {
       case UnitType.Airbase:
         this.mg.addExecution(new AirbaseExecution(this.structure!));
         break;
+      case UnitType.RadarStation:
+        // Passive: warships and the fog of war read radars directly.
+        break;
       default:
         console.warn(
           `unit type ${this.constructionType} cannot be constructed`,
@@ -214,6 +217,7 @@ export class ConstructionExecution implements Execution {
       case UnitType.Market:
       case UnitType.OilRig:
       case UnitType.Airbase:
+      case UnitType.RadarStation:
         return true;
       default:
         return false;

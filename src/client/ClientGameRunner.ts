@@ -31,6 +31,7 @@ import { ClientEnv } from "../client/ClientEnv";
 import { reloadForUpdate, translateText } from "../client/Utils";
 import { MapLayerController } from "./controllers/MapLayerController";
 import { isDesktopShell } from "./DesktopShell";
+import { FogOfWar } from "./fog/FogOfWar";
 import { GameMetrics } from "./GameMetrics";
 import { createRenderer, GameRenderer } from "./hud/GameRenderer";
 import { goldRateTracker } from "./hud/layers/lib/GoldRateTracker";
@@ -70,10 +71,16 @@ import {
 } from "./render/gl";
 import { PALETTE_SIZE } from "./render/gl/utils/PlayerPalette";
 import { ALL_UNIT_TYPES, UnitState } from "./render/types";
+import { atmosphereAt } from "./render3d/environment/Atmosphere";
 import { isWorld3DEnabled } from "./render3d/World3DFlag";
 import type { World3DView } from "./render3d/World3DView";
 import { versionedPathForMismatchedGame } from "./ServerList";
 import { audioMixer, initAudioMixer } from "./sound/AudioMixer";
+import {
+  AudioEventTracker,
+  warIntensity,
+} from "./sound/procedural/AudioEvents";
+import { WorldAudio } from "./sound/procedural/WorldAudio";
 import { SoundManager } from "./sound/SoundManager";
 import { reportGameError } from "./Telemetry";
 import {
@@ -670,16 +677,82 @@ function mountWebGLFrameLoop(
       rafId = null;
     }
     resizeObs.disconnect();
+    worldAudio?.dispose();
+    worldAudio = null;
   };
 
   const builder = new WebGLFrameBuilder(view);
+  const skySettings = new UserSettings();
+  // Fog of war (lobby option): hide enemy units outside friendly sight.
+  const fog = gameView.config().gameConfig().fogOfWar
+    ? new FogOfWar(gameView.width(), gameView.height())
+    : null;
+  let skySeed = 0;
+  for (const ch of String(gameView.gameID())) {
+    skySeed = (Math.imul(skySeed, 31) + ch.charCodeAt(0)) | 0;
+  }
+
+  // Generated music, world ambience and unit cues (sound/procedural).
+  let worldAudio: WorldAudio | null = null;
+  const audioEvents = new AudioEventTracker();
+  builder.addFrameListener((gv) => {
+    if (worldAudio === null) {
+      const mixer = audioMixer();
+      if (mixer === null) return;
+      worldAudio = new WorldAudio(mixer);
+    }
+    const me = gv.myPlayer();
+    let incoming = 0;
+    for (const a of me?.incomingAttacks() ?? []) incoming += a.troops;
+    const outgoing = (me?.outgoingAttacks() ?? []).filter(
+      (a) => a.targetID !== 0,
+    ).length;
+    worldAudio.setIntensity(
+      warIntensity(incoming, outgoing, me?.troops() ?? 0),
+    );
+    const sky = atmosphereAt(
+      gv.ticks(),
+      {
+        dayNight: skySettings.dayNightCycle(),
+        weather: skySettings.weatherEffects(),
+      },
+      skySeed,
+    );
+    worldAudio.setWorld({
+      daylight: sky.daylight,
+      rain: sky.rain,
+      cloud: sky.cloud,
+      flash: sky.flash,
+      cameraDistance: world3d?.world.cameraController.distance ?? 300,
+    });
+    const bounds = world3d?.visibleTileBounds() ?? null;
+    const units = gv.frameData().units;
+    const inView = (pos: number): boolean => {
+      if (bounds === null) return false;
+      const x = pos % mapWidth;
+      const y = Math.floor(pos / mapWidth);
+      return (
+        x >= bounds.minX &&
+        x <= bounds.maxX &&
+        y >= bounds.minY &&
+        y <= bounds.maxY
+      );
+    };
+    // Sounds of other players' units: on screen and not in the fog.
+    const audible = (pos: number): boolean =>
+      inView(pos) && (fog === null || fog.isTileVisible(pos));
+    for (const cue of audioEvents.update(
+      units.values(),
+      me?.smallID() ?? null,
+      audible,
+      me?.numTilesOwned() ?? 0,
+    )) {
+      worldAudio.cue(cue);
+    }
+  });
+
   if (world3d !== null) {
     builder.setRendererUploadsEnabled(false);
-    const skySettings = new UserSettings();
-    let skySeed = 0;
-    for (const ch of String(gameView.gameID())) {
-      skySeed = (Math.imul(skySeed, 31) + ch.charCodeAt(0)) | 0;
-    }
     builder.addFrameListener((gv, palette) => {
       world3d.setAtmosphere(
         gv.ticks(),
@@ -689,12 +762,17 @@ function mountWebGLFrameLoop(
         },
         skySeed,
       );
+      const me = gv.myPlayer();
+      if (fog !== null && me) {
+        fog.setFriendly([me.smallID(), ...me.allies().map((a) => a.smallID())]);
+      }
       world3d.onTick(
         gv.frameData(),
         palette,
         gv.players(),
-        gv.myPlayer()?.id() ?? null,
-        gv.myPlayer()?.smallID() ?? null,
+        me?.id() ?? null,
+        me?.smallID() ?? null,
+        fog !== null && me ? fog : null,
       );
     });
   }

@@ -123,6 +123,10 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
   { type: UnitType.Market, translationKey: "unit_type.market" },
   { type: UnitType.OilRig, translationKey: "unit_type.oil_rig" },
   { type: UnitType.Airbase, translationKey: "unit_type.airbase" },
+  {
+    type: UnitType.RadarStation,
+    translationKey: "unit_type.radar_station",
+  },
   { type: UnitType.TransportShip, translationKey: "unit_type.boat" },
   { type: UnitType.MissileSilo, translationKey: "unit_type.missile_silo" },
   { type: UnitType.SAMLauncher, translationKey: "unit_type.sam_launcher" },

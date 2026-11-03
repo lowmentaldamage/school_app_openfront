@@ -12,6 +12,9 @@
 - Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
 - Build previews, range rings and nuke flight paths shown in 3D
 - Classic flat map still available with `?renderer=2d`
+- Fog of war (lobby option, on by default): enemy units and buildings only show near your land, ships, planes and radar; buildings stay on the map once seen; incoming nukes are always shown
+- Radar Station: reveals a wide circle and lets your warships hunt submarines inside it
+- Generated soundtrack: calm in peace, drums and timpani at war; rain, wind, thunder, sea, birds by day and crickets at night; sounds for bombers, fighters, bombs, torpedoes and radar
 - Conquest animation: captured land flashes in the new owner's colour as the front advances
 - Detailed buildings: windowed towers, brick and metal facades; city windows light up at night
 - Vehicles turn smoothly; ships heel in turns, planes bank, take off and land at their base; new buildings rise from the ground

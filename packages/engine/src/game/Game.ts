@@ -85,6 +85,7 @@ export interface UnitParamsMap {
   [UnitType.Market]: Record<string, never>;
   [UnitType.OilRig]: Record<string, never>;
   [UnitType.Airbase]: Record<string, never>;
+  [UnitType.RadarStation]: Record<string, never>;
   [UnitType.Bomber]: { targetTile?: TileRef };
   [UnitType.Fighter]: { targetUnit?: Unit };
 

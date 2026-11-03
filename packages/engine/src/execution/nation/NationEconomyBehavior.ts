@@ -20,6 +20,7 @@ const LIMITS: Partial<Record<UnitType, number>> = {
   [UnitType.Market]: 3,
   [UnitType.OilRig]: 2,
   [UnitType.Airbase]: 1,
+  [UnitType.RadarStation]: 1,
 };
 
 export class NationEconomyBehavior {
@@ -40,7 +41,13 @@ export class NationEconomyBehavior {
       this.player.outgoingAttacks().some((a) => a.target().isPlayer()) ||
       this.player.incomingAttacks().length > 0;
     const order: UnitType[] = atWar
-      ? [UnitType.Airbase, UnitType.GoldMine, UnitType.OilRig, UnitType.Market]
+      ? [
+          UnitType.Airbase,
+          UnitType.RadarStation,
+          UnitType.GoldMine,
+          UnitType.OilRig,
+          UnitType.Market,
+        ]
       : [UnitType.GoldMine, UnitType.OilRig, UnitType.Market, UnitType.Airbase];
     for (const type of order) {
       if (cfg.isUnitDisabled(type)) continue;

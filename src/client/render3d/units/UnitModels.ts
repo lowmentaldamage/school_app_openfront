@@ -23,6 +23,7 @@ export type ModelKind =
   | "market"
   | "oilRig"
   | "airbase"
+  | "radarStation"
   | "bomber"
   | "fighter"
   | "expressEngine"
@@ -563,6 +564,30 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .box(0.92, 0.08, 0.72, { team: true, pos: [-0.6, 0.51, 0.75] })
       .cylinder(0.12, 0.14, 0.8, 6, { color: CONCRETE, pos: [0.8, 0.06, 0.75] })
       .box(0.3, 0.2, 0.3, { color: GLASS, pos: [0.8, 0.86, 0.75] })
+      .build(),
+
+  // Radar: equipment hut, lattice mast and a tilted dish.
+  radarStation: () =>
+    new ModelBuilder()
+      .box(1.6, 0.08, 1.6, { color: CONCRETE })
+      .box(0.7, 0.45, 0.55, {
+        color: 0x7d8a72,
+        pattern: "panels",
+        pos: [-0.35, 0.08, 0.35],
+      })
+      .box(0.74, 0.07, 0.59, { team: true, pos: [-0.35, 0.53, 0.35] })
+      .cylinder(0.08, 0.14, 1.4, 4, { color: STEEL, pos: [0.3, 0.08, -0.25] })
+      .cylinder(0.55, 0.12, 0.18, 10, {
+        color: WHITE,
+        pos: [0.3, 1.45, -0.25],
+        rot: [0.55, 0, 0.3],
+      })
+      .cylinder(0.02, 0.02, 0.4, 4, {
+        color: DARK_STEEL,
+        pos: [0.36, 1.55, -0.2],
+        rot: [0.55, 0, 0.3],
+      })
+      .sphere(0.06, { team: true, pos: [0.3, 1.5, -0.25] })
       .build(),
 
   // Twin-engine bomber (nose along +x).

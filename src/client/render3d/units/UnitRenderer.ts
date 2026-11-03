@@ -268,6 +268,7 @@ export class UnitRenderer {
     nowMs: number,
     cameraDistance: number,
     mySmallID: number | null = null,
+    visible: ((u: UnitInput) => boolean) | null = null,
   ): void {
     const hiddenSubs = hiddenSubmarines(
       units.values(),
@@ -293,6 +294,7 @@ export class UnitRenderer {
     for (const u of units.values()) {
       if (!u.isActive || u.waitTicks > 0) continue;
       if (hiddenSubs.has(u.id)) continue;
+      if (visible !== null && !visible(u)) continue;
       const kind = modelKindFor(u);
       if (kind === null) continue;
       const pool = this.pools.get(kind)!;

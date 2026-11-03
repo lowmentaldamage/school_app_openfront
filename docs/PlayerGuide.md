@@ -181,6 +181,21 @@ coast next to them; gold mines make mountains worth holding.
    fire at bombers flying past. A bomber takes about two fighter passes to
    bring down.
 
+## 7d. Fog of war and radar
+
+With **Fog of war** on (lobby option, on by default) the map, territory
+and borders are always visible, but enemy **units and buildings** only show
+inside your sight:
+
+- about 16 tiles beyond your own and your allies' land,
+- around your ships, planes, trains and buildings (destroyers and carriers
+  see furthest),
+- inside your **Radar Stations'** circles (90 tiles, +20 per upgrade).
+
+Enemy buildings stay on your map once you have seen them. Incoming nukes
+and missiles are always shown. A Radar Station also lets **every** warship
+of yours (and your allies') hunt enemy submarines inside its circle.
+
 ## 8. Weapons
 
 Use the buttons on the left. Pick a weapon, point at the target — the circle
@@ -205,6 +220,10 @@ Weapon strikes never capture land; only attacks do.
   and **Weather** (clouds, rain, fog, storms) switch the living sky on or
   off; they are visual only and never affect the battle.
 - **Settings → Keybinds**: change every key.
+- **Settings → Audio**: separate sliders for music, effects, ambience,
+  alerts and interface. The music is generated live — calm in peace, with
+  drums when you are at war — and the world sounds follow the weather and
+  the time of day.
 - **Settings → Gameplay**: _Left click to open menu_ (phone-style controls
   on PC), alert frame, build-cost cursor and more.
 

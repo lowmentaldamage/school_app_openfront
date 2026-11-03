@@ -4,6 +4,7 @@
  * so this is unit tested directly.
  */
 
+import { radarRange } from "@laukolaroser/engine-lib/defense/Radar";
 import type { ModelKind } from "./UnitModels";
 
 /** Minimal unit fields the classifier reads (subset of UnitState). */
@@ -26,6 +27,7 @@ const BY_TYPE: Record<string, ModelKind> = {
   Market: "market",
   "Oil Rig": "oilRig",
   Airbase: "airbase",
+  "Radar Station": "radarStation",
   Bomber: "bomber",
   Fighter: "fighter",
   Transport: "transport",
@@ -51,6 +53,7 @@ export const STRUCTURE_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
   "market",
   "oilRig",
   "airbase",
+  "radarStation",
   "city",
   "port",
   "factory",
@@ -193,6 +196,7 @@ export function hiddenSubmarines(
     ownerID: number;
     pos: number;
     isActive: boolean;
+    level?: number;
   }>,
   mySmallID: number | null,
   mapWidth: number,
@@ -201,24 +205,28 @@ export function hiddenSubmarines(
   const hidden = new Set<number>();
   if (mySmallID === null) return hidden;
   const subs: { id: number; x: number; y: number }[] = [];
-  const spotters: { x: number; y: number }[] = [];
+  const spotters: { x: number; y: number; r2: number }[] = [];
+  const r2 = range * range;
   for (const u of units) {
     if (!u.isActive) continue;
     const x = u.pos % mapWidth;
     const y = Math.floor(u.pos / mapWidth);
     if (u.ownerID === mySmallID) {
-      if (SUB_SPOTTERS.has(u.unitType)) spotters.push({ x, y });
+      if (SUB_SPOTTERS.has(u.unitType)) spotters.push({ x, y, r2 });
+      else if (u.unitType === "Radar Station") {
+        const r = radarRange(u.level ?? 1);
+        spotters.push({ x, y, r2: r * r });
+      }
     } else if (u.unitType === "Submarine") {
       subs.push({ id: u.id, x, y });
     }
   }
-  const r2 = range * range;
   for (const s of subs) {
     let seen = false;
     for (const p of spotters) {
       const dx = p.x - s.x;
       const dy = p.y - s.y;
-      if (dx * dx + dy * dy <= r2) {
+      if (dx * dx + dy * dy <= p.r2) {
         seen = true;
         break;
       }

@@ -12,6 +12,7 @@
  */
 
 import { renderTroops } from "@laukolaroser/engine-lib/Format";
+import type { FogOfWar } from "../fog/FogOfWar";
 import type { GhostPreviewData, NukeTrajectoryData } from "../render/types";
 import type { ScreenProjector } from "../TransformHandler";
 import type { Camera2DState } from "./camera/CameraController";
@@ -102,8 +103,19 @@ export class World3DView implements ScreenProjector {
     players: Iterable<LabelPlayer>,
     myPlayerID: string | null,
     mySmallID: number | null = null,
+    fog: FogOfWar | null = null,
   ): void {
-    this.world.updateFrame(frame, palette, performance.now(), mySmallID);
+    if (fog !== null) {
+      fog.updateOwners(frame.tileState, frame.changedTiles);
+      fog.computeVisibility(frame.units.values());
+    }
+    this.world.updateFrame(
+      frame,
+      palette,
+      performance.now(),
+      mySmallID,
+      fog === null ? null : (u) => fog.isUnitVisible(u),
+    );
     const texts = new Map<string, LabelText>();
     for (const p of players) {
       const id = p.id();

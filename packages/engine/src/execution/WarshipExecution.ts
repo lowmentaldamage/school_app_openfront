@@ -1,5 +1,6 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { CombatShips, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { radarRange, RADAR } from "@laukolaroser/engine-lib/defense/Radar";
 import {
   type CombatShipType,
   isCombatShip,
@@ -401,7 +402,8 @@ export class WarshipExecution implements Execution {
       if (
         unit.type() === UnitType.Submarine &&
         this.warship.type() !== UnitType.Destroyer &&
-        distSquared > SUBMARINE_DETECT_RANGE * SUBMARINE_DETECT_RANGE
+        distSquared > SUBMARINE_DETECT_RANGE * SUBMARINE_DETECT_RANGE &&
+        !onFriendlyRadar(mg, unit.tile(), owner)
       ) {
         continue;
       }
@@ -1043,3 +1045,22 @@ export const WarshipExecutionSnapshot = execSnapshotType({
   schema: WarshipExecutionStateSchema,
   cls: () => WarshipExecution,
 });
+
+/** Is `tile` inside a radar circle of `owner` or one of its allies? */
+export function onFriendlyRadar(
+  mg: Game,
+  tile: TileRef,
+  owner: Player,
+): boolean {
+  return mg.anyUnitNearby(
+    tile,
+    RADAR.maxRange,
+    [UnitType.RadarStation],
+    (r) => {
+      const ro = r.owner();
+      if (ro !== owner && !ro.isFriendly(owner)) return false;
+      const range = radarRange(r.level());
+      return mg.euclideanDistSquared(r.tile(), tile) <= range * range;
+    },
+  );
+}

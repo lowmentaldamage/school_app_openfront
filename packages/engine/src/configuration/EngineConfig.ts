@@ -13,6 +13,7 @@ import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import { NukeType } from "@laukolaroser/engine-api/StatsSchemas";
 import { AIRBASE } from "@laukolaroser/engine-lib/air/Air";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { radarCost } from "@laukolaroser/engine-lib/defense/Radar";
 import { exp, log, pow2 } from "@laukolaroser/engine-lib/DetMath";
 import {
   ECONOMY_BUILDINGS,
@@ -428,6 +429,11 @@ export class EngineConfig extends Config {
           (numUnits: number) =>
             Math.min(AIRBASE.maxCost, AIRBASE.baseCost * (numUnits + 1)),
           UnitType.Airbase,
+        );
+      case UnitType.RadarStation:
+        return this.costWrapper(
+          (numUnits: number) => radarCost(numUnits),
+          UnitType.RadarStation,
         );
       case UnitType.Port:
         return this.costWrapper(

@@ -1645,6 +1645,7 @@ export class PlayerImpl implements Player {
       case UnitType.Factory:
       case UnitType.Market:
       case UnitType.Airbase:
+      case UnitType.RadarStation:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       case UnitType.GoldMine:
         return this.goldMineSpawn(targetTile, validTiles);
