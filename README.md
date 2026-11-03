@@ -26,13 +26,14 @@ desktop or on your phone.
 
 ## Documentation
 
-| Guide                                     | For                                       |
-| ----------------------------------------- | ----------------------------------------- |
-| [Player Guide](docs/PlayerGuide.md)       | How to play: controls, units, tips        |
-| [Server Admin Guide](docs/SelfHosting.md) | Running your own server, accounts, HTTPS  |
-| [Developer Guide](docs/DeveloperGuide.md) | Code layout, adding units and maps, tests |
-| [3D renderer](docs/World3D.md)            | Design decisions and change log           |
-| [Roadmap](docs/Roadmap.md)                | Planned features                          |
+| Guide                                     | For                                                    |
+| ----------------------------------------- | ------------------------------------------------------ |
+| [Install & Play](docs/Install.md)         | Windows 11, Linux, macOS, Android APK, iOS, public PCs |
+| [Player Guide](docs/PlayerGuide.md)       | How to play: controls, units, tips                     |
+| [Server Admin Guide](docs/SelfHosting.md) | Running your own server, accounts, HTTPS               |
+| [Developer Guide](docs/DeveloperGuide.md) | Code layout, adding units and maps, tests              |
+| [3D renderer](docs/World3D.md)            | Design decisions and change log                        |
+| [Roadmap](docs/Roadmap.md)                | Planned features                                       |
 
 ## Quick start
 
