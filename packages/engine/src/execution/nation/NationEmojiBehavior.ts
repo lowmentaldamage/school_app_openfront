@@ -5,16 +5,16 @@ import {
   PlayerType,
   Relation,
   Tick,
-} from "@openfront/engine-api/game/GameTypes";
-import { flattenedEmojiTable } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { flattenedEmojiTable } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   readVersioned,
   snapshotType,
   Versioned,
   zInt,
   zPlayerRef,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Game, Player } from "../../game/Game";
 import type {

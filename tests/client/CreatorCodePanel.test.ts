@@ -20,7 +20,7 @@ vi.mock("../../src/client/Utils", async (importOriginal) => ({
     vars ? `${key}:${JSON.stringify(vars)}` : key,
 }));
 
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import "../../src/client/components/CreatorCodePanel";
 import type {
   CreatorChangedDetail,

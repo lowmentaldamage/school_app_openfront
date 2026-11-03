@@ -2,8 +2,8 @@
 import {
   UnitType,
   MAX_UPGRADE_AMOUNT,
-} from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   AlternateViewEvent,
   AttackRatioEvent,

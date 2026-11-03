@@ -2,14 +2,14 @@ import {
   Difficulty,
   PlayerID,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   zNum,
   zPlayerRef,
   zRandom,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { assertNever } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { assertNever } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Execution, Game, Player } from "../game/Game";
 import { execSnapshotType } from "../snapshot/ExecutionSnapshot";

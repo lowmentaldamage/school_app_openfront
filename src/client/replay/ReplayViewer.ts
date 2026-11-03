@@ -8,10 +8,10 @@
  * build is sent to that build's versioned shell.
  */
 
-import { Cell, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import type { GameStartInfo } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { EventBus } from "@openfront/shared/EventBus";
+import { Cell, PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { MapLayerController } from "../controllers/MapLayerController";

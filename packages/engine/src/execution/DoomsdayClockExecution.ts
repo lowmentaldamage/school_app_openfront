@@ -1,10 +1,10 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
+  CombatShips,
   GameMode,
   PlayerType,
   Team,
-  UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   doomsdayClockDrain,
   doomsdayClockRequiredTiles,
@@ -13,12 +13,12 @@ import {
   ROT_NOISE_SCALE,
   rotFrontNoise,
   rotSpeckleNoise,
-} from "@openfront/engine-lib/game/DoomsdayClock";
+} from "@laukolaroser/engine-lib/game/DoomsdayClock";
 import {
   zInt,
   zPlayerRef,
   zTiles,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player } from "../game/Game";
 import { execSnapshotType } from "../snapshot/ExecutionSnapshot";
@@ -195,7 +195,7 @@ export class DoomsdayClockExecution implements Execution {
             // attacker is passed, so any loss is environmental, never a credited
             // kill (see UnitImpl.delete). Healing is suppressed for flagged owners
             // in WarshipExecution.healWarship so the decay actually lands.
-            for (const ws of m.units(UnitType.Warship)) {
+            for (const ws of m.units(CombatShips.types)) {
               const shipFloor = Math.floor(
                 (ws.maxHealth() * cfg.drainFloorPercent) / 100,
               );

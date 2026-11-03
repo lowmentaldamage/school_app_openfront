@@ -1,4 +1,4 @@
-import { buildAssetUrl } from "@openfront/shared/AssetPaths";
+import { buildAssetUrl } from "@laukolaroser/shared/AssetPaths";
 import ejs from "ejs";
 import type { Response } from "express";
 import fs from "fs/promises";
@@ -114,11 +114,15 @@ export async function renderHtmlContent(
       cdnBase,
     ),
     desktopLogoImageUrl: buildAssetUrl(
-      "images/OpenFront.png",
+      "images/Laukolaroser.png",
       assetManifest,
       cdnBase,
     ),
-    mobileLogoImageUrl: buildAssetUrl("images/OF.png", assetManifest, cdnBase),
+    mobileLogoImageUrl: buildAssetUrl(
+      "images/LaukolaroserMark.png",
+      assetManifest,
+      cdnBase,
+    ),
   });
 }
 

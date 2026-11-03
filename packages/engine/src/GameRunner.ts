@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllPlayers,
   BuildableUnit,
@@ -15,19 +15,23 @@ import {
   PlayerProfile,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateType,
   GameUpdateViewData,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapFiles } from "@openfront/engine-api/game/MapFiles";
-import { ClientID, GameStartInfo, Turn } from "@openfront/engine-api/Schemas";
-import { packUnitUpdates } from "@openfront/engine-lib/game/PackedUnitUpdates";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapFiles } from "@laukolaroser/engine-api/game/MapFiles";
+import {
+  ClientID,
+  GameStartInfo,
+  Turn,
+} from "@laukolaroser/engine-api/Schemas";
+import { packUnitUpdates } from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import { EngineConfig } from "./configuration/EngineConfig";
 import { DoomsdayClockExecution } from "./execution/DoomsdayClockExecution";
 import { Executor } from "./execution/ExecutionManager";

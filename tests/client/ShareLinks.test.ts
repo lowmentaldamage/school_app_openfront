@@ -21,7 +21,7 @@ import "../../src/client/components/CopyButton";
 import type { CopyButton } from "../../src/client/components/CopyButton";
 
 // Every link that LEAVES the client, checked from the desktop shell — the one
-// place where the document's own origin (`app://openfront`) is not something
+// place where the document's own origin (`app://laukolaroser`) is not something
 // anyone else can open. Each of these strings is copied to a clipboard or
 // handed to a server that will send it on to a human.
 //
@@ -35,14 +35,14 @@ const realLocationDescriptor = Object.getOwnPropertyDescriptor(
 )!;
 
 // What a real desktop launch reports: the shell serves the renderer from its
-// own privileged scheme (openfront-desktop's protocol.ts).
-const DESKTOP_HREF = "app://openfront/index.html";
-const WEB_HREF = "https://openfront.io/";
+// own privileged scheme (laukolaroser-desktop's protocol.ts).
+const DESKTOP_HREF = "app://laukolaroser/index.html";
+const WEB_HREF = "https://laukolaroser.com/";
 
 function stubLocation(href: string) {
   const url = new URL(href);
   // Chromium registers app:// as a standard scheme (the shell's protocol.ts),
-  // so the real renderer reports origin "app://openfront". jsdom's URL parser
+  // so the real renderer reports origin "app://laukolaroser". jsdom's URL parser
   // has no such registration and yields "null" — spell the real value out, so
   // what leaks on a regression is what would leak in the shipped app.
   const origin =
@@ -70,7 +70,7 @@ function setBootstrapConfig(
     gameEnv: "prod",
     numWorkers: 1,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.io",
+    jwtAudience: "laukolaroser.com",
     instanceId: "d",
     gitCommit: "t",
     ...overrides,
@@ -79,7 +79,7 @@ function setBootstrapConfig(
 }
 
 beforeEach(() => {
-  setBootstrapConfig({ serverHost: "openfront.io" });
+  setBootstrapConfig({ serverHost: "laukolaroser.com" });
   copyToClipboardMock.mockClear();
 });
 
@@ -91,16 +91,16 @@ afterEach(() => {
 });
 
 describe("ClientEnv share helpers under a real desktop location", () => {
-  it("resolves the injected website host, not app://openfront", () => {
+  it("resolves the injected website host, not app://laukolaroser", () => {
     stubLocation(DESKTOP_HREF);
-    expect(ClientEnv.shareOrigin()).toBe("https://openfront.io");
-    expect(ClientEnv.shareBase()).toBe("https://openfront.io/");
+    expect(ClientEnv.shareOrigin()).toBe("https://laukolaroser.com");
+    expect(ClientEnv.shareBase()).toBe("https://laukolaroser.com/");
   });
 
   it("leaves the web build on its own document", () => {
-    stubLocation("https://openfront.io/c/abc");
-    expect(ClientEnv.shareOrigin()).toBe("https://openfront.io");
-    expect(ClientEnv.shareBase()).toBe("https://openfront.io/c/abc");
+    stubLocation("https://laukolaroser.com/c/abc");
+    expect(ClientEnv.shareOrigin()).toBe("https://laukolaroser.com");
+    expect(ClientEnv.shareBase()).toBe("https://laukolaroser.com/c/abc");
   });
 });
 
@@ -124,7 +124,7 @@ describe("the lobby invite link (copy-button)", () => {
   it("is a link the recipient can actually open from the desktop shell", async () => {
     const link = await copiedLobbyLink(DESKTOP_HREF);
     expect(link).toBe(
-      `https://openfront.io${ClientEnv.gamePath("aBcDeFgHiJ")}?lobby&s=xyz12`,
+      `https://laukolaroser.com${ClientEnv.gamePath("aBcDeFgHiJ")}?lobby&s=xyz12`,
     );
     expect(link).not.toContain("app:");
   });
@@ -132,7 +132,7 @@ describe("the lobby invite link (copy-button)", () => {
   it("is unchanged on the web", async () => {
     const link = await copiedLobbyLink(WEB_HREF);
     expect(link).toBe(
-      `https://openfront.io${ClientEnv.gamePath("aBcDeFgHiJ")}?lobby&s=xyz12`,
+      `https://laukolaroser.com${ClientEnv.gamePath("aBcDeFgHiJ")}?lobby&s=xyz12`,
     );
   });
 });
@@ -150,14 +150,16 @@ describe("the magic-link email's return domain", () => {
 
   it("names the website, not the shell, so the emailed link opens", async () => {
     // The player reads this email in a browser, possibly on another device:
-    // app://openfront would be a link nothing on earth can follow.
-    expect(await redirectDomainFor(DESKTOP_HREF)).toBe("https://openfront.io");
+    // app://laukolaroser would be a link nothing on earth can follow.
+    expect(await redirectDomainFor(DESKTOP_HREF)).toBe(
+      "https://laukolaroser.com",
+    );
   });
 
   it("is unchanged on the web", async () => {
     stubLocation(WEB_HREF);
-    expect(await redirectDomainFor("https://openfront.dev/")).toBe(
-      "https://openfront.dev",
+    expect(await redirectDomainFor("https://laukolaroser.dev/")).toBe(
+      "https://laukolaroser.dev",
     );
   });
 });

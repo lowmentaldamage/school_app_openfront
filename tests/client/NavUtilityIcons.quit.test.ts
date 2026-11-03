@@ -15,7 +15,7 @@ function installShell(over: { quit?: unknown } = {}): {
   quit: ReturnType<typeof vi.fn>;
 } {
   const quit = vi.fn(async () => undefined);
-  window.openfrontDesktop = {
+  window.laukolaroserDesktop = {
     shell: { api: 4 },
     quit,
     ...over,
@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  window.openfrontDesktop = undefined;
+  window.laukolaroserDesktop = undefined;
 });
 
 // Moved here from the settings modal (OPE-445): a one-click door icon beside
@@ -48,7 +48,7 @@ describe("the nav's exit door", () => {
 
   // The regression that matters most: a door icon on the web is a button
   // that cannot work. The web build (and CrazyGames, which is a web build)
-  // sets no openfrontDesktop global at all.
+  // sets no laukolaroserDesktop global at all.
   it("is absent with no desktop shell", async () => {
     const el = await mount();
     expect(quitButton(el)).toBeNull();
@@ -58,7 +58,7 @@ describe("the nav's exit door", () => {
   // bridge namespaces but no quit(); the icon must still feature-detect on
   // the method itself rather than on shell presence.
   it("is absent on a shell without quit()", async () => {
-    window.openfrontDesktop = { shell: { api: 3 } };
+    window.laukolaroserDesktop = { shell: { api: 3 } };
     const el = await mount();
     expect(quitButton(el)).toBeNull();
   });

@@ -16,7 +16,7 @@ import { z } from "zod";
 // page's fallback when that list is unavailable.
 
 export const ClusterEntrySchema = z.object({
-  // Host the deployment is reachable on directly (e.g. "blue.openfront.io"),
+  // Host the deployment is reachable on directly (e.g. "blue.laukolaroser.com"),
   // bypassing any load balancer. Also the self-match key at boot.
   host: z.string().min(1),
   // Worker processes behind this host. Frozen for the lifetime of every game

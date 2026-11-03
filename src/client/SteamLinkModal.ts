@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { html, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 import { responseHasLinkedIdentity } from "./AccountIdentity";
@@ -151,7 +151,7 @@ const BUTTON_BASE =
  *
  * Security note — this is the point of the whole component. The link token
  * is opaque and carries nothing about either account, and on a shared
- * machine the browser may be logged into someone else's OpenFront session.
+ * machine the browser may be logged into someone else's Laukolaroser session.
  * So the two names shown here come from two different, specific places, and
  * mixing them up is the defect this component exists to avoid:
  *   - the Steam persona comes from GET /auth/steam/link_ticket/:token

@@ -1,5 +1,5 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
-import { within } from "@openfront/engine-lib/Util";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { within } from "@laukolaroser/engine-lib/Util";
 import { DistanceBasedBezierCurve } from "../utilities/Line";
 import { PathResult, PathStatus, SteppingPathFinder } from "./types";
 

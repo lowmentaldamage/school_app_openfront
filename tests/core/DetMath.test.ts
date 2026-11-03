@@ -1,4 +1,4 @@
-import { atan2, exp, log, pow, pow2 } from "@openfront/engine-lib/DetMath";
+import { atan2, exp, log, pow, pow2 } from "@laukolaroser/engine-lib/DetMath";
 import { describe, expect, it } from "vitest";
 
 function relErr(a: number, b: number): number {

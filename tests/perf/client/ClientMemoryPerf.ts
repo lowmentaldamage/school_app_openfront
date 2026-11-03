@@ -14,7 +14,7 @@
  * working copy is serving port 9000.
  *
  * One-time browser setup (installs playwright + chromium libs, no sudo):
- *   bash .claude/skills/run-openfront/setup.sh
+ *   bash .claude/skills/run-laukolaroser/setup.sh
  *
  * Usage:
  *   npm run perf:client-mem -- --map "Giant World Map" --ticks 3000 \
@@ -211,15 +211,15 @@ async function main(): Promise<void> {
   console.log(`starting vite on port ${opts.port}…`);
   const vite = await startViteServer(opts.port);
 
-  // The skill driver reads OPENFRONT_URL at import time, so set it before
+  // The skill driver reads LAUKOLAROSER_URL at import time, so set it before
   // the dynamic imports below.
-  process.env.OPENFRONT_URL = `http://localhost:${opts.port}`;
+  process.env.LAUKOLAROSER_URL = `http://localhost:${opts.port}`;
   const { launch, gotoHome, openSoloModal } =
     // @ts-expect-error untyped .mjs skill module
-    await import("../../../.claude/skills/run-openfront/driver.mjs");
+    await import("../../../.claude/skills/run-laukolaroser/driver.mjs");
   const { startSoloGame, spawn, waitForSpawnPhaseEnd, gameState } =
     // @ts-expect-error untyped .mjs skill module
-    await import("../../../.claude/skills/run-openfront/game.mjs");
+    await import("../../../.claude/skills/run-laukolaroser/game.mjs");
 
   let browser: { close(): Promise<void> } | null = null;
   try {

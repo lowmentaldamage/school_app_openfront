@@ -1,23 +1,24 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   BuildableUnit,
   PlayerType,
   Structures,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateType,
   GameUpdateViewData,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { ClientID, GameID } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { TerrainMapData } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { findClosestBy } from "@openfront/engine-lib/Util";
-import { EventBus } from "@openfront/shared/EventBus";
-import { GameMapLoader } from "@openfront/shared/GameMapLoader";
-import { replacer } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { ClientID, GameID } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { findClosestBy } from "@laukolaroser/engine-lib/Util";
+import { WEAPONS } from "@laukolaroser/engine-lib/weapons/Weapons";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import { GameMapLoader } from "@laukolaroser/shared/GameMapLoader";
+import { replacer } from "@laukolaroser/shared/SharedUtil";
 import {
   GameRecord,
   GroupTokenEvent,
@@ -25,16 +26,18 @@ import {
   PlayerCosmeticRefs,
   ServerMessage,
   WireGameStartInfo,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { ClientEnv } from "../client/ClientEnv";
 import { reloadForUpdate, translateText } from "../client/Utils";
 import { MapLayerController } from "./controllers/MapLayerController";
 import { isDesktopShell } from "./DesktopShell";
+import { FogOfWar } from "./fog/FogOfWar";
 import { GameMetrics } from "./GameMetrics";
 import { createRenderer, GameRenderer } from "./hud/GameRenderer";
 import { goldRateTracker } from "./hud/layers/lib/GoldRateTracker";
 import { OnboardingOverlay } from "./hud/layers/OnboardingOverlay";
 import { UnitDisplay } from "./hud/layers/UnitDisplay";
+import { isLauncherReady } from "./hud/layers/WeaponsPanel";
 import { showInGameAlert } from "./InGameModal";
 import {
   AutoUpgradeEvent,
@@ -47,6 +50,7 @@ import {
   InputHandler,
   MouseMoveEvent,
   MouseUpEvent,
+  WeaponAimEvent,
   TickMetricsEvent,
   ToggleRenderDebugGuiEvent,
 } from "./InputHandler";
@@ -65,9 +69,18 @@ import {
   showGLGate,
   trackGLInit,
 } from "./render/gl";
+import { PALETTE_SIZE } from "./render/gl/utils/PlayerPalette";
 import { ALL_UNIT_TYPES, UnitState } from "./render/types";
+import { atmosphereAt } from "./render3d/environment/Atmosphere";
+import { isWorld3DEnabled } from "./render3d/World3DFlag";
+import type { World3DView } from "./render3d/World3DView";
 import { versionedPathForMismatchedGame } from "./ServerList";
 import { audioMixer, initAudioMixer } from "./sound/AudioMixer";
+import {
+  AudioEventTracker,
+  warIntensity,
+} from "./sound/procedural/AudioEvents";
+import { WorldAudio } from "./sound/procedural/WorldAudio";
 import { SoundManager } from "./sound/SoundManager";
 import { reportGameError } from "./Telemetry";
 import {
@@ -75,9 +88,10 @@ import {
   terrainMapFileLoader,
 } from "./TerrainMapFileLoader";
 import { themeProvider } from "./theme/ThemeProvider";
-import { GoToPlayerEvent } from "./TransformHandler";
+import { GoToPlayerEvent, type TransformHandler } from "./TransformHandler";
 import {
   counterAttackTroops,
+  FireWeaponIntentEvent,
   MoveWarshipIntentEvent,
   NewLobbyEvent,
   SendAllianceExtensionIntentEvent,
@@ -91,6 +105,7 @@ import {
   SendUpgradeStructureIntentEvent,
   Transport,
 } from "./Transport";
+import type { UIState } from "./UIState";
 import {
   GRAPHICS_KEY,
   USER_SETTINGS_CHANGED_EVENT,
@@ -569,6 +584,7 @@ function mountWebGLFrameLoop(
   gameView: GameView,
   eventBus: EventBus,
   onFrame: (nowMs: number) => void,
+  world3d: World3DView | null,
 ): { builder: WebGLFrameBuilder; stopFrameLoop: () => void } {
   const gameMap = terrainMap.gameMap;
   const mapWidth = gameMap.width();
@@ -601,6 +617,21 @@ function mountWebGLFrameLoop(
       transformHandler.offsetY +
       mapHeight / 2 +
       (cachedCanvasH - mapHeight) / (2 * scale);
+    if (world3d !== null) {
+      // The 3D view replaces the 2D map drawing; the 2D renderer still
+      // receives state uploads so switching back needs no resync.
+      world3d.render(
+        {
+          centerX,
+          centerY,
+          scale,
+          viewWidth: cachedCanvasW,
+          viewHeight: cachedCanvasH,
+        },
+        performance.now(),
+      );
+      return;
+    }
     view.setCameraState(centerX, centerY, scale * dpr);
     // Invoke the WebGL renderer's frame callback synchronously, with the just-
     // updated camera state. The callback re-arms itself via captureRaf, so
@@ -646,9 +677,105 @@ function mountWebGLFrameLoop(
       rafId = null;
     }
     resizeObs.disconnect();
+    worldAudio?.dispose();
+    worldAudio = null;
   };
 
   const builder = new WebGLFrameBuilder(view);
+  const skySettings = new UserSettings();
+  // Fog of war (lobby option): hide enemy units outside friendly sight.
+  const fog = gameView.config().gameConfig().fogOfWar
+    ? new FogOfWar(gameView.width(), gameView.height())
+    : null;
+  let skySeed = 0;
+  for (const ch of String(gameView.gameID())) {
+    skySeed = (Math.imul(skySeed, 31) + ch.charCodeAt(0)) | 0;
+  }
+
+  // Generated music, world ambience and unit cues (sound/procedural).
+  let worldAudio: WorldAudio | null = null;
+  const audioEvents = new AudioEventTracker();
+  builder.addFrameListener((gv) => {
+    if (worldAudio === null) {
+      const mixer = audioMixer();
+      if (mixer === null) return;
+      worldAudio = new WorldAudio(mixer);
+    }
+    const me = gv.myPlayer();
+    let incoming = 0;
+    for (const a of me?.incomingAttacks() ?? []) incoming += a.troops;
+    const outgoing = (me?.outgoingAttacks() ?? []).filter(
+      (a) => a.targetID !== 0,
+    ).length;
+    worldAudio.setIntensity(
+      warIntensity(incoming, outgoing, me?.troops() ?? 0),
+    );
+    const sky = atmosphereAt(
+      gv.ticks(),
+      {
+        dayNight: skySettings.dayNightCycle(),
+        weather: skySettings.weatherEffects(),
+      },
+      skySeed,
+    );
+    worldAudio.setWorld({
+      daylight: sky.daylight,
+      rain: sky.rain,
+      cloud: sky.cloud,
+      flash: sky.flash,
+      cameraDistance: world3d?.world.cameraController.distance ?? 300,
+    });
+    const bounds = world3d?.visibleTileBounds() ?? null;
+    const units = gv.frameData().units;
+    const inView = (pos: number): boolean => {
+      if (bounds === null) return false;
+      const x = pos % mapWidth;
+      const y = Math.floor(pos / mapWidth);
+      return (
+        x >= bounds.minX &&
+        x <= bounds.maxX &&
+        y >= bounds.minY &&
+        y <= bounds.maxY
+      );
+    };
+    // Sounds of other players' units: on screen and not in the fog.
+    const audible = (pos: number): boolean =>
+      inView(pos) && (fog === null || fog.isTileVisible(pos));
+    for (const cue of audioEvents.update(
+      units.values(),
+      me?.smallID() ?? null,
+      audible,
+      me?.numTilesOwned() ?? 0,
+    )) {
+      worldAudio.cue(cue);
+    }
+  });
+
+  if (world3d !== null) {
+    builder.setRendererUploadsEnabled(false);
+    builder.addFrameListener((gv, palette) => {
+      world3d.setAtmosphere(
+        gv.ticks(),
+        {
+          dayNight: skySettings.dayNightCycle(),
+          weather: skySettings.weatherEffects(),
+        },
+        skySeed,
+      );
+      const me = gv.myPlayer();
+      if (fog !== null && me) {
+        fog.setFriendly([me.smallID(), ...me.allies().map((a) => a.smallID())]);
+      }
+      world3d.onTick(
+        gv.frameData(),
+        palette,
+        gv.players(),
+        me?.id() ?? null,
+        me?.smallID() ?? null,
+        fog !== null && me ? fog : null,
+      );
+    });
+  }
 
   // When context is lost and restored, WebGL loses all textures and geometry.
   // Force a full re-upload of the simulation state.
@@ -679,6 +806,112 @@ function mountWebGLFrameLoop(
   };
 
   return { builder, stopFrameLoop };
+}
+
+/**
+ * While a weapon is being aimed, show its blast radius under the pointer in
+ * 3D — green when one of the player's ready launchers can reach it, red when
+ * not. Touch screens have no hover, so the reticle starts at screen centre.
+ */
+function wireWeaponAim(
+  eventBus: EventBus,
+  gameView: GameView,
+  uiState: UIState,
+  transformHandler: TransformHandler,
+  world3d: World3DView,
+): void {
+  const update = (sx: number, sy: number): void => {
+    const weapon = uiState.weaponTargeting;
+    const me = gameView.myPlayer();
+    if (!weapon || !me) {
+      world3d.setWeaponAim(null);
+      return;
+    }
+    const spec = WEAPONS[weapon];
+    const p = transformHandler.screenToWorldCoordinatesFloat(sx, sy);
+    const tick = gameView.ticks();
+    const r2 = spec.range * spec.range;
+    const inRange = me.units(...spec.launchers).some((u) => {
+      if (!isLauncherReady(u, spec, tick)) return false;
+      const dx = gameView.x(u.tile()) - p.x;
+      const dy = gameView.y(u.tile()) - p.y;
+      return dx * dx + dy * dy <= r2;
+    });
+    world3d.setWeaponAim({ x: p.x, y: p.y, radius: spec.radius, inRange });
+  };
+  let last = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  eventBus.on(MouseMoveEvent, (e) => {
+    last = { x: e.x, y: e.y };
+    if (uiState.weaponTargeting) update(e.x, e.y);
+  });
+  eventBus.on(WeaponAimEvent, (e) => {
+    if (e.weapon === null) {
+      world3d.setWeaponAim(null);
+      return;
+    }
+    const touch = globalThis.matchMedia?.("(pointer: coarse)").matches;
+    if (touch) last = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    update(last.x, last.y);
+  });
+}
+
+/**
+ * The build/nuke controllers push previews to the 2D MapRenderer. Mirror
+ * those calls to the 3D view so placement ghosts, range rings, nuke
+ * trajectories and hover highlights appear on the 3D map too (the 2D
+ * renderer still receives them, so switching back needs no resync).
+ */
+function mirrorOverlaysTo3D(view: MapRenderer, world3d: World3DView): void {
+  const ghost = view.updateGhostPreview.bind(view);
+  view.updateGhostPreview = (d) => {
+    ghost(d);
+    world3d.setGhostPreview(d);
+  };
+  const nuke = view.updateNukeTrajectory.bind(view);
+  view.updateNukeTrajectory = (d) => {
+    nuke(d);
+    world3d.setNukeTrajectory(d);
+  };
+  const highlight = view.setHighlightOwner.bind(view);
+  view.setHighlightOwner = (id) => {
+    highlight(id);
+    world3d.setHighlightOwner(id);
+  };
+}
+
+/**
+ * Build the 3D world view (see render3d/World3DFlag). Loaded with
+ * import() so three.js is only downloaded when the 3D view is enabled. Any
+ * failure falls back to the 2D renderer rather than blocking the game.
+ */
+async function createWorld3DView(
+  terrainMap: TerrainMapData,
+): Promise<World3DView | null> {
+  if (!isWorld3DEnabled()) return null;
+  try {
+    const t0 = performance.now();
+    const { World3DView } = await import("./render3d/World3DView");
+    const gameMap = terrainMap.gameMap;
+    const w = gameMap.width();
+    const h = gameMap.height();
+    const terrain = new Uint8Array(w * h);
+    for (let i = 0; i < terrain.length; i++)
+      terrain[i] = gameMap.terrainByte(i);
+    const view = new World3DView({
+      mapWidth: w,
+      mapHeight: h,
+      terrain,
+      paletteSize: PALETTE_SIZE,
+    });
+    console.log(
+      `[World3D] ready: ${w}x${h} map in ${Math.round(performance.now() - t0)}ms ` +
+        `(${view.world.profile.mobile ? "mobile" : "desktop"}, ${view.world.qualityName()})`,
+    );
+    return view;
+  } catch (e) {
+    console.error("[World3D] failed to start, using 2D renderer", e);
+    return null;
+  }
 }
 
 async function createClientGame(
@@ -875,6 +1108,25 @@ async function createClientGame(
       mapLayerController,
     );
 
+    const world3d = await createWorld3DView(gameMap);
+    if (world3d !== null) {
+      glCanvas.style.visibility = "hidden";
+      gameRenderer.transformHandler.setProjector(world3d);
+      mirrorOverlaysTo3D(view, world3d);
+      wireWeaponAim(
+        eventBus,
+        gameView,
+        gameRenderer.uiState,
+        gameRenderer.transformHandler,
+        world3d,
+      );
+      // Debug/test handles, like window.__webglView for the 2D renderer.
+      (window as unknown as { __world3d?: unknown }).__world3d = world3d;
+      (window as unknown as { __camera?: unknown }).__camera =
+        gameRenderer.transformHandler;
+      (window as unknown as { __gameView?: unknown }).__gameView = gameView;
+    }
+
     const metrics = new GameMetrics(lobbyConfig.gameID, clientID);
     const { builder: webglBuilder, stopFrameLoop } = mountWebGLFrameLoop(
       gameMap,
@@ -885,6 +1137,7 @@ async function createClientGame(
       gameView,
       eventBus,
       (nowMs) => metrics.recordFrame(nowMs),
+      world3d,
     );
 
     // Releases all WebGL/DOM resources this game created. Without it, stopping
@@ -897,6 +1150,7 @@ async function createClientGame(
       rendererDisposed = true;
       gameRenderer.dispose();
       stopFrameLoop();
+      world3d?.dispose();
       view.dispose();
       glCanvas.remove();
       inputOverlay.remove();
@@ -1261,6 +1515,15 @@ export class ClientGameRunner {
       event.y,
     );
     if (!this.gameView.isValidCoord(cell.x, cell.y)) {
+      return;
+    }
+    // Aiming a weapon: this click fires it, then aiming ends.
+    const weapon = this.renderer.uiState.weaponTargeting;
+    if (weapon) {
+      const tile = this.gameView.ref(cell.x, cell.y);
+      this.eventBus.emit(new FireWeaponIntentEvent(weapon, tile));
+      this.renderer.uiState.weaponTargeting = null;
+      this.eventBus.emit(new WeaponAimEvent(null));
       return;
     }
     console.log(`clicked cell ${cell}`);

@@ -1,493 +1,103 @@
-- This is a sample changelog based off of v0.24.0.
-- This file will be replaced with real release notes during the release build process.
-  - Indented bullets look like this
+📦 **Laukolaroser v1.0.0**
 
-📦 **OpenFront v24 Changelog**
+🌍 **3D battlefield**
 
-⚖️ **Balance Changes**
+- Terrain heights, coasts, snow-capped mountains, animated water, fog and shadows
+- 3D warships, transports, trade ships, trains, nukes, MIRVs and SAM missiles
+- 3D cities, ports, factories, defense posts, SAM launchers and missile silos
+- Explosions, shockwaves and mushroom clouds; railroads and fallout on the map
+- Territory colours, animated borders and player names live on the terrain
+- Clicks and taps land on the exact tile under the pointer, even on mountains
+- Forests, a living sky and cinematic lighting
+- Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
+- Build previews, range rings and nuke flight paths shown in 3D
+- Classic flat map still available with `?renderer=2d`
+- Tech tree (lobby option, on by default): 12 techs in Army, Navy, Air & missiles and Economy — pay gold, research takes 30–90 s, one at a time (🔬 button or key I); AI nations research too
+- Fog of war (lobby option, on by default): enemy units and buildings only show near your land, ships, planes and radar; buildings stay on the map once seen; incoming nukes are always shown
+- Radar Station: reveals a wide circle and lets your warships hunt submarines inside it
+- Generated soundtrack: calm in peace, drums and timpani at war; rain, wind, thunder, sea, birds by day and crickets at night; sounds for bombers, fighters, bombs, torpedoes and radar
+- Conquest animation: captured land flashes in the new owner's colour as the front advances
+- Detailed buildings: windowed towers, brick and metal facades; city windows light up at night
+- Vehicles turn smoothly; ships heel in turns, planes bank, take off and land at their base; new buildings rise from the ground
+- Day and night: the sun crosses the sky in a 12-minute day; moonlit nights stay readable
+- Weather: clouds, rain, fog and thunderstorms — the same sky for every player (Settings → Graphics, both can be switched off)
 
-- Trade ships are now capped at 150 (Evan)
-  → Each port you own now increases the gold per trade, counterbalancing the cap.
-- MIRVs have been nerfed
-  → Expect less devastating multi-warhead nukes. Land in-between the fallout can be more quickly conquered.
-- Warships prioritize enemy transport ships over warships. Reload instantly after shooting a transport ship. (Evan)
-- Building discounts can only be used one time.
-- AI nukes now avoid SAM launchers
+📱 **Phones**
 
-🚅 **Major Features**
+- Mobile-tuned rendering quality and layout
 
-- Trains added for new movement mechanics (experimental for private lobbies and single player) (DevelopingTom)
-- Factories spawn trains and railroads (choose Factory as unit in private lobby or for single player, to use trains)
-- Railroads can form loops
-- Added Trios and Quads. Add them to public lobby rotation together with Duos. (FakeNeo)
-- Upgradable structures: Cities, Ports, SAMs, and Silos can now be improved
-- Multi-level radial menu with dynamic build options
-- Creative Commons License added to non-commercial resources
-- Factories added for private lobbies and single player games
-- Hash-based routing implemented
-- Flares system implemented
-- GitHub Releases with release notes are now supported (click the What's New button/megaphone icon)
+💥 **Weapons**
 
-🔧 **Game Improvements**
+- Artillery barrages from Defense Posts, naval bombardment from Warships, rocket strikes from Missile Silos
+- Pick a weapon on the left, tap a target; the reticle shows the blast and turns green when in range
+- Strikes kill enemy troops, sink ships and damage buildings — but only attacks take land
+- AI nations use them in their wars too
 
-- Improved territory drawing performance
-- SAMs now only target nukes threatening nearby areas
-- Nukes are now faster (speed increased from 4 → 6)
-- Better color mixing for small player counts (Ble4Ch)
-- Unique player colors to avoid confusion (Ble4Ch)
-- Better and optimized bot behaviour and spawn logic (tryout33 & FakeNeo)
-- Boat build discounts now scale with unit ownership
-- Improved username censoring and management
-- Updated East Asia map (formerly "Japan and Neighbors")
-- Reworked and optimized leaderboard UI
-- Improved visual clarity for alliances and stacked buildings
+🎨 **New identity**
 
-🔧 **Game Improvements (continued)**
+- The game is now called Laukolaroser, with a new logo and icon
 
-- Better handling for betrayal alerts and radial menu behavior
-- Red alert frame when betrayed (devalnor)
-- Attack hotkeys added (Engla)
-- Boat hotkey added
-- Nations can spawn cities without a port
-- Team sizes now equalized
-- MIRV warhead intercepted stats are now recorded
-- Text FX added
-- Terrain manipulation for attack advantage
-- New logo added
-- Fix Duo partner (Nation) always same in Single player (tryout33)
-- Rename Replay Speed to Game Speed for Single player (tryout33)
-- Fix Nations building more than allowed (tryout33)
+🏠 **Host your own server**
 
-🧪 **UI & Quality of Life**
+- Private mode: every player logs in with a username and password you give them
+- Admins add, remove, disable players, reset passwords and make other admins from the in-game menu
+- Anyone logged in can create and join lobbies
+- One-command Docker setup capped at 2 GB RAM; play over the internet with HTTPS (see docs/SelfHosting.md)
 
-- Fixed text overflow in UI (Diessel)
-- Fixed websocket and join bugs
-- Fixed boat-on-land issues
-- Fixed modal errors and null pointer warnings
-- Fixed input handler edge cases on Mac (proper modifier and emoji key detection) (Ble4Ch)
-- Fixed scrollbar appearing unnecessarily in small boxes on Chromium browsers
-- Fixed giant world map key
-- Leaderboards, alerts, and modals now support translation & dark mode
-- New custom flag support and pattern icons
-- Various patterns available (Sword, Shells, White Rabbit, Goat, Cats, Hand, Radiation, Cursor, QR)
-- Patterned territory support
-- More responsive scrollbar and player info panels
-- Top bar redesign (Diessel)
-- More responsive design for in-game elements
-- New icon layer/sprites for structures
-- Building/loading/HP bars improved
-- Proper alliance timer naming
-- Logout button added
-- Handle not spawned player fixes
-- Multiple patterns support
-- Fix: anonymized name isn't displayed in chat message (tryout33)
-- Fix Leaderboard: show 0% instead of NaN when all terrain is nuked (tryout33)
-- Some fixes to the new Radial menu (tryout33)
-- Fix bug/performance improvements for trade ships (tryout33)
-- News Notification Badge for new release notes (floriankilian)
-- Translation improvements
+⚓ **New warships**
 
-🛠️ **Backend & Technical**
+- **Destroyer**: cheap and fast escort with light guns — hunts transports and trade ships
+- **Battleship**: slow, very tough siege ship with heavy long-range guns; shells enemy coasts on its own while you fight a land war
+- Both are built from ports, take move orders like warships and fire naval strikes
+- AI nations build them too; switch either off in the lobby's disabled units
 
-- Stats endpoints are now available
-- Added CORS origin headers
-- Added support for mobile apps native login
-- Discord user and guild member caching
-- Improved session error handling
-- Changed server logging
-- Improved data loading and fixed various bugs
+🚂 **Trains**
 
-🔒 **Security & Bug Fixes**
+- **Express cargo**: once you have a level 2 factory, some trains run as faster, shorter expresses that earn 60% more per stop
+- **Armored Train**: patrols your railways and shells enemy land next to the tracks during a land war
+- **Troop Train**: patrols your railways and brings reinforcements to every city it reaches
+- **Rail SAM**: mobile air defence on your railways that shoots down enemy nukes flying nearby
+- Build military trains from the build bar on a city, port or factory with railways; AI nations use them too; each can be switched off in the lobby
 
-- Fixed naval attack spam exploit
-- Fixed gold donation validation exploit
-- Fixed pot issue
-- Various stability improvements and bug fixes
+🗺️ **Maps in 3D**
 
-🌐 **Translations**
+- Sharper 3D terrain on every map: twice the detail, smooth coastlines, finer mountains (looks only — the game map is unchanged)
+- Map picker and lobby show each map rendered in 3D
 
-- Bulgarian🇧🇬: Nikola123 & NewHappyRabbit
-- Japanese🇯🇵: Aotumuri, daimyo_panda2 & gafunuko
-- French🇫🇷: cldprv, gx21 & r3ms
-- Dutch🇳🇱: cldprv & tryout33
-- German🇩🇪: Pilkey, jacks0n, floriankilian, Fibig & Texxter
-- Spanish🇪🇸: 6uzm4n
-- Russian🇷🇺: Rulfam
-- Ukrainian🇺🇦: Rulfam
-- Polish🇵🇱: zibi, RinkyDinky & Rulfam
-- Serbo-Croatian🇷🇸🇭🇷🇧🇦🇲🇪: Vekser
-- Italian🇮🇹: frappa10 & Lollosean
-- Brazilian Portuguese🇧🇷: theskeleton4393 & juliosilvaqwerty5
-- Turkish🇹🇷: Toyatak
-- Arabic🇸🇦: N0ur, Moha & SyntaxPM
-- Swedish🇸🇪: Moha, theangel2 & Keevee
-- Hindi🇮🇳: sheikh
-- Bengali🇧🇩: sheikh
-- Esperanto: r3ms
-- Toki Pona: Makonede
-- Slovak🇸🇰: extraextra
-- Czech🇨🇿: Xaelor & erinthegirl
-- Hebrew🇮🇱: Goblinon
-- Finnish🇫🇮: Tanepro193
-- Korean🇰🇷: Jinyoon
-- Danish🇩🇰: NiclasWK
-- Chinese Simplified🇨🇳: Moki
-- Galician: toldinsound
+🎨 **Interface**
 
-## What's Changed
+- New military-command look across every screen
+- Build bar split into Build and Forces rows with bigger icons
+- Tutorial tips as a small card at the top; only shown in the guided Tutorial game
+- Simpler menu: Solo, Tutorial, Create Lobby, Join Lobby
+- Drag the compass to turn 360° and tilt; on phones slide two fingers to tilt
+- Clearer borders and colours, trees cleared from claimed land, taller mountains
+- Faster: much lighter forests and labels, quality follows your screen's refresh rate (up to 120 Hz and more)
+- Quick guide in Help for the 3D camera, ships, trains and weapons
 
-- Bugfix: don't allow other players to move warships by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/879
-- Proper alliance timer naming by @tnhnblgl in https://github.com/openfrontio/OpenFrontIO/pull/886
-- Add naval combat animations by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/858
-- Use array index access instead of .at by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/889
-- mls by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/888
-- Revert "add addinplay ads" by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/897
-- Fix Toki Pona by @Duwibi in https://github.com/openfrontio/OpenFrontIO/pull/898
-- remove player id from Schemas, fix archive bug by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/907
-- Unit menu by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/867
-- Convert stats to bigints by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/909
-- Flag fixes for Europe map and for Brittany in flag menu and Gateway To the Atlantic map by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/910
-- Add deploy concurrency configuration by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/911
-- Add Github Logo on footer by @LucasLion in https://github.com/openfrontio/OpenFrontIO/pull/875
-- Revert "Population visualization (#842)" by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/908
-- floor by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/913
-- remove known world by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/914
-- Main menu UI cleanup by @Demonessica in https://github.com/openfrontio/OpenFrontIO/pull/857
-- Improve territory drawing performances by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/696
-- bug: Clicking out of bounds throws uncaught exception by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/920
-- Removes CSS rule causing performance issues by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/925
-- Always delete tradeship on pathfinding fail by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/921
-- Fix bigint serialization error by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/916
-- Revert tradeship path caching by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/927
-- Meta Adjustments from [UN] clan test by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/932
-- fix alternate view regression by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/937
-- fix warship targeting range by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/938
-- Add instructional overlay message during spawn phase by @spicydll in https://github.com/openfrontio/OpenFrontIO/pull/934
-- Add test coverage script by @aqw42 in https://github.com/openfrontio/OpenFrontIO/pull/929
-- Added two checkboxes to the default pull request template by @aqw42 in https://github.com/openfrontio/OpenFrontIO/pull/930
-- Fix slow singleplayer timer by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/943
-- improved performance of PseudoRandom by @falcolnic in https://github.com/openfrontio/OpenFrontIO/pull/933
-- Change deploy concurrency group by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/944
-- Set singleplayer gitCommit in the client by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/945
-- Simplify bots retaliation logic by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/946
-- Add close label by @drillskibo in https://github.com/openfrontio/OpenFrontIO/pull/949
-- Remove ClientID from GameRenderer by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/878
-- Resolve code scanning warning about HTML injection by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/953
-- Fix invalid username popup being behind public game button by @Demonessica in https://github.com/openfrontio/OpenFrontIO/pull/951
-- Server role lookup by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/954
-- Flag fixes in several maps by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/957
-- Fix map jsons by @Duwibi in https://github.com/openfrontio/OpenFrontIO/pull/960
-- change defaults to reflect meta by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/942
-- Even more flag flair by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/959
-- Only load tiles when viewed by player by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/887
-- Hide login button by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/965
-- Fix discord user schema by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/969
-- Balance Adjustment for Attack Mechanism by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/973
-- Prevent Attack Spam by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/977
-- Update HeadsUpMessage.ts to support translations by @spicydll in https://github.com/openfrontio/OpenFrontIO/pull/981
-- Cap lobby sizes at 150 by @Duwibi in https://github.com/openfrontio/OpenFrontIO/pull/984
-- Fix Translations showing as untranslated keys by @Duwibi in https://github.com/openfrontio/OpenFrontIO/pull/983
-- Another Balance Change by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/987
-- make bots weaker by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/985
-- Remove shield icon from bots by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/986
-- Balance Update by @1brucben in https://github.com/openfrontio/OpenFrontIO/pull/996
-- Revert meta by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1002
-- Fix text overflow in instructions for longer translations by @ERHash in https://github.com/openfrontio/OpenFrontIO/pull/971
-- Add dynamic sorting to leaderboard by tiles, gold, and troops by @ERHash in https://github.com/openfrontio/OpenFrontIO/pull/961
-- Fix Player Name Monospaced Text Overflow on PlayerInfo by @ERHash in https://github.com/openfrontio/OpenFrontIO/pull/975
-- Scroll bar Behavior on Chromium Browsers, c-modal_content by @andrewNiziolek in https://github.com/openfrontio/OpenFrontIO/pull/976
-- Synced the single player and host files together, and fix issue withc… by @shaan150 in https://github.com/openfrontio/OpenFrontIO/pull/991
-- Equalize team sizes by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/992
-- Added support for dark mode icons for Alliance Request Icon and Embargo Icon by @Vermylion in https://github.com/openfrontio/OpenFrontIO/pull/993
-- Use bigint for gold by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1000
-- Fix : Donation when max pop already reached by @aqw42 in https://github.com/openfrontio/OpenFrontIO/pull/904
-- Validate incoming API data with zod by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/891
-- this is a fix for the "possibly null" error. doesn't seem to cause runtime issues but does cause the compiler to throw an error by @Jerryslang in https://github.com/openfrontio/OpenFrontIO/pull/1005
-- Fixnukeboatbug by @rldtech in https://github.com/openfrontio/OpenFrontIO/pull/1011
-- added ratio controls by @falcolnic in https://github.com/openfrontio/OpenFrontIO/pull/963
-- Add a status check for the milestone field by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1029
-- Fix discord login issue by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1028
-- Changed consolex to console logging by @falcolnic in https://github.com/openfrontio/OpenFrontIO/pull/1036
-- Center map on start by @Demonessica in https://github.com/openfrontio/OpenFrontIO/pull/1013
-- Rev: Update "Japan and Neighbors" map to "East Asia" by @andrewNiziolek in https://github.com/openfrontio/OpenFrontIO/pull/1007
-- Close socket on ClientMessageSchema, improve zod error by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1003
-- SAMs should target only nukes aimed at nearby targets by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1038
-- AI nukes avoid SAM launchers by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1045
-- Show alliances on the PlayerPanel by @Maaxion in https://github.com/openfrontio/OpenFrontIO/pull/1053
-- Improve readability of alliance acceptation logic for bots and add tests by @Nephty in https://github.com/openfrontio/OpenFrontIO/pull/1049
-- [Cleanup] Pass Player into execution constructor instead of PlayerID by @LJoyL in https://github.com/openfrontio/OpenFrontIO/pull/1022
-- Monitoring client connections by @aqw42 in https://github.com/openfrontio/OpenFrontIO/pull/941
-- have master create tunnels for all workers #780 by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1042
-- Add Boat hotkey by @tnhnblgl in https://github.com/openfrontio/OpenFrontIO/pull/1060
-- bug: logout by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1073
-- fix cloudflare tunnels by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1076
-- Duo partner SP always same: randomize players before team assignment by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1051
-- Multi-level radial menu by @oleksandr-shysh in https://github.com/openfrontio/OpenFrontIO/pull/1018
-- Fix broken flag images by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1078
-- kick existing client when duplicate persistent id is found by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1077
-- Update PlayerImpl.ts by @E-EE-E in https://github.com/openfrontio/OpenFrontIO/pull/1079
-- Add back #646 - trade ship gold by travelled distance by @Maaxion in https://github.com/openfrontio/OpenFrontIO/pull/1085
-- #1086 prevent clicking on other structures than your own by @Maaxion in https://github.com/openfrontio/OpenFrontIO/pull/1087
-- rename Event interface -> GameEvent by @Maaxion in https://github.com/openfrontio/OpenFrontIO/pull/1094
-- refactor radial, fix boat on terra nullius not working fixes by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1095
-- Disable donations public ffa matches by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1097
-- Nations can spawn cities without a port by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1072
-- Ci coverage by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1099
-- Revert "Ci coverage" by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1101
-- Add filters tabs to EvensDisplay to let users filter events by @Maaxion in https://github.com/openfrontio/OpenFrontIO/pull/1080
-- Fix bug in FakeHumanExecution by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1102
-- Fix: Hide username validation error in-game by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1110
-- cloudflare fixed tunnel name by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1096
-- Remove duplicate gold accumulation in team stats calculation by @rldtech in https://github.com/openfrontio/OpenFrontIO/pull/1010
-- Optimizations for botbehaviour by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1114
-- fix: correct mac modifier and emoji key detection in input handler by @Ble4Ch in https://github.com/openfrontio/OpenFrontIO/pull/1118
-- fix duplicate websocket handler by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1124
-- Adding unit info modal translation support. by @its-sii in https://github.com/openfrontio/OpenFrontIO/pull/1122
-- increase nuke speed from 4 to 6 by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1125
-- Avoid using as to cast values by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1115
-- Fix Māori flag name by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1133
-- use newer attack, delete existing attack by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1134
-- counter attack doesn't cancel out attack by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1132
-- Move version and changelog to files by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1109
-- Fix non valid SafeString flag codes by @ghisloufou in https://github.com/openfrontio/OpenFrontIO/pull/1135
-- Add a Replay speed control feature by @ghisloufou in https://github.com/openfrontio/OpenFrontIO/pull/1106
-- Add progress bars to show loading time and healthbars by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1107
-- feat: assign unique colors for players by @Ble4Ch in https://github.com/openfrontio/OpenFrontIO/pull/1063
-- lazy loading and current data var by @falcolnic in https://github.com/openfrontio/OpenFrontIO/pull/988
-- fix(client): use the right language-modal selector by @ghisloufou in https://github.com/openfrontio/OpenFrontIO/pull/1136
-- Simple Upgradable Structures (Cities, Ports, SAMs and Silos) by @Egraveline in https://github.com/openfrontio/OpenFrontIO/pull/1012
-- Rename Replay speed to Game speed in Singleplayer by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1145
-- discriminatedUnion by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1130
-- Fixed bad translation string bug for unit info modal. by @its-sii in https://github.com/openfrontio/OpenFrontIO/pull/1143
-  - fix timer overflow by @DiesselOne in https://github.com/openfrontio/OpenFrontIO/pull/1148
-  - optimize leaderboard by @DiesselOne in https://github.com/openfrontio/OpenFrontIO/pull/1151
-- Fix regression cooldown bars by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1154
-- favor transport ships, no reload penalty by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1153
-- dynamic radial menu build options by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1152
-- Update building images and adjust border/territory radii for unit configuration by @rldtech in https://github.com/openfrontio/OpenFrontIO/pull/1037
-- Fixed quick chat text injection by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1144
-- Rework leaderboard and team stats by @DiesselOne in https://github.com/openfrontio/OpenFrontIO/pull/1164
-- Extend token lifetime to 3 days by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1172
-- Redraw stacked buildings sprites by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1170
-- Fix Nations building more than allowed by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1176
-- Set a targetable status for nukes by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1174
-- fixed giantworldmap key by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1188
-- Fix Leaderboard: convert NaN into 0% by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1190
-- Update pr-description regex by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1181
-- discriminatedUnion by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1193
-- UsernameSchema, FlagSchema by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1185
-- feat: colors are better mixed up when players count is low by @Ble4Ch in https://github.com/openfrontio/OpenFrontIO/pull/1149
-- Improve handling of HTTP 401 by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1194
-- increase worker connections by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1179
-- Fix: Handle not spawned player focus by @tnhnblgl in https://github.com/openfrontio/OpenFrontIO/pull/1186
-- Fix Radial menu undefined params error during spawn phase by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1192
-- Better handling of bad tokens by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1180
-- Hash-based routing by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1198
-- cache busting: Import version, changelog by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1201
-- REV - Improved Username Censoring by @andrewNiziolek in https://github.com/openfrontio/OpenFrontIO/pull/1119
-- Jest v30 by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1206
-- Release workflow by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1202
-- Fix unnecessary join check by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1209
-- fix websocket error by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1208
-- add playwire ads by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1128
-- Update webpack-dev-server to 5.2.2 by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1207
-- Add a 30 minute timeout to actions by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1210
-- Update release workflow by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1212
-  - update leaderboard align by @DiesselOne in https://github.com/openfrontio/OpenFrontIO/pull/1189
-- Fix gutter ads, move in-game add to bottom right corner. by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1214
-- have worker send error back to client by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1178
-- Fix build menu on water tile by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1216
-- Update default version number by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1218
-- Schema cleanup by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1219
-- ads on death screen by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1223
-- Delay win modal by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1224
-- Dependency removals and updates by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1215
-- add spawn ads by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1228
-- upgrade to zod 4 by @omrih4 in https://github.com/openfrontio/OpenFrontIO/pull/1161
-- Record MIRV warhead intercepted stats, perf improvements by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1220
-- Simplfiy LangSelector by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1226
-- Pot issue fix by @tnhnblgl in https://github.com/openfrontio/OpenFrontIO/pull/1233
-- Logout Button Fix by @tnhnblgl in https://github.com/openfrontio/OpenFrontIO/pull/1234
-- fix bad tile crash by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1237
-- fix is valid ref by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1240
-- Remove babel-jest from devDependencies by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1247
-- Refactor radial menu by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1246
-- Simplify ClientMessage handling by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1235
-- Add trains by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1159
-- Add back the trade ship send stat by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1253
-- Remove maxTokenAge by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1255
-- Patterned territory by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/786
-- Discounts can only be used one time by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/892
-- Fix singleplayer check by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1260
-- Move maps generation out of repo, new map structure by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1256
-- Show a red alert frame when the player is betrayed by @devalnor in https://github.com/openfrontio/OpenFrontIO/pull/1195
-- Allow boat discount based on number of units owned by @devalnor in https://github.com/openfrontio/OpenFrontIO/pull/1261
-- Move map metadata to map manifest by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1262
-- Refactor cosmetics.json by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1263
-- bug: StatsSchema zod validation error by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1267
-- White Rabbit pattern by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1264
-- Cleanup log spam in TerritoryPatternsModal by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1269
-- Fix pattern locking logic by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1270
-- Keybind Ground Attack by @dengh in https://github.com/openfrontio/OpenFrontIO/pull/1258
-- UrlEncode patterns in cosmetics.json by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1273
-- improve astar perf by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1268
-- Log public id by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1278
-- clarify license by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1277
-- Fix sam targeting everything by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1280
-- Add Creative Commons License to resources/non-commercial by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1284
-- Sword pattern by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1283
-- Display OFM25 ad in WinModal by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1281
-- QR code pattern by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1288
-- custom flag (1) by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1257
-- Allow railroad loops by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1274
-- patterns by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1290
-- Split build & deploy scripts by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1239
-- New icons by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1287
-- Add GitHub deployment support by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1291
-- bug: Fix version number and changelog by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1293
-- Revert "counter attack doesn't cancel out attack (#1132)" by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1301
-- Graceful handling of ping before join by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1295
-- refactor cosmetics out of PlayerInfo by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1299
-- Remove unused MON\_\* credentials by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1304
-- Add new patterns by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1294
-- Fix error-modal filling up the whole screen by @fraxxio in https://github.com/openfrontio/OpenFrontIO/pull/1298
-- Reapply "enable otel logs and metrics for staging environments" by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1310
-- Separate prod release environments by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1311
-- Change news title to release notes by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1312
-- Add localization support for leaderboard and team-related UI elements by @TomaszOleszko in https://github.com/openfrontio/OpenFrontIO/pull/1308
-- Better In Game UI by @DiesselOne in https://github.com/openfrontio/OpenFrontIO/pull/1243
-- w-320 by @PilkeySEK in https://github.com/openfrontio/OpenFrontIO/pull/1316
-- Patterns by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1318
-- Show structure levels by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1305
-- fix alliance expired message by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1323
-- Mark train stations and factories as experimental by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1309
-- allow alliance extension Fixes #491 by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1314
-- Additional patterns and subclass creation by @Sgt-lewis in https://github.com/openfrontio/OpenFrontIO/pull/1327
-- fix healthbars not being removed by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1329
-- lighten pattern by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1326
-- custom flag (2) by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1303
-- Make patterns puchasable with stripe by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1313
-- Improve icons readability by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1321
-- remove select on hover by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1330
-- Fix role lookup by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1335
-- Extend winner schema by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1333
-- mls 4.0 by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1336
-- upgrade unit when building a unit of same type by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1328
-- remove unit menu by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1338
-- unit upgrade minor improvements by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1337
-- Add gold fx when a tradeship lands by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1322
-- validate coords in construction execution by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1339
-- fix pattern and role bugs by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1343
-- Disable trains in public games by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1342
-- Add levels on structure sprites by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1346
-- Automatic train stations by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1353
-- Quads by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1347
-- Quads fix by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1356
-- Revert "enable otel logs and metrics for staging environments" by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1358
-- alliance renewal: fix request to renew when ally is dead, fix translation keys by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1359
-- Add new icon shapes and filter for filtering icons on the layer by @jrouillard in https://github.com/openfrontio/OpenFrontIO/pull/1348
-- upgrades not counting towards building discount bugfix by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1361
-- Add strait of Gibraltar and Italia maps by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1363
-- Radial menu: remove player info sub-radial by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1362
-- move unit display to bottom of screen by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1365
-- Move settings to it's own modal by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1366
-- update ui by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1368
-- Add localization support for game events, settings, and UI text elements by @TomaszOleszko in https://github.com/openfrontio/OpenFrontIO/pull/1372
-- Validate incoming parameters by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1371
-- Add domain, subdomain to GameRecord by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1370
-- bugfix: Crash during replay by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1375
-- fix top bar small screens by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1377
-- add domain and subdomain for dev env by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1379
-- fix pop delta number in TopBar by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1373
-- Add expand ratio to bot behavior class by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1376
-- bugfix: Crash by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1381
-- Don't erase patterns on page load by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1383
-- Require login to connect to staging by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1360
-- feat(news-button): highlight button when new version is available by @floriankilian in https://github.com/openfrontio/OpenFrontIO/pull/1385
-- Fix local development by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1388
-- fixed Custom Flags via Path Traversal by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1384
-- fix odd dimension maps by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1389
-- Improve unit updates & reloading by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1394
-- update meta by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1397
-- port execution bugfixes by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1400
-- Internationalization: Add i18n support for login/auth messages in main by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1406
-- Update README.md by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1407
-- Redraw existing railroads when redrawing the complete layer by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1410
-- Unit count by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1402
-- fix color allocator not selecting distinct colors by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1404
-- mls (v4.1) by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1357
-- remove levels player overview panel by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1414
-- Remove top bar & revert control panel by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1415
-- move player overview higher up by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1418
-- have mirv attack enemy units by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1419
-- fix team bar by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1422
-- fix team bar by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1425
-- Leaderboard improvements by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1424
-- radial menu attack self bugfix by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1426
-- remove radial animation, fix back button by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1427
-- Factory spawns trains by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1408
-- Followup: news-button: blue-glow; simpler localStorage by @floriankilian in https://github.com/openfrontio/OpenFrontIO/pull/1431
-- fix unit upgrade not considering cost by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1434
-- Enable @typescript eslint/prefer nullish coalescing eslint rule by @g-santos-m in https://github.com/openfrontio/OpenFrontIO/pull/1420
-- Eslint by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/998
-- Restore nation AI by @scottanderson in https://github.com/openfrontio/OpenFrontIO/pull/1440
-- fix number of land tiles fixes #1409 by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1445
-- Have radial menu refresh when open by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1437
-- make radial menu thicker by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1446
-- Fix: anonymized name isn't used in chat message by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1265
-- Revert MIRV attacks enemy units by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1452
-- Tradeship performance by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1448
-- Fix: "Game speed" not "Replay speed" during Single player game by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1457
-- Update asset license by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1458
-- Fix: attack on ally even with greyed out button by @VariableVince in https://github.com/openfrontio/OpenFrontIO/pull/1460
-- Create CLA.md by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1462
-- update pr template to have CLA checkbox. by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1465
-- Increase trade ship spawn rate by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1455
-- Increase traitor punishment by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1456
-- fix team leaderboard margin by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1469
-- leaderboard bugfix: show by default for medium to large screens. by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1470
-- fix control panel & events display scaling on mobile by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1471
-- alert on ws 1002 error by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1472
-- Fix Regex to allow Umlaute "üÜ" in username by @floriankilian in https://github.com/openfrontio/OpenFrontIO/pull/1466
-- Have port destination likelihood scale with level by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1473
-- remove spawn ad by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1482
-- fix squad allocator color palette by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1483
-- bug fix?: Hide UnitDisplay frame when all unit types are disabled by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1392
-- fix pop & gold not showing up on mobile UI by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1484
-- meta: reduce port gold multiplier & trade ship frequency by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1486
-- Fix language code mismatch during language switching by @Aotumuri in https://github.com/openfrontio/OpenFrontIO/pull/1416
-- Add close button to emoji table by @DevelopingTom in https://github.com/openfrontio/OpenFrontIO/pull/1479
-- increase MIRV to 35M by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1487
-- increase player panel z index so it is on top of spawn timer by @evanpelle in https://github.com/openfrontio/OpenFrontIO/pull/1488
+⛰️ **Terrain warfare**
 
-## New Contributors
+- Mountains are now about 3x as costly and slow to invade as plains, highlands about 1.6x
+- High ground: attacking from your own mountains or downhill is cheaper than assaulting from below
+- Fronts push through plains and valleys first and take mountains last — ranges make natural borders
 
-- @LucasLion made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/875
-- @spicydll made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/934
-- @falcolnic made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/933
-- @drillskibo made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/949
-- @ERHash made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/971
-- @andrewNiziolek made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/976
-- @shaan150 made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/991
-- @Vermylion made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/993
-- @Jerryslang made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1005
-- @rldtech made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1011
-- @Maaxion made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1053
-- @Nephty made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1049
-- @LJoyL made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1022
-- @oleksandr-shysh made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1018
-- @E-EE-E made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1079
-- @Ble4Ch made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1118
-- @its-sii made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1122
-- @ghisloufou made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1135
-- @Egraveline made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1012
-- @omrih4 made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1161
-- @devalnor made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1195
-- @dengh made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1258
-- @fraxxio made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1298
-- @TomaszOleszko made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1308
-- @Sgt-lewis made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1327
-- @floriankilian made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1385
-- @g-santos-m made their first contribution in https://github.com/openfrontio/OpenFrontIO/pull/1420
+✈️ **Air war**
 
-**Full Changelog**: https://github.com/openfrontio/OpenFrontIO/compare/v0.23.19...v0.24.0
+- Airbase: launch bomber raids (Weapons → Air raid) — the bomber flies there, bombs troops, ships and buildings and flies home
+- Airbases scramble fighters at enemy bombers nearby; SAM launchers and Rail SAMs fire at them too
+
+💰 **More ways to earn gold**
+
+- Gold Mine on highland or mountain land, Market anywhere, Oil Rig off your coast
+- Weapon strikes are free with Infinite gold, like buildings
+
+🗺️ **Clearer map**
+
+- Ships, trains and planes stay small when zoomed out; trade ships are hidden when the whole map is in view
+- Less surface grain on land
+- Trains explained step by step in Help and in the Factory description
+
+🌊 **Submarines and carriers**
+
+- Submarine: stealth raider with heavy torpedoes — most ships only spot it up close, destroyers hunt it, and enemies can't see it unless their ships or ports are near
+- Aircraft Carrier: a floating airbase that launches air raids from the sea and sends fighters at enemy bombers

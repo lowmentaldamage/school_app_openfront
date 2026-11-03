@@ -27,7 +27,7 @@ import { MatchmakingModal } from "../../src/client/Matchmaking";
 // Every remaining caller of the game server's HTTP API, driven through real
 // production code. Each one used to build a relative URL, which silently
 // resolved against the document origin instead of the game server.
-const SERVER_HOST = "main.openfront.dev";
+const SERVER_HOST = "main.laukolaroser.dev";
 
 let fetchMock: ReturnType<typeof vi.fn>;
 
@@ -46,7 +46,7 @@ beforeEach(() => {
     gameEnv: "prod",
     numWorkers: 1,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.io",
+    jwtAudience: "laukolaroser.com",
     instanceId: "test",
     gitCommit: "test",
     serverHost: SERVER_HOST,

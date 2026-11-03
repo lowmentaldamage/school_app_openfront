@@ -1,4 +1,4 @@
-import { CosmeticPack } from "@openfront/shared/CosmeticSchemas";
+import { CosmeticPack } from "@laukolaroser/shared/CosmeticSchemas";
 import {
   html,
   LitElement,

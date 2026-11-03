@@ -1,5 +1,5 @@
-import { renderNumber } from "@openfront/engine-lib/Format";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import {
   LitElement,
   html,

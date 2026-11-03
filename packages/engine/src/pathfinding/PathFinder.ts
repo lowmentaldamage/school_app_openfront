@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { Game } from "../game/Game";
 import { TrainStation } from "../game/TrainStation";
 import { AStarRail } from "./algorithms/AStar.Rail";

@@ -6,22 +6,22 @@ import {
   PlayerType,
   Relation,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { DonateTroopsExecution } from "@openfront/engine/execution/DonateTroopExecution";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationAttackBehavior } from "@openfront/engine/execution/nation/NationAttackBehavior";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { DonateTroopsExecution } from "@laukolaroser/engine/execution/DonateTroopExecution";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationAttackBehavior } from "@laukolaroser/engine/execution/nation/NationAttackBehavior";
 import {
   EMOJI_ASSIST_ACCEPT,
   EMOJI_ASSIST_RELATION_TOO_LOW,
   NationEmojiBehavior,
-} from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { NationWarshipBehavior } from "@openfront/engine/execution/nation/NationWarshipBehavior";
-import { TribeAttackBehavior } from "@openfront/engine/execution/TribeAttackBehavior";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { NationWarshipBehavior } from "@laukolaroser/engine/execution/nation/NationWarshipBehavior";
+import { TribeAttackBehavior } from "@laukolaroser/engine/execution/TribeAttackBehavior";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 import { executeTicks } from "./util/utils";
 

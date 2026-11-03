@@ -3,12 +3,14 @@ import {
   TokenPayloadSchema,
   UserMeResponse,
   UserMeResponseSchema,
-} from "@openfront/shared/ApiSchemas";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { PersistentIdSchema } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { PersistentIdSchema } from "@laukolaroser/shared/WireSchemas";
 import { jwtVerify } from "jose";
 import { z } from "zod";
+import { selfHostEnabled } from "./selfhost/SelfHost";
+import { accountForToken } from "./selfhost/SelfHostAuth";
 import { ServerEnv } from "./ServerEnv";
 
 type TokenVerificationResult =
@@ -16,12 +18,27 @@ type TokenVerificationResult =
       type: "success";
       persistentId: string;
       claims: TokenPayload | null;
+      /** Self-hosted mode: the account's username (the in-game name). */
+      selfHostUsername?: string;
     }
   | { type: "error"; message: string };
 
 export async function verifyClientToken(
   token: string,
 ): Promise<TokenVerificationResult> {
+  // Self-hosted: only accounts created by an admin may play.
+  if (selfHostEnabled()) {
+    const account = accountForToken(token);
+    if (account === null) {
+      return { type: "error", message: "login required" };
+    }
+    return {
+      type: "success",
+      persistentId: account.persistentId,
+      claims: null,
+      selfHostUsername: account.username,
+    };
+  }
   if (PersistentIdSchema.safeParse(token).success) {
     if (ServerEnv.env() === GameEnv.Dev) {
       return { type: "success", persistentId: token, claims: null };

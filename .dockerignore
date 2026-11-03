@@ -19,3 +19,7 @@ src/server/gatekeeper/tests/
 src/server/gatekeeper/.git
 scripts/replay/
 scripts/split-packages/
+# Self-hosted runtime data (accounts, secrets) never goes into an image.
+data/
+deploy/selfhost/data/
+deploy/selfhost/.env

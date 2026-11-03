@@ -7,11 +7,11 @@ import {
   GameMode,
   GameType,
   TeamGameSpawnAreas,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
-import { Game } from "@openfront/engine/game/Game";
-import { createGame as createGameImpl } from "@openfront/engine/game/GameImpl";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { createGame as createGameImpl } from "@laukolaroser/engine/game/GameImpl";
 import { TestConfig } from "../../util/TestConfig";
 
 export const W = "W"; // Water

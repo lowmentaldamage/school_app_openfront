@@ -43,29 +43,29 @@ describe("composeVersionDisplay", () => {
 
 describe("desktopVersion", () => {
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     vi.useRealTimers();
   });
 
   it("resolves null in the browser, with no bridge present", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     await expect(desktopVersion()).resolves.toBeNull();
   });
 
   it("resolves null when the bridge has no version method", async () => {
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     await expect(desktopVersion()).resolves.toBeNull();
   });
 
   it("resolves null when the bridge's version() rejects", async () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       version: () => Promise.reject(new Error("boom")),
     };
     await expect(desktopVersion()).resolves.toBeNull();
   });
 
   it("resolves the version string when the bridge resolves", async () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       version: () => Promise.resolve("0.2.0"),
     };
     await expect(desktopVersion()).resolves.toBe("0.2.0");
@@ -73,7 +73,7 @@ describe("desktopVersion", () => {
 
   it("resolves null via the timeout when the bridge never settles", async () => {
     vi.useFakeTimers();
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       version: () => new Promise<string>(() => {}),
     };
     const result = desktopVersion();
@@ -88,22 +88,22 @@ describe("desktopVersion", () => {
 // flow", so the caller falls through rather than calling undefined.
 describe("desktopLinkGate", () => {
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   it("is null in the browser, with no bridge present", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     expect(desktopLinkGate()).toBeNull();
   });
 
   it("is null when the bridge exists but showLinkGate is not a function", () => {
-    window.openfrontDesktop = { linkGate: { requestTicket: () => null } };
+    window.laukolaroserDesktop = { linkGate: { requestTicket: () => null } };
     expect(desktopLinkGate()).toBeNull();
   });
 
   it("returns the bridge when showLinkGate is callable", async () => {
     const showLinkGate = vi.fn(async () => undefined);
-    window.openfrontDesktop = { showLinkGate };
+    window.laukolaroserDesktop = { showLinkGate };
     const gate = desktopLinkGate();
     expect(gate).not.toBeNull();
     await gate!.showLinkGate();
@@ -117,29 +117,29 @@ describe("desktopLinkGate", () => {
 // than its shell must hide the control rather than wire a button to nothing.
 describe("desktopQuit", () => {
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   it("is null in the browser, with no bridge present", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     expect(desktopQuit()).toBeNull();
   });
 
   // A shell at api 3 -- display.* but no quit(). Not hypothetical: that shell
   // is in the depot now, and a client carrying this change reaches it first.
   it("is null on a shell older than quit()", () => {
-    window.openfrontDesktop = { shell: { api: 3 }, display: {} };
+    window.laukolaroserDesktop = { shell: { api: 3 }, display: {} };
     expect(desktopQuit()).toBeNull();
   });
 
   it("is null when quit exists but is not callable", () => {
-    window.openfrontDesktop = { quit: true };
+    window.laukolaroserDesktop = { quit: true };
     expect(desktopQuit()).toBeNull();
   });
 
   it("returns the bridge when quit is callable", async () => {
     const quit = vi.fn(async () => undefined);
-    window.openfrontDesktop = { quit };
+    window.laukolaroserDesktop = { quit };
     const bridge = desktopQuit();
     expect(bridge).not.toBeNull();
     await bridge!.quit();
@@ -149,17 +149,17 @@ describe("desktopQuit", () => {
 
 describe("requestDesktopQuit", () => {
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   it("does nothing at all with no bridge", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     expect(() => requestDesktopQuit()).not.toThrow();
   });
 
   it("calls the bridge's quit", () => {
     const quit = vi.fn(async () => undefined);
-    window.openfrontDesktop = { quit };
+    window.laukolaroserDesktop = { quit };
     requestDesktopQuit();
     expect(quit).toHaveBeenCalledTimes(1);
   });
@@ -170,7 +170,7 @@ describe("requestDesktopQuit", () => {
   // torn down mid-call. An unhandled rejection from a click handler would
   // surface as a renderer-wide error over an action that already succeeded.
   it("swallows a rejected quit rather than leaving it unhandled", async () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       quit: () => Promise.reject(new Error("channel closed")),
     };
     expect(() => requestDesktopQuit()).not.toThrow();
@@ -180,7 +180,7 @@ describe("requestDesktopQuit", () => {
   });
 
   it("swallows a bridge that throws synchronously", () => {
-    window.openfrontDesktop = {
+    window.laukolaroserDesktop = {
       quit: () => {
         throw new Error("boom");
       },
@@ -191,11 +191,11 @@ describe("requestDesktopQuit", () => {
 
 describe("desktopSteamLocale", () => {
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   it("returns the locale the shell reports", () => {
-    window.openfrontDesktop = { steamLocale: "pt-BR" };
+    window.laukolaroserDesktop = { steamLocale: "pt-BR" };
     expect(desktopSteamLocale()).toBe("pt-BR");
   });
 
@@ -203,17 +203,17 @@ describe("desktopSteamLocale", () => {
   // same answer: both mean nothing better than navigator.language is known,
   // and both must leave it deciding rather than pinning the player to English.
   it("is null off the desktop shell", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     expect(desktopSteamLocale()).toBeNull();
   });
 
   it("is null when the shell reports no locale", () => {
-    window.openfrontDesktop = { steamLocale: null };
+    window.laukolaroserDesktop = { steamLocale: null };
     expect(desktopSteamLocale()).toBeNull();
   });
 
   it("is null when the bridge predates the field", () => {
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     expect(desktopSteamLocale()).toBeNull();
   });
 
@@ -236,14 +236,14 @@ describe("desktopSteamLocale", () => {
       // it to "en" and let it beat a valid navigator.language.
       "en-12",
     ]) {
-      window.openfrontDesktop = { steamLocale: locale };
+      window.laukolaroserDesktop = { steamLocale: locale };
       expect(desktopSteamLocale(), String(locale)).toBeNull();
     }
   });
 
   it("accepts the shapes the mapping actually emits", () => {
     for (const locale of ["en", "fr", "zh-CN", "pt-BR", "sv-SE", "es-419"]) {
-      window.openfrontDesktop = { steamLocale: locale };
+      window.laukolaroserDesktop = { steamLocale: locale };
       expect(desktopSteamLocale(), locale).toBe(locale);
     }
   });

@@ -1,4 +1,4 @@
-import { PlayerPattern, PlayerSkin } from "@openfront/shared/WireSchemas";
+import { PlayerPattern, PlayerSkin } from "@laukolaroser/shared/WireSchemas";
 import { html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { getPlayerCosmetics } from "../Cosmetics";

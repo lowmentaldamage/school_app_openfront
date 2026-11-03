@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { PathFinder } from "../types";
 
 export class MiniMapTransformer implements PathFinder<number> {

@@ -9,7 +9,7 @@
 // the final release is expected in December 2026. Until then this script is
 // kept as it is, but is not type-checked and refuses to run. The next split
 // has to wait for that release.
-// See https://github.com/openfrontio/OpenFrontIO/issues/4982
+// See issue #4982
 // @ts-nocheck
 import fs from "fs";
 import path from "path";
@@ -28,7 +28,7 @@ export function assertCompilerApiAvailable(): void {
       "scripts/split-packages is disabled: TypeScript 7.0 ships no compiler " +
         "API. Use typescript@7.1.0-beta to run it now; the 7.1 API is " +
         "expected to ship in December 2026. See " +
-        "https://github.com/openfrontio/OpenFrontIO/issues/4982",
+        "issue #4982",
     );
   }
 }
@@ -194,7 +194,7 @@ export function resolveSpec(fromFile: string, spec: string): string | null {
   if (bare.startsWith("src/") || bare.startsWith("resources/")) {
     return probe(abs(bare));
   }
-  const m = /^@openfront\/([^/]+)(?:\/(.*))?$/.exec(bare);
+  const m = /^@laukolaroser\/([^/]+)(?:\/(.*))?$/.exec(bare);
   if (m) {
     const src = path.join(packageDir(m[1]), "src");
     return probe(
@@ -238,7 +238,9 @@ export function specifierFor(
     const src = path.join(packageDir(toPkg), "src");
     const sub = path.relative(src, target).replace(EXT_RE, "");
     const spec =
-      sub === "index" ? `@openfront/${toPkg}` : `@openfront/${toPkg}/${sub}`;
+      sub === "index"
+        ? `@laukolaroser/${toPkg}`
+        : `@laukolaroser/${toPkg}/${sub}`;
     return spec.split(path.sep).join("/") + query;
   }
   if (toPkg === "root" && fromPkg !== "root") {

@@ -1,4 +1,4 @@
-import { ColorPalette, Pattern } from "@openfront/shared/CosmeticSchemas";
+import { ColorPalette, Pattern } from "@laukolaroser/shared/CosmeticSchemas";
 import { colord } from "colord";
 import { html, LitElement, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

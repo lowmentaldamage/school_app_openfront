@@ -73,7 +73,7 @@ export function momentShareUrl(
   return slug === null ? null : `${playerProfileUrl(publicId)}?moment=${slug}`;
 }
 
-/** The line that goes with the link ("I just reached Level 50 on OpenFront!"). */
+/** The line that goes with the link ("I just reached Level 50 on Laukolaroser!"). */
 export function momentShareText(moment: ShareMoment): string {
   switch (moment.kind) {
     case "level":

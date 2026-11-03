@@ -1,5 +1,5 @@
-import { Cell } from "@openfront/engine-api/game/GameTypes";
-import { EventBus, GameEvent } from "@openfront/shared/EventBus";
+import { Cell } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus, GameEvent } from "@laukolaroser/shared/EventBus";
 import {
   CenterCameraEvent,
   DragEvent,
@@ -30,7 +30,42 @@ export const GOTO_INTERVAL_MS = 16;
 export const CAMERA_MAX_SPEED = 15;
 export const CAMERA_SMOOTHING = 0.03;
 
+/**
+ * Optional replacement for the flat 2D screen↔world mapping, installed when
+ * the map is drawn by a perspective (3D) renderer. Coordinates are canvas
+ * pixels (relative to the input overlay) and continuous tile positions.
+ * TransformHandler still owns the camera state (pan/zoom); the projector
+ * only changes how that camera maps pixels to tiles.
+ */
+export interface ScreenProjector {
+  canvasToTile(
+    canvasX: number,
+    canvasY: number,
+  ): { x: number; y: number } | null;
+  tileToCanvas(tileX: number, tileY: number): { x: number; y: number };
+  visibleTileBounds(): {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+  };
+  /** Screen drag (CSS px) → ground displacement in tiles (rotated cameras). */
+  screenDeltaToTiles?(
+    dx: number,
+    dy: number,
+    scale: number,
+  ): { x: number; y: number };
+}
+
 export class TransformHandler {
+  private projector: ScreenProjector | null = null;
+
+  /** Install (or clear with null) a perspective screen↔world projector. */
+  setProjector(projector: ScreenProjector | null): void {
+    this.projector = projector;
+    this.changed = true;
+  }
+
   public scale: number = 1.8;
   private _boundingRect: DOMRect;
   public offsetX: number = -350;
@@ -90,6 +125,7 @@ export class TransformHandler {
   }
 
   worldToCanvasCoordinates(cell: Cell): { x: number; y: number } {
+    if (this.projector) return this.projector.tileToCanvas(cell.x, cell.y);
     // Step 1: Convert from Cell coordinates to game coordinates
     // (reverse of Math.floor operation - we'll use the exact values)
     const gameX = cell.x;
@@ -130,6 +166,10 @@ export class TransformHandler {
     screenY: number,
   ): { x: number; y: number } {
     const canvasCoords = this.screenToCanvasCoordinates(screenX, screenY);
+    if (this.projector) {
+      const t = this.projector.canvasToTile(canvasCoords.x, canvasCoords.y);
+      if (t !== null) return t;
+    }
     const gameX =
       (canvasCoords.x - this.game.width() / 2) / this.scale +
       this.offsetX +
@@ -161,6 +201,13 @@ export class TransformHandler {
   }
 
   screenBoundingRect(): [Cell, Cell] {
+    if (this.projector) {
+      const b = this.projector.visibleTileBounds();
+      return [
+        new Cell(Math.floor(b.minX), Math.floor(b.minY)),
+        new Cell(Math.floor(b.maxX), Math.floor(b.maxY)),
+      ];
+    }
     const canvasRect = this.boundingRect();
     const canvasWidth = canvasRect.width;
     const canvasHeight = canvasRect.height;
@@ -309,6 +356,27 @@ export class TransformHandler {
 
     const canvasCoords = this.screenToCanvasCoordinates(event.x, event.y);
 
+    // Perspective view: keep the ground point under the cursor fixed. With
+    // the camera distance proportional to 1/scale, ground offsets from the
+    // view centre scale by oldScale/newScale (exact on flat ground, for any
+    // yaw or tilt).
+    const anchor = this.projector?.canvasToTile(canvasCoords.x, canvasCoords.y);
+    if (anchor) {
+      const { width: cw, height: ch } = this.boundingRect();
+      const W = this.game.width();
+      const H = this.game.height();
+      const cx0 = this.offsetX + W / 2 + (cw - W) / (2 * oldScale);
+      const cy0 = this.offsetY + H / 2 + (ch - H) / (2 * oldScale);
+      const k = oldScale / this.scale;
+      const cx1 = anchor.x - (anchor.x - cx0) * k;
+      const cy1 = anchor.y - (anchor.y - cy0) * k;
+      this.offsetX = cx1 - W / 2 - (cw - W) / (2 * this.scale);
+      this.offsetY = cy1 - H / 2 - (ch - H) / (2 * this.scale);
+      this.clampOffsets();
+      this.changed = true;
+      return;
+    }
+
     // Calculate the world point we want to zoom towards
     const zoomPointX =
       (canvasCoords.x - this.game.width() / 2) / oldScale + this.offsetX;
@@ -362,8 +430,18 @@ export class TransformHandler {
 
   onMove(event: DragEvent) {
     this.clearTarget();
-    this.offsetX -= event.deltaX / this.scale;
-    this.offsetY -= event.deltaY / this.scale;
+    const d = this.projector?.screenDeltaToTiles?.(
+      event.deltaX,
+      event.deltaY,
+      this.scale,
+    );
+    if (d) {
+      this.offsetX -= d.x;
+      this.offsetY -= d.y;
+    } else {
+      this.offsetX -= event.deltaX / this.scale;
+      this.offsetY -= event.deltaY / this.scale;
+    }
     this.clampOffsets();
     this.changed = true;
   }

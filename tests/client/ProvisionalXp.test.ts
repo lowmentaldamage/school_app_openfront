@@ -1,5 +1,5 @@
-import type { PlayerStats } from "@openfront/engine-api/StatsSchemas";
-import { XpRulesSchema } from "@openfront/shared/ApiSchemas";
+import type { PlayerStats } from "@laukolaroser/engine-api/StatsSchemas";
+import { XpRulesSchema } from "@laukolaroser/shared/ApiSchemas";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";

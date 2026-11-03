@@ -4,7 +4,7 @@ import { WebSocket } from "ws";
 import { WorkerLobbyService } from "../../src/server/WorkerLobbyService";
 import { mockLogger } from "../util/GameServerHarness";
 
-// connectedClients() feeds the openfront.lobby_clients.gauge metric: it must
+// connectedClients() feeds the laukolaroser.lobby_clients.gauge metric: it must
 // follow connects, closes, and the dead-socket sweep done at broadcast time.
 describe("WorkerLobbyService.connectedClients", () => {
   let service: WorkerLobbyService;

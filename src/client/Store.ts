@@ -1,13 +1,13 @@
 import {
   isGrantedSubscription,
   UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import {
   CosmeticPack,
   Cosmetics,
   Product,
   Subscription,
-} from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/CosmeticSchemas";
 import type { PropertyValues, TemplateResult } from "lit";
 import { html } from "lit";
 import { customElement, state } from "lit/decorators.js";

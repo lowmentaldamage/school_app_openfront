@@ -1,11 +1,11 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { assertNever } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { assertNever } from "@laukolaroser/engine-lib/Util";
 import { Game, Player, Unit } from "../../game/Game";
 import { Cluster } from "../../game/TrainStation";
 import { nearestTileDist, nearestTileDistCapped } from "../Util";

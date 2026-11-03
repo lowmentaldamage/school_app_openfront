@@ -2,7 +2,7 @@
 // (/zbin). Every frame on both sockets is a zbin payload — there is no JSON
 // fallback, no negotiation, and no version byte.
 //
-// That is only safe because OpenFront ships the client and the server from one
+// That is only safe because Laukolaroser ships the client and the server from one
 // build: a zbin payload is a bare positional byte stream, so peers built from
 // different commits mis-decode each other (see zbin/README.md, "Compatibility").
 // If the client and the server ever stop being pinned together, a version has
@@ -19,8 +19,8 @@
 // receiver's table; ids outside the roster (e.g. ADMIN_BOT_CLIENT_ID) ride the
 // escape path inline.
 
-import { CLIENT_ID_MAPPING } from "@openfront/engine-api/Schemas";
-import { ZbContext } from "@openfront/zbin";
+import { CLIENT_ID_MAPPING } from "@laukolaroser/engine-api/Schemas";
+import { ZbContext } from "@laukolaroser/zbin";
 import {
   ClientMessage,
   ClientMessageSchema,

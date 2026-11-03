@@ -1,8 +1,8 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import { QuickChatKeySchema } from "@openfront/engine-api/Schemas";
-import { QuickChatExecution } from "@openfront/engine/execution/QuickChatExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import { QuickChatKeySchema } from "@laukolaroser/engine-api/Schemas";
+import { QuickChatExecution } from "@laukolaroser/engine/execution/QuickChatExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import en from "../resources/lang/en.json";
 import quickChatData from "../resources/QuickChat.json";
 import { playerInfo, setup } from "./util/Setup";
@@ -109,7 +109,11 @@ describe("QuickChat phrases", () => {
     ["help", "send_gold_to", "Send gold to [P1]!"],
     ["warnings", "disconnected", "[P1] has disconnected!"],
     ["warnings", "pirating", "[P1] is pirating all of our trade!"],
-    ["misc", "join_discord", "You should join the OpenFront Discord server!"],
+    [
+      "misc",
+      "join_discord",
+      "You should join the Laukolaroser Discord server!",
+    ],
   ];
 
   test.each(newPhrases)(

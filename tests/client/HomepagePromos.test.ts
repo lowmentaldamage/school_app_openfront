@@ -169,7 +169,7 @@ describe("HomepagePromos bottom rail after its destroy", () => {
       size: "728x90",
       adSlot: slot,
       destroyUnits: "resolved",
-      removedBy: "openfront",
+      removedBy: "laukolaroser",
       outcome: "removed",
     });
   });

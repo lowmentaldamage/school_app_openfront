@@ -8,7 +8,7 @@
  * Includes orientation computation, construction animation, and a per-tile
  * Uint8Array ready for GPU upload.
  *
- * Ported verbatim from openfront-workspace/packages/shim/src/railroad-cache.ts;
+ * Ported verbatim from laukolaroser-workspace/packages/shim/src/railroad-cache.ts;
  * only imports changed (types come from engine-api game/GameUpdates instead of
  * the shim's local types module).
  */
@@ -19,7 +19,7 @@ import {
   RailroadConstructionUpdate,
   RailroadDestructionUpdate,
   RailroadSnapUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 
 // Regular enum (not const enum) for cross-package use.
 enum RailType {

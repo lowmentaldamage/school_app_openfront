@@ -10,7 +10,7 @@
     //   * then every relative specifier in one bucket, sorted together,
     //   * case-insensitive, ascending.
     // Keeping internal/builtin/external in one group deliberately means
-    // workspace imports like "@openfront/*" sort alongside third-party ones,
+    // workspace imports like "@laukolaroser/*" sort alongside third-party ones,
     // exactly as TypeScript did.
     "groups": [
       ["builtin", "external", "internal", "subpath"],

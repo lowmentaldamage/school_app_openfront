@@ -1,11 +1,11 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import {
   EFFECT_TYPES,
   NUKE_EXPLOSION_TYPES,
   type Cosmetics,
   type EffectType,
   type NukeExplosionType,
-} from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/CosmeticSchemas";
 import type { LitElement } from "lit";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getUserMe } from "../../src/client/Api";

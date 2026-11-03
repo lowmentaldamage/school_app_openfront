@@ -6,11 +6,11 @@ import {
 
 describe("versionedReplayUrl", () => {
   test("builds the canonical replay URL from the audience and game id", () => {
-    expect(versionedReplayUrl("openfront.io", "abcd1234")).toBe(
-      "https://replay.openfront.io/abcd1234",
+    expect(versionedReplayUrl("laukolaroser.com", "abcd1234")).toBe(
+      "https://replay.laukolaroser.com/abcd1234",
     );
-    expect(versionedReplayUrl("openfront.dev", "abcd1234")).toBe(
-      "https://replay.openfront.dev/abcd1234",
+    expect(versionedReplayUrl("laukolaroser.dev", "abcd1234")).toBe(
+      "https://replay.laukolaroser.dev/abcd1234",
     );
   });
 
@@ -22,14 +22,14 @@ describe("versionedReplayUrl", () => {
 
 describe("isReplayShellHost", () => {
   test("matches the hostname of a generated replay URL (loop guard)", () => {
-    const url = versionedReplayUrl("openfront.io", "abcd1234");
+    const url = versionedReplayUrl("laukolaroser.com", "abcd1234");
     expect(url).not.toBeNull();
     expect(isReplayShellHost(new URL(url!).hostname)).toBe(true);
   });
 
   test.each([
-    "openfront.io",
-    "main.openfront.dev",
+    "laukolaroser.com",
+    "main.laukolaroser.dev",
     "localhost",
     "cdn.ofedge.dev",
   ])("does not match ordinary app hosts (%s)", (hostname) => {
@@ -45,14 +45,14 @@ describe("findVersionedShell", () => {
     const fetchFn = vi.fn(async () => html());
     expect(
       await findVersionedShell(
-        "openfront.io",
+        "laukolaroser.com",
         "abcd1234",
-        "openfront.io",
+        "laukolaroser.com",
         fetchFn,
       ),
-    ).toBe("https://replay.openfront.io/abcd1234");
+    ).toBe("https://replay.laukolaroser.com/abcd1234");
     expect(fetchFn).toHaveBeenCalledWith(
-      "https://replay.openfront.io/abcd1234",
+      "https://replay.laukolaroser.com/abcd1234",
       { method: "HEAD" },
     );
   });
@@ -68,9 +68,9 @@ describe("findVersionedShell", () => {
     ]) {
       expect(
         await findVersionedShell(
-          "openfront.io",
+          "laukolaroser.com",
           "abcd1234",
-          "openfront.io",
+          "laukolaroser.com",
           fetchFn,
         ),
       ).toBeNull();
@@ -84,9 +84,9 @@ describe("findVersionedShell", () => {
     ).toBeNull();
     expect(
       await findVersionedShell(
-        "openfront.io",
+        "laukolaroser.com",
         "abcd1234",
-        "replay.openfront.io",
+        "replay.laukolaroser.com",
         fetchFn,
       ),
     ).toBeNull();

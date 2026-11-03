@@ -1,5 +1,5 @@
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { AmbienceController } from "../../../src/client/controllers/AmbienceController";
 import { SetAmbienceEvent } from "../../../src/client/sound/Sounds";
 

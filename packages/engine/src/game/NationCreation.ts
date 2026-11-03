@@ -7,13 +7,13 @@ import {
   Nation,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AdditionalNation,
   Nation as ManifestNation,
-} from "@openfront/engine-api/game/MapFiles";
-import { GameStartInfo } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/MapFiles";
+import { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 
 /**
  * Creates the nations array for a game.

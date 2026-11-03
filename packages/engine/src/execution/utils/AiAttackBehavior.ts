@@ -1,20 +1,21 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
+  CombatShips,
   Difficulty,
   PlayerType,
   Structures,
   TerraNullius,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   readVersioned,
   snapshotType,
   Versioned,
   zNum,
   zRef,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { assertNever } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { assertNever } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Attack, Game, Player, Unit } from "../../game/Game";
 import {
@@ -436,7 +437,7 @@ export abstract class AiAttackBehavior {
 
   protected hostileWarships(): Unit[] {
     return this.game
-      .units(UnitType.Warship)
+      .units(CombatShips.types)
       .filter(
         (w) =>
           w.owner() !== this.player &&

@@ -87,7 +87,7 @@ vi.mock(
   },
 );
 
-import { GameType } from "@openfront/engine-api/game/GameTypes";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import { GameStatsModal } from "../../src/client/GameStatsModal";
 import { modalRouter } from "../../src/client/ModalRouter";
 import { initNavigation } from "../../src/client/Navigation";

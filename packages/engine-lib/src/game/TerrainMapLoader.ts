@@ -1,15 +1,15 @@
-import { GameMap } from "@openfront/engine-api/game/GameMap";
+import { GameMap } from "@laukolaroser/engine-api/game/GameMap";
 import {
   GameMapSize,
   TeamGameSpawnAreas,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AdditionalNation,
   MapFiles,
   MapLayer,
   MapMetadata,
   Nation,
-} from "@openfront/engine-api/game/MapFiles";
+} from "@laukolaroser/engine-api/game/MapFiles";
 import { GameMapImpl } from "./GameMapImpl";
 
 export type TerrainMapData = {

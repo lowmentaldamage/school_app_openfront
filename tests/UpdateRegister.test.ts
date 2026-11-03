@@ -94,7 +94,7 @@ printf '%s' "$CODE"
     "REGISTER_ATTEMPTS=3",
     "REGISTER_RETRY_DELAY=0",
     extractRegisterBlock(),
-    `register_identity 'https://api.openfront.io' 'k3y' 'openfront.io' 'blue.openfront.io' 32`,
+    `register_identity 'https://api.laukolaroser.com' 'k3y' 'laukolaroser.com' 'blue.laukolaroser.com' 32`,
     'echo "exit=$?"',
     'echo "letter=${REGISTERED_LETTER:-}"',
     'echo "workers=${REGISTERED_NUM_WORKERS:-}"',
@@ -119,7 +119,7 @@ describe.skipIf(isWindows)("update.sh register_identity", () => {
     expect(r.letter).toBe("c");
     expect(r.numWorkers).toBe("20");
     expect(r.requests).toEqual([
-      'https://api.openfront.io/cluster/register {"site":"openfront.io","host":"blue.openfront.io","cpus":32}',
+      'https://api.laukolaroser.com/cluster/register {"site":"laukolaroser.com","host":"blue.laukolaroser.com","cpus":32}',
     ]);
   });
 

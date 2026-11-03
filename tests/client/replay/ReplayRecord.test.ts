@@ -3,7 +3,7 @@
  * replay comes back as one.
  */
 
-import type { GameRecord } from "@openfront/shared/WireSchemas";
+import type { GameRecord } from "@laukolaroser/shared/WireSchemas";
 import {
   fetchReplayRecord,
   hasRecordedHashes,

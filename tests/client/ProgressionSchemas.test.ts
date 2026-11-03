@@ -4,7 +4,7 @@ import {
   ProgressionConfigSchema,
   PublicProgressSchema,
   UserMeResponseSchema,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { describe, expect, it } from "vitest";
 
 const progress = {

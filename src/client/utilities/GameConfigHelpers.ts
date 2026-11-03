@@ -2,8 +2,8 @@ import {
   GameMapType,
   listedMaps,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 
 /**
  * Maps a slider value (0-400) to the nations config value.
@@ -92,16 +92,21 @@ export function parseBoundedFloatFromInput(
   return value;
 }
 
+export const DEFAULT_BOTS = 100;
+export const COMPACT_DEFAULT_BOTS = 25;
+
 export function getBotsForCompactMap(
   bots: number,
   compactMapEnabled: boolean,
 ): number {
-  if (compactMapEnabled && bots === 400) {
-    return 100;
+  // Defaults: 100 bots on a normal map, 25 on a compact one (fewer tiny
+  // bot nations: less clutter and a cheaper simulation).
+  if (compactMapEnabled && bots === DEFAULT_BOTS) {
+    return COMPACT_DEFAULT_BOTS;
   }
 
-  if (!compactMapEnabled && bots === 100) {
-    return 400;
+  if (!compactMapEnabled && bots === COMPACT_DEFAULT_BOTS) {
+    return DEFAULT_BOTS;
   }
 
   return bots;

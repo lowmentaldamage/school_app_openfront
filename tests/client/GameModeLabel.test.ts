@@ -5,8 +5,8 @@ import {
   HumansVsNations,
   Quads,
   Trios,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import en from "../../resources/lang/en.json";
 import { getGameModeLabel } from "../../src/client/Utils";

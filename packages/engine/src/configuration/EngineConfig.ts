@@ -5,20 +5,36 @@ import {
   PlayerType,
   TerrainType,
   TerraNullius,
+  Structures,
   Tick,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PlayerLike } from "@openfront/engine-api/game/ReadViews";
-import { TeamCountConfig } from "@openfront/engine-api/Schemas";
-import { NukeType } from "@openfront/engine-api/StatsSchemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { exp, log, pow2 } from "@openfront/engine-lib/DetMath";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
+import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
+import { NukeType } from "@laukolaroser/engine-api/StatsSchemas";
+import { AIRBASE } from "@laukolaroser/engine-lib/air/Air";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { radarCost } from "@laukolaroser/engine-lib/defense/Radar";
+import { exp, log, pow2 } from "@laukolaroser/engine-lib/DetMath";
+import {
+  ECONOMY_BUILDINGS,
+  economyCost,
+} from "@laukolaroser/engine-lib/economy/Economy";
+import {
+  RAIL_UNITS,
+  railUnitCost,
+} from "@laukolaroser/engine-lib/rail/RailUnits";
+import {
+  hasTech,
+  TECH_EFFECTS,
+  techPercentBig,
+} from "@laukolaroser/engine-lib/tech/Tech";
 import {
   assertNever,
   sigmoid,
   toInt,
   within,
-} from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/Util";
 import type { EngineUnitInfo, Game, Player, Unit } from "../game/Game";
 
 export interface AttackLogicInput {
@@ -36,6 +52,12 @@ export interface AttackLogicInput {
   } | null;
   /** A defense post owned by the defender is in range of the tile. */
   defenderHasDefensePost: boolean;
+  /**
+   * Highest terrain the attacker already holds next to the tile (where the
+   * assault comes from), for the high-ground rule; undefined when unknown
+   * (e.g. a boat landing), which applies no modifier.
+   */
+  attackerTerrain?: TerrainType;
   /** Fraction of land tiles with fallout, or null if the tile has no fallout. */
   falloutRatio: number | null;
   /** Tiles on the attack front this tick (plus jitter); fixed for the tick. */
@@ -99,6 +121,33 @@ function largeTerritoryBonus(numTiles: number, depth: number): number {
   );
 }
 
+function terrainRank(t: TerrainType): number {
+  return t === TerrainType.Mountain ? 2 : t === TerrainType.Highland ? 1 : 0;
+}
+
+/**
+ * High ground: an assault from terrain at least as high as the target is
+ * easier than one up the slope. Uphill (or unknown origin): full cost.
+ * Along a ridge (highland/mountain from the same height): 25% cheaper.
+ * Downhill: 15% cheaper. Plains to plains: unchanged.
+ */
+export function highGroundModifier(
+  target: TerrainType,
+  from: TerrainType | undefined,
+): number {
+  if (from === undefined) return 1;
+  const diff = terrainRank(target) - terrainRank(from);
+  if (diff > 0) return 1;
+  if (diff < 0) return 0.85;
+  return terrainRank(target) > 0 ? 0.75 : 1;
+}
+
+/**
+ * Terrain cost of taking one tile: `mag` scales the attacker's troop losses,
+ * `tileCost` how slowly the front advances. Mountains are a real obstacle
+ * (about 3x the losses and 3x slower than plains), highlands a moderate one,
+ * so natural barriers shape borders and wars like on real maps.
+ */
 function terrainAttackBase(terrain: TerrainType): {
   mag: number;
   tileCost: number;
@@ -107,9 +156,9 @@ function terrainAttackBase(terrain: TerrainType): {
     case TerrainType.Plains:
       return { mag: 80, tileCost: 16.5 };
     case TerrainType.Highland:
-      return { mag: 100, tileCost: 20 };
+      return { mag: 130, tileCost: 26 };
     case TerrainType.Mountain:
-      return { mag: 120, tileCost: 25 };
+      return { mag: 240, tileCost: 50 };
     case TerrainType.Impassable:
       throw new Error(`impassable terrain cannot be attacked`);
     default:
@@ -255,7 +304,7 @@ export class EngineConfig extends Config {
     }
     const distPenalty = citiesVisited * 5_000;
     const gold = Math.max(5000, baseGold - distPenalty);
-    return toInt(gold * this.goldMultiplierFor(player));
+    return toInt(gold * this.goldMultiplierFor(player) * techTrade(player));
   }
 
   trainStationMinRange(): number {
@@ -269,7 +318,9 @@ export class EngineConfig extends Config {
     // Sigmoid: concave start, sharp S-curve middle, linear end - heavily punishes trades under range debuff.
     const debuff = this.tradeShipShortRangeDebuff();
     const baseGold = 75_000 / (1 + exp(-0.03 * (dist - debuff))) + 50 * dist;
-    return BigInt(Math.floor(baseGold * this.goldMultiplierFor(player)));
+    return BigInt(
+      Math.floor(baseGold * this.goldMultiplierFor(player) * techTrade(player)),
+    );
   }
 
   /**
@@ -343,6 +394,55 @@ export class EngineConfig extends Config {
           (numUnits: number) => Math.min(1_000_000, (numUnits + 1) * 250_000),
           UnitType.Warship,
         );
+      case UnitType.Destroyer:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(500_000, (numUnits + 1) * 100_000),
+          UnitType.Destroyer,
+        );
+      case UnitType.Battleship:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(3_000_000, (numUnits + 1) * 750_000),
+          UnitType.Battleship,
+        );
+      case UnitType.Submarine:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(1_000_000, (numUnits + 1) * 200_000),
+          UnitType.Submarine,
+        );
+      case UnitType.Carrier:
+        return this.costWrapper(
+          (numUnits: number) => Math.min(4_000_000, (numUnits + 1) * 1_000_000),
+          UnitType.Carrier,
+        );
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM: {
+        const spec = RAIL_UNITS[type];
+        return this.costWrapper(
+          (numUnits: number) => railUnitCost(spec, numUnits),
+          type,
+        );
+      }
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.OilRig: {
+        const spec = ECONOMY_BUILDINGS[type];
+        return this.costWrapper(
+          (numUnits: number) => economyCost(spec, numUnits),
+          type,
+        );
+      }
+      case UnitType.Airbase:
+        return this.costWrapper(
+          (numUnits: number) =>
+            Math.min(AIRBASE.maxCost, AIRBASE.baseCost * (numUnits + 1)),
+          UnitType.Airbase,
+        );
+      case UnitType.RadarStation:
+        return this.costWrapper(
+          (numUnits: number) => radarCost(numUnits),
+          UnitType.RadarStation,
+        );
       case UnitType.Port:
         return this.costWrapper(
           (numUnits: number) => Math.min(1_000_000, pow2(numUnits) * 125_000),
@@ -392,6 +492,12 @@ export class EngineConfig extends Config {
       case UnitType.MIRVWarhead:
       case UnitType.TradeShip:
       case UnitType.Train:
+      // Weapon strikes charge their own price (WeaponSpec.cost).
+      case UnitType.ArtilleryShell:
+      case UnitType.Rocket:
+      // Planes come from an Airbase (bombers via the airstrike weapon).
+      case UnitType.Bomber:
+      case UnitType.Fighter:
         return () => 0n;
       default:
         assertNever(type);
@@ -452,7 +558,15 @@ export class EngineConfig extends Config {
           Math.min(player.unitsOwned(type), player.unitsConstructed(type)),
         0,
       );
-      return BigInt(costFn(numUnits + extraUnits));
+      const cost = BigInt(costFn(numUnits + extraUnits));
+      // Tech: Construction (buildings only).
+      if (
+        player.hasTech("construction") &&
+        types.some((t) => Structures.has(t) || t === UnitType.OilRig)
+      ) {
+        return techPercentBig(cost, TECH_EFFECTS.constructionCostPercent);
+      }
+      return cost;
     };
   }
 
@@ -523,6 +637,9 @@ export class EngineConfig extends Config {
   attackLogic(input: AttackLogicInput): AttackLogicResult {
     const { attackTroops, attacker, defender } = input;
     let { mag, tileCost } = terrainAttackBase(input.terrain);
+    const hg = highGroundModifier(input.terrain, input.attackerTerrain);
+    mag *= hg;
+    tileCost *= hg;
 
     if (defender !== null && input.defenderHasDefensePost) {
       mag *= this.defensePostDefenseBonus();
@@ -705,6 +822,14 @@ export class EngineConfig extends Config {
   }
 
   dynamicSamRange(sam: Unit, currentTick: number): number {
+    const base = this.baseDynamicSamRange(sam, currentTick);
+    // Tech: SAM Radar.
+    return sam.owner().hasTech("sam_radar")
+      ? (base * TECH_EFFECTS.samRangePercent) / 100
+      : base;
+  }
+
+  private baseDynamicSamRange(sam: Unit, currentTick: number): number {
     const state = sam.samLauncherState();
     if (state === undefined || state.upgradeStartTick === undefined) {
       return this.samRange(sam.level());
@@ -818,4 +943,11 @@ export class EngineConfig extends Config {
   defensePostTargettingRange(): number {
     return 75;
   }
+}
+
+/** Tech: Trade Routes (gold from trade ships and trains). */
+function techTrade(player: PlayerLike): number {
+  return player.techMask && hasTech(player.techMask(), "trade")
+    ? TECH_EFFECTS.tradeGoldPercent / 100
+    : 1;
 }

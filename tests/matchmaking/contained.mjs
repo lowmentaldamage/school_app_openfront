@@ -12,7 +12,7 @@
 import {
   gotoHome,
   launch,
-} from "../../.claude/skills/run-openfront/driver.mjs";
+} from "../../.claude/skills/run-laukolaroser/driver.mjs";
 import { startFakeMatchmakingServer } from "./fakeServer.mjs";
 import { isUp, makeChecker, waitFor } from "./util.mjs";
 

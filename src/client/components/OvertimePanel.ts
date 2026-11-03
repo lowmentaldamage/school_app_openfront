@@ -2,7 +2,7 @@ import {
   ColoredTeams,
   GameMode,
   Team,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../Utils";

@@ -16,7 +16,7 @@ function setBootstrapConfig() {
     gameEnv: "prod",
     numWorkers: 1,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.dev",
+    jwtAudience: "laukolaroser.dev",
     instanceId: "d",
     gitCommit: "t",
   };
@@ -41,8 +41,8 @@ describe("Steam login", () => {
       jti: "some-id",
       sub: "AAAAAAAAAAAAAAAAAAAAAA",
       iat: Math.floor(Date.now() / 1000),
-      iss: "https://api.openfront.dev",
-      aud: "openfront.dev",
+      iss: "https://api.laukolaroser.dev",
+      aud: "laukolaroser.dev",
       exp: Math.floor(Date.now() / 1000) + 3600,
     }).encode();
 
@@ -64,7 +64,7 @@ describe("Steam login", () => {
   // exercise SteamSDK's normalisation end-to-end through Auth.ts, so they
   // mock the raw bridge rather than steamSDK.getTicket directly.
   it("signs in via /auth/steam when the bridge returns a legacy string ticket", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockResolvedValue("legacyhexticket"),
         getUser: vi.fn(),
@@ -75,8 +75,8 @@ describe("Steam login", () => {
         jti: "some-id",
         sub: "AAAAAAAAAAAAAAAAAAAAAA",
         iat: Math.floor(Date.now() / 1000),
-        iss: "https://api.openfront.dev",
-        aud: "openfront.dev",
+        iss: "https://api.laukolaroser.dev",
+        aud: "laukolaroser.dev",
         exp: Math.floor(Date.now() / 1000) + 3600,
       }).encode();
 
@@ -92,12 +92,12 @@ describe("Steam login", () => {
       expect(header).toBe(`Bearer ${jwt}`);
       expect(getDesktopSessionState()).toEqual({ status: "signed-in" });
     } finally {
-      delete (window as any).openfrontDesktop;
+      delete (window as any).laukolaroserDesktop;
     }
   });
 
   it("yields signed-out/steam-unavailable without throwing when the bridge returns a legacy null", async () => {
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockResolvedValue(null),
         getUser: vi.fn(),
@@ -114,7 +114,7 @@ describe("Steam login", () => {
         reason: "steam-unavailable",
       });
     } finally {
-      delete (window as any).openfrontDesktop;
+      delete (window as any).laukolaroserDesktop;
     }
   });
 
@@ -138,8 +138,8 @@ describe("Steam login", () => {
       jti: "some-id",
       sub: "AAAAAAAAAAAAAAAAAAAAAA",
       iat: Math.floor(Date.now() / 1000),
-      iss: "https://api.openfront.dev",
-      aud: "openfront.dev",
+      iss: "https://api.laukolaroser.dev",
+      aud: "laukolaroser.dev",
       exp: Math.floor(Date.now() / 1000) + 3600,
     }).encode();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
@@ -197,7 +197,7 @@ describe("Steam login", () => {
   // end, not just at the SDK, because it is /auth/steam that would receive it.
   it("never POSTs /auth/steam for a malformed success from the bridge", async () => {
     vi.spyOn(steamSDK, "isOnSteam").mockReturnValue(true);
-    (window as any).openfrontDesktop = {
+    (window as any).laukolaroserDesktop = {
       steam: {
         getAuthTicket: vi.fn().mockResolvedValue({ ok: true, ticket: 1234 }),
         getUser: vi.fn(),
@@ -252,7 +252,7 @@ describe("Steam login", () => {
 
   // The shell distinguishes three reasons it may decline to mint, and only
   // one of them is "set up an account". Collapsing them is the bug this
-  // mapping exists to prevent: an OpenFront API outage used to tell a player
+  // mapping exists to prevent: an Laukolaroser API outage used to tell a player
   // with a perfectly good account to set one up. None of them may attempt the
   // exchange.
   it.each([
@@ -323,7 +323,7 @@ describe("Steam login", () => {
     [500, "steam-backend"],
     // A Cloudflare WAF 403 (or a 429) still reached the server -- it is not a
     // transport failure, so it must not fall into the "network" bucket
-    // ("Can't reach OpenFront. Check your connection.") the way it used to.
+    // ("Can't reach Laukolaroser. Check your connection.") the way it used to.
     [403, "steam-error"],
   ] as const)(
     "maps /auth/steam %i to session reason %s",
@@ -363,7 +363,7 @@ describe("Steam login", () => {
   });
 
   it("restores a session after offline startup and a failed Retry, without reloading", async () => {
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     vi.spyOn(steamSDK, "isOnSteam").mockReturnValue(true);
     const getTicket = vi.spyOn(steamSDK, "getTicket").mockResolvedValue({
       ok: true,
@@ -390,8 +390,8 @@ describe("Steam login", () => {
         jti: "some-id",
         sub: "AAAAAAAAAAAAAAAAAAAAAA",
         iat: Math.floor(Date.now() / 1000),
-        iss: "https://api.openfront.dev",
-        aud: "openfront.dev",
+        iss: "https://api.laukolaroser.dev",
+        aud: "laukolaroser.dev",
         exp: Math.floor(Date.now() / 1000) + 3600,
       }).encode();
       fetchMock.mockImplementation(
@@ -415,7 +415,7 @@ describe("Steam login", () => {
       expect(getTicket).toHaveBeenCalledTimes(3);
     } finally {
       stop();
-      window.openfrontDesktop = undefined;
+      window.laukolaroserDesktop = undefined;
     }
   });
 
@@ -468,8 +468,8 @@ describe("Steam login", () => {
       jti: "some-id",
       sub: "AAAAAAAAAAAAAAAAAAAAAA",
       iat: Math.floor(Date.now() / 1000),
-      iss: "https://api.openfront.dev",
-      aud: "openfront.dev",
+      iss: "https://api.laukolaroser.dev",
+      aud: "laukolaroser.dev",
       exp: Math.floor(Date.now() / 1000) + 3600,
     }).encode();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(

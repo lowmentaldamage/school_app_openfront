@@ -4,9 +4,9 @@ import {
   GameMapType,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
-import type { GameConfig } from "@openfront/engine-api/Schemas";
-import type { AnalyticsRecord } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import type { AnalyticsRecord } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/client/Api", () => ({
@@ -304,7 +304,7 @@ describe("GameInfoView", () => {
     const viewUpdate = vi.spyOn(view, "requestUpdate");
     const controlsUpdate = vi.spyOn(controls, "requestUpdate");
     const selector = new LangSelector();
-    selector.translations = { "main.title": "OpenFront" };
+    selector.translations = { "main.title": "Laukolaroser" };
     selector.defaultTranslations = selector.translations;
 
     (

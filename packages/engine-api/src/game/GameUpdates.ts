@@ -286,6 +286,12 @@ export interface PlayerUpdate {
   hasSpawned?: boolean;
   spawnTile?: TileRef;
   betrayals?: number;
+  /** Researched techs, bitmask (engine-lib/tech/Tech.ts TECHS order). */
+  techMask?: number;
+  /** Index of the tech being researched, -1 for none. */
+  researchTech?: number;
+  /** Tick the research completes, -1 for none. */
+  researchEndsAt?: Tick;
   lastDeleteUnitTick?: Tick;
   isLobbyCreator?: boolean;
 }

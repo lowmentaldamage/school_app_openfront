@@ -1,5 +1,5 @@
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import type { PlayerCosmetics } from "@openfront/shared/WireSchemas";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import type { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, describe, expect, test } from "vitest";
 import { GraphicsOverridesSchema } from "../../src/client/render/gl/GraphicsOverrides";
 import { applyGraphicsOverrides } from "../../src/client/render/gl/RenderOverrides";

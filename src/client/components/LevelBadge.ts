@@ -25,7 +25,7 @@ import {
   type BadgeIconArt,
 } from "./LevelBadgeIcons";
 
-// A player's level and prestige as a small emblem: the rank's OpenFront unit
+// A player's level and prestige as a small emblem: the rank's Laukolaroser unit
 // icon on a round plate, the level in a chip of pixel digits overlapping the
 // plate's foot, and a 10-segment gauge on the rim with one segment lit per
 // prestige rank. The rank's tier colours the gauge, icon and chip (Iron at P1
@@ -149,7 +149,7 @@ function mix(a: string, b: string, t: number): string {
 
 const f3 = (n: number): number => Math.round(n * 1000) / 1000;
 
-// 5x7 digits drawn from the OpenFront wordmark font.
+// 5x7 digits drawn from the Laukolaroser wordmark font.
 const DIGITS: Record<string, readonly string[]> = {
   0: [".###.", "##.##", "##.##", "##.##", "##.##", "##.##", ".###."],
   1: ["###", ".##", ".##", ".##", ".##", ".##", ".##"],

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import "../../src/client/hud/layers/GameRightSidebar";
 import type { GameRightSidebar } from "../../src/client/hud/layers/GameRightSidebar";
 import type { GameView } from "../../src/client/view";
@@ -34,7 +34,7 @@ function installDesktopShell() {
     setPrefs: vi.fn(),
     subscribe: vi.fn(),
   };
-  window.openfrontDesktop = { shell: { api: 3 }, display: bridge };
+  window.laukolaroserDesktop = { shell: { api: 3 }, display: bridge };
   return bridge;
 }
 
@@ -71,7 +71,7 @@ function clickFullscreen(el: TestSidebar): void {
 // tests/domTeardown.ts, which runs after this file's own hooks. Only the
 // globals this file installs need undoing here.
 afterEach(() => {
-  window.openfrontDesktop = undefined;
+  window.laukolaroserDesktop = undefined;
   vi.useRealTimers();
 });
 
@@ -101,13 +101,13 @@ describe("GameRightSidebar fullscreen button", () => {
   });
 
   afterEach(() => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     vi.useRealTimers();
   });
 
   // The web build, and any shell older than the display bridge. Unchanged.
   it("uses HTML fullscreen with no desktop shell", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     const el = await mount();
 
     clickFullscreen(el);
@@ -116,7 +116,7 @@ describe("GameRightSidebar fullscreen button", () => {
   });
 
   it("leaves HTML fullscreen the same way on the web", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     const el = await mount();
     (document as { fullscreenElement: Element | null }).fullscreenElement =
       document.documentElement;
@@ -151,7 +151,7 @@ describe("GameRightSidebar fullscreen button", () => {
   });
 
   it("still tracks HTML fullscreen changes on the web", async () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     const el = await mount();
     expect(fullscreenButton(el)!.src).not.toContain("ExitFullscreen");
 

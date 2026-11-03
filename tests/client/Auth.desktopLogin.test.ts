@@ -15,7 +15,7 @@ vi.mock("../../src/client/InGameModal", () => ({
 
 // The three provider call sites in Auth.ts, in both directions (OPE-343).
 //
-// On the desktop shell `window.location.href` is `app://openfront/...`, so
+// On the desktop shell `window.location.href` is `app://laukolaroser/...`, so
 // the OAuth redirect_uri the web path builds is one the API's allowlist
 // refuses -- the player got a browser tab showing a bare JSON 400. There the
 // call sites must go through the shell's browser link flow (the bridge's
@@ -33,7 +33,7 @@ function setBootstrapConfig(
     gameEnv: "prod",
     numWorkers: 1,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.dev",
+    jwtAudience: "laukolaroser.dev",
     instanceId: "d",
     gitCommit: "t",
     ...overrides,
@@ -46,8 +46,8 @@ function sessionJwt(): string {
     jti: "some-id",
     sub: "AAAAAAAAAAAAAAAAAAAAAA",
     iat: Math.floor(Date.now() / 1000),
-    iss: "https://api.openfront.dev",
-    aud: "openfront.dev",
+    iss: "https://api.laukolaroser.dev",
+    aud: "laukolaroser.dev",
     exp: Math.floor(Date.now() / 1000) + 3600,
   }).encode();
 }
@@ -64,8 +64,8 @@ const realLocationDescriptor = Object.getOwnPropertyDescriptor(
 // What a real desktop launch reports. Only href matters to the code under
 // test, but it must be the shell's own origin: that is the value that used to
 // leak into redirect_uri.
-const DESKTOP_HREF = "app://openfront/index.html#modal=account";
-const WEB_HREF = "https://openfront.dev/#modal=account";
+const DESKTOP_HREF = "app://laukolaroser/index.html#modal=account";
+const WEB_HREF = "https://laukolaroser.dev/#modal=account";
 
 function stubLocation(href: string): { href: string } {
   const stub = { href, hash: new URL(href).hash };
@@ -88,7 +88,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   Object.defineProperty(window, "location", realLocationDescriptor);
-  delete (window as { openfrontDesktop?: unknown }).openfrontDesktop;
+  delete (window as { laukolaroserDesktop?: unknown }).laukolaroserDesktop;
 });
 
 describe("provider login on the desktop shell", () => {
@@ -99,7 +99,9 @@ describe("provider login on the desktop shell", () => {
 
   beforeEach(() => {
     showLinkGate = vi.fn(async () => undefined);
-    (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+    (
+      window as unknown as { laukolaroserDesktop: unknown }
+    ).laukolaroserDesktop = {
       showLinkGate,
     };
     location = stubLocation(DESKTOP_HREF);
@@ -134,15 +136,15 @@ describe("provider login on the desktop shell", () => {
   // runs -- and, crucially, never to /auth/link/google with an app:// URL.
   it("linkGoogle opens the website's account settings in the browser", async () => {
     setBootstrapConfig({
-      serverHost: "openfront.io",
-      jwtAudience: "openfront.io",
+      serverHost: "laukolaroser.com",
+      jwtAudience: "laukolaroser.com",
     });
 
     await expect(linkGoogle()).resolves.toBe(true);
 
     expect(openMock).toHaveBeenCalledTimes(1);
     expect(openMock.mock.calls[0][0]).toBe(
-      "https://openfront.io/#modal=account-settings",
+      "https://laukolaroser.com/#modal=account-settings",
     );
     expect(showLinkGate).not.toHaveBeenCalled();
     expect(location.href).toBe(DESKTOP_HREF);
@@ -150,34 +152,34 @@ describe("provider login on the desktop shell", () => {
   });
 
   // The website host is the injected serverHost, not the JWT audience: on a
-  // dev/staging build the audience is the apex (openfront.dev), where nothing
+  // dev/staging build the audience is the apex (laukolaroser.dev), where nothing
   // is deployed, and the site lives on a branch subdomain.
   it("linkGoogle targets the injected branch host, not the audience apex", async () => {
-    setBootstrapConfig({ serverHost: "my-feature.openfront.dev" });
+    setBootstrapConfig({ serverHost: "my-feature.laukolaroser.dev" });
 
     await expect(linkGoogle()).resolves.toBe(true);
 
     expect(openMock.mock.calls[0][0]).toBe(
-      "https://my-feature.openfront.dev/#modal=account-settings",
+      "https://my-feature.laukolaroser.dev/#modal=account-settings",
     );
   });
 
   // The API's server list (multi-server v2) picks a GAME server, and once
   // it is applied serverHttpBase() answers with that deployment host --
-  // falk2-b.openfront.io, which serves no website. The account-settings
+  // falk2-b.laukolaroser.com, which serves no website. The account-settings
   // link reads the site the shell was launched against, not the game
   // server, so it must be unmoved by the list.
   it("linkGoogle still targets the website after a server list is applied", async () => {
     setBootstrapConfig({
-      serverHost: "openfront.io",
-      jwtAudience: "openfront.io",
+      serverHost: "laukolaroser.com",
+      jwtAudience: "laukolaroser.com",
     });
     ClientEnv.applyServerList(
       {
         latest: "bfd5563a",
         servers: {
           d: {
-            host: "falk2-b.openfront.io",
+            host: "falk2-b.laukolaroser.com",
             numWorkers: 16,
             version: "bfd5563a",
             state: "open" as const,
@@ -186,12 +188,12 @@ describe("provider login on the desktop shell", () => {
       },
       "d",
     );
-    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.openfront.io");
+    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.laukolaroser.com");
 
     await expect(linkGoogle()).resolves.toBe(true);
 
     expect(openMock.mock.calls[0][0]).toBe(
-      "https://openfront.io/#modal=account-settings",
+      "https://laukolaroser.com/#modal=account-settings",
     );
   });
 
@@ -228,7 +230,9 @@ describe("provider login on the desktop shell", () => {
   // app:// redirect that was the original bug.
   describe("on a shell without showLinkGate", () => {
     beforeEach(() => {
-      (window as unknown as { openfrontDesktop: unknown }).openfrontDesktop = {
+      (
+        window as unknown as { laukolaroserDesktop: unknown }
+      ).laukolaroserDesktop = {
         linkGate: {},
       };
     });
@@ -265,7 +269,7 @@ describe("provider login on the web", () => {
     discordLogin();
 
     expect(location.href).toBe(
-      `https://api.openfront.dev/auth/login/discord?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
+      `https://api.laukolaroser.dev/auth/login/discord?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
     );
   });
 
@@ -273,7 +277,7 @@ describe("provider login on the web", () => {
     googleLogin();
 
     expect(location.href).toBe(
-      `https://api.openfront.dev/auth/login/google?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
+      `https://api.laukolaroser.dev/auth/login/google?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
     );
   });
 
@@ -289,7 +293,7 @@ describe("provider login on the web", () => {
             status: 200,
           });
         }
-        if (url.startsWith("https://api.openfront.dev/auth/link/google")) {
+        if (url.startsWith("https://api.laukolaroser.dev/auth/link/google")) {
           expect(new Headers(init?.headers).get("Authorization")).toBe(
             `Bearer ${jwt}`,
           );
@@ -310,7 +314,7 @@ describe("provider login on the web", () => {
     );
     expect(linkCall).toBeDefined();
     expect(String(linkCall![0])).toBe(
-      `https://api.openfront.dev/auth/link/google?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
+      `https://api.laukolaroser.dev/auth/link/google?redirect_uri=${encodeURIComponent(WEB_HREF)}`,
     );
     expect(location.href).toBe(authorizeUrl);
     expect(openMock).not.toHaveBeenCalled();

@@ -330,7 +330,7 @@ describe("saved-games-panel", () => {
       opened.push((e as CustomEvent).detail),
     );
     const input = panel.querySelector<HTMLInputElement>("[data-save-code]")!;
-    input.value = "https://openfront.io/game/abc12345";
+    input.value = "https://laukolaroser.com/game/abc12345";
     input.dispatchEvent(new Event("input"));
     await panel.updateComplete;
     panel
@@ -360,8 +360,8 @@ describe("savedGameIdFrom", () => {
     expect(savedGameIdFrom("")).toBeNull();
     expect(savedGameIdFrom("../../users/@me")).toBeNull();
     expect(
-      savedGameIdFrom("https://openfront.io/#modal=single-player"),
+      savedGameIdFrom("https://laukolaroser.com/#modal=single-player"),
     ).toBeNull();
-    expect(savedGameIdFrom("https://openfront.io/#save=../x")).toBeNull();
+    expect(savedGameIdFrom("https://laukolaroser.com/#save=../x")).toBeNull();
   });
 });

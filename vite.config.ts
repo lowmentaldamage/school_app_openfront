@@ -1,8 +1,8 @@
 import {
   type AssetManifest,
   buildAssetUrl,
-} from "@openfront/shared/AssetPaths";
-import { rewriteAssetsForCdn } from "@openfront/shared/AssetUrls";
+} from "@laukolaroser/shared/AssetPaths";
+import { rewriteAssetsForCdn } from "@laukolaroser/shared/AssetUrls";
 import tailwindcss from "@tailwindcss/vite";
 import fs from "fs";
 import http from "http";
@@ -166,7 +166,7 @@ function steamLinkAliasRedirect(): Plugin {
   };
 }
 
-// Dev-only stand-in for the nginx random-worker routing (the openfront_workers
+// Dev-only stand-in for the nginx random-worker routing (the laukolaroser_workers
 // upstream). Forwards these prefix-less POSTs to a randomly chosen worker port
 // so the worker can mint a self-owned id. Runs as direct middleware (before
 // vite's /api proxy).
@@ -266,11 +266,15 @@ export default defineConfig(({ mode }) => {
       cdnBase,
     ),
     desktopLogoImageUrl: buildAssetUrl(
-      "images/OpenFront.png",
+      "images/Laukolaroser.png",
       assetManifest,
       cdnBase,
     ),
-    mobileLogoImageUrl: buildAssetUrl("images/OF.png", assetManifest, cdnBase),
+    mobileLogoImageUrl: buildAssetUrl(
+      "images/LaukolaroserMark.png",
+      assetManifest,
+      cdnBase,
+    ),
   };
 
   // Vite's HTML transform replaces the source <script src="/src/client/Main.ts">
@@ -411,7 +415,7 @@ export default defineConfig(({ mode }) => {
     // Vite's JS preload helper (`__vitePreload`, used by dynamic import())
     // resolves a chunk's dependency list against `base`, so with base "/" the
     // helper chunks behind e.g. the lazy Faro import were requested from the
-    // page origin, where nothing serves /assets/ (openfront.io answered 503,
+    // page origin, where nothing serves /assets/ (laukolaroser.com answered 503,
     // and the import() rejected, so telemetry never started). Emitting those
     // references relative makes the helper resolve them against
     // import.meta.url, i.e. wherever the importing chunk itself was loaded

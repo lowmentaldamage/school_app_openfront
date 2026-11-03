@@ -214,7 +214,55 @@ export enum UnitType {
   MIRVWarhead = "MIRV Warhead",
   Train = "Train",
   Factory = "Factory",
+  // Weapon projectiles (see engine-lib/weapons/Weapons.ts).
+  ArtilleryShell = "Artillery Shell",
+  Rocket = "Rocket",
+  // Naval classes (see engine-lib/naval/NavalClasses.ts).
+  Destroyer = "Destroyer",
+  Battleship = "Battleship",
+  Submarine = "Submarine",
+  Carrier = "Aircraft Carrier",
+  // Military trains (see engine-lib/rail/RailUnits.ts).
+  ArmoredTrain = "Armored Train",
+  TroopTrain = "Troop Train",
+  RailSAM = "Rail SAM",
+  // Economy (see engine-lib/economy/Economy.ts).
+  GoldMine = "Gold Mine",
+  Market = "Market",
+  OilRig = "Oil Rig",
+  // Air war (see engine-lib/air/Air.ts).
+  Airbase = "Airbase",
+  Bomber = "Bomber",
+  Fighter = "Fighter",
+  // Defense (see engine-lib/defense/Radar.ts).
+  RadarStation = "Radar Station",
 }
+
+/** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
+export const WEAPON_IDS = [
+  "artillery",
+  "naval",
+  "rocket",
+  "airstrike",
+] as const;
+export type WeaponId = (typeof WEAPON_IDS)[number];
+
+/** Tech tree ids; rules live in engine-lib/tech/Tech.ts. Only append. */
+export const TECH_IDS = [
+  "drill",
+  "fortify",
+  "conscription",
+  "gunnery",
+  "hulls",
+  "engines",
+  "sam_radar",
+  "heavy_bombers",
+  "interceptors",
+  "trade",
+  "industry",
+  "construction",
+] as const;
+export type TechId = (typeof TECH_IDS)[number];
 
 export enum TrainType {
   Engine = "Engine",
@@ -234,6 +282,33 @@ export const BuildableAttacks = unitTypeGroup([
   UnitType.HydrogenBomb,
   UnitType.MIRV,
   UnitType.Warship,
+  UnitType.Destroyer,
+  UnitType.Battleship,
+  UnitType.Submarine,
+  UnitType.Carrier,
+  UnitType.ArmoredTrain,
+  UnitType.TroopTrain,
+  UnitType.RailSAM,
+] as const);
+
+/** Buildable military trains: they patrol their owner's rail network. */
+export const RailUnits = unitTypeGroup([
+  UnitType.ArmoredTrain,
+  UnitType.TroopTrain,
+  UnitType.RailSAM,
+] as const);
+
+/**
+ * Combat ships: they patrol, fight other combat ships, sink transports, hunt
+ * trade ships, dock at ports to repair, and obey move orders. They share
+ * the warship behaviour; the class only changes the numbers.
+ */
+export const CombatShips = unitTypeGroup([
+  UnitType.Warship,
+  UnitType.Destroyer,
+  UnitType.Battleship,
+  UnitType.Submarine,
+  UnitType.Carrier,
 ] as const);
 
 export const Structures = unitTypeGroup([
@@ -243,10 +318,22 @@ export const Structures = unitTypeGroup([
   UnitType.MissileSilo,
   UnitType.Port,
   UnitType.Factory,
+  UnitType.GoldMine,
+  UnitType.Market,
+  UnitType.Airbase,
+  UnitType.RadarStation,
+] as const);
+
+/** Income buildings (engine-lib/economy/Economy.ts). */
+export const EconomyBuildings = unitTypeGroup([
+  UnitType.GoldMine,
+  UnitType.Market,
+  UnitType.OilRig,
 ] as const);
 
 export const BuildMenus = unitTypeGroup([
   ...Structures.types,
+  UnitType.OilRig,
   ...BuildableAttacks.types,
 ] as const);
 
@@ -478,6 +565,7 @@ export enum MessageType {
   DONATION_RECEIVED,
   CHAT,
   RENEW_ALLIANCE,
+  RESEARCH_COMPLETE,
 }
 
 // Message categories used for filtering events in the EventsDisplay
@@ -512,6 +600,7 @@ export const MESSAGE_TYPE_CATEGORIES: Record<MessageType, MessageCategory> = {
   [MessageType.RENEW_ALLIANCE]: MessageCategory.ALLIANCE,
   [MessageType.DONATION_SENT]: MessageCategory.TRADE,
   [MessageType.DONATION_RECEIVED]: MessageCategory.TRADE,
+  [MessageType.RESEARCH_COMPLETE]: MessageCategory.TRADE,
   [MessageType.CHAT]: MessageCategory.CHAT,
 } as const;
 

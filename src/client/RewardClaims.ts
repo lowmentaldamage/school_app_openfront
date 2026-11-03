@@ -2,7 +2,7 @@ import {
   type ClaimRewardResponse,
   isRewardClaimable,
   type Reward,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { claimReward, invalidateUserMe } from "./Api";
 
 // Claiming a list of rewards one by one: the profile's Claim all and the

@@ -24,7 +24,7 @@ function reachability(reachable: boolean) {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  window.openfrontDesktop = {};
+  window.laukolaroserDesktop = {};
   vi.mocked(getDesktopSessionState).mockReturnValue({
     status: "signed-out",
     reason: "network",
@@ -36,7 +36,7 @@ beforeEach(() => {
 
 afterEach(() => {
   unsubscribe?.();
-  window.openfrontDesktop = undefined;
+  window.laukolaroserDesktop = undefined;
 });
 
 describe("desktop session recovery", () => {
@@ -107,7 +107,7 @@ describe("desktop session recovery", () => {
   // silently breaks tests/client/MainInitialize.test.ts, a web boot that
   // dispatches exactly this event and waits for the sign-in it should drive.
   it("ignores the connectivity triggers on the web", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     unsubscribe = subscribeDesktopSessionRecovery(signIn);
     window.dispatchEvent(new Event("online"));
     reachability(true);
@@ -116,7 +116,7 @@ describe("desktop session recovery", () => {
   });
 
   it("still honours the manual Retry on the web", () => {
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
     unsubscribe = subscribeDesktopSessionRecovery(signIn);
     document.dispatchEvent(new CustomEvent("desktop-session-retry"));
     expect(signIn).toHaveBeenCalledOnce();
@@ -158,7 +158,7 @@ describe("desktop session recovery", () => {
   // that survives: a player can finish linking on the website while the game
   // is open, after which an account exists and a retry signs them in. (It was
   // also transient back when the shell reported an unreachable status
-  // endpoint as needs-account; openfront-desktop#91 fixed that.)
+  // endpoint as needs-account; laukolaroser-desktop#91 fixed that.)
   it("auto-retries needs-account when reachability recovers", () => {
     vi.mocked(getDesktopSessionState).mockReturnValue({
       status: "signed-out",

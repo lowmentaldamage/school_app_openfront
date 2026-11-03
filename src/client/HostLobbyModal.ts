@@ -4,20 +4,20 @@ import {
   GameMapType,
   GameMode,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameConfigPatch,
   isValidGameID,
   TeamCountConfig,
-} from "@openfront/engine-api/Schemas";
-import { DoomsdayClockSpeed } from "@openfront/engine-lib/game/DoomsdayClock";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/Schemas";
+import { DoomsdayClockSpeed } from "@laukolaroser/engine-lib/game/DoomsdayClock";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   ClientInfo,
   LOBBY_QUEUE_CUTOFF_MS,
   LobbyInfoEvent,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";
@@ -75,7 +75,7 @@ export class HostLobbyModal extends BaseModal {
     super();
     this.id = "page-host-lobby";
   }
-  @state() private bots: number = 400;
+  @state() private bots: number = 100;
   @state() private spawnImmunity: boolean = false;
   @state() private spawnImmunityDurationMinutes: number | undefined = undefined;
   @state() private infiniteGold: boolean = false;
@@ -107,6 +107,8 @@ export class HostLobbyModal extends BaseModal {
   @state() private whitelistEnabled: boolean = false;
   @state() private allowedPublicIds: string = "";
   @state() private waterNukes: boolean = false;
+  @state() private fogOfWar: boolean = true;
+  @state() private techTree: boolean = true;
   @state() private lobbyId = "";
   @state() private lobbyUrlSuffix = "";
   @state() private clients: ClientInfo[] = [];
@@ -745,6 +747,14 @@ export class HostLobbyModal extends BaseModal {
                     checked: this.waterNukes,
                   },
                   {
+                    labelKey: "game_settings.fog_of_war",
+                    checked: this.fogOfWar,
+                  },
+                  {
+                    labelKey: "game_settings.tech_tree",
+                    checked: this.techTree,
+                  },
+                  {
                     labelKey: "game_settings.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -1063,7 +1073,7 @@ export class HostLobbyModal extends BaseModal {
     this.defaultNationCount = 0;
     this.gameMode = GameMode.FFA;
     this.teamCount = 2;
-    this.bots = 400;
+    this.bots = 100;
     this.spawnImmunity = false;
     this.spawnImmunityDurationMinutes = undefined;
     this.infiniteGold = false;
@@ -1102,6 +1112,8 @@ export class HostLobbyModal extends BaseModal {
     this.whitelistEnabled = false;
     this.allowedPublicIds = "";
     this.waterNukes = false;
+    this.fogOfWar = true;
+    this.techTree = true;
     this.hostCheatsEnabled = false;
     this.hostCheatInfiniteGold = false;
     this.hostCheatInfiniteTroops = false;
@@ -1203,6 +1215,14 @@ export class HostLobbyModal extends BaseModal {
         break;
       case "game_settings.water_nukes":
         this.waterNukes = checked;
+        void this.putGameConfig();
+        break;
+      case "game_settings.fog_of_war":
+        this.fogOfWar = checked;
+        void this.putGameConfig();
+        break;
+      case "game_settings.tech_tree":
+        this.techTree = checked;
         void this.putGameConfig();
         break;
       case "game_settings.doomsday_clock":
@@ -1791,6 +1811,8 @@ export class HostLobbyModal extends BaseModal {
               ? (this.parseAllowedPublicIds() ?? [])
               : [],
             waterNukes: this.waterNukes ? true : null,
+            fogOfWar: this.fogOfWar ? true : null,
+            disableTechTree: this.techTree ? null : true,
             hostCheats: this.hostCheatsEnabled
               ? {
                   infiniteGold: this.hostCheatInfiniteGold || undefined,

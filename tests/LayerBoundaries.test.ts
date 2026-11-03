@@ -193,7 +193,7 @@ function resolve(
     target = probe(path.posix.join(path.posix.dirname(from), bare));
   } else if (bare.startsWith("src/") || bare.startsWith("resources/")) {
     target = probe(bare);
-  } else if (bare.startsWith("@openfront/")) {
+  } else if (bare.startsWith("@laukolaroser/")) {
     // Workspace packages export "./*" -> "./src/*.ts" (zbin also ".").
     const [, pkg, ...sub] = bare.split("/");
     target = probe(

@@ -1,6 +1,6 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { packLevelBadge } from "@openfront/shared/LevelBadgeWire";
-import type { ClientInfo } from "@openfront/shared/WireSchemas";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { packLevelBadge } from "@laukolaroser/shared/LevelBadgeWire";
+import type { ClientInfo } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { LevelBadge as LevelBadgeElement } from "../../../src/client/components/LevelBadge";
 import {

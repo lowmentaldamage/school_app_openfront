@@ -1,4 +1,4 @@
-import { PlayerUpdate } from "@openfront/engine-api/game/GameUpdates";
+import { PlayerUpdate } from "@laukolaroser/engine-api/game/GameUpdates";
 import type { PlayerState } from "../render/types";
 
 /**
@@ -33,6 +33,11 @@ export function applyStateUpdate(target: PlayerState, pu: PlayerUpdate): void {
   }
   if (pu.isDecaying !== undefined) target.isDecaying = pu.isDecaying;
   if (pu.betrayals !== undefined) target.betrayals = pu.betrayals;
+  if (pu.techMask !== undefined) target.techMask = pu.techMask;
+  if (pu.researchTech !== undefined) target.researchTech = pu.researchTech;
+  if (pu.researchEndsAt !== undefined) {
+    target.researchEndsAt = pu.researchEndsAt;
+  }
   if (pu.hasSpawned !== undefined) target.hasSpawned = pu.hasSpawned;
   if (pu.spawnTile !== undefined) target.spawnTile = pu.spawnTile;
   if (pu.lastDeleteUnitTick !== undefined) {

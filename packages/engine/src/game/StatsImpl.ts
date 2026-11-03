@@ -1,6 +1,9 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { PlayerType, TerraNullius } from "@openfront/engine-api/game/GameTypes";
-import { AllPlayersStats, ClientID } from "@openfront/engine-api/Schemas";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import {
+  PlayerType,
+  TerraNullius,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { AllPlayersStats, ClientID } from "@laukolaroser/engine-api/Schemas";
 import {
   ALLIANCE_INDEX_BROKEN_BY_OTHER,
   ALLIANCE_INDEX_EXPIRED,
@@ -49,8 +52,8 @@ import {
   unitTypeToBoatUnit,
   unitTypeToBombUnit,
   unitTypeToOtherUnit,
-} from "@openfront/engine-api/StatsSchemas";
-import { snapshotType } from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-api/StatsSchemas";
+import { snapshotType } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Player } from "./Game";
 import { Stats } from "./Stats";

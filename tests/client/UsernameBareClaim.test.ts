@@ -1,4 +1,4 @@
-import { PutUsernameResponseSchema } from "@openfront/shared/ApiSchemas";
+import { PutUsernameResponseSchema } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // The panel reaches the API and the in-game dialog; stub both boundaries so
@@ -35,7 +35,7 @@ vi.mock("../../src/client/Utils", async (importOriginal) => ({
     vars ? `${key}:${JSON.stringify(vars)}` : key,
 }));
 
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import "../../src/client/components/UsernamePanel";
 import type { UsernamePanel } from "../../src/client/components/UsernamePanel";
 import { flushReloadToast } from "../../src/client/Utils";

@@ -3,7 +3,7 @@ export interface AdmiralMeasureResult {
   adblocking?: boolean;
   /**
    * Admiral's OWN ad-free pass (its paywall), NOT our tier. Intentionally
-   * ignored: OpenFront ad-free is the server `adfree` flag (any shop purchase →
+   * ignored: Laukolaroser ad-free is the server `adfree` flag (any shop purchase →
    * ad-free for life), which already zeroes `window.adsEnabled` so Admiral
    * never loads for those users. Only wire this if we ever sell via Admiral.
    */

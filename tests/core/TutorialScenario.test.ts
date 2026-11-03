@@ -6,12 +6,12 @@ import {
   GameType,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig, StampedIntent } from "@openfront/engine-api/Schemas";
-import { TUTORIAL_COLLAPSE_TILES } from "@openfront/engine/execution/nation/TutorialCollapse";
-import { Game, Player } from "@openfront/engine/game/Game";
-import { createGameRunner } from "@openfront/engine/GameRunner";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig, StampedIntent } from "@laukolaroser/engine-api/Schemas";
+import { TUTORIAL_COLLAPSE_TILES } from "@laukolaroser/engine/execution/nation/TutorialCollapse";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
+import { createGameRunner } from "@laukolaroser/engine/GameRunner";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import { describe, expect, test } from "vitest";
 import { mapLoader } from "../client/replay/util/ArchiveGame";
 

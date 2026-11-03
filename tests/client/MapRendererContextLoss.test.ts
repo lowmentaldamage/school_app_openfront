@@ -1,4 +1,4 @@
-import type { Config } from "@openfront/engine-lib/configuration/Config";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MapRenderer } from "../../src/client/render/gl/MapRenderer";
 import type { RenderSettings } from "../../src/client/render/gl/RenderSettings";

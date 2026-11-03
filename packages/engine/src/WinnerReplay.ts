@@ -2,14 +2,14 @@ import {
   ErrorUpdate,
   GameUpdateType,
   WinUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapFiles } from "@openfront/engine-api/game/MapFiles";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapFiles } from "@laukolaroser/engine-api/game/MapFiles";
 import {
   AllPlayersStats,
   GameStartInfo,
   Turn,
   Winner,
-} from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/Schemas";
 import { createGameRunner } from "./GameRunner";
 
 export interface ReplayedWinner {

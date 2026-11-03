@@ -7,7 +7,7 @@ import {
 } from "./ClanModalTestUtils";
 
 vi.mock("../../../src/client/Api", () => ({
-  getAudience: vi.fn(() => "openfront.dev"),
+  getAudience: vi.fn(() => "laukolaroser.dev"),
 }));
 vi.mock("../../../src/client/Auth", () => authMockFactory());
 vi.mock("../../../src/client/Utils", () => utilsMockFactory());
@@ -20,7 +20,7 @@ import {
 } from "../../../src/client/components/clan/ClanMapView";
 
 const asMock = (fn: unknown) => fn as ReturnType<typeof vi.fn>;
-const MAP_ORIGIN = "https://clanmap.openfront.dev";
+const MAP_ORIGIN = "https://clanmap.laukolaroser.dev";
 
 describe("clanMapOrigin", () => {
   it("targets the clanmap subdomain of the audience", () => {

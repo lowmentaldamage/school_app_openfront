@@ -1,5 +1,5 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { EventBus, GameEvent } from "@openfront/shared/EventBus";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus, GameEvent } from "@laukolaroser/shared/EventBus";
 import { LitElement, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { Controller } from "../../Controller";

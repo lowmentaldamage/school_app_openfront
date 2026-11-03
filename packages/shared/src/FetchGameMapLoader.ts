@@ -1,4 +1,4 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
 import { GameMapLoader, MapData } from "./GameMapLoader";
 
 export class FetchGameMapLoader implements GameMapLoader {
@@ -31,6 +31,7 @@ export class FetchGameMapLoader implements GameMapLoader {
       map16xBin: () => this.loadBinaryFromUrl(this.url(fileName, "map16x.bin")),
       manifest: () => this.loadJsonFromUrl(this.url(fileName, "manifest.json")),
       webpPath: this.url(fileName, "thumbnail.webp"),
+      preview3dPath: this.url(fileName, "preview3d.webp"),
       layerImage: (layerId: string, compact: boolean) =>
         this.loadImageBitmap(
           this.url(fileName, `${layerId}${compact ? ".4x" : ""}.webp`),

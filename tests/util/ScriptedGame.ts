@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllPlayers,
   Difficulty,
@@ -6,13 +6,14 @@ import {
   GameMapType,
   GameMode,
   GameType,
+  TECH_IDS,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateViewData,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapManifest } from "@openfront/engine-api/game/MapFiles";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
 import {
   flattenedEmojiTable,
   GameConfig,
@@ -20,20 +21,20 @@ import {
   Intent,
   StampedIntent,
   Turn,
-} from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import {
   createGameRunner,
   createGameRunnerFromSnapshot,
   GameRunner,
-} from "@openfront/engine/GameRunner";
-import { readSnapshotHeader } from "@openfront/engine/snapshot/GameSnapshot";
+} from "@laukolaroser/engine/GameRunner";
+import { readSnapshotHeader } from "@laukolaroser/engine/snapshot/GameSnapshot";
 import {
   GameMapLoader,
   loadMapFiles,
   MapData,
-} from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/shared/GameMapLoader";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -231,6 +232,7 @@ function queuedIntent(game: Game, p: Player, tick: number): Intent | null {
     },
     { type: "mark_disconnected", isDisconnected: false },
     { type: "toggle_pause", paused: false },
+    { type: "fire_weapon", weapon: "artillery", tile: other.spawnTile() ?? 0 },
   ];
   return queued[(tick - 20) / 2] ?? null;
 }
@@ -274,6 +276,8 @@ const STRUCTURES = [
   UnitType.DefensePost,
   UnitType.SAMLauncher,
   UnitType.MissileSilo,
+  UnitType.Market,
+  UnitType.Airbase,
 ] as const;
 
 function nearbyWater(
@@ -355,6 +359,47 @@ function buildStructureIntent(
     }
   }
   return null;
+}
+
+function airfieldRaidIntent(game: Game, p: Player): Intent | null {
+  const mine = p
+    .units(UnitType.Airbase)
+    .find((u) => u.isActive() && !u.isUnderConstruction() && !u.isInCooldown());
+  if (mine === undefined) return null;
+  let best: TileRef | null = null;
+  let bestD = 300 * 300;
+  for (const u of game.units(UnitType.Airbase)) {
+    if (u.owner() === p || p.isFriendly(u.owner())) continue;
+    const d = game.euclideanDistSquared(u.tile(), mine.tile());
+    if (d < bestD) {
+      best = u.tile();
+      bestD = d;
+    }
+  }
+  if (best === null || p.gold() < 100_000n) return null;
+  return { type: "fire_weapon", weapon: "airstrike", tile: best };
+}
+
+const RAIL_UNIT_TYPES = [
+  UnitType.ArmoredTrain,
+  UnitType.TroopTrain,
+  UnitType.RailSAM,
+] as const;
+
+function buildRailUnitIntent(
+  game: Game,
+  p: Player,
+  rand: PseudoRandom,
+): Intent | null {
+  const type = RAIL_UNIT_TYPES[rand.nextInt(0, RAIL_UNIT_TYPES.length)];
+  const station = pick(
+    rand,
+    p
+      .units([UnitType.City, UnitType.Factory])
+      .filter((u) => p.canBuild(type, u.tile()) !== false),
+  );
+  if (station === null) return null;
+  return { type: "build_unit", unit: type, tile: station.tile() };
 }
 
 function buildWarshipIntent(
@@ -459,6 +504,9 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     const warshipIntent = buildWarshipIntent(game, p, rand);
     if (warshipIntent !== null) return warshipIntent;
   }
+  // Air raids on enemy airfields in range (their fighters scramble).
+  const raid = airfieldRaidIntent(game, p);
+  if (raid !== null && rand.chance(3)) return raid;
   const others = game.players().filter((o) => o !== p && o.isPlayer());
   const other = pick(rand, others);
   const own = (types: UnitType[]) => p.units(types);
@@ -484,7 +532,7 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     if (bombIntent !== null) return bombIntent;
   }
 
-  switch (rand.nextInt(0, 22)) {
+  switch (rand.nextInt(0, 24)) {
     case 0:
     case 1:
     case 2: {
@@ -510,7 +558,10 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     case 6:
       return buildStructureIntent(game, p, rand);
     case 7:
-      return buildWarshipIntent(game, p, rand);
+      // Military trains when there is a rail station, else warships.
+      return (
+        buildRailUnitIntent(game, p, rand) ?? buildWarshipIntent(game, p, rand)
+      );
     case 8:
       return launchBombIntent(game, p, rand, other);
     case 9: {
@@ -579,6 +630,44 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
       const s = pick(rand, own([UnitType.DefensePost, UnitType.City]));
       if (s === null || !rand.chance(4)) return null;
       return { type: "delete_unit", unitId: s.id() };
+    }
+    case 22: {
+      // Weapon strikes: an air raid from an airbase, a rocket from a silo,
+      // else artillery or naval fire.
+      if (other === null) return null;
+      const tile = randomOwnedTile(rand, other);
+      if (tile === null) return null;
+      const weapon =
+        own([UnitType.Airbase]).length > 0 && rand.chance(2)
+          ? "airstrike"
+          : own([UnitType.MissileSilo]).length > 0
+            ? "rocket"
+            : own([UnitType.Warship]).length > 0
+              ? "naval"
+              : "artillery";
+      // Air raids go for the enemy's airfields when it has one (so its
+      // fighters scramble), else any of its land.
+      if (weapon === "airstrike") {
+        const mine = own([UnitType.Airbase])[0];
+        let best: TileRef | null = null;
+        let bestD = 320 * 320;
+        for (const u of game.units(UnitType.Airbase)) {
+          if (u.owner() === p || p.isFriendly(u.owner())) continue;
+          const d = game.euclideanDistSquared(u.tile(), mine.tile());
+          if (d < bestD) {
+            best = u.tile();
+            bestD = d;
+          }
+        }
+        if (best !== null) return { type: "fire_weapon", weapon, tile: best };
+      }
+      return { type: "fire_weapon", weapon, tile };
+    }
+    case 23: {
+      // Research: the first tech not yet researched (rejected when busy,
+      // locked or too poor, which is exercised too).
+      const tech = TECH_IDS.find((t) => !p.hasTech(t));
+      return tech === undefined ? null : { type: "research", tech };
     }
     case 21:
       return {

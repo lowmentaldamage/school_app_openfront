@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllianceInfo,
   AllPlayers,
@@ -19,10 +19,11 @@ import {
   Relation,
   Structures,
   Team,
+  TerrainType,
   TerraNullius,
   Tick,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AllianceView,
   ATTACK_DELTA_INCOMING,
@@ -30,12 +31,17 @@ import {
   AttackUpdate,
   GameUpdateType,
   PlayerUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { ReadonlyTileSet } from "@openfront/engine-api/game/ReadViews";
-import { ClientID } from "@openfront/engine-api/Schemas";
-import { andFN, manhattanDistFN } from "@openfront/engine-lib/game/GameMapImpl";
-import { TileSet } from "@openfront/engine-lib/game/TileSet";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { ReadonlyTileSet } from "@laukolaroser/engine-api/game/ReadViews";
+import { ClientID } from "@laukolaroser/engine-api/Schemas";
+import { OIL_RIG_RANGE } from "@laukolaroser/engine-lib/economy/Economy";
+import {
+  andFN,
+  manhattanDistFN,
+} from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { TileSet } from "@laukolaroser/engine-lib/game/TileSet";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { RAIL_UNIT_SPAWN_RADIUS } from "@laukolaroser/engine-lib/rail/RailUnits";
 import {
   snapshotType,
   zInt,
@@ -45,7 +51,14 @@ import {
   zRef,
   zTile,
   zTiles,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import {
+  hasTech,
+  techIndex,
+  TECH_IDS,
+  type TechId,
+  withTech,
+} from "@laukolaroser/engine-lib/tech/Tech";
 import {
   assertNever,
   findClosestBy,
@@ -53,7 +66,7 @@ import {
   simpleHash,
   toInt,
   within,
-} from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import {
   newPlayerInfo,
@@ -155,6 +168,10 @@ export class PlayerImpl implements Player {
   /** Tick territory rot last took land from this player (-1 = never). */
   private rottedAtTick = -1;
   private _betrayalCount: number = 0;
+  /** Researched techs (bit = TECHS index, engine-lib/tech/Tech.ts). */
+  private _techMask: number = 0;
+  /** Research in progress, if any. */
+  private _research: { tech: TechId; endsAt: number } | null = null;
 
   private embargoes = new Map<PlayerID, Embargo>();
 
@@ -414,6 +431,10 @@ export class PlayerImpl implements Player {
       hasSpawned: this.hasSpawned(),
       spawnTile: this._spawnTile,
       betrayals: this._betrayalCount,
+      techMask: this._techMask,
+      researchTech:
+        this._research === null ? -1 : techIndex(this._research.tech),
+      researchEndsAt: this._research === null ? -1 : this._research.endsAt,
       lastDeleteUnitTick: this.lastDeleteUnitTick,
       isLobbyCreator: this.isLobbyCreator(),
     };
@@ -923,6 +944,30 @@ export class PlayerImpl implements Player {
   isDecaying(): boolean {
     if (!this.inDoomsdayClock() || this.rottedAtTick < 0) return false;
     return this.mg.ticks() - this.rottedAtTick <= DECAY_CUE_GRACE_TICKS;
+  }
+
+  techMask(): number {
+    return this._techMask;
+  }
+
+  hasTech(id: TechId): boolean {
+    return hasTech(this._techMask, id);
+  }
+
+  research(): { tech: TechId; endsAt: number } | null {
+    return this._research;
+  }
+
+  startResearch(tech: TechId, endsAt: number): void {
+    this._research = { tech, endsAt };
+  }
+
+  finishResearch(): TechId | null {
+    if (this._research === null) return null;
+    const tech = this._research.tech;
+    this._techMask = withTech(this._techMask, tech);
+    this._research = null;
+    return tech;
   }
 
   betrayals(): number {
@@ -1612,9 +1657,19 @@ export class PlayerImpl implements Player {
       case UnitType.Port:
         return this.portSpawn(targetTile, validTiles);
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         return this.warshipSpawn(targetTile);
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        return this.railUnitSpawn(targetTile);
       case UnitType.Shell:
       case UnitType.SAMMissile:
+      case UnitType.ArtilleryShell:
+      case UnitType.Rocket:
         return targetTile;
       case UnitType.TransportShip:
         return canBuildTransportShip(this.mg, this, targetTile);
@@ -1627,7 +1682,17 @@ export class PlayerImpl implements Player {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.Market:
+      case UnitType.Airbase:
+      case UnitType.RadarStation:
         return this.landBasedStructureSpawn(targetTile, validTiles);
+      case UnitType.GoldMine:
+        return this.goldMineSpawn(targetTile, validTiles);
+      case UnitType.OilRig:
+        return this.oilRigSpawn(targetTile);
+      case UnitType.Bomber:
+      case UnitType.Fighter:
+        return targetTile;
       default:
         assertNever(unitType);
     }
@@ -1712,6 +1777,94 @@ export class PlayerImpl implements Player {
     );
 
     return bestPort?.tile() ?? false;
+  }
+
+  /**
+   * Military trains start at the player's nearest own train station (with
+   * at least one railroad) within RAIL_UNIT_SPAWN_RADIUS of the tile.
+   */
+  railUnitSpawn(tile: TileRef): TileRef | false {
+    const stations = this.mg.railNetwork().stationManager();
+    const r2 = RAIL_UNIT_SPAWN_RADIUS * RAIL_UNIT_SPAWN_RADIUS;
+    let best: TileRef | false = false;
+    let bestD = Infinity;
+    for (const u of this.units(
+      UnitType.City,
+      UnitType.Port,
+      UnitType.Factory,
+    )) {
+      if (!u.isActive() || u.isUnderConstruction()) continue;
+      const st = stations.findStation(u);
+      if (st === null || !st.isActive() || st.getRailroads().size === 0) {
+        continue;
+      }
+      const d = this.mg.euclideanDistSquared(u.tile(), tile);
+      if (d > r2 || d >= bestD) continue;
+      best = u.tile();
+      bestD = d;
+    }
+    return best;
+  }
+
+  /** Gold mines need highland or mountain land. */
+  goldMineSpawn(
+    tile: TileRef,
+    validTiles: TileRef[] | null = null,
+  ): TileRef | false {
+    const tiles = (validTiles ?? this.validStructureSpawnTiles(tile)).filter(
+      (t) => {
+        const tt = this.mg.terrainType(t);
+        return tt === TerrainType.Highland || tt === TerrainType.Mountain;
+      },
+    );
+    return tiles.length === 0 ? false : tiles[0];
+  }
+
+  /**
+   * Oil rigs stand on open water within OIL_RIG_RANGE of the player's land,
+   * at least structureMinDist from other rigs.
+   */
+  oilRigSpawn(tile: TileRef): TileRef | false {
+    const mg = this.mg;
+    if (!mg.isValidRef(tile) || !mg.isWater(tile) || mg.isShore(tile)) {
+      return false;
+    }
+    if (!this.ownsLandNear(tile, OIL_RIG_RANGE)) return false;
+    const minDist = mg.config().structureMinDist();
+    if (
+      mg.anyUnitNearby(
+        tile,
+        minDist,
+        [UnitType.OilRig],
+        () => true,
+        undefined,
+        true,
+      )
+    ) {
+      return false;
+    }
+    return tile;
+  }
+
+  /** True when this player owns land within `range` tiles of `tile`. */
+  ownsLandNear(tile: TileRef, range: number): boolean {
+    const mg = this.mg;
+    const cx = mg.x(tile);
+    const cy = mg.y(tile);
+    const me = this.smallID();
+    for (let dy = -range; dy <= range; dy++) {
+      const y = cy + dy;
+      if (y < 0 || y >= mg.height()) continue;
+      for (let dx = -range; dx <= range; dx++) {
+        const x = cx + dx;
+        if (x < 0 || x >= mg.width() || dx * dx + dy * dy > range * range) {
+          continue;
+        }
+        const t = mg.ref(x, y);
+        if (mg.isLand(t) && mg.ownerID(t) === me) return true;
+      }
+    }
+    return false;
   }
 
   landBasedUnitSpawn(tile: TileRef): TileRef | false {
@@ -1981,6 +2134,8 @@ export class PlayerImpl implements Player {
       markedDoomsdayClockTick: this.markedDoomsdayClockTick,
       rottedAtTick: this.rottedAtTick,
       betrayalCount: this._betrayalCount,
+      techMask: this._techMask,
+      research: this._research === null ? null : { ...this._research },
       embargoes: [...this.embargoes.values()].map((e) => ({
         target: w.player(e.target),
         createdAt: e.createdAt,
@@ -2053,6 +2208,8 @@ export class PlayerImpl implements Player {
     this.markedDoomsdayClockTick = s.markedDoomsdayClockTick;
     this.rottedAtTick = s.rottedAtTick;
     this._betrayalCount = s.betrayalCount;
+    this._techMask = s.techMask ?? 0;
+    this._research = s.research ? { ...s.research } : null;
     this.embargoes = new Map();
     for (const e of s.embargoes) {
       this.embargoes.set(r.playerID(e.target), {
@@ -2174,6 +2331,12 @@ export const PlayerSnapshot = snapshotType({
       .nullable()
       .optional(),
     numUnitsConstructed: z.array(z.tuple([UnitTypeSchema, zInt()])),
+    // Tech tree (optional: older snapshots have none).
+    techMask: zInt().optional(),
+    research: z
+      .object({ tech: z.enum(TECH_IDS), endsAt: zInt() })
+      .nullable()
+      .optional(),
   }),
 });
 export type PlayerState = z.infer<typeof PlayerSnapshot.schema>;

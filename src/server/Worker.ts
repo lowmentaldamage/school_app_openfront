@@ -1,13 +1,13 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ID,
   isValidGameID,
   MAX_USERNAME_LENGTH,
-} from "@openfront/engine-api/Schemas";
-import { adjustForTeams } from "@openfront/engine-lib/game/TeamAssignment";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { generateID, replacer } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/engine-api/Schemas";
+import { adjustForTeams } from "@laukolaroser/engine-lib/game/TeamAssignment";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { generateID, replacer } from "@laukolaroser/shared/SharedUtil";
 import {
   ClientMessage,
   ClientPlatformSchema,
@@ -18,15 +18,15 @@ import {
   MIN_HOSTED_LOBBY_AUTO_START_MS,
   MIN_HOSTED_LOBBY_PLAYERS,
   ServerErrorMessage,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import {
   CreateGameInputSchema,
   isPrivateGameInput,
-} from "@openfront/shared/WorkerSchemas";
+} from "@laukolaroser/shared/WorkerSchemas";
 import {
   decodeClientMessage,
   encodeServerMessage,
-} from "@openfront/shared/ZbinWire";
+} from "@laukolaroser/shared/ZbinWire";
 import compression from "compression";
 import express, { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
@@ -708,6 +708,10 @@ export async function startWorker() {
           clientMsg.username,
           clientMsg.clanTag ?? null,
         );
+        // Self-hosted: the account name is the in-game name.
+        if (result.selfHostUsername !== undefined) {
+          username = result.selfHostUsername;
+        }
 
         // Gate the join and screen the display name in one API call: status
         // is the Turnstile verdict, and the response carries the

@@ -1,4 +1,4 @@
-import { AssetManifest } from "@openfront/shared/AssetPaths";
+import { AssetManifest } from "@laukolaroser/shared/AssetPaths";
 import { z } from "zod";
 import { ClusterConfig } from "../ClusterConfig";
 

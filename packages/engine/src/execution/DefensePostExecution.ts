@@ -1,4 +1,4 @@
-import { zInt, zRef } from "@openfront/engine-lib/snapshot/SnapshotType";
+import { zInt, zRef } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Unit } from "../game/Game";
 import { execSnapshotType } from "../snapshot/ExecutionSnapshot";

@@ -6,8 +6,8 @@ import {
   listedMaps,
   MapInfo,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";

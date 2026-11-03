@@ -30,7 +30,7 @@ While working, run `npm run test:changed` or the files you touched rather than t
 
 ## Architecture
 
-OpenFront.io is a real-time multiplayer territorial strategy game. There are four components:
+Laukolaroser is a real-time multiplayer territorial strategy game. There are four components:
 
 1. **The engine** — Deterministic game simulation, split into npm workspace packages under `packages/` (see below). Pure TypeScript with **no external dependencies** beyond zod. Must stay bit-identical on every client: use the seeded PRNG, and use `packages/engine-lib/src/DetMath.ts` instead of `Math.exp`/`log`/`pow`/`sin`/… or `**` with an exponent other than 2 (Oxlint enforces this). Runs in a Web Worker thread. All `packages/engine`, `packages/engine-api` and `packages/engine-lib` changes **must** include tests.
 2. **`src/client/`** — Rendering (custom WebGL2 renderer in `src/client/render/`), UI (Lit web components + Tailwind CSS 4), WebSocket communication.
@@ -39,15 +39,15 @@ OpenFront.io is a real-time multiplayer territorial strategy game. There are fou
 
 ### Packages
 
-| Package                 | Directory             | Contents                                                                                                                                                     |
-| ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `@openfront/engine-api` | `packages/engine-api` | The contract with the engine: intent/config schemas, game types and enums, `GameUpdates`, the worker protocol, the `GameMap` interface, read-view interfaces |
-| `@openfront/engine-lib` | `packages/engine-lib` | Engine code that also runs outside the engine: the tile grid (`GameMapImpl`), terrain loading, the rules `Config`, `UnitGrid`, PRNG, `DetMath`, formatting   |
-| `@openfront/engine`     | `packages/engine`     | The simulation: executions, `*Impl`, pathfinding, snapshots, `GameRunner`, the worker entry                                                                  |
-| `@openfront/shared`     | `packages/shared`     | Client/server code that isn't simulation: wire and HTTP schemas, `ZbinWire`, env, asset URLs, map loaders (`GameMapLoader`, `FetchGameMapLoader`)            |
-| `@openfront/zbin`       | `packages/zbin`       | Binary wire format for zod schemas                                                                                                                           |
+| Package                    | Directory             | Contents                                                                                                                                                     |
+| -------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@laukolaroser/engine-api` | `packages/engine-api` | The contract with the engine: intent/config schemas, game types and enums, `GameUpdates`, the worker protocol, the `GameMap` interface, read-view interfaces |
+| `@laukolaroser/engine-lib` | `packages/engine-lib` | Engine code that also runs outside the engine: the tile grid (`GameMapImpl`), terrain loading, the rules `Config`, `UnitGrid`, PRNG, `DetMath`, formatting   |
+| `@laukolaroser/engine`     | `packages/engine`     | The simulation: executions, `*Impl`, pathfinding, snapshots, `GameRunner`, the worker entry                                                                  |
+| `@laukolaroser/shared`     | `packages/shared`     | Client/server code that isn't simulation: wire and HTTP schemas, `ZbinWire`, env, asset URLs, map loaders (`GameMapLoader`, `FetchGameMapLoader`)            |
+| `@laukolaroser/zbin`       | `packages/zbin`       | Binary wire format for zod schemas                                                                                                                           |
 
-Import them as `@openfront/<pkg>/<path>` (e.g. `@openfront/engine-api/game/GameMap`); paths mirror `packages/<pkg>/src/`. The allowed graph is enforced by `tests/LayerBoundaries.test.ts`:
+Import them as `@laukolaroser/<pkg>/<path>` (e.g. `@laukolaroser/engine-api/game/GameMap`); paths mirror `packages/<pkg>/src/`. The allowed graph is enforced by `tests/LayerBoundaries.test.ts`:
 
 - `engine-api` imports only zod, `zbin` and `resources/*.json`; `engine-lib` adds `engine-api`; `engine` adds `engine-lib`. None of them may import `shared`, `src/client` or `src/server`, use `Math.random`/`Date.now`/`new Date` or the approximated `Math` functions (`sin`, `pow`, `exp`, `log`, `atan2`…; `engine-lib/DetMath` has exact ones), use host APIs beyond `console`, `performance` and `TextEncoder`/`TextDecoder` (their tsconfigs use `lib: ["ES2022"]` plus `packages/engine-api/globals.d.ts`; only the worker entry and protocol, `src/worker/`, get the WebWorker lib), or fetch anything: the engine's host passes it the map files in `init`.
 - `shared` may import `engine-api` and `engine-lib`, never `engine`.

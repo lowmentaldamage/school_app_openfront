@@ -4,9 +4,9 @@ import {
   GameMode,
   Quads,
   Trios,
-} from "@openfront/engine-api/game/GameTypes";
-import { ServerStartGameMessage } from "@openfront/shared/WireSchemas";
-import { createGameWireContext } from "@openfront/shared/ZbinWire";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { ServerStartGameMessage } from "@laukolaroser/shared/WireSchemas";
+import { createGameWireContext } from "@laukolaroser/shared/ZbinWire";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   cid,

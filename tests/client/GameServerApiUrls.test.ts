@@ -18,7 +18,7 @@ import { ClientEnv } from "../../src/client/ClientEnv";
 // are: against the configured server host. These fetches used to be relative,
 // so they resolved against the document origin — which is correct only when
 // the page happens to be served by the game server itself. It is not on the
-// desktop build (app://openfront, where every /api route 404s against the
+// desktop build (app://laukolaroser, where every /api route 404s against the
 // local file handler) nor on any deployment that serves the client from a
 // different host than the game server.
 function setConfig(serverHost?: string) {
@@ -26,7 +26,7 @@ function setConfig(serverHost?: string) {
     gameEnv: "prod",
     numWorkers: 1,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.io",
+    jwtAudience: "laukolaroser.com",
     instanceId: "test",
     gitCommit: "test",
     ...(serverHost === undefined ? {} : { serverHost }),
@@ -68,26 +68,26 @@ afterEach(() => {
 });
 
 describe("game-server API URLs with an explicit serverHost", () => {
-  beforeEach(() => setConfig("main.openfront.dev"));
+  beforeEach(() => setConfig("main.laukolaroser.dev"));
 
   it("fetchLobbyListed targets the configured game server", async () => {
     await fetchLobbyListed("game-1");
     expect(lastUrl()).toBe(
-      `https://main.openfront.dev/${ClientEnv.workerPath("game-1")}/api/game/game-1`,
+      `https://main.laukolaroser.dev/${ClientEnv.workerPath("game-1")}/api/game/game-1`,
     );
   });
 
   it("setLobbyListed targets the configured game server", async () => {
     await setLobbyListed("game-1", true);
     expect(lastUrl()).toBe(
-      `https://main.openfront.dev/${ClientEnv.workerPath("game-1")}/api/game/game-1/listing`,
+      `https://main.laukolaroser.dev/${ClientEnv.workerPath("game-1")}/api/game/game-1/listing`,
     );
   });
 
   it("createNextLobby targets the worker that owns the finished game", async () => {
     await createNextLobby("game-1");
     expect(lastUrl()).toBe(
-      `https://main.openfront.dev/${ClientEnv.workerPath("game-1")}/api/create_game?previous=game-1`,
+      `https://main.laukolaroser.dev/${ClientEnv.workerPath("game-1")}/api/create_game?previous=game-1`,
     );
   });
 });

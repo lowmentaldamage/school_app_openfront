@@ -26,9 +26,9 @@ const PROFILE_PATH = /^(?:\/v\/[^/]+)?(?:\/w\d+)?\/player\/([^/]+)\/?$/;
  *
  * The origin comes from ClientEnv.shareOrigin(), not window.location, because
  * this link is copied to the clipboard to be sent to someone else: under the
- * desktop shell the document lives on `app://openfront/index.html`, which is
+ * desktop shell the document lives on `app://laukolaroser/index.html`, which is
  * a URL only that Electron app can resolve (OPE bug: the Steam build copied
- * `app://openfront/index.html#modal=profile&publicID=…`).
+ * `app://laukolaroser/index.html#modal=profile&publicID=…`).
  */
 export function playerProfileUrl(publicId: string): string {
   return `${ClientEnv.shareOrigin()}/player/${encodeURIComponent(publicId)}`;

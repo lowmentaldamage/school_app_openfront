@@ -73,7 +73,7 @@ describe("currentGameVersion", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "1x00000000000000000000AA",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: SHA,
     };
@@ -134,7 +134,7 @@ describe("renderNavVersion", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "1x00000000000000000000AA",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: SHA,
     };

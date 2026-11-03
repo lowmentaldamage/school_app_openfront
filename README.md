@@ -1,163 +1,104 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="proprietary/images/OpenFrontLogoDark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="proprietary/images/OpenFrontLogo.svg">
-    <img src="proprietary/images/OpenFrontLogo.svg" alt="OpenFrontIO Logo" width="300">
-  </picture>
+  <img src="resources/images/LaukolaroserLogo.svg" alt="Laukolaroser" width="320">
 </p>
 
-[OpenFront.io](https://openfront.io/) is an online real-time strategy game focused on territorial control and alliance building. Players compete to expand their territory, build structures, and form strategic alliances in various maps based on real-world geography.
+**Laukolaroser** is a real-time multiplayer strategy game on a 3D
+battlefield. Grow your nation across real-world maps, conquer neighbours,
+build cities, ports and defences, forge alliances — in the browser, on
+desktop or on your phone.
 
-This is a fork/rewrite of WarFront.io. Credit to https://github.com/WarFrontIO.
-
-![CI](https://github.com/openfrontio/OpenFrontIO/actions/workflows/ci.yml/badge.svg)
-[![Crowdin](https://badges.crowdin.net/openfront-mls/localized.svg)](https://crowdin.com/project/openfront-mls)
-[![CLA assistant](https://cla-assistant.io/readme/badge/openfrontio/OpenFrontIO)](https://cla-assistant.io/openfrontio/OpenFrontIO)
+![CI](https://github.com/lowmentaldamage/school_app_openfront/actions/workflows/ci.yml/badge.svg)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Assets: CC BY-SA 4.0](https://img.shields.io/badge/Assets-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
+## Features
+
+- **3D battlefield** — terrain with mountains, coasts and snow, animated water, living territory borders, 3D ships, trains, missiles and buildings, explosions and mushroom clouds, lighting, fog and shadows (Three.js).
+- **Real-time strategy** — expand, attack, defend, trade, nuke.
+- **Weapons** — aim-and-fire artillery, naval bombardment and rocket strikes.
+- **Navy** — warships, fast destroyers and coast-shelling battleships.
+- **Trains** — trade and express trains, armored trains, troop trains and rail SAMs.
+- **Free 3D camera** — turn 360° and tilt, on PC and phone.
+- **Multiplayer** — deterministic lockstep simulation over WebSockets, lobbies and solo games against nations and bots.
+- **Phone ready** — touch controls, adaptive rendering quality and a mobile-first layout.
+- **Many maps** — real-world regions and fictional worlds.
+- **Host it yourself** — private server with player accounts you manage, or a public one; play from phone or PC anywhere.
+
+## Documentation
+
+| Guide                                     | For                                                    |
+| ----------------------------------------- | ------------------------------------------------------ |
+| [Install & Play](docs/Install.md)         | Windows 11, Linux, macOS, Android APK, iOS, public PCs |
+| [Player Guide](docs/PlayerGuide.md)       | How to play: controls, units, tips                     |
+| [Server Admin Guide](docs/SelfHosting.md) | Running your own server, accounts, HTTPS               |
+| [Developer Guide](docs/DeveloperGuide.md) | Code layout, adding units and maps, tests              |
+| [3D renderer](docs/World3D.md)            | Design decisions and change log                        |
+| [Roadmap](docs/Roadmap.md)                | Planned features                                       |
+
+## Quick start
+
+Full step-by-step guide for **Windows 11, Linux, macOS, Android (APK) and
+iOS**: [docs/Install.md](docs/Install.md).
+
+Requires Node.js 24 (≥ 24.15) and npm 12 (≥ 12.1).
+
+```bash
+git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
+cd laukolaroser
+npm run inst          # npm ci --ignore-scripts
+npm run dev           # http://localhost:9000  (dev:lan = reachable from phones)
+```
+
+**Android app:** download `laukolaroser.apk` from the
+[android-latest release](https://github.com/lowmentaldamage/school_app_openfront/releases/tag/android-latest).
+**iPhone:** Safari → Share → _Add to Home Screen_.
+**Public PC:** just open your server's address in the browser.
+
+The 3D battlefield is the default; `?renderer=2d` gives the classic flat
+map (`?renderer=3d` switches back). See [docs/World3D.md](docs/World3D.md).
+
+## Your own server
+
+```bash
+cd deploy/selfhost && cp .env.example .env   # set ADMIN_USER / ADMIN_PASSWORD
+docker compose up -d --build                  # http://SERVER-IP:8080
+```
+
+Full guide (accounts, HTTPS, playing over the internet):
+[docs/SelfHosting.md](docs/SelfHosting.md). Planned features:
+[docs/Roadmap.md](docs/Roadmap.md).
+
+## Commands
+
+```bash
+npm run dev           # client + server with hot reload
+npm run start:client  # client only
+npm run start:server-dev
+npm test              # Vitest
+npm run typecheck
+npm run lint          # Oxlint
+npm run format        # Oxfmt
+npm run build-prod    # production build
+npm run start:selfhost                 # server in self-hosted (accounts) mode
+npm run selfhost:admin -- list         # manage accounts from the shell
+```
+
+## Architecture
+
+- `packages/` — deterministic game engine (runs in a Web Worker on every client) and shared schemas.
+- `src/client/` — UI (Lit + Tailwind), input, networking, the 2D WebGL renderer (`render/`) and the 3D renderer (`render3d/`).
+- `src/server/` — lobby/game coordination and intent relay over WebSockets.
+
+See [docs/World3D.md](docs/World3D.md) for the 3D renderer design and roadmap,
+and [docs/Architecture.md](docs/Architecture.md) for the engine.
+
 ## License
 
-OpenFront source code is licensed under the **GNU Affero General Public License v3.0**
+Code: **GNU AGPL v3.0** — see [LICENSE](LICENSE). Assets in `resources/`:
+**CC BY-SA 4.0** — see [LICENSE-ASSETS](LICENSE-ASSETS). License history and
+attribution: [LICENSING.md](LICENSING.md), [CREDITS.md](CREDITS.md).
 
-Current copyright notices appear in:
-
-- Footer: "© OpenFront and Contributors"
-- Loading screen: "© OpenFront and Contributors"
-
-Modified versions must preserve these notices in reasonably visible locations.
-
-See the [LICENSE](LICENSE) for complete requirements.
-
-For asset licensing, see [LICENSE-ASSETS](LICENSE-ASSETS).  
-For license history, see [LICENSING.md](LICENSING.md).
-
-## 🌟 Features
-
-- **Real-time Strategy Gameplay**: Expand your territory and engage in strategic battles
-- **Alliance System**: Form alliances with other players for mutual defense
-- **Multiple Maps**: Play across various geographical regions including Europe, Asia, Africa, and more
-- **Resource Management**: Balance your expansion with defensive capabilities
-- **Cross-platform**: Play in any modern web browser
-
-## 📋 Prerequisites
-
-- [Node.js](https://nodejs.org/) v24.15.0 or newer in the Node 24 release line
-- [npm](https://www.npmjs.com/) v12.1.0 or newer in the npm 12 release line
-- A modern web browser (Chrome, Firefox, Edge, etc.)
-
-Node.js may bundle an older npm version. Upgrade it before installing project dependencies:
-
-```bash
-npm install --global --ignore-scripts npm@12.1.0
-```
-
-## 🚀 Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/openfrontio/OpenFrontIO.git
-   cd OpenFrontIO
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm run inst
-   ```
-
-   Do NOT use `npm install` nor `npm i` for project dependencies. Use `npm run inst`; it runs the safer `npm ci --ignore-scripts` to install exactly the versions in `package-lock.json` without running lifecycle scripts.
-
-   The repository also rejects dependency releases less than seven days old and dependencies sourced from Git, remote URLs, local tarballs, or directories. Wait until a new release passes the seven-day window before updating it; security exceptions require explicit maintainer review.
-
-## 🎮 Running the Game
-
-### Development Mode
-
-Run both the client and server in development mode with live reloading:
-
-```bash
-npm run dev
-```
-
-This will:
-
-- Start the webpack dev server for the client
-- Launch the game server with development settings
-- Open the game in your default browser (to disable this behavior, set `SKIP_BROWSER_OPEN=true` in your environment)
-
-### Client Only
-
-To run just the client with hot reloading:
-
-```bash
-npm run start:client
-```
-
-### Server Only
-
-To run just the server with development settings:
-
-```bash
-npm run start:server-dev
-```
-
-### Connecting to staging or production backends
-
-Sometimes it's useful to connect to production servers when replaying a game, testing user profiles, purchases, or login flow.
-
-> To replay a production game, make sure you're on the same commit that the game you want to replay was executed on, you can find the `gitCommit` value via `https://api.openfront.io/game/[gameId]`.
-> Unfinished games cannot be replayed on localhost.
-
-To connect to staging api servers:
-
-```bash
-npm run dev:staging
-```
-
-To connect to production api servers:
-
-```bash
-npm run dev:prod
-```
-
-## 🛠️ Development Tools
-
-- **Format code**:
-
-  ```bash
-  npm run format
-  ```
-
-- **Lint code with Oxlint**:
-
-  ```bash
-  npm run lint
-  ```
-
-- **Lint and fix code with Oxlint**:
-
-  ```bash
-  npm run lint:fix
-  ```
-
-- **Testing**
-  ```bash
-  npm test
-  ```
-
-## 🏗️ Project Structure
-
-- `/src/client` - Frontend game client
-- `/src/server` - Backend game server
-- `/packages/engine` - Deterministic game simulation (`@openfront/engine`)
-- `/packages/engine-api` - The engine's contract: types, schemas, game updates and the worker protocol (`@openfront/engine-api`)
-- `/packages/engine-lib` - Engine code also used outside the engine: map grid, rules, helpers (`@openfront/engine-lib`)
-- `/packages/shared` - Code shared by client and server: wire schemas, env, asset URLs (`@openfront/shared`)
-- `/packages/zbin` - Compact binary wire format for zod schemas (self-contained, zod-only)
-- `/resources` - Static assets (images, maps, etc.)
-
-## 🤝 Contributing
-
-Contributions and translations are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, the approved-issue process, project governance, and translation info.
+Laukolaroser is a modified version of the open-source game OpenFront. As
+required by the license's additional terms, the notice
+"© OpenFront and Contributors" is shown in the footer and on the loading
+screen, and must be preserved.

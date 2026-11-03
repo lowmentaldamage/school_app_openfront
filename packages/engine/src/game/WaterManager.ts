@@ -1,11 +1,11 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   snapshotType,
   zBytes,
   zInt,
   zTiles,
   zU16Array,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import {
   AbstractGraph,

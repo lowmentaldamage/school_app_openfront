@@ -3,8 +3,8 @@ import {
   GameMapSize,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import { html, TemplateResult } from "lit";
 import { renderDuration, translateText } from "../../client/Utils";
 
@@ -122,6 +122,16 @@ export function notableLobbySettings(
     items.push({
       label: translateText("public_game_modifier.disable_alliances_label"),
       value: renderDuration(c.customAllianceDuration * 60),
+    });
+  if (c.disableTechTree)
+    items.push({
+      label: translateText("game_settings.tech_tree"),
+      value: translateText("common.disabled"),
+    });
+  if (c.fogOfWar)
+    items.push({
+      label: translateText("game_settings.fog_of_war"),
+      value: enabled,
     });
   if (c.waterNukes)
     items.push({

@@ -209,7 +209,7 @@ export class ReplayStore {
   }
 }
 
-const DB_NAME = "openfront-replays";
+const DB_NAME = "laukolaroser-replays";
 const DB_VERSION = 1;
 const REPLAYS = "replays";
 const META = "meta";

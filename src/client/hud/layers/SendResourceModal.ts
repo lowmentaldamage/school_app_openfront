@@ -1,6 +1,6 @@
-import { renderTroops } from "@openfront/engine-lib/Format";
-import { within } from "@openfront/engine-lib/Util";
-import { EventBus } from "@openfront/shared/EventBus";
+import { renderTroops } from "@laukolaroser/engine-lib/Format";
+import { within } from "@laukolaroser/engine-lib/Util";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import {

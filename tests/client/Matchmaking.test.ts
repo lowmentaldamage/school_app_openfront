@@ -1,5 +1,5 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
 import type { Mock } from "vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -28,7 +28,7 @@ vi.mock("howler", () => ({
 // The two ClientEnv reads the version check below depends on: this bundle's
 // commit, and the commit the matched game's server runs (the API's list).
 const envMocks = vi.hoisted(() => ({
-  siteHost: vi.fn((): string | undefined => "openfront.test"),
+  siteHost: vi.fn((): string | undefined => "laukolaroser.test"),
   gitCommit: vi.fn(() => "bfd5563a11111111111111111111111111111111"),
   gameVersion: vi.fn((_gameID: string): string | undefined => undefined),
 }));
@@ -55,7 +55,7 @@ vi.mock("../../src/client/ClientEnv", () => ({
     gameVersion: envMocks.gameVersion,
     siteHost: envMocks.siteHost,
     gamePath: vi.fn((gameID: string) => `/w0/game/${gameID}`),
-    gameHttpBase: vi.fn(() => "https://falk2-a.openfront.io"),
+    gameHttpBase: vi.fn(() => "https://falk2-a.laukolaroser.com"),
     gameWorkerPath: vi.fn(() => "w0"),
   },
 }));
@@ -653,9 +653,9 @@ describe("MatchmakingModal opens the match at its server's version", () => {
     vi.stubGlobal("fetch", fetchMock);
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "info").mockImplementation(() => {});
-    delete (window as unknown as { openfrontDesktop?: unknown })
-      .openfrontDesktop;
-    stubLocation("openfront.io");
+    delete (window as unknown as { laukolaroserDesktop?: unknown })
+      .laukolaroserDesktop;
+    stubLocation("laukolaroser.com");
   });
 
   afterEach(() => {
@@ -664,8 +664,8 @@ describe("MatchmakingModal opens the match at its server's version", () => {
       writable: true,
       configurable: true,
     });
-    delete (window as unknown as { openfrontDesktop?: unknown })
-      .openfrontDesktop;
+    delete (window as unknown as { laukolaroserDesktop?: unknown })
+      .laukolaroserDesktop;
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
@@ -673,7 +673,7 @@ describe("MatchmakingModal opens the match at its server's version", () => {
 
   it("joins directly when the match landed on this build", async () => {
     envMocks.gameVersion.mockReturnValue(OWN);
-    const loc = stubLocation("openfront.io");
+    const loc = stubLocation("laukolaroser.com");
 
     const { joined } = await matchAndCheck();
 
@@ -682,12 +682,12 @@ describe("MatchmakingModal opens the match at its server's version", () => {
       gameID: GAME_ID,
       source: "matchmaking",
     });
-    expect(loc.href).toBe("https://openfront.io/");
+    expect(loc.href).toBe("https://laukolaroser.com/");
   });
 
   it("goes to the game's version instead of joining on another build", async () => {
     envMocks.gameVersion.mockReturnValue(OLD);
-    const loc = stubLocation("openfront.io");
+    const loc = stubLocation("laukolaroser.com");
 
     const { joined } = await matchAndCheck();
 
@@ -710,34 +710,36 @@ describe("MatchmakingModal opens the match at its server's version", () => {
   it("joins when no version is known for the game", async () => {
     // Navigating on a guess is worse than joining and finding out.
     envMocks.gameVersion.mockReturnValue(undefined);
-    const loc = stubLocation("openfront.io");
+    const loc = stubLocation("laukolaroser.com");
 
     const { joined } = await matchAndCheck();
 
     expect(joined).toHaveBeenCalledOnce();
-    expect(loc.href).toBe("https://openfront.io/");
+    expect(loc.href).toBe("https://laukolaroser.com/");
   });
 
   it("never navigates the desktop shell, which owns its own version", async () => {
     envMocks.gameVersion.mockReturnValue(OLD);
-    const loc = stubLocation("openfront.io");
-    (window as unknown as { openfrontDesktop?: unknown }).openfrontDesktop = {};
+    const loc = stubLocation("laukolaroser.com");
+    (
+      window as unknown as { laukolaroserDesktop?: unknown }
+    ).laukolaroserDesktop = {};
 
     const { joined } = await matchAndCheck();
 
     expect(joined).toHaveBeenCalledOnce();
-    expect(loc.href).toBe("https://openfront.io/");
+    expect(loc.href).toBe("https://laukolaroser.com/");
   });
 
   // replay.<domain> has no /v/<commit>/ routes, so that would 404.
   it("never navigates a replay shell", async () => {
     envMocks.gameVersion.mockReturnValue(OLD);
-    const loc = stubLocation("replay.openfront.io");
+    const loc = stubLocation("replay.laukolaroser.com");
 
     const { joined } = await matchAndCheck();
 
     expect(joined).toHaveBeenCalledOnce();
-    expect(loc.href).toBe("https://replay.openfront.io/");
+    expect(loc.href).toBe("https://replay.laukolaroser.com/");
   });
 });
 
@@ -768,7 +770,7 @@ describe("MatchmakingModal queue join carries the page's build", () => {
     const { socket } = await openAndJoin("1v1");
 
     expect(socket.url).toBe(
-      `ws://matchmaking.test/matchmaking/join?instance_id=test-instance&mode=1v1&version=${OWN}&site=openfront.test`,
+      `ws://matchmaking.test/matchmaking/join?instance_id=test-instance&mode=1v1&version=${OWN}&site=laukolaroser.test`,
     );
   });
 
@@ -778,7 +780,7 @@ describe("MatchmakingModal queue join carries the page's build", () => {
     const { socket } = await openAndJoin("2v2");
 
     expect(socket.url).toBe(
-      "ws://matchmaking.test/matchmaking/join?instance_id=test-instance&mode=2v2&site=openfront.test",
+      "ws://matchmaking.test/matchmaking/join?instance_id=test-instance&mode=2v2&site=laukolaroser.test",
     );
   });
 });
@@ -800,18 +802,18 @@ describe("MatchmakingModal queue join carries the page's site", () => {
   });
 
   afterEach(() => {
-    envMocks.siteHost.mockReturnValue("openfront.test");
+    envMocks.siteHost.mockReturnValue("laukolaroser.test");
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
   });
 
   it("sends the site whose server list this page reads", async () => {
-    envMocks.siteHost.mockReturnValue("beta.openfront.test");
+    envMocks.siteHost.mockReturnValue("beta.laukolaroser.test");
 
     const { socket } = await openAndJoin("1v1");
 
-    expect(socket.url).toContain("&site=beta.openfront.test");
+    expect(socket.url).toContain("&site=beta.laukolaroser.test");
   });
 
   it("omits the site when it is not a name the API accepts", async () => {

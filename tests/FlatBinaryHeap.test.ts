@@ -1,4 +1,4 @@
-import { FlatBinaryHeap } from "@openfront/engine/execution/utils/FlatBinaryHeap";
+import { FlatBinaryHeap } from "@laukolaroser/engine/execution/utils/FlatBinaryHeap";
 
 describe("FlatBinaryHeap", () => {
   test("dequeues tiles in ascending priority order", () => {

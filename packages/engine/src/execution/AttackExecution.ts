@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   MessageType,
@@ -8,9 +8,9 @@ import {
   TerrainType,
   TerraNullius,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { renderTroops } from "@openfront/engine-lib/Format";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { renderTroops } from "@laukolaroser/engine-lib/Format";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   zInt,
   zNum,
@@ -19,8 +19,9 @@ import {
   zRef,
   zTile,
   zTiles,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { assertNever } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
+import { assertNever } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { AttackLogicInput } from "../configuration/EngineConfig";
 import { Attack, Execution, Game, Player } from "../game/Game";
@@ -53,6 +54,7 @@ export class AttackExecution implements Execution {
   // Reusable neighbor buffers to avoid closures/allocation in hot loops.
   private nbuf: TileRef[] = [0, 0, 0, 0];
   private nbuf2: TileRef[] = [0, 0, 0, 0];
+  private hgBuf: TileRef[] = [0, 0, 0, 0];
 
   constructor(
     private startTroops: number | null = null,
@@ -349,7 +351,7 @@ export class AttackExecution implements Execution {
           this.attackLogicInput(troopCount, tileToConquer, borderSize),
         );
       tickBudget -= tickFraction;
-      troopCount -= attackerTroopLoss;
+      troopCount -= this.techAdjustedLoss(attackerTroopLoss, targetPlayer);
       this.attack.setTroops(troopCount);
       if (targetPlayer) {
         targetPlayer.removeTroops(defenderTroopLoss);
@@ -377,8 +379,26 @@ export class AttackExecution implements Execution {
         UnitType.DefensePost,
         defender.id(),
       );
+    // High ground: the highest terrain the attacker holds next to the tile.
+    let attackerTerrain: TerrainType | undefined;
+    const n = this.map.neighbors4(tile, this.hgBuf);
+    for (let i = 0; i < n; i++) {
+      const nb = this.hgBuf[i];
+      if (this.map.ownerID(nb) !== this.ownerSmallID || !this.map.isLand(nb)) {
+        continue;
+      }
+      const t = this.map.terrainType(nb);
+      if (
+        attackerTerrain === undefined ||
+        t === TerrainType.Mountain ||
+        (t === TerrainType.Highland && attackerTerrain === TerrainType.Plains)
+      ) {
+        attackerTerrain = t;
+      }
+    }
     return {
       terrain: this.map.terrainType(tile),
+      attackerTerrain,
       attackTroops,
       attacker: {
         type: this._owner.type(),
@@ -443,11 +463,13 @@ export class AttackExecution implements Execution {
         case TerrainType.Plains:
           mag = 1;
           break;
+        // Fronts flow through plains and valleys first; mountains are
+        // taken last.
         case TerrainType.Highland:
-          mag = 1.5;
+          mag = 2;
           break;
         case TerrainType.Mountain:
-          mag = 2;
+          mag = 4;
           break;
         default:
           mag = 0;
@@ -460,6 +482,19 @@ export class AttackExecution implements Execution {
 
       this.toConquer.enqueue(neighbor, priority);
     }
+  }
+
+  /** Tech: Infantry Drill (attacker) and Fortification (defender). */
+  private techAdjustedLoss(
+    loss: number,
+    targetPlayer: Player | null | undefined,
+  ): number {
+    let pct = 100;
+    if (this._owner.hasTech("drill")) pct = TECH_EFFECTS.drillLossPercent;
+    if (targetPlayer && targetPlayer.hasTech("fortify")) {
+      pct = (pct * TECH_EFFECTS.fortifyAttackerLossPercent) / 100;
+    }
+    return pct === 100 ? loss : (loss * pct) / 100;
   }
 
   private handleDeadDefender() {
@@ -540,6 +575,7 @@ export class AttackExecution implements Execution {
     // Scratch buffers, overwritten before every read.
     this.nbuf = [0, 0, 0, 0];
     this.nbuf2 = [0, 0, 0, 0];
+    this.hgBuf = [0, 0, 0, 0];
     this.startTroops = s.startTroops;
     this._owner = r.player(s.owner);
     this._targetID = s.targetID;

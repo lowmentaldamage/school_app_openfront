@@ -1,5 +1,5 @@
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { describe, expect, test, vi } from "vitest";
 import {
   BuildPreviewController,
@@ -555,7 +555,7 @@ describe("BuildPreviewController idle diffing optimization", () => {
 
   test("hovering over water does not set ghost preview to null", () => {
     const { controller } = createTestFixture();
-    // In OpenFront, water is a valid tile where isImpassable is false
+    // In Laukolaroser, water is a valid tile where isImpassable is false
     const waterTile = 100;
     const data = (controller as any).buildGhostPreviewData(waterTile, false);
     expect(data).not.toBeNull();

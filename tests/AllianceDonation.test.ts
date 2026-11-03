@@ -1,7 +1,7 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { DonateGoldExecution } from "@openfront/engine/execution/DonateGoldExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { DonateGoldExecution } from "@laukolaroser/engine/execution/DonateGoldExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { playerInfo, setup } from "./util/Setup";
 
 let game: Game;

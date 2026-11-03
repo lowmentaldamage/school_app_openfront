@@ -1,5 +1,5 @@
 {
-  "name": "openfront-client",
+  "name": "laukolaroser-client",
   "engines": {
     "node": ">=24.15.0 <25",
     "npm": ">=12.1.0 <13"
@@ -16,8 +16,8 @@
     "start:server-dev": "cross-env GAME_ENV=dev TURNSTILE_SITE_KEY=1x00000000000000000000AA API_KEY=WARNING_DEV_API_KEY_DO_NOT_USE_IN_PRODUCTION ADMIN_BOT_API_KEY=WARNING_DEV_ADMIN_BOT_KEY_DO_NOT_USE_IN_PRODUCTION DOMAIN=localhost GIT_COMMIT=DEV tsx src/server/Server.ts",
     "dev": "cross-env GAME_ENV=dev concurrently \"npm run start:client\" \"npm run start:server-dev\"",
     "dev:host": "cross-env GAME_ENV=dev VITE_HOST=lan concurrently \"npm run start:client\" \"npm run start:server-dev\"",
-    "dev:staging": "cross-env GAME_ENV=dev API_DOMAIN=api.openfront.dev concurrently \"npm run start:client\" \"npm run start:server-dev\"",
-    "dev:prod": "cross-env GAME_ENV=dev API_DOMAIN=api.openfront.io concurrently \"npm run start:client\" \"npm run start:server-dev\"",
+    "dev:staging": "cross-env GAME_ENV=dev API_DOMAIN=api.laukolaroser.dev concurrently \"npm run start:client\" \"npm run start:server-dev\"",
+    "dev:prod": "cross-env GAME_ENV=dev API_DOMAIN=api.laukolaroser.com concurrently \"npm run start:client\" \"npm run start:server-dev\"",
     "docs:map-generator": "cd map-generator && go doc -cmd -u -all",
     "tunnel": "npm run build-prod && npm run start:server",
     "test": "vitest run --project client --project client-forks --project node",
@@ -44,7 +44,13 @@
     "prepare": "husky",
     "gen-maps": "cd map-generator && go run -tags nodynamic . && npm run gen-map-schema",
     "gen-map-schema": "tsx scripts/genMapInfoSchema.ts && npx --no-install oxfmt --write map-generator/info.schema.json",
-    "inst": "npm ci --ignore-scripts"
+    "inst": "npm ci --ignore-scripts",
+    "selfhost:admin": "tsx scripts/selfhost-admin.ts",
+    "start:selfhost": "cross-env GAME_ENV=dev SELF_HOSTED=1 tsx src/server/Server.ts",
+    "maps:3d": "node scripts/maps-3d.cjs",
+    "smoke:server": "node scripts/smoke-server.cjs",
+    "dev:lan": "cross-env VITE_HOST=lan npm run dev",
+    "play": "node scripts/launch-local.cjs"
   },
   "lint-staged": {
     "**/*.{js,mjs,cjs,ts,jsx,tsx}": [
@@ -66,6 +72,7 @@
     "@types/msgpack5": "^3.4.6",
     "@types/node": "^24.12.0",
     "@types/pg": "^8.20.0",
+    "@types/three": "0.186.0",
     "@types/ws": "^8.18.1",
     "@vitest/coverage-v8": "^4.1.11",
     "@vitest/ui": "^4.1.11",
@@ -95,11 +102,11 @@
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "^2.12.0",
-    "@openfront/engine": "0.0.0",
-    "@openfront/engine-api": "0.0.0",
-    "@openfront/engine-lib": "0.0.0",
-    "@openfront/shared": "0.0.0",
-    "@openfront/zbin": "0.0.0",
+    "@laukolaroser/engine": "0.0.0",
+    "@laukolaroser/engine-api": "0.0.0",
+    "@laukolaroser/engine-lib": "0.0.0",
+    "@laukolaroser/shared": "0.0.0",
+    "@laukolaroser/zbin": "0.0.0",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/api-logs": "^0.216.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.219.0",
@@ -127,6 +134,7 @@
     "nanoid": "^5.1.16",
     "node-html-parser": "^7.1.0",
     "obscenity": "^0.4.6",
+    "three": "0.186.1",
     "tsx": "^4.22.4",
     "winston": "^3.19.0",
     "ws": "^8.21.0",

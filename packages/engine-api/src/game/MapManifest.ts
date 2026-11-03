@@ -35,7 +35,7 @@ void modifierKeysMatchCodegen;
 
 const modifierKeyPattern = specialModifierKeys.join("|");
 
-// The API (openfrontio/infra `GameMapTypeSchema`, and the `maps.name`
+// The API (laukolaroser/infra `GameMapTypeSchema`, and the `maps.name`
 // varchar(29) column) rejects a game record whose map name breaks these.
 const API_MAP_NAME = /^[a-zA-Z0-9\s().-]+$/;
 const API_MAP_NAME_MAX_LENGTH = 29;

@@ -1,4 +1,4 @@
-import type { GameMap } from "@openfront/engine-api/game/GameMap";
+import type { GameMap } from "@laukolaroser/engine-api/game/GameMap";
 
 /**
  * A map's terrain bytes (GameMap.terrainByte), row-major. Replays record

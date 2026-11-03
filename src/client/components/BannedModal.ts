@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { translateText } from "../Utils";

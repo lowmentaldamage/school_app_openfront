@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fetchCosmetics,
@@ -90,7 +90,7 @@ describe("subscription tier listing per rail", () => {
   afterEach(() => {
     invalidateCosmetics();
     vi.unstubAllGlobals();
-    delete (window as { openfrontDesktop?: unknown }).openfrontDesktop;
+    delete (window as { laukolaroserDesktop?: unknown }).laukolaroserDesktop;
   });
 
   it("asks for the rail this device checks out on", async () => {
@@ -101,7 +101,7 @@ describe("subscription tier listing per rail", () => {
     );
 
     invalidateCosmetics();
-    (window as { openfrontDesktop?: unknown }).openfrontDesktop = {
+    (window as { laukolaroserDesktop?: unknown }).laukolaroserDesktop = {
       steam: {},
     };
     expect(tierListingRail()).toBe("steam");

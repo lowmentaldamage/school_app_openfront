@@ -12,7 +12,7 @@
  *   }
  *
  * File moves rewrite every specifier that points at a moved file (or sits in
- * one): relative inside a package, `@openfront/<pkg>/<path>` across packages.
+ * one): relative inside a package, `@laukolaroser/<pkg>/<path>` across packages.
  * Symbol moves split import/export declarations by name so each name comes
  * from the file that now declares it; the declarations themselves are moved
  * by hand beforehand. Anything it can't rewrite safely (namespace imports or
@@ -26,7 +26,7 @@
 // the final release is expected in December 2026. Until then this script is
 // kept as it is, but is not type-checked and refuses to run. The next split
 // has to wait for that release.
-// See https://github.com/openfrontio/OpenFrontIO/issues/4982
+// See issue #4982
 // @ts-nocheck
 import { execFileSync } from "child_process";
 import fs from "fs";

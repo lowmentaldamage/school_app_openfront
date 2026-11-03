@@ -4,7 +4,7 @@ import {
   zb,
   ZbDecodeError,
   ZbEncodeError,
-} from "@openfront/zbin";
+} from "@laukolaroser/zbin";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 

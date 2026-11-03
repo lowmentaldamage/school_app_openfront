@@ -4,32 +4,32 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { AllianceExtensionExecution } from "@openfront/engine/execution/alliance/AllianceExtensionExecution";
-import { AllianceRejectExecution } from "@openfront/engine/execution/alliance/AllianceRejectExecution";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { BreakAllianceExecution } from "@openfront/engine/execution/alliance/BreakAllianceExecution";
-import { BoatRetreatExecution } from "@openfront/engine/execution/BoatRetreatExecution";
-import { CityExecution } from "@openfront/engine/execution/CityExecution";
-import { DefensePostExecution } from "@openfront/engine/execution/DefensePostExecution";
-import { DeleteUnitExecution } from "@openfront/engine/execution/DeleteUnitExecution";
-import { DonateGoldExecution } from "@openfront/engine/execution/DonateGoldExecution";
-import { DonateTroopsExecution } from "@openfront/engine/execution/DonateTroopExecution";
-import { EmbargoAllExecution } from "@openfront/engine/execution/EmbargoAllExecution";
-import { EmbargoExecution } from "@openfront/engine/execution/EmbargoExecution";
-import { EmojiExecution } from "@openfront/engine/execution/EmojiExecution";
-import { FactoryExecution } from "@openfront/engine/execution/FactoryExecution";
-import { MarkDisconnectedExecution } from "@openfront/engine/execution/MarkDisconnectedExecution";
-import { MissileSiloExecution } from "@openfront/engine/execution/MissileSiloExecution";
-import { MoveWarshipExecution } from "@openfront/engine/execution/MoveWarshipExecution";
-import { PauseExecution } from "@openfront/engine/execution/PauseExecution";
-import { PlayerExecution } from "@openfront/engine/execution/PlayerExecution";
-import { QuickChatExecution } from "@openfront/engine/execution/QuickChatExecution";
-import { RetreatExecution } from "@openfront/engine/execution/RetreatExecution";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { TargetPlayerExecution } from "@openfront/engine/execution/TargetPlayerExecution";
-import { UpgradeStructureExecution } from "@openfront/engine/execution/UpgradeStructureExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { AllianceExtensionExecution } from "@laukolaroser/engine/execution/alliance/AllianceExtensionExecution";
+import { AllianceRejectExecution } from "@laukolaroser/engine/execution/alliance/AllianceRejectExecution";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { BreakAllianceExecution } from "@laukolaroser/engine/execution/alliance/BreakAllianceExecution";
+import { BoatRetreatExecution } from "@laukolaroser/engine/execution/BoatRetreatExecution";
+import { CityExecution } from "@laukolaroser/engine/execution/CityExecution";
+import { DefensePostExecution } from "@laukolaroser/engine/execution/DefensePostExecution";
+import { DeleteUnitExecution } from "@laukolaroser/engine/execution/DeleteUnitExecution";
+import { DonateGoldExecution } from "@laukolaroser/engine/execution/DonateGoldExecution";
+import { DonateTroopsExecution } from "@laukolaroser/engine/execution/DonateTroopExecution";
+import { EmbargoAllExecution } from "@laukolaroser/engine/execution/EmbargoAllExecution";
+import { EmbargoExecution } from "@laukolaroser/engine/execution/EmbargoExecution";
+import { EmojiExecution } from "@laukolaroser/engine/execution/EmojiExecution";
+import { FactoryExecution } from "@laukolaroser/engine/execution/FactoryExecution";
+import { MarkDisconnectedExecution } from "@laukolaroser/engine/execution/MarkDisconnectedExecution";
+import { MissileSiloExecution } from "@laukolaroser/engine/execution/MissileSiloExecution";
+import { MoveWarshipExecution } from "@laukolaroser/engine/execution/MoveWarshipExecution";
+import { PauseExecution } from "@laukolaroser/engine/execution/PauseExecution";
+import { PlayerExecution } from "@laukolaroser/engine/execution/PlayerExecution";
+import { QuickChatExecution } from "@laukolaroser/engine/execution/QuickChatExecution";
+import { RetreatExecution } from "@laukolaroser/engine/execution/RetreatExecution";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { TargetPlayerExecution } from "@laukolaroser/engine/execution/TargetPlayerExecution";
+import { UpgradeStructureExecution } from "@laukolaroser/engine/execution/UpgradeStructureExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "../../util/Setup";
 import { expectSnapshotRoundTrip } from "../../util/Snapshot";
 

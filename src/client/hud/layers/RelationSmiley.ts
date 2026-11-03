@@ -1,4 +1,4 @@
-import { Relation } from "@openfront/engine-api/game/GameTypes";
+import { Relation } from "@laukolaroser/engine-api/game/GameTypes";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 

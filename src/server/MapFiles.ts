@@ -1,5 +1,5 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { normalizeAssetPath } from "@openfront/shared/AssetPaths";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import { normalizeAssetPath } from "@laukolaroser/shared/AssetPaths";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";

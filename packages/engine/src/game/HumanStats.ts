@@ -2,8 +2,8 @@ import {
   HumanDisconnects,
   HumanStatsSnapshot,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { ClientID } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { ClientID } from "@laukolaroser/engine-api/Schemas";
 import { Game } from "./Game";
 
 /**

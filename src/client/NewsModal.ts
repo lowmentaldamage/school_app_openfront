@@ -1,4 +1,4 @@
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../client/Utils";

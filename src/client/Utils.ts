@@ -9,24 +9,15 @@ import {
   Quads,
   Team,
   Trios,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { DoomsdayClockSpeed } from "@openfront/engine-lib/game/DoomsdayClock";
-import { stripVersionPrefix } from "@openfront/shared/ServerList";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { DoomsdayClockSpeed } from "@laukolaroser/engine-lib/game/DoomsdayClock";
+import { stripVersionPrefix } from "@laukolaroser/shared/ServerList";
 import IntlMessageFormat from "intl-messageformat";
 import { ClientEnv } from "./ClientEnv";
 import type { KeyboardLayoutMap } from "./KeyboardLayout";
 import type { LangSelector } from "./LangSelector";
 import { pagePin } from "./PagePin";
-
-export const TUTORIAL_VIDEO_URL = "https://www.youtube.com/embed/7J5zwb_s_Cg";
-
-// The desktop shell cannot embed YouTube inside Electron, so it bundles the
-// same tutorial and serves it under a reserved prefix of its app:// scheme
-// (see openfront-desktop's protocol.ts, which pins this path with a test).
-// Only meaningful when Platform.isElectron; on the web this path does not
-// exist.
-export const DESKTOP_TUTORIAL_VIDEO_URL = "/__tutorial/tutorial.webm";
 
 export function normaliseMapKey(mapName: string): string {
   // Asset dirs / translation keys are the map id lowercased. For most maps
@@ -709,6 +700,7 @@ export function getMessageTypeClasses(type: MessageType): string {
     case MessageType.ATTACK_REQUEST:
     case MessageType.DONATION_SENT:
     case MessageType.DONATION_RECEIVED:
+    case MessageType.RESEARCH_COMPLETE:
       return severityColors["blue"];
     case MessageType.MIRV_INBOUND:
     case MessageType.NUKE_INBOUND:

@@ -331,5 +331,5 @@
   },
   "required": ["id", "name", "translation_key", "categories", "nations"],
   "additionalProperties": false,
-  "title": "OpenFront map info.json"
+  "title": "Laukolaroser map info.json"
 }

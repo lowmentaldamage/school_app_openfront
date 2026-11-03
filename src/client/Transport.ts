@@ -1,29 +1,31 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllPlayers,
   GameType,
   Gold,
   PlayerID,
+  type TechId,
   Tick,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+  type WeaponId,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AllPlayersStats,
   ClientID,
   Intent,
   Winner,
-} from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/Schemas";
 import {
   CloseCode,
   CloseReason,
   isCloseReason,
   isTerminalClose,
-} from "@openfront/shared/CloseCodes";
+} from "@laukolaroser/shared/CloseCodes";
 import {
   EventBus,
   EventConstructor,
   GameEvent,
-} from "@openfront/shared/EventBus";
+} from "@laukolaroser/shared/EventBus";
 import {
   ClientHashMessage,
   ClientIntentMessage,
@@ -38,13 +40,13 @@ import {
   LiveStats,
   ReportReason,
   ServerMessage,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import {
   createGameWireContext,
   decodeServerMessage,
   encodeClientMessage,
-} from "@openfront/shared/ZbinWire";
-import { ZbContext } from "@openfront/zbin";
+} from "@laukolaroser/shared/ZbinWire";
+import { ZbContext } from "@laukolaroser/zbin";
 import { ClientEnv, NoServerError } from "src/client/ClientEnv";
 import { getPlayToken } from "./Auth";
 import { LobbyConfig } from "./ClientGameRunner";
@@ -234,6 +236,17 @@ export class NewLobbyEvent implements GameEvent {
   constructor(public readonly gameID: string) {}
 }
 
+export class ResearchIntentEvent implements GameEvent {
+  constructor(public readonly tech: TechId) {}
+}
+
+export class FireWeaponIntentEvent implements GameEvent {
+  constructor(
+    public readonly weapon: WeaponId,
+    public readonly tile: TileRef,
+  ) {}
+}
+
 export class MoveWarshipIntentEvent implements GameEvent {
   constructor(
     public readonly unitIds: number[],
@@ -358,6 +371,12 @@ export class Transport {
       this.onCancelBoatIntentEvent(e),
     );
 
+    this.subscribe(ResearchIntentEvent, (e) => {
+      this.sendIntent({ type: "research", tech: e.tech });
+    });
+    this.subscribe(FireWeaponIntentEvent, (e) => {
+      this.sendIntent({ type: "fire_weapon", weapon: e.weapon, tile: e.tile });
+    });
     this.subscribe(MoveWarshipIntentEvent, (e) => {
       this.onMoveWarshipEvent(e);
     });

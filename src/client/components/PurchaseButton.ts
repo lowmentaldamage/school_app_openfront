@@ -1,4 +1,4 @@
-import { Product } from "@openfront/shared/CosmeticSchemas";
+import { Product } from "@laukolaroser/shared/CosmeticSchemas";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import type { InsufficientCurrency, PurchaseResult } from "../Cosmetics";

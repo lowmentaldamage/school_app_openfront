@@ -1,0 +1,34 @@
+name: 💻 Platforms (Windows, macOS, Linux)
+
+# Proves the install steps from docs/Install.md work on each desktop OS:
+# install dependencies, production build, start the server in private mode
+# and log in (scripts/smoke-server.cjs), plus a quick test subset.
+on:
+  push:
+    branches: [main, ccr-f2fe3bd8-k0h6kk]
+  workflow_dispatch:
+
+jobs:
+  platform:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: npm 12
+        run: npm install --global --ignore-scripts npm@12.1.0
+      - name: Install
+        run: npm run inst
+      - name: Production build
+        run: npm run build-prod
+      - name: Server smoke test (private mode, login)
+        run: npm run smoke:server
+      - name: Tests (accounts, units, 3D logic)
+        run: npx vitest run tests/server/SelfHost.test.ts tests/RailUnits.test.ts tests/NavalClasses.test.ts tests/MountainWarfare.test.ts tests/render3d --project node

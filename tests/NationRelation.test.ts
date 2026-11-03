@@ -5,14 +5,14 @@ import {
   PlayerInfo,
   PlayerType,
   Relation,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { NationExecution } from "@openfront/engine/execution/NationExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { NationExecution } from "@laukolaroser/engine/execution/NationExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 
 let game: Game;

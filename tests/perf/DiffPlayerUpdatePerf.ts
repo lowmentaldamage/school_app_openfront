@@ -1,11 +1,11 @@
-import { PlayerType } from "@openfront/engine-api/game/GameTypes";
+import { PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AllianceView,
   AttackUpdate,
   GameUpdateType,
   PlayerUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { diffPlayerUpdate } from "@openfront/engine/game/GameUpdateUtils";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { diffPlayerUpdate } from "@laukolaroser/engine/game/GameUpdateUtils";
 import Benchmark from "benchmark";
 
 /**

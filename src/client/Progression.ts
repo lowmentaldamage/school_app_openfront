@@ -1,5 +1,5 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import type { XpBreakdown } from "@openfront/shared/ApiSchemas";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { XpBreakdown } from "@laukolaroser/shared/ApiSchemas";
 
 // Pure helpers behind the level / XP UI. No DOM, no fetches — so the rules the
 // components follow are unit-testable on their own.

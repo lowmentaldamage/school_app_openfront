@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { GameEnv, parseGameEnv } from "@openfront/shared/configuration/Env";
+import { GameEnv, parseGameEnv } from "@laukolaroser/shared/configuration/Env";
 import { ClientEnv } from "src/client/ClientEnv";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -33,7 +33,7 @@ describe("ClientEnv", () => {
       gameEnv: "staging",
       numWorkers: 4,
       turnstileSiteKey: "test-key",
-      jwtAudience: "openfront.dev",
+      jwtAudience: "laukolaroser.dev",
       instanceId: "TEST_ID",
       gitCommit: "abc123",
     };
@@ -42,7 +42,7 @@ describe("ClientEnv", () => {
     expect(ClientEnv.env()).toBe(GameEnv.Preprod);
     expect(ClientEnv.numWorkers()).toBe(4);
     expect(ClientEnv.turnstileSiteKey()).toBe("test-key");
-    expect(ClientEnv.jwtAudience()).toBe("openfront.dev");
+    expect(ClientEnv.jwtAudience()).toBe("laukolaroser.dev");
     expect(ClientEnv.instanceId()).toBe("TEST_ID");
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -97,10 +97,10 @@ describe("ClientEnv", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "k",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "x",
       gitCommit: "abc123",
     };
-    expect(ClientEnv.jwtIssuer()).toBe("https://api.openfront.io");
+    expect(ClientEnv.jwtIssuer()).toBe("https://api.laukolaroser.com");
   });
 });

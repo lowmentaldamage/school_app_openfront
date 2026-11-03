@@ -1,6 +1,6 @@
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
-import { UniversalPathFinding } from "@openfront/engine/pathfinding/PathFinder";
-import { PathStatus } from "@openfront/engine/pathfinding/types";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { UniversalPathFinding } from "@laukolaroser/engine/pathfinding/PathFinder";
+import { PathStatus } from "@laukolaroser/engine/pathfinding/types";
 import { describe, expect, it } from "vitest";
 
 describe("UniversalPathFinding.Parabola", () => {

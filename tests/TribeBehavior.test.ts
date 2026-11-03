@@ -2,15 +2,15 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { AllianceExtensionExecution } from "@openfront/engine/execution/alliance/AllianceExtensionExecution";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { DeleteUnitExecution } from "@openfront/engine/execution/DeleteUnitExecution";
-import { TribeAttackBehavior } from "@openfront/engine/execution/TribeAttackBehavior";
-import { TribeExecution } from "@openfront/engine/execution/TribeExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { AllianceExtensionExecution } from "@laukolaroser/engine/execution/alliance/AllianceExtensionExecution";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { DeleteUnitExecution } from "@laukolaroser/engine/execution/DeleteUnitExecution";
+import { TribeAttackBehavior } from "@laukolaroser/engine/execution/TribeAttackBehavior";
+import { TribeExecution } from "@laukolaroser/engine/execution/TribeExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { MockInstance } from "vitest";
 import { setup } from "./util/Setup";
 import { executeTicks } from "./util/utils";

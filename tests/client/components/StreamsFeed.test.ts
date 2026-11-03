@@ -1,7 +1,7 @@
 import {
   StreamsFeedSchema,
   StreamsFeed as StreamsFeedType,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import streamsFallback from "../../../resources/streams.json";
 import { getStreams } from "../../../src/client/Api";
@@ -16,10 +16,10 @@ const getStreamsMock = vi.mocked(getStreams);
 
 const entry = {
   platform: "twitch" as const,
-  channel: "openfrontmasters",
+  channel: "laukolarosermasters",
   displayName: "OFM",
   viewers: 100,
-  url: "https://twitch.tv/openfrontmasters",
+  url: "https://twitch.tv/laukolarosermasters",
   startedAt: "2026-08-03T12:00:00Z",
 };
 
@@ -48,7 +48,7 @@ describe("StreamsFeedSchema", () => {
   it("rejects the legacy {enabled, channels} payload", () => {
     const parsed = StreamsFeedSchema.safeParse({
       enabled: true,
-      channels: ["openfrontmasters"],
+      channels: ["laukolarosermasters"],
     });
     expect(parsed.success).toBe(false);
   });
@@ -129,7 +129,7 @@ describe("isFeedFresh", () => {
 describe("broadcastKey", () => {
   it("is stable for the same broadcast", () => {
     expect(broadcastKey(entry)).toBe(
-      "twitch:openfrontmasters:2026-08-03T12:00:00Z",
+      "twitch:laukolarosermasters:2026-08-03T12:00:00Z",
     );
   });
 

@@ -1,14 +1,15 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { PublicGameInfo } from "@openfront/shared/WireSchemas";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { PublicGameInfo } from "@laukolaroser/shared/WireSchemas";
 import { html, nothing, svg, TemplateResult } from "lit";
 import { responseHasLinkedIdentity } from "../AccountIdentity";
 import { gamePortal } from "../GamePortal";
 import { terrainMapFileLoader } from "../TerrainMapFileLoader";
 import { notableLobbySettings } from "../utilities/LobbySettingsSummary";
 import { getMapName, getModifierLabels, translateText } from "../Utils";
-import "./ConfirmDialog";
 import { hideFloatingTooltip, showFloatingTooltip } from "./FloatingTooltip";
+import "./ConfirmDialog";
+import { fallbackToThumbnail, mapImageSrc } from "./map/MapPreviewImage";
 
 /**
  * Whether the signed-in player may join trusted-only lobbies, from the
@@ -236,7 +237,10 @@ export function lobbyCard({
       class="group @container relative block w-full ${heightClass} overflow-hidden rounded-2xl bg-surface text-left uppercase text-white transition-shadow duration-200 hover:shadow-[var(--shadow-lobby-card-hover)] ${state}"
     >
       <img
-        src=${terrainMapFileLoader.getMapData(mapType).webpPath}
+        src=${mapImageSrc(terrainMapFileLoader.getMapData(mapType))}
+        @error=${fallbackToThumbnail(
+          terrainMapFileLoader.getMapData(mapType).webpPath,
+        )}
         alt=${mapName ?? mapType}
         draggable="false"
         class="pointer-events-none absolute inset-0 size-full select-none transition-transform duration-200 ${image}"

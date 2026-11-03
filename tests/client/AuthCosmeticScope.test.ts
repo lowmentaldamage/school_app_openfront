@@ -1,4 +1,4 @@
-import { uuidToBase64url } from "@openfront/shared/Base64";
+import { uuidToBase64url } from "@laukolaroser/shared/Base64";
 import { base64url } from "jose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getApiBase } from "../../src/client/ApiBase";

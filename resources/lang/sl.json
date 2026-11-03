@@ -9,7 +9,7 @@
     "close": "Zapri"
   },
   "main": {
-    "title": "OpenFront (Alfa)",
+    "title": "Laukolaroser (Alfa)",
     "join_discord": "Pridruži se našemu Discord serverju!",
     "login_discord": "Prijava z Discord računom",
     "checking_login": "Preverjanje prijave...",
@@ -21,7 +21,6 @@
     "instructions": "Navodila",
     "how_to_play": "Kako igrati",
     "advertise": "Oglaševanje",
-    "wiki": "Wiki",
     "privacy_policy": "Politika zasebnosti",
     "terms_of_service": "Pogoji storitve"
   },
@@ -466,8 +465,8 @@
     "not_enough_money": "Ni dovolj denarja"
   },
   "win_modal": {
-    "support_openfront": "Podprite OpenFront!",
-    "territory_pattern": "Kupite vzorec teritorija, da podprete OpenFront!",
+    "support_laukolaroser": "Podprite Laukolaroser!",
+    "territory_pattern": "Kupite vzorec teritorija, da podprete Laukolaroser!",
     "died": "Umrl si",
     "your_team": "Vaša ekipa je zmagala!",
     "other_team": "Ekipa {team} je zmagala!",
@@ -624,8 +623,8 @@
       "cursor": "Kazalnik",
       "hand": "Roka",
       "radiation": "Radiacija",
-      "openfront_qr": "OpenFront.io QR koda",
-      "openfront": "OpenFront",
+      "laukolaroser_qr": "Laukolaroser QR koda",
+      "laukolaroser": "Laukolaroser",
       "t_rex": "T-Rex",
       "embelem": "Grb",
       "contributor": "Podpornik",

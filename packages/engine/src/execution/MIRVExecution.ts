@@ -1,10 +1,10 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   MessageType,
   TerraNullius,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   zInt,
   zNum,
@@ -13,8 +13,8 @@ import {
   zRef,
   zTile,
   zTiles,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { UniversalPathFinding } from "../pathfinding/PathFinder";

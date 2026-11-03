@@ -1,5 +1,5 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import type { Cosmetics } from "@openfront/shared/CosmeticSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import type { Cosmetics } from "@laukolaroser/shared/CosmeticSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getUserMe } from "../../src/client/Api";
 import { userAuth } from "../../src/client/Auth";

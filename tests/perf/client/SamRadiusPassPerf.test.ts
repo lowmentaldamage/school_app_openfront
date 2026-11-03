@@ -13,7 +13,7 @@
  */
 import "./Shims"; // Browser-global shims for client code
 
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { performance } from "perf_hooks";
 import { describe, expect, it } from "vitest";
 import { SAMRadiusPass } from "../../../src/client/render/gl/passes/SamRadiusPass";

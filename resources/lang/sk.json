@@ -9,7 +9,7 @@
     "close": "Zavrieť"
   },
   "main": {
-    "title": "OpenFront (ALFA)",
+    "title": "Laukolaroser (ALFA)",
     "join_discord": "Pridaj sa do Discordu!",
     "login_discord": "Prihlás sa cez Discord",
     "checking_login": "Kontrolujem prihlásenie...",
@@ -21,7 +21,6 @@
     "instructions": "Pokyny",
     "how_to_play": "Ako hrať",
     "advertise": "Inzerovať",
-    "wiki": "Wiki",
     "privacy_policy": "Zásady ochrany osobných údajov",
     "terms_of_service": "Podmienky používania"
   },
@@ -580,8 +579,8 @@
       "cursor": "Kurzor",
       "hand": "Ruka",
       "radiation": "Radiácia",
-      "openfront_qr": "QR kód OpenFront.io",
-      "openfront": "OpenFront",
+      "laukolaroser_qr": "QR kód Laukolaroser",
+      "laukolaroser": "Laukolaroser",
       "t_rex": "T-rex",
       "embelem": "Odznak",
       "contributor": "Prispievateľ",

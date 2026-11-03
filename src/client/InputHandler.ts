@@ -1,11 +1,12 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   MAX_UPGRADE_AMOUNT,
   PlayerBuildableUnitType,
   PlayerID,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { EventBus, GameEvent } from "@openfront/shared/EventBus";
+  type WeaponId,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus, GameEvent } from "@laukolaroser/shared/EventBus";
 import { favoriteSlotForKey } from "./EmojiKeys";
 import { Platform } from "./Platform";
 import { UIState } from "./UIState";
@@ -31,6 +32,11 @@ export class MouseOverEvent implements GameEvent {
     public readonly y: number,
   ) {}
 }
+/** The weapon being aimed changed (null = aiming cancelled). */
+export class WeaponAimEvent implements GameEvent {
+  constructor(public readonly weapon: WeaponId | null) {}
+}
+
 export class TouchEvent implements GameEvent {
   constructor(
     public readonly x: number,
@@ -223,6 +229,7 @@ export class ReplaySpeedChangeEvent implements GameEvent {
 }
 
 export class TogglePauseIntentEvent implements GameEvent {}
+export class ToggleResearchPanelEvent implements GameEvent {}
 
 export class GameSpeedUpIntentEvent implements GameEvent {}
 
@@ -471,6 +478,13 @@ export class InputHandler {
       },
       (e: KeyboardEvent) =>
         !e.altKey && !e.ctrlKey && !e.metaKey && !this.resetGfxModifierHeld(e),
+    );
+    this.addKeybindAndEvent(
+      this.keybinds.openResearch,
+      () => {
+        this.eventBus.emit(new ToggleResearchPanelEvent());
+      },
+      (e: KeyboardEvent) => !e.repeat && !e.altKey && !e.ctrlKey && !e.metaKey,
     );
     this.addKeybindAndEvent(
       this.keybinds.pauseGame,
@@ -815,6 +829,12 @@ export class InputHandler {
 
           if (this.uiState.ghostStructure !== null) {
             this.setGhostStructure(null);
+            closedUI = true;
+          }
+
+          if (this.uiState.weaponTargeting) {
+            this.uiState.weaponTargeting = null;
+            this.eventBus.emit(new WeaponAimEvent(null));
             closedUI = true;
           }
 
@@ -1231,6 +1251,13 @@ export class InputHandler {
       Math.abs(event.x - this.lastPointerDownX) +
       Math.abs(event.y - this.lastPointerDownY);
     if (dist < this.DRAG_THRESHOLD_PX) {
+      // Aiming a weapon: any tap or click fires it (no menus).
+      if (this.uiState.weaponTargeting) {
+        this.suppressNextTap = false;
+        this.eventBus.emit(new MouseUpEvent(event.x, event.y));
+        event.preventDefault();
+        return;
+      }
       if (event.pointerType === "touch") {
         if (this.suppressNextTap) {
           this.suppressNextTap = false;

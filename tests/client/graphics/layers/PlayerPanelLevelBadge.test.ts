@@ -42,9 +42,9 @@ vi.mock("../../../../src/client/InGameModal", () => ({
   showInGameAlert: vi.fn(),
 }));
 
-import { GameType, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { packLevelBadge } from "@openfront/shared/LevelBadgeWire";
+import { GameType, PlayerType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { packLevelBadge } from "@laukolaroser/shared/LevelBadgeWire";
 import {
   ownLevelBadgeFrom,
   PlayerPanel,

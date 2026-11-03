@@ -2,8 +2,8 @@ import {
   isGrantedSubscription,
   isSteamGrant,
   UserSubscription,
-} from "@openfront/shared/ApiSchemas";
-import { Subscription } from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
+import { Subscription } from "@laukolaroser/shared/CosmeticSchemas";
 import { html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import {
@@ -273,7 +273,7 @@ export class SubscriptionPanel extends LitElement {
    * Both of those go through the Stripe billing portal, and the packaged Steam
    * build must never steer a player to a payment page -- `navigationPolicy.ts`
    * refuses the link-out, so the button is dead. Worse than dead, once infra
-   * accepts `app://openfront` as a returnUrl: the click then raises the
+   * accepts `app://laukolaroser` as a returnUrl: the click then raises the
    * shell's "Purchase unavailable / nothing has been charged" dialog at a
    * player who is trying to STOP paying.
    *

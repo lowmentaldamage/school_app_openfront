@@ -1,7 +1,7 @@
 import {
   ClanLeaderboardEntry,
   ClanLeaderboardResponse,
-} from "@openfront/shared/ClanApiSchemas";
+} from "@laukolaroser/shared/ClanApiSchemas";
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { fetchClanLeaderboard } from "../../ClanApi";

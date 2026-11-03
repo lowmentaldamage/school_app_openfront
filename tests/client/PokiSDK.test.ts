@@ -11,7 +11,7 @@ function fakePoki(overrides: Partial<FakePoki> = {}): FakePoki {
     gameplayStart: vi.fn(),
     gameplayStop: vi.fn(),
     commercialBreak: vi.fn(async () => {}),
-    shareableURL: vi.fn(async () => "https://poki.com/en/g/openfront"),
+    shareableURL: vi.fn(async () => "https://poki.com/en/g/laukolaroser"),
     getURLParam: vi.fn(() => ""),
     openExternalLink: vi.fn(),
     login: vi.fn(async () => {}),
@@ -62,7 +62,7 @@ describe("PokiSDK", () => {
     });
 
     it.each([
-      "https://games.poki.com/458768/openfront",
+      "https://games.poki.com/458768/laukolaroser",
       "https://abc123.poki-gdn.com/",
       "https://inspector.poki.dev/",
     ])("is true framed by %s", (parent) => {
@@ -71,7 +71,7 @@ describe("PokiSDK", () => {
     });
 
     it.each([
-      "https://www.crazygames.com/game/openfront",
+      "https://www.crazygames.com/game/laukolaroser",
       "https://notpoki.com/",
       "https://poki.com.example.net/",
       "",
@@ -83,7 +83,7 @@ describe("PokiSDK", () => {
     // Firefox has no ancestorOrigins, and the referrer becomes our own URL
     // once the frame navigates (leaving a game, a lobby redirect).
     it("stays true after an in-frame navigation drops the Poki referrer", () => {
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
       expect(sdk.isOnPoki()).toBe(true);
       vi.spyOn(document, "referrer", "get").mockReturnValue(
         "http://localhost/game/abcd1234",
@@ -92,7 +92,7 @@ describe("PokiSDK", () => {
     });
 
     it("ignores a remembered detection when not framed", () => {
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
       expect(sdk.isOnPoki()).toBe(true);
       vi.restoreAllMocks();
       expect(sdk.isOnPoki()).toBe(false);
@@ -105,7 +105,7 @@ describe("PokiSDK", () => {
       vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
         throw new Error("denied");
       });
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
       expect(sdk.isOnPoki()).toBe(true);
     });
   });
@@ -114,7 +114,7 @@ describe("PokiSDK", () => {
     let poki: FakePoki;
 
     beforeEach(async () => {
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
       poki = fakePoki();
       await initWith(sdk, poki);
     });
@@ -221,14 +221,14 @@ describe("PokiSDK", () => {
 
     it("builds invite links through shareableURL", async () => {
       expect(await sdk.createInviteLink("abcd1234")).toBe(
-        "https://poki.com/en/g/openfront",
+        "https://poki.com/en/g/laukolaroser",
       );
       expect(poki.shareableURL).toHaveBeenCalledWith({ gameId: "abcd1234" });
     });
 
     it("routes new-tab links through openExternalLink", () => {
       const external = document.createElement("a");
-      external.href = "https://discord.gg/openfront";
+      external.href = "https://discord.gg/laukolaroser";
       external.target = "_blank";
       const internal = document.createElement("a");
       internal.href = "#page-play";
@@ -247,7 +247,7 @@ describe("PokiSDK", () => {
 
       expect(externalClick.defaultPrevented).toBe(true);
       expect(poki.openExternalLink).toHaveBeenCalledWith(
-        "https://discord.gg/openfront",
+        "https://discord.gg/laukolaroser",
       );
       expect(internalClick.defaultPrevented).toBe(false);
       external.remove();
@@ -256,7 +256,7 @@ describe("PokiSDK", () => {
   });
 
   it("still runs the game when init rejects (e.g. adblock)", async () => {
-    framedBy("https://games.poki.com/458768/openfront");
+    framedBy("https://games.poki.com/458768/laukolaroser");
     const poki = fakePoki({
       init: vi.fn(async () => {
         throw new Error("blocked");
@@ -270,7 +270,7 @@ describe("PokiSDK", () => {
   it("gives up on an SDK script that never loads", async () => {
     vi.useFakeTimers();
     try {
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
       vi.spyOn(document.head, "appendChild").mockImplementation((n) => n);
       const init = sdk.maybeInit();
       const token = sdk.getUserToken();
@@ -286,7 +286,7 @@ describe("PokiSDK", () => {
   it("runs the game anyway when init never settles", async () => {
     vi.useFakeTimers();
     try {
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
       const poki = fakePoki({ init: vi.fn(() => new Promise<void>(() => {})) });
       const init = initWith(sdk, poki);
       await vi.advanceTimersByTimeAsync(10_000);
@@ -302,10 +302,10 @@ describe("PokiSDK", () => {
   // rewrites; a reload without site_id disables Poki accounts.
   describe("Poki's URL params", () => {
     const pokiQuery =
-      "?site_id=3&game_id=g1&poki_url=https%3A%2F%2Fpoki.com%2Fen%2Fg%2Fopenfront";
+      "?site_id=3&game_id=g1&poki_url=https%3A%2F%2Fpoki.com%2Fen%2Fg%2Flaukolaroser";
 
     beforeEach(() => {
-      framedBy("https://games.poki.com/458768/openfront");
+      framedBy("https://games.poki.com/458768/laukolaroser");
     });
 
     it("puts them back before the SDK loads after a rewrite and reload", async () => {
@@ -337,14 +337,14 @@ describe("PokiSDK", () => {
       const poki = fakePoki({
         shareableURL: vi.fn(async () => {
           pokiUrl = new URLSearchParams(window.location.search).get("poki_url");
-          return "https://poki.com/en/g/openfront?gdgameId=abcd1234";
+          return "https://poki.com/en/g/laukolaroser?gdgameId=abcd1234";
         }),
       });
       await initWith(sdk, poki);
 
       history.pushState(null, "", "/game/abcd1234");
       await sdk.createInviteLink("abcd1234");
-      expect(pokiUrl).toBe("https://poki.com/en/g/openfront");
+      expect(pokiUrl).toBe("https://poki.com/en/g/laukolaroser");
       expect(window.location.pathname).toBe("/game/abcd1234");
     });
   });

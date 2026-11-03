@@ -1,9 +1,9 @@
-import { MessageType } from "@openfront/engine-api/game/GameTypes";
+import { MessageType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   DisplayMessageUpdate,
   GameUpdateType,
-} from "@openfront/engine-api/game/GameUpdates";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { DirectiveResult } from "lit/directive.js";

@@ -3,7 +3,7 @@ import {
   TEAM_BREAKDOWN_KEYS,
   type ClanMemberStats,
   type ClanMemberWL,
-} from "@openfront/shared/ClanApiSchemas";
+} from "@laukolaroser/shared/ClanApiSchemas";
 import { html, LitElement, type TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { translateText } from "../../Utils";

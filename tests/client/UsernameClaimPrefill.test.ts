@@ -20,7 +20,7 @@ vi.mock("../../src/client/SteamSDK", () => ({
   steamSDK: { isOnSteam: () => true, getUser: () => getUser() },
 }));
 
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import "../../src/client/components/UsernamePanel";
 import type { UsernamePanel } from "../../src/client/components/UsernamePanel";
 

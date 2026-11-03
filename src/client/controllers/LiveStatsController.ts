@@ -1,5 +1,5 @@
-import { EventBus } from "@openfront/shared/EventBus";
-import { LiveStats, PlayerLiveStats } from "@openfront/shared/WireSchemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import { LiveStats, PlayerLiveStats } from "@laukolaroser/shared/WireSchemas";
 import { Controller } from "../Controller";
 import { SendLiveStatsEvent } from "../Transport";
 import { GameView } from "../view";

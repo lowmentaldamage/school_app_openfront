@@ -1,8 +1,8 @@
-import { TrainType, UnitType } from "@openfront/engine-api/game/GameTypes";
+import { TrainType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 
 export const UNIT_UPDATE_STRIDE = 21;
 
@@ -46,6 +46,22 @@ export const PACKED_UNIT_TYPES: readonly UnitType[] = [
   UnitType.MIRVWarhead, // 14
   UnitType.Train, // 15
   UnitType.Factory, // 16
+  UnitType.ArtilleryShell, // 17
+  UnitType.Rocket, // 18
+  UnitType.Destroyer, // 19
+  UnitType.Battleship, // 20
+  UnitType.ArmoredTrain, // 21
+  UnitType.TroopTrain, // 22
+  UnitType.RailSAM, // 23
+  UnitType.GoldMine, // 24
+  UnitType.Market, // 25
+  UnitType.OilRig, // 26
+  UnitType.Airbase, // 27
+  UnitType.Bomber, // 28
+  UnitType.Fighter, // 29
+  UnitType.Submarine, // 30
+  UnitType.Carrier, // 31
+  UnitType.RadarStation, // 32
 ] as const;
 
 const UNIT_TYPE_TO_INT = new Map<UnitType, number>(
@@ -95,7 +111,9 @@ export const intToTrainType = (val: number): TrainType | undefined => {
   }
 };
 
-// Packed A: ownerID (12 bits), lastOwnerID (12 bits), unitType (5 bits)
+// Packed A: ownerID (12 bits), lastOwnerID (12 bits), unitType (8 bits).
+// Stored in a Float64Array, so it is built with arithmetic (bit 31 set
+// would make a bitwise result negative).
 export const packA = (
   ownerID: number,
   lastOwnerID: number | undefined,
@@ -103,8 +121,8 @@ export const packA = (
 ): number => {
   const oID = ownerID & 0xfff;
   const lID = lastOwnerID !== undefined ? lastOwnerID & 0xfff : 0xfff;
-  const uType = unitTypeToInt(unitType) & 0x1f;
-  return oID | (lID << 12) | (uType << 24);
+  const uType = unitTypeToInt(unitType) & 0xff;
+  return (oID | (lID << 12)) + uType * 0x1000000;
 };
 
 export const unpackAOwnerID = (packed: number): number => packed & 0xfff;
@@ -113,7 +131,7 @@ export const unpackALastOwnerID = (packed: number): number | undefined => {
   return val === 0xfff ? undefined : val;
 };
 export const unpackAUnitType = (packed: number): UnitType =>
-  intToUnitType((packed >> 24) & 0x1f);
+  intToUnitType(Math.floor(packed / 0x1000000) & 0xff);
 
 // Packed B: level (8 bits), warshipState (2 bits), flags (many bits)
 export const packB = (update: UnitUpdate): number => {

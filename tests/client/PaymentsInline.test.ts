@@ -11,7 +11,7 @@ vi.mock("../../src/client/Utils", async (importOriginal) => ({
   translateText: vi.fn((key: string) => key),
 }));
 
-import { PaymentsCheckoutResponseSchema } from "@openfront/shared/ApiSchemas";
+import { PaymentsCheckoutResponseSchema } from "@laukolaroser/shared/ApiSchemas";
 import type { PaymentsCheckoutResult } from "../../src/client/Api";
 import { createPaymentsCheckout } from "../../src/client/Api";
 import {

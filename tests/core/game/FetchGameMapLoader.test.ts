@@ -1,5 +1,5 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { FetchGameMapLoader } from "@openfront/shared/FetchGameMapLoader";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import { FetchGameMapLoader } from "@laukolaroser/shared/FetchGameMapLoader";
 import { describe, expect, test, vi } from "vitest";
 
 describe("FetchGameMapLoader", () => {

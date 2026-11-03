@@ -15,15 +15,15 @@
  */
 import "./Shims";
 
-import type { TileRef } from "@openfront/engine-api/game/GameMap";
-import { PlayerType, UnitType } from "@openfront/engine-api/game/GameTypes";
+import type { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { PlayerType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   type GameUpdateViewData,
   type PlayerUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import type { Config } from "@openfront/engine-lib/configuration/Config";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { BuildPreviewController } from "../../../src/client/controllers/BuildPreviewController";
 import type { MapRenderer } from "../../../src/client/render/gl/MapRenderer";
 import type { FxShockwavePass as FxShockwavePassType } from "../../../src/client/render/gl/passes/fx-pass/FxShockwavePass";

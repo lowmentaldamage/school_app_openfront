@@ -1,4 +1,4 @@
-import { Emoji } from "@openfront/engine-api/Schemas";
+import { Emoji } from "@laukolaroser/engine-api/Schemas";
 
 export interface EmojiSection {
   /** translateText key for the section heading. */

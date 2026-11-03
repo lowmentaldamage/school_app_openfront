@@ -1,12 +1,15 @@
-import { GameMapSize, RankedType } from "@openfront/engine-api/game/GameTypes";
+import {
+  GameMapSize,
+  RankedType,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   WinUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameStartInfo, Turn } from "@openfront/engine-api/Schemas";
-import { createGameRunner } from "@openfront/engine/GameRunner";
-import { replayWinner } from "@openfront/engine/WinnerReplay";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameStartInfo, Turn } from "@laukolaroser/engine-api/Schemas";
+import { createGameRunner } from "@laukolaroser/engine/GameRunner";
+import { replayWinner } from "@laukolaroser/engine/WinnerReplay";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import { describe, expect, it } from "vitest";
 import { scriptedGameStart, TestDataMapLoader } from "../util/ScriptedGame";
 

@@ -1,5 +1,5 @@
-import { buildAssetUrl } from "@openfront/shared/AssetPaths";
-import { rewriteAssetsForCdn } from "@openfront/shared/AssetUrls";
+import { buildAssetUrl } from "@laukolaroser/shared/AssetPaths";
+import { rewriteAssetsForCdn } from "@laukolaroser/shared/AssetUrls";
 import { describe, expect, test } from "vitest";
 
 describe("AssetUrls", () => {
@@ -78,16 +78,16 @@ describe("AssetUrls", () => {
     );
   });
 
-  // The desktop shell's cdnBase is app://openfront, so a resolved asset URL
+  // The desktop shell's cdnBase is app://laukolaroser, so a resolved asset URL
   // is absolute under a non-http scheme. Re-resolving one (WebGLFrameBuilder
   // does this to player cosmetic refs a singleplayer start already resolved)
   // must be a pass-through, not a trip through normalizeAssetPath that
-  // yields "/app%3A/openfront/…" and a flag that never renders.
+  // yields "/app%3A/laukolaroser/…" and a flag that never renders.
   test("returns absolute URLs of any scheme unchanged, so resolution is idempotent", () => {
     const manifest = { "flags/US.svg": "/_assets/flags/US.hash.svg" };
-    const first = buildAssetUrl("flags/US.svg", manifest, "app://openfront");
-    expect(first).toBe("app://openfront/_assets/flags/US.hash.svg");
-    expect(buildAssetUrl(first, manifest, "app://openfront")).toBe(first);
+    const first = buildAssetUrl("flags/US.svg", manifest, "app://laukolaroser");
+    expect(first).toBe("app://laukolaroser/_assets/flags/US.hash.svg");
+    expect(buildAssetUrl(first, manifest, "app://laukolaroser")).toBe(first);
   });
 
   // Manifest miss → keep same-origin; the CDN only serves what was explicitly

@@ -4,9 +4,9 @@ import {
   Gold,
   PlayerBuildableUnitType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { renderNumber } from "@openfront/engine-lib/Format";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { Controller } from "../../Controller";
@@ -17,16 +17,28 @@ import { UserSettings } from "../../UserSettings";
 import { resolveKeybindLabel, translateText } from "../../Utils";
 import { GameView } from "../../view";
 import {
+  airbaseIcon,
+  radarIcon,
+  armoredTrainIcon,
   atomBombIcon,
+  battleshipIcon,
+  carrierIcon,
   cityIcon,
   defensePostIcon,
+  destroyerIcon,
   factoryIcon,
   goldCoinIcon,
+  goldMineIcon,
   hydrogenBombIcon,
+  marketIcon,
   mirvIcon,
   missileSiloIcon,
+  oilRigIcon,
   portIcon,
+  railSamIcon,
   samLauncherIcon,
+  submarineIcon,
+  troopTrainIcon,
   warshipIcon,
 } from "../HotbarIcons";
 import { TutorialHighlight, TutorialHighlightEvent } from "../Tutorial";
@@ -42,6 +54,18 @@ export class UnitDisplay extends LitElement implements Controller {
   private keyboardLayout = new KeyboardLayoutController(this);
   private _cities = 0;
   private _warships = 0;
+  private _destroyers = 0;
+  private _battleships = 0;
+  private _submarines = 0;
+  private _carriers = 0;
+  private _armoredTrains = 0;
+  private _troopTrains = 0;
+  private _railSams = 0;
+  private _goldMines = 0;
+  private _markets = 0;
+  private _oilRigs = 0;
+  private _airbases = 0;
+  private _radars = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -108,6 +132,10 @@ export class UnitDisplay extends LitElement implements Controller {
           (player?.units(UnitType.MissileSilo).length ?? 0) > 0
         );
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         return (
           this.cost(item) <= (player?.gold() ?? 0n) &&
           (player?.units(UnitType.Port).length ?? 0) > 0
@@ -133,6 +161,18 @@ export class UnitDisplay extends LitElement implements Controller {
     this._samLauncher = player.totalUnitLevels(UnitType.SAMLauncher);
     this._factories = player.totalUnitLevels(UnitType.Factory);
     this._warships = player.totalUnitLevels(UnitType.Warship);
+    this._destroyers = player.totalUnitLevels(UnitType.Destroyer);
+    this._battleships = player.totalUnitLevels(UnitType.Battleship);
+    this._submarines = player.totalUnitLevels(UnitType.Submarine);
+    this._carriers = player.totalUnitLevels(UnitType.Carrier);
+    this._armoredTrains = player.totalUnitLevels(UnitType.ArmoredTrain);
+    this._troopTrains = player.totalUnitLevels(UnitType.TroopTrain);
+    this._railSams = player.totalUnitLevels(UnitType.RailSAM);
+    this._goldMines = player.totalUnitLevels(UnitType.GoldMine);
+    this._markets = player.totalUnitLevels(UnitType.Market);
+    this._oilRigs = player.totalUnitLevels(UnitType.OilRig);
+    this._airbases = player.totalUnitLevels(UnitType.Airbase);
+    this._radars = player.totalUnitLevels(UnitType.RadarStation);
     this.requestUpdate();
   }
 
@@ -159,8 +199,14 @@ export class UnitDisplay extends LitElement implements Controller {
     }
 
     return html`
-      <div class="border-t border-white/10 p-0.5 w-full">
-        <div class="grid grid-rows-1 grid-flow-col gap-0.5 w-fit mx-auto">
+      <div
+        class="border-t border-white/10 px-1 py-1 w-full flex flex-col gap-1"
+      >
+        <div class="flex items-center gap-1 w-fit mx-auto">
+          <span
+            class="w-14 shrink-0 text-[9px] font-bold uppercase tracking-[0.15em] text-sky-400"
+            >${translateText("unit_display.group_build")}</span
+          >
           ${this.renderUnitItem(
             cityIcon,
             this._cities,
@@ -204,11 +250,101 @@ export class UnitDisplay extends LitElement implements Controller {
             this.getHotkey("buildSamLauncher", "Digit6"),
           )}
           ${this.renderUnitItem(
+            goldMineIcon,
+            this._goldMines,
+            UnitType.GoldMine,
+            "gold_mine",
+            "",
+          )}
+          ${this.renderUnitItem(
+            marketIcon,
+            this._markets,
+            UnitType.Market,
+            "market",
+            "",
+          )}
+          ${this.renderUnitItem(
+            oilRigIcon,
+            this._oilRigs,
+            UnitType.OilRig,
+            "oil_rig",
+            "",
+          )}
+          ${this.renderUnitItem(
+            airbaseIcon,
+            this._airbases,
+            UnitType.Airbase,
+            "airbase",
+            "",
+          )}
+          ${this.renderUnitItem(
+            radarIcon,
+            this._radars,
+            UnitType.RadarStation,
+            "radar_station",
+            "",
+          )}
+        </div>
+        <div class="flex items-center gap-1 w-fit mx-auto">
+          <span
+            class="w-14 shrink-0 text-[9px] font-bold uppercase tracking-[0.15em] text-sky-400"
+            >${translateText("unit_display.group_forces")}</span
+          >
+          ${this.renderUnitItem(
             warshipIcon,
             this._warships,
             UnitType.Warship,
             "warship",
             this.getHotkey("buildWarship", "Digit7"),
+          )}
+          ${this.renderUnitItem(
+            destroyerIcon,
+            this._destroyers,
+            UnitType.Destroyer,
+            "destroyer",
+            "",
+          )}
+          ${this.renderUnitItem(
+            battleshipIcon,
+            this._battleships,
+            UnitType.Battleship,
+            "battleship",
+            "",
+          )}
+          ${this.renderUnitItem(
+            submarineIcon,
+            this._submarines,
+            UnitType.Submarine,
+            "submarine",
+            "",
+          )}
+          ${this.renderUnitItem(
+            carrierIcon,
+            this._carriers,
+            UnitType.Carrier,
+            "carrier",
+            "",
+          )}
+          ${this.renderUnitItem(
+            armoredTrainIcon,
+            this._armoredTrains,
+            UnitType.ArmoredTrain,
+            "armored_train",
+            "",
+          )}
+          ${this.renderUnitItem(
+            troopTrainIcon,
+            this._troopTrains,
+            UnitType.TroopTrain,
+            "troop_train",
+            "",
+          )}
+          ${this.renderUnitItem(
+            railSamIcon,
+            this._railSams,
+            UnitType.RailSAM,
+            "rail_sam",
+            "",
           )}
           ${this.renderUnitItem(
             atomBombIcon,
@@ -337,7 +473,22 @@ export class UnitDisplay extends LitElement implements Controller {
                 );
                 break;
               case UnitType.Warship:
+              case UnitType.Destroyer:
+              case UnitType.Battleship:
+              case UnitType.Submarine:
+              case UnitType.Carrier:
                 this.eventBus?.emit(new ToggleStructureEvent([UnitType.Port]));
+                break;
+              case UnitType.ArmoredTrain:
+              case UnitType.TroopTrain:
+              case UnitType.RailSAM:
+                this.eventBus?.emit(
+                  new ToggleStructureEvent([
+                    UnitType.City,
+                    UnitType.Port,
+                    UnitType.Factory,
+                  ]),
+                );
                 break;
               default:
                 this.eventBus?.emit(new ToggleStructureEvent([unitType]));
@@ -356,7 +507,7 @@ export class UnitDisplay extends LitElement implements Controller {
               : nothing
           }
           <div class="flex items-center gap-0.5 pt-0.5">
-            <img src=${icon} alt=${structureKey} class="align-middle size-5" />
+            <img src=${icon} alt=${structureKey} class="align-middle size-6" />
             ${
               number !== null
                 ? html`<span class="text-xs">${renderNumber(number)}</span>`

@@ -3,8 +3,8 @@ import {
   TribeName,
   TribeNameStatus,
   UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
-import { Cosmetics } from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
+import { Cosmetics } from "@laukolaroser/shared/CosmeticSchemas";
 import { html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import {

@@ -1,4 +1,4 @@
-import { GameConfig, GameConfigSchema } from "@openfront/engine-api/Schemas";
+import { GameConfig, GameConfigSchema } from "@laukolaroser/engine-api/Schemas";
 import { describe, expect, it, vi } from "vitest";
 import { MapPlaylist } from "../../src/server/MapPlaylist";
 

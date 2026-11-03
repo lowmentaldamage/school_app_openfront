@@ -4,8 +4,8 @@ import {
   HumansVsNations,
   Quads,
   Trios,
-} from "@openfront/engine-api/game/GameTypes";
-import { PublicGameInfo, PublicGames } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PublicGameInfo, PublicGames } from "@laukolaroser/shared/WireSchemas";
 import { UserSettings } from "../UserSettings";
 
 /**

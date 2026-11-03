@@ -1,4 +1,4 @@
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
 import { describe, expect, it } from "vitest";
 
 describe("GameMap.neighbors8", () => {

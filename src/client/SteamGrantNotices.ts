@@ -28,7 +28,7 @@ import {
   isGrantedSubscription,
   isSteamGrant,
   type UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 
 /** localStorage key holding the SteamGrantStore below. */
 export const STEAM_GRANT_NOTICE_KEY = "steamGrantNotice";

@@ -2,7 +2,7 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import Benchmark from "benchmark";
 import { dirname } from "path";
 import { fileURLToPath } from "url";

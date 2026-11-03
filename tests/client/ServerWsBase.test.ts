@@ -6,14 +6,14 @@ import { deriveServerWsBase } from "../../src/client/ClientEnv";
 //
 // The web build injects no serverHost, so it must keep the historical
 // same-origin behaviour (derive scheme + host from window.location). The
-// desktop app loads from app://openfront — where location.host is not a real
+// desktop app loads from app://laukolaroser — where location.host is not a real
 // server — and injects an EXPLICIT game-server host (the host is branch-variable
 // on dev and not derivable from the API audience), which is targeted over TLS.
 describe("deriveServerWsBase", () => {
   describe("web build (no injected serverHost) is unchanged", () => {
     it("uses same-origin wss on https", () => {
-      expect(deriveServerWsBase(undefined, "https:", "openfront.io")).toBe(
-        "wss://openfront.io",
+      expect(deriveServerWsBase(undefined, "https:", "laukolaroser.com")).toBe(
+        "wss://laukolaroser.com",
       );
     });
 
@@ -24,43 +24,47 @@ describe("deriveServerWsBase", () => {
     });
 
     it("preserves the exact location.host (e.g. www vs apex)", () => {
-      expect(deriveServerWsBase(undefined, "https:", "www.openfront.io")).toBe(
-        "wss://www.openfront.io",
-      );
+      expect(
+        deriveServerWsBase(undefined, "https:", "www.laukolaroser.com"),
+      ).toBe("wss://www.laukolaroser.com");
     });
 
     it("treats an empty serverHost as absent (web fallback)", () => {
-      expect(deriveServerWsBase("", "https:", "openfront.io")).toBe(
-        "wss://openfront.io",
+      expect(deriveServerWsBase("", "https:", "laukolaroser.com")).toBe(
+        "wss://laukolaroser.com",
       );
     });
   });
 
   describe("desktop build (explicit serverHost) targets the real game server", () => {
     it("targets the packaged prod host over wss", () => {
-      expect(deriveServerWsBase("openfront.io", "app:", "openfront")).toBe(
-        "wss://openfront.io",
-      );
+      expect(
+        deriveServerWsBase("laukolaroser.com", "app:", "laukolaroser"),
+      ).toBe("wss://laukolaroser.com");
     });
 
     it("targets the dev default host over wss", () => {
       expect(
-        deriveServerWsBase("main.openfront.dev", "app:", "openfront"),
-      ).toBe("wss://main.openfront.dev");
+        deriveServerWsBase("main.laukolaroser.dev", "app:", "laukolaroser"),
+      ).toBe("wss://main.laukolaroser.dev");
     });
 
     it("targets a branch-specific subdomain over wss", () => {
       expect(
-        deriveServerWsBase("my-feature.openfront.dev", "app:", "openfront"),
-      ).toBe("wss://my-feature.openfront.dev");
+        deriveServerWsBase(
+          "my-feature.laukolaroser.dev",
+          "app:",
+          "laukolaroser",
+        ),
+      ).toBe("wss://my-feature.laukolaroser.dev");
     });
 
     it("ignores location entirely when a serverHost is configured", () => {
       // Even under http/https, an explicit host wins — the desktop origin
       // (app:) must never fall through to window.location.host.
-      expect(deriveServerWsBase("openfront.io", "https:", "openfront")).toBe(
-        "wss://openfront.io",
-      );
+      expect(
+        deriveServerWsBase("laukolaroser.com", "https:", "laukolaroser"),
+      ).toBe("wss://laukolaroser.com");
     });
   });
 });

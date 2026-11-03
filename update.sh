@@ -32,7 +32,7 @@ echo "======================================================"
 # a container name when both "machines" are names for one box. The fallback
 # keeps a hand-written env file working.
 DEPLOYMENT_NAME="${DEPLOYMENT_NAME:-$SUBDOMAIN}"
-CONTAINER_NAME="openfront-${ENV}-${DEPLOYMENT_NAME}"
+CONTAINER_NAME="laukolaroser-${ENV}-${DEPLOYMENT_NAME}"
 
 echo "Pulling ${GHCR_IMAGE} from GitHub Container Registry..."
 # --- BEGIN pull image (tested) ---
@@ -43,7 +43,7 @@ echo "Pulling ${GHCR_IMAGE} from GitHub Container Registry..."
 # Without a token, pull anonymously, as a hand-run update.sh against a public
 # image would.
 if [ -n "${GHCR_TOKEN:-}" ]; then
-    printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "${GHCR_USER:-openfront}" --password-stdin
+    printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "${GHCR_USER:-laukolaroser}" --password-stdin
     pull_status=0
     docker pull "${GHCR_IMAGE}" || pull_status=$?
     docker logout ghcr.io >/dev/null || true
@@ -73,7 +73,7 @@ for cmd in jq curl xargs; do
     fi
 done
 
-EXTRACT_DIR="$(mktemp -d -t openfront-assets-XXXXXX)"
+EXTRACT_DIR="$(mktemp -d -t laukolaroser-assets-XXXXXX)"
 trap 'rm -rf "$EXTRACT_DIR"' EXIT
 
 TMP_CONTAINER="$(docker create "${GHCR_IMAGE}")"
@@ -441,7 +441,7 @@ remove_container "${CONTAINER_NAME}"
 # for the long-lived slots, with restart=always keeping it up. The two
 # shapes are exclusive for one slot on one box, so retire it here.
 if [ "${DEPLOYMENT_NAME}" != "${SUBDOMAIN}" ]; then
-    remove_container "openfront-${ENV}-${SUBDOMAIN}"
+    remove_container "laukolaroser-${ENV}-${SUBDOMAIN}"
 fi
 
 # Docker restart policy. `always` means the daemon brings this container back
@@ -464,7 +464,7 @@ fi
 #   since its subdomain is not fixed.
 #
 #   Everything else: a per-branch preview. deploy.yml deploys EVERY push on
-#   EVERY branch to <branch>.openfront.dev, so these accumulate one container
+#   EVERY branch to <branch>.laukolaroser.dev, so these accumulate one container
 #   per branch anyone has ever pushed. `no` is what lets them die quietly --
 #   with `always` a host reboot would resurrect months of abandoned branch
 #   containers, each holding its memory and its worker processes, and nothing
@@ -480,7 +480,7 @@ fi
 # --- BEGIN restart policy (tested) ---
 LONG_LIVED_SUBDOMAINS=" main nightly green blue "
 
-if [[ "${LONG_LIVED_SUBDOMAINS}" == *" ${SUBDOMAIN} "* ]] || [ "${DOMAIN}" = openfront.io ]; then
+if [[ "${LONG_LIVED_SUBDOMAINS}" == *" ${SUBDOMAIN} "* ]] || [ "${DOMAIN}" = laukolaroser.com ]; then
     RESTART=always
 else
     RESTART=no
@@ -499,7 +499,7 @@ docker network create web 2> /dev/null || true
 # (<subdomain>.<DOMAIN>) during the transition, until the static Worker is
 # actually routed there, so the box still answers on the name people already
 # have bookmarked; once the Worker owns it that clause simply never matches.
-# A machine-scoped host (blue.staging2.server.openfront.dev) has no page host
+# A machine-scoped host (blue.staging2.server.laukolaroser.dev) has no page host
 # of its own — its page is the apex, SITE_HOST — so it gets the one name.
 # With GAME_DOMAIN unset there is one name and the rule is byte-for-byte the
 # one this script has always emitted.

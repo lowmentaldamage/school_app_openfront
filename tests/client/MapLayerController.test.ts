@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import type { MapLayer } from "@openfront/engine-api/game/MapFiles";
-import type { TerrainMapData } from "@openfront/engine-lib/game/TerrainMapLoader";
-import type { GameMapLoader } from "@openfront/shared/GameMapLoader";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { MapLayer } from "@laukolaroser/engine-api/game/MapFiles";
+import type { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import type { GameMapLoader } from "@laukolaroser/shared/GameMapLoader";
 import { MapLayerController } from "../../src/client/controllers/MapLayerController";
 import type { MapRenderer } from "../../src/client/render/gl";
 import { MAP_LAYERS_KEY, UserSettings } from "../../src/client/UserSettings";

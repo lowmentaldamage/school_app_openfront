@@ -5,10 +5,10 @@ import {
   PlayerInfo,
   PlayerType,
   Relation,
-} from "@openfront/engine-api/game/GameTypes";
-import { flattenedEmojiTable } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { EmojiExecution } from "@openfront/engine/execution/EmojiExecution";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { flattenedEmojiTable } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { EmojiExecution } from "@laukolaroser/engine/execution/EmojiExecution";
 import {
   EMOJI_CLOWN,
   EMOJI_CONFUSED,
@@ -17,8 +17,8 @@ import {
   EMOJI_LOVE,
   EMOJI_VICTORY,
   NationEmojiBehavior,
-} from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { MockInstance } from "vitest";
 import { setup } from "./util/Setup";
 

@@ -2,9 +2,9 @@ import {
   MessageType,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { Controller } from "../Controller";
 import { PlaySoundEffectEvent, SoundEffect } from "../sound/Sounds";
 import { SendSpawnIntentEvent } from "../Transport";
@@ -158,7 +158,16 @@ export class SoundEffectController implements Controller {
         this.emit("mirv-launch");
         break;
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         if (unit.owner() === myPlayer) this.emit("build-warship");
+        break;
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        if (unit.owner() === myPlayer) this.emit("build-city");
         break;
       case UnitType.City:
         if (unit.owner() === myPlayer) this.emit("build-city");

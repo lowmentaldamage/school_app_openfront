@@ -1,6 +1,6 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { Cell, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { EventBus } from "@openfront/shared/EventBus";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { Cell, CombatShips } from "@laukolaroser/engine-api/game/GameTypes";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { Controller } from "../Controller";
 import {
   CloseViewEvent,
@@ -143,7 +143,7 @@ export class WarshipSelectionController implements Controller {
     const myPlayer = this.game.myPlayer();
     if (!myPlayer) return [];
     return this.game
-      .units(UnitType.Warship)
+      .units(...CombatShips.types)
       .filter(
         (unit) =>
           unit.isActive() &&
@@ -262,7 +262,7 @@ export class WarshipSelectionController implements Controller {
     const myPlayer = this.game.myPlayer();
     if (!myPlayer) return;
 
-    const selected = this.game.units(UnitType.Warship).filter((unit) => {
+    const selected = this.game.units(...CombatShips.types).filter((unit) => {
       if (!unit.isActive() || unit.owner() !== myPlayer) return false;
       const screen = this.transformHandler.worldToScreenCoordinates(
         new Cell(this.game.x(unit.tile()), this.game.y(unit.tile())),
@@ -283,7 +283,7 @@ export class WarshipSelectionController implements Controller {
     const myPlayer = this.game.myPlayer();
     if (!myPlayer) return [];
     return this.game
-      .units(UnitType.Warship)
+      .units(...CombatShips.types)
       .filter((u) => u.isActive() && u.owner() === myPlayer);
   }
 

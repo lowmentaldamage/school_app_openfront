@@ -44,7 +44,7 @@ and is stored in about 24 MB.
 
 | What              | How                                                 |
 | ----------------- | --------------------------------------------------- |
-| Where             | IndexedDB, database `openfront-replays`             |
+| Where             | IndexedDB, database `laukolaroser-replays`          |
 | Key               | Game ID + build + `REPLAY_VERSION`                  |
 | Size cap          | 256 MB; the least recently watched go first         |
 | Chunks            | Kept as they are (already gzipped)                  |
@@ -101,7 +101,7 @@ You need a game record. Either:
 
 - make one with `scripts/replay/record-demo.mts`, which always replays on
   your checkout, or
-- save one from a real game: open `https://api.openfront.io/game/<id>` in
+- save one from a real game: open `https://api.laukolaroser.com/game/<id>` in
   a browser and save the response (Cloudflare blocks scripts). A dev
   client tries any record, but one from an older build stops at the first
   hash mismatch if the core has changed since.

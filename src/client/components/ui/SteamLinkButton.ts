@@ -2,8 +2,7 @@ import { html, TemplateResult } from "lit";
 import { translateText } from "../../Utils";
 
 // Valve's Steam mark, inline rather than an asset so the login button and the
-// link button cannot drift, and so no new brand file has to ship. Same path
-// data as SteamWishlistButton.
+// link button cannot drift, and so no new brand file has to ship.
 export const steamGlyph = (classes: string): TemplateResult => html`
   <svg
     class=${classes}

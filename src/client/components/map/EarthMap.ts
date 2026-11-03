@@ -2,8 +2,8 @@ import {
   GameMapType,
   listedMaps,
   MapInfo,
-} from "@openfront/engine-api/game/GameTypes";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import {
@@ -17,6 +17,7 @@ import {
   projectEarth,
 } from "./EarthProjection";
 import { type MapStats, mapStats, renderMapDetails } from "./MapDetails";
+import { fallbackToThumbnail, mapImageSrc } from "./MapPreviewImage";
 
 interface EarthPin {
   map: MapInfo;
@@ -334,7 +335,10 @@ export class EarthMap extends LitElement {
       >
         <div class="flex items-center gap-2 @lg:flex-col @lg:items-stretch">
           <img
-            src=${terrainMapFileLoader.getMapData(pin.map.type).webpPath}
+            src=${mapImageSrc(terrainMapFileLoader.getMapData(pin.map.type))}
+            @error=${fallbackToThumbnail(
+              terrainMapFileLoader.getMapData(pin.map.type).webpPath,
+            )}
             alt=""
             draggable="false"
             class="aspect-[2/1] w-24 shrink-0 rounded-md bg-black/30 object-contain @lg:mb-1 @lg:w-full"

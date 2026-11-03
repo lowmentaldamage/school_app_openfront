@@ -11,13 +11,13 @@ import { playerProfileUrl } from "../../src/client/utilities/PlayerProfileUrl";
 // a player sends a friend, the domain the magic-link email comes back to.
 //
 // On the web the answer is the document itself. The case they exist for is the
-// desktop shell, which serves the renderer from `app://openfront/index.html`:
+// desktop shell, which serves the renderer from `app://laukolaroser/index.html`:
 // a link built from window.location there resolves nowhere outside that one
 // Electron app, and is not even a link the desktop client's own friends box
 // will take back (it only unwraps http(s) URLs).
 
 /** What ClientEnv reads out of BOOTSTRAP_CONFIG, as the helpers take it. */
-function bootstrap(siteOrigin?: string, jwtAudience = "openfront.io") {
+function bootstrap(siteOrigin?: string, jwtAudience = "laukolaroser.com") {
   return () => ({ siteOrigin, jwtAudience });
 }
 
@@ -30,8 +30,8 @@ describe("deriveShareOrigin", () => {
   describe("web build: the document's own origin is shareable", () => {
     it("uses the document origin on https", () => {
       expect(
-        deriveShareOrigin(bootstrap(), "https:", "https://openfront.io"),
-      ).toBe("https://openfront.io");
+        deriveShareOrigin(bootstrap(), "https:", "https://laukolaroser.com"),
+      ).toBe("https://laukolaroser.com");
     });
 
     it("keeps the port on local dev over http", () => {
@@ -44,16 +44,16 @@ describe("deriveShareOrigin", () => {
       // A plain web page — and a jsdom test rendering a copy button — must not
       // start requiring the bootstrap just to build a link to itself.
       expect(
-        deriveShareOrigin(forbidden, "https:", "https://openfront.io"),
-      ).toBe("https://openfront.io");
+        deriveShareOrigin(forbidden, "https:", "https://laukolaroser.com"),
+      ).toBe("https://laukolaroser.com");
     });
 
     it("ignores an injected site host while the document is already on the web", () => {
-      // A desktop build pointed at a dev server (OPENFRONT_DEV_URL) loads over
+      // A desktop build pointed at a dev server (LAUKOLAROSER_DEV_URL) loads over
       // http; its own origin is shareable, so nothing should redirect it.
       expect(
         deriveShareOrigin(
-          bootstrap("https://openfront.io"),
+          bootstrap("https://laukolaroser.com"),
           "http:",
           "http://localhost:9000",
         ),
@@ -65,29 +65,29 @@ describe("deriveShareOrigin", () => {
     it("targets the injected site host over TLS", () => {
       expect(
         deriveShareOrigin(
-          bootstrap("https://openfront.io"),
+          bootstrap("https://laukolaroser.com"),
           "app:",
-          "app://openfront",
+          "app://laukolaroser",
         ),
-      ).toBe("https://openfront.io");
+      ).toBe("https://laukolaroser.com");
     });
 
     it("targets a staging deployment when that is what the build talks to", () => {
       expect(
         deriveShareOrigin(
-          bootstrap("https://nightly.openfront.dev", "openfront.dev"),
+          bootstrap("https://nightly.laukolaroser.dev", "laukolaroser.dev"),
           "app:",
-          "app://openfront",
+          "app://laukolaroser",
         ),
-      ).toBe("https://nightly.openfront.dev");
+      ).toBe("https://nightly.laukolaroser.dev");
     });
 
     it("never leaks the app:// origin", () => {
       expect(
         deriveShareOrigin(
-          bootstrap("https://openfront.io"),
+          bootstrap("https://laukolaroser.com"),
           "app:",
-          "app://openfront",
+          "app://laukolaroser",
         ),
       ).not.toContain("app:");
     });
@@ -96,11 +96,11 @@ describe("deriveShareOrigin", () => {
       it("uses the audience host over TLS", () => {
         expect(
           deriveShareOrigin(
-            bootstrap(undefined, "openfront.io"),
+            bootstrap(undefined, "laukolaroser.com"),
             "app:",
-            "app://openfront",
+            "app://laukolaroser",
           ),
-        ).toBe("https://openfront.io");
+        ).toBe("https://laukolaroser.com");
       });
 
       it("keeps the localhost website on its dev port and scheme", () => {
@@ -108,7 +108,7 @@ describe("deriveShareOrigin", () => {
           deriveShareOrigin(
             bootstrap(undefined, "localhost"),
             "app:",
-            "app://openfront",
+            "app://laukolaroser",
           ),
         ).toBe("http://localhost:9000");
       });
@@ -119,20 +119,25 @@ describe("deriveShareOrigin", () => {
 describe("deriveShareBase", () => {
   it("keeps the current path on the web, so a link copied from /c/CODE stays there", () => {
     expect(
-      deriveShareBase(bootstrap(), "https:", "https://openfront.io", "/c/abc"),
-    ).toBe("https://openfront.io/c/abc");
+      deriveShareBase(
+        bootstrap(),
+        "https:",
+        "https://laukolaroser.com",
+        "/c/abc",
+      ),
+    ).toBe("https://laukolaroser.com/c/abc");
   });
 
   it("drops the shell's local index.html path on desktop", () => {
     // The reported bug: the Steam build copied
-    // app://openfront/index.html#modal=profile&publicID=…
+    // app://laukolaroser/index.html#modal=profile&publicID=…
     const base = deriveShareBase(
-      bootstrap("https://openfront.io"),
+      bootstrap("https://laukolaroser.com"),
       "app:",
-      "app://openfront",
+      "app://laukolaroser",
       "/index.html",
     );
-    expect(base).toBe("https://openfront.io/");
+    expect(base).toBe("https://laukolaroser.com/");
     expect(base).not.toContain("index.html");
   });
 });
@@ -141,12 +146,14 @@ describe("playerProfileUrl", () => {
   it("is the site's /player/<id> path off the share origin, not off window.location", () => {
     const shareOrigin = vi
       .spyOn(ClientEnv, "shareOrigin")
-      .mockReturnValue("https://openfront.io");
+      .mockReturnValue("https://laukolaroser.com");
     try {
       expect(playerProfileUrl("aB3dE5fX")).toBe(
-        "https://openfront.io/player/aB3dE5fX",
+        "https://laukolaroser.com/player/aB3dE5fX",
       );
-      expect(playerProfileUrl("a+b")).toBe("https://openfront.io/player/a%2Bb");
+      expect(playerProfileUrl("a+b")).toBe(
+        "https://laukolaroser.com/player/a%2Bb",
+      );
     } finally {
       shareOrigin.mockRestore();
     }

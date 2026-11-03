@@ -6,7 +6,7 @@
  *   replay-speed (detail: speed), replay-menu
  */
 
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { isDesktopShell } from "../DesktopShell";

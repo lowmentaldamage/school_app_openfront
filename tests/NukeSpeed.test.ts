@@ -1,6 +1,6 @@
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
 import { describe, expect, it } from "vitest";
 
 const cfg = new EngineConfig({} as unknown as GameConfig, false);

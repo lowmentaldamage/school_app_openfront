@@ -1,7 +1,7 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { gamePortal } from "src/client/GamePortal";

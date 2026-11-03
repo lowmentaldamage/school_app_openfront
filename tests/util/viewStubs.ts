@@ -10,18 +10,18 @@ import {
   NameViewData,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   GameUpdateViewData,
   PlayerUpdate,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { Player } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
-import { TerrainMapData } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { PlayerCosmetics } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { Player } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
 import { colord } from "colord";
 import { Theme } from "../../src/client/theme/ThemeProvider";
 import { GameView } from "../../src/client/view/GameView";

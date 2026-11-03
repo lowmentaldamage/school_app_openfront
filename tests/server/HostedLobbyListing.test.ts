@@ -5,16 +5,16 @@ import {
   GameMode,
   GameType,
   Trios,
-} from "@openfront/engine-api/game/GameTypes";
-import { LOBBY_LABEL_MAX } from "@openfront/engine-lib/Util";
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { sanitizeLobbyLabel } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { LOBBY_LABEL_MAX } from "@laukolaroser/engine-lib/Util";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { sanitizeLobbyLabel } from "@laukolaroser/shared/SharedUtil";
 import {
   FEATURED_LOBBY_AUTO_START_MS,
   HOSTED_LOBBY_AUTO_START_MS,
   LobbyLabelSchema,
   MAX_HOSTED_LOBBIES,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import EventEmitter from "events";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WebSocket } from "ws";

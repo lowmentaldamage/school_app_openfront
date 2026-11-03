@@ -1,4 +1,4 @@
-import { GameMapType, maps } from "@openfront/engine-api/game/GameTypes";
+import { GameMapType, maps } from "@laukolaroser/engine-api/game/GameTypes";
 import { describe, expect, it } from "vitest";
 import { normaliseMapKey, presenceMapKey } from "../../src/client/Utils";
 

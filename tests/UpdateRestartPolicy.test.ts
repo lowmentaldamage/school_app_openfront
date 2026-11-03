@@ -40,28 +40,28 @@ describe("update.sh restart policy", () => {
   // next deploy touches it. For nightly that is the 07:00 UTC scheduled run,
   // so up to ~24 hours (OPE-361).
   it.each([
-    ["main", "openfront.dev"],
-    ["nightly", "openfront.dev"],
-    ["green", "openfront.dev"],
-    ["blue", "openfront.dev"],
+    ["main", "laukolaroser.dev"],
+    ["nightly", "laukolaroser.dev"],
+    ["green", "laukolaroser.dev"],
+    ["blue", "laukolaroser.dev"],
   ])("restarts the long-lived %s.%s deployment after a crash", (sub, dom) => {
     expect(restartPolicyFor(sub, dom)).toBe("always");
   });
 
   it.each([["main"], ["nightly"], ["blue"], ["green"]])(
-    "restarts production (%s.openfront.io) whatever its subdomain is",
+    "restarts production (%s.laukolaroser.com) whatever its subdomain is",
     (sub) => {
-      expect(restartPolicyFor(sub, "openfront.io")).toBe("always");
+      expect(restartPolicyFor(sub, "laukolaroser.com")).toBe("always");
     },
   );
 
-  // deploy.yml deploys every push on every branch to <branch>.openfront.dev,
+  // deploy.yml deploys every push on every branch to <branch>.laukolaroser.dev,
   // so these accumulate one container per branch anyone has ever pushed.
   // `always` would resurrect every abandoned one on a host reboot.
   it.each([["fix-some-bug"], ["t3code-mirv-cooldown-timer"], ["experiment"]])(
-    "leaves the per-branch preview %s.openfront.dev down after a crash",
+    "leaves the per-branch preview %s.laukolaroser.dev down after a crash",
     (sub) => {
-      expect(restartPolicyFor(sub, "openfront.dev")).toBe("no");
+      expect(restartPolicyFor(sub, "laukolaroser.dev")).toBe("no");
     },
   );
 
@@ -76,10 +76,10 @@ describe("update.sh restart policy", () => {
     ["overnightly"],
     ["premain"],
   ])("does not treat %s as a long-lived subdomain", (sub) => {
-    expect(restartPolicyFor(sub, "openfront.dev")).toBe("no");
+    expect(restartPolicyFor(sub, "laukolaroser.dev")).toBe("no");
   });
 
   it("does not restart a deployment whose subdomain somehow arrived empty", () => {
-    expect(restartPolicyFor("", "openfront.dev")).toBe("no");
+    expect(restartPolicyFor("", "laukolaroser.dev")).toBe("no");
   });
 });

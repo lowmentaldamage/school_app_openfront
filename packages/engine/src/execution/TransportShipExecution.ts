@@ -1,19 +1,19 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   MessageType,
   PlayerType,
   TerraNullius,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { renderTroops } from "@openfront/engine-lib/Format";
-import { MotionPlanRecord } from "@openfront/engine-lib/game/MotionPlans";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { renderTroops } from "@laukolaroser/engine-lib/Format";
+import { MotionPlanRecord } from "@laukolaroser/engine-lib/game/MotionPlans";
 import {
   zInt,
   zNum,
   zPlayerRef,
   zRef,
   zTile,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { targetTransportTile } from "../game/TransportShipUtils";

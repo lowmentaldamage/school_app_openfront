@@ -7,8 +7,8 @@ import {
   GameType,
   Trios,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import { describe, expect, it } from "vitest";
 import {
   applyGameConfigPatch,

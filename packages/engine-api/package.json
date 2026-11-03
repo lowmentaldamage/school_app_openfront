@@ -1,5 +1,5 @@
 {
-  "name": "@openfront/engine-api",
+  "name": "@laukolaroser/engine-api",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "./*": "./src/*.ts"
   },
   "dependencies": {
-    "@openfront/zbin": "0.0.0",
+    "@laukolaroser/zbin": "0.0.0",
     "zod": "^4.4.2"
   }
 }

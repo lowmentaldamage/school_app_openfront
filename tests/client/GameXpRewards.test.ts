@@ -39,7 +39,7 @@ import type {
   GameXpEligible,
   GameXpFlare,
   GameXpReward,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import "../../src/client/components/GameXpPanel";
 import type { GameXpPanel } from "../../src/client/components/GameXpPanel";
 import "../../src/client/components/PastGameXpCard";

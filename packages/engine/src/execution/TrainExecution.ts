@@ -1,12 +1,13 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { TrainType, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { MotionPlanRecord } from "@openfront/engine-lib/game/MotionPlans";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { TrainType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { MotionPlanRecord } from "@laukolaroser/engine-lib/game/MotionPlans";
+import { EXPRESS_TRAIN } from "@laukolaroser/engine-lib/rail/RailUnits";
 import {
   zInt,
   zPlayerRef,
   zRef,
   zTiles,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { RailNetwork } from "../game/RailNetwork";
@@ -41,7 +42,19 @@ export class TrainExecution implements Execution {
     private source: TrainStation,
     private destination: TrainStation,
     private numCars: number,
-  ) {}
+    /**
+     * Express cargo: faster, worth more per stop (EXPRESS_TRAIN). Its
+     * engine is marked loaded so clients can draw it differently (engines
+     * are never loaded otherwise).
+     */
+    private express: boolean = false,
+  ) {
+    if (express) this.speed = EXPRESS_TRAIN.speed;
+  }
+
+  public isExpress(): boolean {
+    return this.express;
+  }
 
   public owner(): Player {
     return this.player;
@@ -164,6 +177,7 @@ export class TrainExecution implements Execution {
     const train = this.player.buildUnit(UnitType.Train, tile, {
       targetUnit: this.destination.unit,
       trainType: TrainType.Engine,
+      ...(this.express ? { loaded: true } : {}),
     });
     // Tail is also an engine, just for cosmetics
     this.cars.push(
@@ -429,6 +443,7 @@ export class TrainExecution implements Execution {
       source: w.station(this.source),
       destination: w.station(this.destination),
       numCars: this.numCars,
+      ...(this.express ? { express: true } : {}),
     });
   }
 
@@ -460,6 +475,7 @@ export class TrainExecution implements Execution {
     this.source = r.station(s.source);
     this.destination = r.station(s.destination);
     this.numCars = s.numCars;
+    this.express = s.express ?? false;
   }
 }
 
@@ -485,6 +501,7 @@ const TrainExecutionStateSchema = z.object({
   source: zRef(),
   destination: zRef(),
   numCars: zInt(),
+  express: z.boolean().optional(),
 });
 type TrainExecutionState = z.infer<typeof TrainExecutionStateSchema>;
 

@@ -1,5 +1,5 @@
-import { TileSet } from "@openfront/engine-lib/game/TileSet";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+import { TileSet } from "@laukolaroser/engine-lib/game/TileSet";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import { describe, expect, it } from "vitest";
 
 describe("TileSet", () => {

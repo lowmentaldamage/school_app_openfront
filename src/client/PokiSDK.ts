@@ -255,7 +255,7 @@ export class PokiSDK {
     this.authListeners.push(listener);
   }
 
-  // A poki.com link carrying gdhost (e.g. poki.com/en/g/openfront?gdhost=1)
+  // A poki.com link carrying gdhost (e.g. poki.com/en/g/laukolaroser?gdhost=1)
   // opens the game straight into hosting a new lobby. An invite to an
   // existing lobby wins over it.
   async isInstantMultiplayer(): Promise<boolean> {

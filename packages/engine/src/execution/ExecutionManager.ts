@@ -3,9 +3,9 @@ import {
   GameID,
   StampedIntent,
   Turn,
-} from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import { Execution, Game } from "../game/Game";
 import { AllianceExtensionExecution } from "./alliance/AllianceExtensionExecution";
 import { AllianceRejectExecution } from "./alliance/AllianceRejectExecution";
@@ -26,6 +26,7 @@ import { NationExecution } from "./NationExecution";
 import { NoOpExecution } from "./NoOpExecution";
 import { PauseExecution } from "./PauseExecution";
 import { QuickChatExecution } from "./QuickChatExecution";
+import { ResearchExecution } from "./ResearchExecution";
 import { RetreatExecution } from "./RetreatExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
@@ -33,6 +34,7 @@ import { TransportShipExecution } from "./TransportShipExecution";
 import { TribeSpawner } from "./TribeSpawner";
 import { UpgradeStructureExecution } from "./UpgradeStructureExecution";
 import { PlayerSpawner } from "./utils/PlayerSpawner";
+import { WeaponStrikeExecution } from "./WeaponStrikeExecution";
 
 export class Executor {
   // private random = new PseudoRandom(999)
@@ -78,6 +80,10 @@ export class Executor {
         return new RetreatExecution(player, intent.attackID);
       case "cancel_boat":
         return new BoatRetreatExecution(player, intent.unitID);
+      case "fire_weapon":
+        return new WeaponStrikeExecution(player, intent.weapon, intent.tile);
+      case "research":
+        return new ResearchExecution(player, intent.tech);
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

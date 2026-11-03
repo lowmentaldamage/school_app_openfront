@@ -11,7 +11,7 @@
  * it reads as already deleted, so saying nothing would look like the sign-in
  * silently failed.
  *
- * `no_account` means the sign-in verified, but no OpenFront account uses that
+ * `no_account` means the sign-in verified, but no Laukolaroser account uses that
  * identity. Web "Sign in with Steam" deliberately never creates one, so this is
  * an ordinary outcome rather than a failure, and its message has to tell the
  * player the two routes that do work.

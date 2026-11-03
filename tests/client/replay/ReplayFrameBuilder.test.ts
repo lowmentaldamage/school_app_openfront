@@ -11,18 +11,18 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { type MapManifest } from "@openfront/engine-api/game/MapFiles";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { type MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
 import {
   genTerrainFromBin,
   type TerrainMapData,
-} from "@openfront/engine-lib/game/TerrainMapLoader";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { ConstructionExecution } from "@openfront/engine/execution/ConstructionExecution";
-import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { TransportShipExecution } from "@openfront/engine/execution/TransportShipExecution";
-import { Execution, Game } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
+import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { TransportShipExecution } from "@laukolaroser/engine/execution/TransportShipExecution";
+import { Execution, Game } from "@laukolaroser/engine/game/Game";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

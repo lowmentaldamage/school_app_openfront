@@ -2,9 +2,9 @@ import {
   Cell,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { Intent } from "@openfront/engine-api/Schemas";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { Intent } from "@laukolaroser/engine-api/Schemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { Controller } from "../../Controller";

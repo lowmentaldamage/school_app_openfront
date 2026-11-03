@@ -4,8 +4,8 @@ import {
   NukeExplosionAttributes,
   Pattern,
   Skin,
-} from "@openfront/shared/CosmeticSchemas";
-import { decodePatternData } from "@openfront/shared/PatternDecoder";
+} from "@laukolaroser/shared/CosmeticSchemas";
+import { decodePatternData } from "@laukolaroser/shared/PatternDecoder";
 import { base64url } from "jose";
 import { html, LitElement, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

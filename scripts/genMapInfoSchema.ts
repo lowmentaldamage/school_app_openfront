@@ -1,6 +1,6 @@
 // Writes map-generator/info.schema.json from MapInfoSchema so editors can
 // check info.json as it is typed. Run by `npm run gen-maps`.
-import { MapInfoSchema } from "@openfront/engine-api/game/MapManifest";
+import { MapInfoSchema } from "@laukolaroser/engine-api/game/MapManifest";
 import fs from "fs";
 import path from "path";
 import { z } from "zod";
@@ -13,7 +13,7 @@ export const MAP_INFO_SCHEMA_PATH = path.resolve(
 export function mapInfoJsonSchema(): string {
   const schema = z.toJSONSchema(MapInfoSchema, { target: "draft-2020-12" });
   return JSON.stringify(
-    { ...schema, title: "OpenFront map info.json" },
+    { ...schema, title: "Laukolaroser map info.json" },
     null,
     2,
   );

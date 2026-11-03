@@ -1,4 +1,4 @@
-import { GameMode, GameType } from "@openfront/engine-api/game/GameTypes";
+import { GameMode, GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ADMIN_BOT_CLIENT_ID,
   type GameConfig,
@@ -6,12 +6,12 @@ import {
   type GameID,
   ID,
   IntentSchema,
-} from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/Schemas";
 import {
   type LobbyAccent,
   LobbyAccentSchema,
   LobbyLabelSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import crypto from "crypto";
 import type {
   Express,

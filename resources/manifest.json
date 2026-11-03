@@ -13,13 +13,13 @@
       "type": "image/png"
     }
   ],
-  "orientation": "portrait",
+  "orientation": "any",
   "display_override": ["fullscreen", "minimal-ui"],
   "display": "standalone",
   "dir": "auto",
   "lang": "en",
-  "name": "OpenFront.io",
-  "short_name": "OpenFront",
+  "name": "Laukolaroser",
+  "short_name": "Laukolaroser",
   "start_url": "/",
   "id": "/"
 }

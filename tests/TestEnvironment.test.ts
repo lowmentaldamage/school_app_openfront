@@ -12,18 +12,18 @@ describe("test environment", () => {
   it("provides a working jsdom localStorage", () => {
     expect(typeof localStorage).toBe("object");
 
-    localStorage.setItem("openfront-test-probe", "value");
-    expect(localStorage.getItem("openfront-test-probe")).toBe("value");
-    localStorage.removeItem("openfront-test-probe");
-    expect(localStorage.getItem("openfront-test-probe")).toBeNull();
+    localStorage.setItem("laukolaroser-test-probe", "value");
+    expect(localStorage.getItem("laukolaroser-test-probe")).toBe("value");
+    localStorage.removeItem("laukolaroser-test-probe");
+    expect(localStorage.getItem("laukolaroser-test-probe")).toBeNull();
   });
 
   it("provides a working jsdom sessionStorage", () => {
     expect(typeof sessionStorage).toBe("object");
 
-    sessionStorage.setItem("openfront-test-probe", "value");
-    expect(sessionStorage.getItem("openfront-test-probe")).toBe("value");
-    sessionStorage.removeItem("openfront-test-probe");
-    expect(sessionStorage.getItem("openfront-test-probe")).toBeNull();
+    sessionStorage.setItem("laukolaroser-test-probe", "value");
+    expect(sessionStorage.getItem("laukolaroser-test-probe")).toBe("value");
+    sessionStorage.removeItem("laukolaroser-test-probe");
+    expect(sessionStorage.getItem("laukolaroser-test-probe")).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { PartialGameRecord } from "@openfront/shared/WireSchemas";
+import { PartialGameRecord } from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { finalizeGameRecord } from "../../src/server/Archive";
 
@@ -15,7 +15,7 @@ const partial = {
 describe("finalizeGameRecord", () => {
   beforeEach(() => {
     vi.stubEnv("GIT_COMMIT", "bfd5563a11111111111111111111111111111111");
-    vi.stubEnv("DOMAIN", "openfront.io");
+    vi.stubEnv("DOMAIN", "laukolaroser.com");
     vi.stubEnv("SUBDOMAIN", "blue");
     vi.stubEnv("GAME_HOST", "");
     vi.stubEnv("GAME_DOMAIN", "");
@@ -23,17 +23,17 @@ describe("finalizeGameRecord", () => {
   afterEach(() => vi.unstubAllEnvs());
 
   test("records the site the server registered under", () => {
-    vi.stubEnv("SITE_HOST", "openfront.io");
+    vi.stubEnv("SITE_HOST", "laukolaroser.com");
     expect(finalizeGameRecord(partial)).toMatchObject({
       subdomain: "blue",
-      domain: "openfront.io",
-      site: "openfront.io",
+      domain: "laukolaroser.com",
+      site: "laukolaroser.com",
     });
   });
 
   test("falls back to the server's own host without a site host", () => {
     vi.stubEnv("SITE_HOST", "");
-    expect(finalizeGameRecord(partial).site).toBe("blue.openfront.io");
+    expect(finalizeGameRecord(partial).site).toBe("blue.laukolaroser.com");
   });
 
   test("omits the site under local dev", () => {

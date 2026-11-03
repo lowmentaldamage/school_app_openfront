@@ -45,13 +45,13 @@ const API_LIST = {
   latest: OWN,
   servers: {
     c: {
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
       version: OLD,
       state: "draining",
     },
     d: {
-      host: "falk2-b.openfront.io",
+      host: "falk2-b.laukolaroser.com",
       numWorkers: 16,
       version: OWN,
       state: "open",
@@ -63,16 +63,16 @@ function setBootstrap(overrides: Record<string, unknown> = {}) {
   (window as any).BOOTSTRAP_CONFIG = {
     gameEnv: "prod",
     cluster: {
-      a: { host: "blue.openfront.io", numWorkers: 2 },
-      b: { host: "green.openfront.io", numWorkers: 2 },
+      a: { host: "blue.laukolaroser.com", numWorkers: 2 },
+      b: { host: "green.laukolaroser.com", numWorkers: 2 },
     },
     instanceLetter: "a",
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.io",
+    jwtAudience: "laukolaroser.com",
     instanceId: "test",
     gitCommit: OWN,
-    serverHost: "blue.openfront.io",
-    siteHost: "openfront.io",
+    serverHost: "blue.laukolaroser.com",
+    siteHost: "laukolaroser.com",
     ...overrides,
   };
   ClientEnv.reset();
@@ -129,8 +129,8 @@ beforeEach(() => {
   fetchMock = vi.fn(async () => jsonResponse(API_LIST));
   vi.stubGlobal("fetch", fetchMock);
   vi.spyOn(console, "warn").mockImplementation(() => {});
-  stubLocation("openfront.io");
-  delete (window as any).openfrontDesktop;
+  stubLocation("laukolaroser.com");
+  delete (window as any).laukolaroserDesktop;
   setBootstrap();
 });
 
@@ -140,7 +140,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   delete (window as any).BOOTSTRAP_CONFIG;
-  delete (window as any).openfrontDesktop;
+  delete (window as any).laukolaroserDesktop;
   ClientEnv.reset();
   resetServerList();
 });
@@ -149,22 +149,25 @@ describe("which list a page asks for", () => {
   it("a web page asks for the site it was loaded from", () => {
     // siteHost (the apex) wins over a deployment host the page may have
     // been fetched from directly; without it, the document host is the site.
-    expect(serverListSite()).toBe("openfront.io");
+    expect(serverListSite()).toBe("laukolaroser.com");
     setBootstrap({ siteHost: undefined });
-    stubLocation("my-branch.openfront.dev");
-    expect(serverListSite()).toBe("my-branch.openfront.dev");
+    stubLocation("my-branch.laukolaroser.dev");
+    expect(serverListSite()).toBe("my-branch.laukolaroser.dev");
   });
 
   it("the desktop shell asks for its injected serverHost, whatever the document host", () => {
-    (window as any).openfrontDesktop = {};
-    setBootstrap({ serverHost: "nightly.openfront.dev", siteHost: undefined });
-    stubLocation("openfront");
-    expect(serverListSite()).toBe("nightly.openfront.dev");
+    (window as any).laukolaroserDesktop = {};
+    setBootstrap({
+      serverHost: "nightly.laukolaroser.dev",
+      siteHost: undefined,
+    });
+    stubLocation("laukolaroser");
+    expect(serverListSite()).toBe("nightly.laukolaroser.dev");
   });
 
   it("builds the API url from the audience and the site", () => {
-    expect(serverListUrl("openfront.io")).toBe(
-      "https://api.openfront.io/cluster.json?site=openfront.io",
+    expect(serverListUrl("laukolaroser.com")).toBe(
+      "https://api.laukolaroser.com/cluster.json?site=laukolaroser.com",
     );
   });
 });
@@ -180,10 +183,10 @@ describe("ensureServerList", () => {
     expect(await ensureServerList()).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(String(fetchMock.mock.calls[0][0])).toBe(
-      "https://api.openfront.io/cluster.json?site=openfront.io",
+      "https://api.laukolaroser.com/cluster.json?site=laukolaroser.com",
     );
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
-    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
+    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.laukolaroser.com");
     expect(ClientEnv.numWorkers()).toBe(16);
     expect(ClientEnv.serverListLoaded()).toBe(true);
   });
@@ -192,11 +195,11 @@ describe("ensureServerList", () => {
     await ensureServerList();
     expect(ClientEnv.resolveGame("cAbCd12345")).toEqual({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
     expect(ClientEnv.gameWsBase("cAbCd12345")).toBe(
-      "wss://falk2-a.openfront.io",
+      "wss://falk2-a.laukolaroser.com",
     );
     expect(ClientEnv.resolveGame("dAbCd12345")).toEqual({ kind: "own" });
     expect(ClientEnv.resolveGame("zAbCd12345")).toEqual({
@@ -223,7 +226,7 @@ describe("ensureServerList", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(await ensureServerList()).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
   });
 
   it("keeps the last good list when a refresh fails", async () => {
@@ -237,9 +240,9 @@ describe("ensureServerList", () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(ClientEnv.serverListLoaded()).toBe(true);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
     expect(await ensureServerList()).toBe("api");
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
   });
 
   // The same rule as the no-list case, on the other branch: once the list is
@@ -263,7 +266,7 @@ describe("ensureServerList", () => {
       expect(await ensureServerList()).toBe("api");
     }
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
 
     // Once the retry interval is up, the next ask may refresh again.
     await vi.advanceTimersByTimeAsync(RETRY_MS);
@@ -274,11 +277,11 @@ describe("ensureServerList", () => {
   it("falls back to BOOTSTRAP_CONFIG when the API is unreachable", async () => {
     fetchMock.mockRejectedValue(new TypeError("network down"));
     expect(await ensureServerList()).toBe("fallback");
-    expect(ClientEnv.serverWsBase()).toBe("wss://blue.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://blue.laukolaroser.com");
     expect(ClientEnv.numWorkers()).toBe(2);
     expect(ClientEnv.resolveGame("bAbCd12345")).toEqual({
       kind: "cross",
-      host: "green.openfront.io",
+      host: "green.laukolaroser.com",
       numWorkers: 2,
     });
     expect(ClientEnv.serverListLoaded()).toBe(false);
@@ -291,7 +294,7 @@ describe("ensureServerList", () => {
   ])("falls back to BOOTSTRAP_CONFIG on %s", async (_name, make) => {
     fetchMock.mockImplementation(async () => make());
     expect(await ensureServerList()).toBe("fallback");
-    expect(ClientEnv.serverWsBase()).toBe("wss://blue.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://blue.laukolaroser.com");
   });
 
   // With the API 404ing (its rollout has not happened yet) every page is a
@@ -342,7 +345,7 @@ describe("ensureServerList", () => {
     const boundMs = timeoutSpy.mock.calls[0][0];
     expect(boundMs).toBeGreaterThan(0);
     expect(boundMs).toBeLessThanOrEqual(10_000);
-    expect(ClientEnv.serverWsBase()).toBe("wss://blue.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://blue.laukolaroser.com");
   });
 
   it("keeps the picked server across refreshes while it stays open", async () => {
@@ -350,13 +353,13 @@ describe("ensureServerList", () => {
       latest: OWN,
       servers: {
         d: {
-          host: "d.openfront.io",
+          host: "d.laukolaroser.com",
           numWorkers: 1,
           version: OWN,
           state: "open",
         },
         e: {
-          host: "e.openfront.io",
+          host: "e.laukolaroser.com",
           numWorkers: 1,
           version: OWN,
           state: "open",
@@ -521,7 +524,7 @@ describe("startServerListPolling", () => {
 
   it("does not poll on a replay shell host", async () => {
     // Replay shells talk to the archive, not to a live server list.
-    stubLocation("replay.openfront.io");
+    stubLocation("replay.laukolaroser.com");
     vi.useFakeTimers();
     startServerListPolling();
     await vi.advanceTimersByTimeAsync(REFRESH_MS * 2);
@@ -812,7 +815,7 @@ describe("retryServerList", () => {
       expect(await ensureServerList()).toBe("fallback");
       expect(backendReachable()).toBe(false);
       // The page's own values are in charge while the API is unreachable.
-      expect(ClientEnv.serverWsBase()).toBe("wss://blue.openfront.io");
+      expect(ClientEnv.serverWsBase()).toBe("wss://blue.laukolaroser.com");
 
       fetchMock.mockImplementation(async () => jsonResponse(API_LIST));
       await vi.advanceTimersByTimeAsync(1_500);
@@ -820,7 +823,7 @@ describe("retryServerList", () => {
       expect(backendReachable()).toBe(true);
       // Not just the flag: the list the retry fetched is applied, which is
       // what makes the bar disappear AND what the next join will use.
-      expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+      expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
       expect(seen).toEqual([
         { reachable: false, confirmed: false },
         { reachable: true, confirmed: false },
@@ -871,7 +874,7 @@ describe("refreshServerList", () => {
     latest: OWN,
     servers: {
       e: {
-        host: "falk2-c.openfront.io",
+        host: "falk2-c.laukolaroser.com",
         numWorkers: 16,
         version: OWN,
         state: "open",
@@ -881,15 +884,15 @@ describe("refreshServerList", () => {
 
   it("fetches before it answers, where ensureServerList answers from the cache", async () => {
     expect(await ensureServerList()).toBe("api");
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
 
     fetchMock.mockImplementation(async () => jsonResponse(MOVED_LIST));
     expect(await ensureServerList()).toBe("api");
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
 
     expect(await refreshServerList()).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.laukolaroser.com");
   });
 
   // The attempt is the heartbeat's, so nothing here goes through
@@ -920,7 +923,7 @@ describe("refreshServerList", () => {
     release(jsonResponse(MOVED_LIST));
     expect(await refreshed).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.laukolaroser.com");
   });
 
   // The manual-retry clock belongs to the other two affordances, and a press
@@ -931,13 +934,13 @@ describe("refreshServerList", () => {
   it("fetches inside another press's floor and cooldown when nothing is in flight", async () => {
     vi.useFakeTimers();
     expect(await retryServerList()).toBe("api");
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
     await vi.advanceTimersByTimeAsync(500);
 
     fetchMock.mockImplementation(async () => jsonResponse(MOVED_LIST));
     expect(await refreshServerList()).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.laukolaroser.com");
   });
 
   // ...and the converse: it does not stamp that clock, so the refused-click
@@ -971,12 +974,12 @@ describe("refreshServerList", () => {
     fetchMock.mockImplementation(async () => jsonResponse(MOVED_LIST));
     expect(await refreshServerList()).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
 
     await vi.advanceTimersByTimeAsync(1_000);
     expect(await refreshServerList()).toBe("api");
     expect(backendReachable()).toBe(true);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.laukolaroser.com");
   });
 
   // A person pressing a button is not a timer: the heartbeat's backoff after
@@ -992,7 +995,7 @@ describe("refreshServerList", () => {
     fetchMock.mockImplementation(async () => jsonResponse(MOVED_LIST));
     expect(await refreshServerList()).toBe("api");
     expect(fetchMock).toHaveBeenCalledTimes(3);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-c.laukolaroser.com");
   });
 });
 
@@ -1090,7 +1093,7 @@ describe("picking between open, draining and fenced", () => {
   const server = (
     version: string,
     state: string,
-    host = "falk2-a.openfront.io",
+    host = "falk2-a.laukolaroser.com",
   ) => ({
     host,
     numWorkers: 16,
@@ -1102,11 +1105,11 @@ describe("picking between open, draining and fenced", () => {
     // Mid-rollover: the new build's server is open, mine is draining. I
     // stay on mine — my games and the lobbies I see all live there.
     setBootstrap({ gitCommit: OLD });
-    const loc = stubLocation("openfront.io");
+    const loc = stubLocation("laukolaroser.com");
     expect(await ensureServerList()).toBe("api");
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-a.openfront.io");
-    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-a.openfront.io");
-    expect(loc.href).toBe("https://openfront.io/");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-a.laukolaroser.com");
+    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-a.laukolaroser.com");
+    expect(loc.href).toBe("https://laukolaroser.com/");
   });
 
   it("prefers an open server over a draining one on my build", async () => {
@@ -1114,12 +1117,12 @@ describe("picking between open, draining and fenced", () => {
       jsonResponse(
         listOf({
           c: server(OWN, "draining"),
-          d: server(OWN, "open", "falk2-b.openfront.io"),
+          d: server(OWN, "open", "falk2-b.laukolaroser.com"),
         }),
       ),
     );
     expect(await ensureServerList()).toBe("api");
-    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.openfront.io");
+    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.laukolaroser.com");
   });
 
   it("never picks a fenced server, and says so when it is the only one on my build", async () => {
@@ -1128,18 +1131,22 @@ describe("picking between open, draining and fenced", () => {
     // a Worker-served page, whose reload fetches latest — the only kind
     // "outdated" is ever said to.
     setWorkerBootstrap({ gitCommit: OLD });
-    const loc = stubLocation("openfront.io", "/w1/game/cAbCd12345", "?lobby");
+    const loc = stubLocation(
+      "laukolaroser.com",
+      "/w1/game/cAbCd12345",
+      "?lobby",
+    );
     fetchMock.mockImplementation(async () =>
       jsonResponse(
         listOf({
           c: server(OLD, "fenced"),
-          d: server(OWN, "open", "falk2-b.openfront.io"),
+          d: server(OWN, "open", "falk2-b.laukolaroser.com"),
         }),
       ),
     );
     expect(await ensureServerList()).toBe("outdated");
     // The prompt navigates, not this: the page is left exactly where it is.
-    expect(loc.href).toBe("https://openfront.io/w1/game/cAbCd12345?lobby");
+    expect(loc.href).toBe("https://laukolaroser.com/w1/game/cAbCd12345?lobby");
     // Own-server calls have nothing to fall back to: the document's origin
     // is all a Worker-served page has, and it is the page host, not a game
     // server. Dialing it is what produced 1.1M edge timeouts a day
@@ -1148,7 +1155,7 @@ describe("picking between open, draining and fenced", () => {
     // ...and existing games still resolve by letter from the list.
     expect(ClientEnv.resolveGame("cAbCd12345")).toEqual({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
   });
@@ -1159,9 +1166,9 @@ describe("picking between open, draining and fenced", () => {
   // branch of its own.
   it("routes a pinned page to its own build's draining server like any other", async () => {
     setBootstrap({ gitCommit: OLD });
-    stubLocation("openfront.io", `/v/${OLD}/game/cAbCd12345`);
+    stubLocation("laukolaroser.com", `/v/${OLD}/game/cAbCd12345`);
     expect(await ensureServerList()).toBe("api");
-    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-a.openfront.io");
+    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-a.laukolaroser.com");
     expect(ClientEnv.numWorkers()).toBe(16);
   });
 
@@ -1176,7 +1183,7 @@ describe("picking between open, draining and fenced", () => {
     // Worker-served, so the pin is the only thing holding "outdated" back.
     setWorkerBootstrap({ gitCommit: OLD });
     const loc = stubLocation(
-      "openfront.io",
+      "laukolaroser.com",
       `/v/${OLD}/game/cAbCd12345`,
       "?lobby",
     );
@@ -1184,19 +1191,19 @@ describe("picking between open, draining and fenced", () => {
       jsonResponse(
         listOf({
           c: server(OLD, "fenced"),
-          d: server(OWN, "open", "falk2-b.openfront.io"),
+          d: server(OWN, "open", "falk2-b.laukolaroser.com"),
         }),
       ),
     );
     expect(await ensureServerList()).toBe("no-server");
     expect(loc.href).toBe(
-      `https://openfront.io/v/${OLD}/game/cAbCd12345?lobby`,
+      `https://laukolaroser.com/v/${OLD}/game/cAbCd12345?lobby`,
     );
     // Existing games still resolve by letter, so the pinned page can still
     // rejoin the game it was opened for.
     expect(ClientEnv.resolveGame("cAbCd12345")).toEqual({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
   });
@@ -1204,12 +1211,12 @@ describe("picking between open, draining and fenced", () => {
   it("still reports outdated for the same list on an unpinned page", async () => {
     // The pin is the only difference from the test above.
     setWorkerBootstrap({ gitCommit: OLD });
-    stubLocation("openfront.io", "/game/cAbCd12345");
+    stubLocation("laukolaroser.com", "/game/cAbCd12345");
     fetchMock.mockImplementation(async () =>
       jsonResponse(
         listOf({
           c: server(OLD, "fenced"),
-          d: server(OWN, "open", "falk2-b.openfront.io"),
+          d: server(OWN, "open", "falk2-b.laukolaroser.com"),
         }),
       ),
     );
@@ -1221,16 +1228,16 @@ describe("picking between open, draining and fenced", () => {
     // Multiplayer fails as it does today; there is no newer version to
     // prompt for.
     setWorkerBootstrap();
-    const loc = stubLocation("openfront.io");
+    const loc = stubLocation("laukolaroser.com");
     fetchMock.mockImplementation(async () =>
       jsonResponse(listOf({ c: server(OWN, "fenced") })),
     );
     expect(await ensureServerList()).toBe("no-server");
-    expect(loc.href).toBe("https://openfront.io/");
+    expect(loc.href).toBe("https://laukolaroser.com/");
     // And it does NOT fall back to the page host. This is one of the two
     // states that used to dial the apex (the other is "outdated"): the list
     // answered and named no server for this build, so there is nothing to
-    // connect to, and `wss://openfront.io` is a host whose edge can only time
+    // connect to, and `wss://laukolaroser.com` is a host whose edge can only time
     // the connect out (ai-ops#21).
     expect(() => ClientEnv.serverWsBase()).toThrow(NoServerError);
 
@@ -1239,7 +1246,7 @@ describe("picking between open, draining and fenced", () => {
       jsonResponse(listOf({ c: server(OLD, "fenced") }, null)),
     );
     expect(await ensureServerList()).toBe("no-server");
-    expect(loc.href).toBe("https://openfront.io/");
+    expect(loc.href).toBe("https://laukolaroser.com/");
   });
 
   // A build label that names no commit matches any server version, so it is
@@ -1248,12 +1255,12 @@ describe("picking between open, draining and fenced", () => {
   it("is never outdated on a build whose version names no commit", async () => {
     for (const label of ["DEV", "desktop", ""]) {
       setWorkerBootstrap({ gitCommit: label });
-      const loc = stubLocation("openfront.io");
+      const loc = stubLocation("laukolaroser.com");
       fetchMock.mockImplementation(async () =>
         jsonResponse(listOf({ c: server(OLD, "fenced") })),
       );
       expect(await ensureServerList()).toBe("no-server");
-      expect(loc.href).toBe("https://openfront.io/");
+      expect(loc.href).toBe("https://laukolaroser.com/");
     }
   });
 
@@ -1265,12 +1272,12 @@ describe("picking between open, draining and fenced", () => {
     // server; a replay shell that injects one is answered earlier by the
     // page-server rule, to the same effect — no prompt.
     setWorkerBootstrap({ gitCommit: OLD });
-    const loc = stubLocation("replay.openfront.io", "/dAbCd12345");
+    const loc = stubLocation("replay.laukolaroser.com", "/dAbCd12345");
     fetchMock.mockImplementation(async () =>
       jsonResponse(listOf({ c: server(OLD, "fenced") })),
     );
     expect(await ensureServerList()).toBe("no-server");
-    expect(loc.href).toBe("https://replay.openfront.io/dAbCd12345");
+    expect(loc.href).toBe("https://replay.laukolaroser.com/dAbCd12345");
   });
 
   // The desktop shell updates itself (download, stage, its own reload
@@ -1280,18 +1287,18 @@ describe("picking between open, draining and fenced", () => {
   // "outdated". The isDesktopShell() exemption still covers a shell that
   // injects no host at all.
   it("leaves the desktop shell to its updater", async () => {
-    (window as any).openfrontDesktop = {};
-    setBootstrap({ gitCommit: OLD, serverHost: "openfront.io" });
-    const loc = stubLocation("openfront");
+    (window as any).laukolaroserDesktop = {};
+    setBootstrap({ gitCommit: OLD, serverHost: "laukolaroser.com" });
+    const loc = stubLocation("laukolaroser");
     fetchMock.mockImplementation(async () =>
       jsonResponse(listOf({ c: server(OLD, "fenced") })),
     );
     expect(await ensureServerList()).toBe("fallback");
-    expect(loc.href).toBe("https://openfront/");
-    expect(ClientEnv.serverWsBase()).toBe("wss://openfront.io");
+    expect(loc.href).toBe("https://laukolaroser/");
+    expect(ClientEnv.serverWsBase()).toBe("wss://laukolaroser.com");
   });
 
-  // OPE-430. Live on main.openfront.dev: the page was still rendered by a
+  // OPE-430. Live on main.laukolaroser.dev: the page was still rendered by a
   // game server (the static Worker is not routed yet), a deploy failed to
   // register the new build in the API's registry, so the list carried no
   // server on the page's build and a `latest` that was a different commit.
@@ -1309,7 +1316,7 @@ describe("picking between open, draining and fenced", () => {
     const nothingOnMyBuild = () =>
       listOf({
         c: server(OLD, "fenced"),
-        d: server(OWN, "open", "falk2-b.openfront.io"),
+        d: server(OWN, "open", "falk2-b.laukolaroser.com"),
       });
 
     beforeEach(() => {
@@ -1319,24 +1326,24 @@ describe("picking between open, draining and fenced", () => {
     });
 
     it("answers fallback and keeps the server that served it (serverHost)", async () => {
-      setBootstrap({ gitCommit: OLD, serverHost: "blue.openfront.io" });
-      const loc = stubLocation("openfront.io", "/", "");
+      setBootstrap({ gitCommit: OLD, serverHost: "blue.laukolaroser.com" });
+      const loc = stubLocation("laukolaroser.com", "/", "");
 
       expect(await ensureServerList()).toBe("fallback");
       // Own-server calls go to the page's own server: it is running this
       // build — it served this page.
-      expect(ClientEnv.serverHttpBase()).toBe("https://blue.openfront.io");
-      expect(ClientEnv.serverWsBase()).toBe("wss://blue.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe("https://blue.laukolaroser.com");
+      expect(ClientEnv.serverWsBase()).toBe("wss://blue.laukolaroser.com");
       // "fallback" here is not "no list": the list IS applied, so a foreign
       // letter still routes cross-host.
       expect(ClientEnv.serverListLoaded()).toBe(true);
       expect(ClientEnv.resolveGame("dAbCd12345")).toEqual({
         kind: "cross",
-        host: "falk2-b.openfront.io",
+        host: "falk2-b.laukolaroser.com",
         numWorkers: 16,
       });
       // And nothing navigated: no prompt, no reload, no loop.
-      expect(loc.href).toBe("https://openfront.io/");
+      expect(loc.href).toBe("https://laukolaroser.com/");
     });
 
     it("answers fallback with only a cluster map and its own letter", async () => {
@@ -1347,17 +1354,17 @@ describe("picking between open, draining and fenced", () => {
         serverHost: undefined,
         siteHost: undefined,
       });
-      stubLocation("blue.openfront.io");
+      stubLocation("blue.laukolaroser.com");
 
       expect(await ensureServerList()).toBe("fallback");
       // Its own server is the document's origin, and the worker count comes
       // from its own entry in the injected map.
-      expect(ClientEnv.serverHttpBase()).toBe("https://blue.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe("https://blue.laukolaroser.com");
       expect(ClientEnv.numWorkers()).toBe(2);
       expect(ClientEnv.serverListLoaded()).toBe(true);
       expect(ClientEnv.resolveGame("dAbCd12345")).toEqual({
         kind: "cross",
-        host: "falk2-b.openfront.io",
+        host: "falk2-b.laukolaroser.com",
         numWorkers: 16,
       });
     });
@@ -1371,40 +1378,42 @@ describe("picking between open, draining and fenced", () => {
     // stale tab is told by the server itself: the lobby feed's commit
     // compare fires as soon as the socket connects to that very host.
     it("is not outdated when the list puts its own host on another build", async () => {
-      setBootstrap({ gitCommit: OLD, serverHost: "blue.openfront.io" });
+      setBootstrap({ gitCommit: OLD, serverHost: "blue.laukolaroser.com" });
       fetchMock.mockImplementation(async () =>
-        jsonResponse(listOf({ a: server(OWN, "open", "blue.openfront.io") })),
+        jsonResponse(
+          listOf({ a: server(OWN, "open", "blue.laukolaroser.com") }),
+        ),
       );
 
       expect(await ensureServerList()).toBe("fallback");
-      expect(ClientEnv.serverHttpBase()).toBe("https://blue.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe("https://blue.laukolaroser.com");
     });
 
     // The same list shape on a standalone deployment with GAME_DOMAIN set:
-    // its page host (main.openfront.dev) and game host
-    // (main.server.openfront.dev) differ, but both reach the one container.
+    // its page host (main.laukolaroser.dev) and game host
+    // (main.server.laukolaroser.dev) differ, but both reach the one container.
     it("is not outdated on a standalone page whose page and game hosts differ", async () => {
       setBootstrap({
         gitCommit: OLD,
-        siteHost: "main.openfront.dev",
-        serverHost: "main.server.openfront.dev",
+        siteHost: "main.laukolaroser.dev",
+        serverHost: "main.server.laukolaroser.dev",
         instanceLetter: "a",
         cluster: {
           a: {
-            host: "main.server.openfront.dev",
+            host: "main.server.laukolaroser.dev",
             numWorkers: 2,
           },
         },
       });
       fetchMock.mockImplementation(async () =>
         jsonResponse(
-          listOf({ a: server(OWN, "open", "main.server.openfront.dev") }),
+          listOf({ a: server(OWN, "open", "main.server.laukolaroser.dev") }),
         ),
       );
 
       expect(await ensureServerList()).toBe("fallback");
       expect(ClientEnv.serverHttpBase()).toBe(
-        "https://main.server.openfront.dev",
+        "https://main.server.laukolaroser.dev",
       );
     });
 
@@ -1418,13 +1427,15 @@ describe("picking between open, draining and fenced", () => {
     // "fallback", so Create goes to its own host (GameServerApiCallers) and
     // nothing prompts, at page load or after a socket failure.
     it("creates on its own server when the registry lags and this build is latest", async () => {
-      setBootstrap({ gitCommit: OWN, serverHost: "blue.openfront.io" });
+      setBootstrap({ gitCommit: OWN, serverHost: "blue.laukolaroser.com" });
       fetchMock.mockImplementation(async () =>
-        jsonResponse(listOf({ a: server(OLD, "open", "blue.openfront.io") })),
+        jsonResponse(
+          listOf({ a: server(OLD, "open", "blue.laukolaroser.com") }),
+        ),
       );
 
       expect(await ensureServerList()).toBe("fallback");
-      expect(ClientEnv.serverHttpBase()).toBe("https://blue.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe("https://blue.laukolaroser.com");
       // Nor is there anything a reload could rescue: this page IS latest.
       expect(reloadWouldRescue("fallback")).toBe(false);
     });
@@ -1437,34 +1448,34 @@ describe("picking between open, draining and fenced", () => {
     // way out over the feed it is already serving them — active:false, once
     // the API stops calling it open (ClusterCheckin.applyCheckinState).
     it("is not outdated when its own entry is fenced on this build", async () => {
-      setBootstrap({ gitCommit: OLD, serverHost: "blue.openfront.io" });
+      setBootstrap({ gitCommit: OLD, serverHost: "blue.laukolaroser.com" });
       fetchMock.mockImplementation(async () =>
         jsonResponse(
           listOf({
-            a: server(OLD, "fenced", "blue.openfront.io"),
-            d: server(OWN, "open", "falk2-b.openfront.io"),
+            a: server(OLD, "fenced", "blue.laukolaroser.com"),
+            d: server(OWN, "open", "falk2-b.laukolaroser.com"),
           }),
         ),
       );
 
       expect(await ensureServerList()).toBe("fallback");
-      expect(ClientEnv.serverHttpBase()).toBe("https://blue.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe("https://blue.laukolaroser.com");
     });
   });
 
   // A server-rendered page prefers its own server (OPE-430). Before v2 the
   // page always talked to the colour that rendered it; the list's random pick
   // can send it to a sibling, and the two do not have to agree about that
-  // sibling. On dev (openfront.dev, a blue/green pair behind the apex, then
+  // sibling. On dev (laukolaroser.dev, a blue/green pair behind the apex, then
   // still draining by an apex colour poll) the registry listed both colours `open` on the
   // same build while the apex poll had green considering itself draining: a
   // page rendered by blue that drew green got a lobby feed reporting
   // active:false, read it as "a new version is available", and reloaded — on
   // about half of page loads.
   describe("a server-rendered page prefers its own server", () => {
-    const BLUE = "blue.server.openfront.dev";
-    const GREEN = "green.server.openfront.dev";
-    const OTHER = "falk2-b.openfront.io";
+    const BLUE = "blue.server.laukolaroser.dev";
+    const GREEN = "green.server.laukolaroser.dev";
+    const OTHER = "falk2-b.laukolaroser.com";
 
     // The dev pair, as blue renders it.
     function servedByBlue(overrides: Record<string, unknown> = {}) {
@@ -1475,10 +1486,10 @@ describe("picking between open, draining and fenced", () => {
         },
         instanceLetter: "a",
         serverHost: BLUE,
-        siteHost: "openfront.dev",
+        siteHost: "laukolaroser.dev",
         ...overrides,
       });
-      stubLocation("openfront.dev");
+      stubLocation("laukolaroser.dev");
     }
 
     // Pin the draw on the LAST candidate, so a test that still lands on the
@@ -1532,7 +1543,7 @@ describe("picking between open, draining and fenced", () => {
       fetchMock.mockImplementation(async () =>
         jsonResponse(
           listOf({
-            c: server(OWN, "open", "falk2-a.openfront.io"),
+            c: server(OWN, "open", "falk2-a.laukolaroser.com"),
             d: server(OWN, "open", OTHER),
           }),
         ),
@@ -1621,7 +1632,7 @@ describe("picking between open, draining and fenced", () => {
   describe("the sticky pick across refreshes", () => {
     const START = listOf({
       c: server(OLD, "draining"),
-      d: server(OWN, "open", "falk2-b.openfront.io"),
+      d: server(OWN, "open", "falk2-b.laukolaroser.com"),
     });
 
     async function refreshWith(body: unknown): Promise<string> {
@@ -1638,7 +1649,9 @@ describe("picking between open, draining and fenced", () => {
       vi.useFakeTimers();
       fetchMock.mockImplementation(async () => jsonResponse(START));
       expect(await ensureServerList()).toBe("api");
-      expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe(
+        "https://falk2-b.laukolaroser.com",
+      );
     });
 
     it("holds the pick when its server flips to draining on my build", async () => {
@@ -1649,12 +1662,14 @@ describe("picking between open, draining and fenced", () => {
         await refreshWith(
           listOf({
             c: server(OLD, "draining"),
-            d: server(OWN, "draining", "falk2-b.openfront.io"),
-            e: server(OWN, "open", "nbg2-a.openfront.io"),
+            d: server(OWN, "draining", "falk2-b.laukolaroser.com"),
+            e: server(OWN, "open", "nbg2-a.laukolaroser.com"),
           }),
         ),
       ).toBe("api");
-      expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe(
+        "https://falk2-b.laukolaroser.com",
+      );
     });
 
     it("re-picks when its server is fenced", async () => {
@@ -1662,21 +1677,25 @@ describe("picking between open, draining and fenced", () => {
       expect(
         await refreshWith(
           listOf({
-            d: server(OWN, "fenced", "falk2-b.openfront.io"),
-            e: server(OWN, "open", "nbg2-a.openfront.io"),
+            d: server(OWN, "fenced", "falk2-b.laukolaroser.com"),
+            e: server(OWN, "open", "nbg2-a.laukolaroser.com"),
           }),
         ),
       ).toBe("api");
-      expect(ClientEnv.serverHttpBase()).toBe("https://nbg2-a.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe(
+        "https://nbg2-a.laukolaroser.com",
+      );
     });
 
     it("re-picks when its letter leaves the list", async () => {
       expect(
         await refreshWith(
-          listOf({ e: server(OWN, "open", "nbg2-a.openfront.io") }),
+          listOf({ e: server(OWN, "open", "nbg2-a.laukolaroser.com") }),
         ),
       ).toBe("api");
-      expect(ClientEnv.serverHttpBase()).toBe("https://nbg2-a.openfront.io");
+      expect(ClientEnv.serverHttpBase()).toBe(
+        "https://nbg2-a.laukolaroser.com",
+      );
     });
   });
 
@@ -1693,10 +1712,15 @@ describe("picking between open, draining and fenced", () => {
     for (const body of cases) {
       for (const commit of [OWN, OLD, "DEV"]) {
         setBootstrap({ gitCommit: commit });
-        const loc = stubLocation("openfront.io", `/v/${OWN}/game/cAbCd12345`);
+        const loc = stubLocation(
+          "laukolaroser.com",
+          `/v/${OWN}/game/cAbCd12345`,
+        );
         fetchMock.mockImplementation(async () => jsonResponse(body));
         await ensureServerList();
-        expect(loc.href).toBe(`https://openfront.io/v/${OWN}/game/cAbCd12345`);
+        expect(loc.href).toBe(
+          `https://laukolaroser.com/v/${OWN}/game/cAbCd12345`,
+        );
       }
     }
   });
@@ -1713,7 +1737,7 @@ describe("reloadWouldRescue", () => {
     latest: OWN,
     servers: {
       d: {
-        host: "falk2-b.openfront.io",
+        host: "falk2-b.laukolaroser.com",
         numWorkers: 16,
         version: OWN,
         state: "open",
@@ -1726,7 +1750,7 @@ describe("reloadWouldRescue", () => {
     servers: {
       ...NEWER.servers,
       c: {
-        host: "falk2-a.openfront.io",
+        host: "falk2-a.laukolaroser.com",
         numWorkers: 16,
         version: OLD,
         state: "draining",
@@ -1762,7 +1786,7 @@ describe("reloadWouldRescue", () => {
   });
 
   it("never rescues a standalone page, whose reload comes back from the same server", async () => {
-    // dev's main.openfront.dev today, previews, beta. If that server is
+    // dev's main.laukolaroser.dev today, previews, beta. If that server is
     // gone the reload fails with it; if it is alive with a WebSocket-only
     // problem (a proxy passing HTTP while blocking upgrades) the prompt
     // would reload, come back to the same container and prompt again —
@@ -1770,11 +1794,11 @@ describe("reloadWouldRescue", () => {
     setBootstrap({
       gitCommit: OLD,
       siteHost: undefined,
-      serverHost: "main.openfront.dev",
+      serverHost: "main.laukolaroser.dev",
       instanceLetter: "a",
-      cluster: { a: { host: "main.openfront.dev", numWorkers: 2 } },
+      cluster: { a: { host: "main.laukolaroser.dev", numWorkers: 2 } },
     });
-    stubLocation("main.openfront.dev");
+    stubLocation("main.laukolaroser.dev");
     expect(await ensureServerList()).toBe("fallback");
     expect(reloadWouldRescue("fallback")).toBe(false);
   });
@@ -1783,21 +1807,21 @@ describe("reloadWouldRescue", () => {
     // With GAME_DOMAIN set even a standalone deployment gets a siteHost
     // that differs from its game host, while Traefik routes both names to
     // the one container. The site's list having no siblings is what tells
-    // this apart from prod's apex: main.openfront.dev is its own site, and
+    // this apart from prod's apex: main.laukolaroser.dev is its own site, and
     // its list names its one server.
     setBootstrap({
       gitCommit: OLD,
-      siteHost: "main.openfront.dev",
-      serverHost: "main.server.openfront.dev",
+      siteHost: "main.laukolaroser.dev",
+      serverHost: "main.server.laukolaroser.dev",
       instanceLetter: "a",
-      cluster: { a: { host: "main.server.openfront.dev", numWorkers: 2 } },
+      cluster: { a: { host: "main.server.laukolaroser.dev", numWorkers: 2 } },
     });
     fetchMock.mockImplementation(async () =>
       jsonResponse({
         latest: OWN,
         servers: {
           a: {
-            host: "main.server.openfront.dev",
+            host: "main.server.laukolaroser.dev",
             numWorkers: 2,
             version: OWN,
             state: "open",
@@ -1816,7 +1840,7 @@ describe("reloadWouldRescue", () => {
     setBootstrap({
       gitCommit: OLD,
       instanceLetter: "a",
-      cluster: { a: { host: "blue.openfront.io", numWorkers: 2 } },
+      cluster: { a: { host: "blue.laukolaroser.com", numWorkers: 2 } },
     });
     expect(await ensureServerList()).toBe("fallback");
     expect(reloadWouldRescue("fallback")).toBe(true);
@@ -1861,13 +1885,13 @@ describe("reloadWouldRescue", () => {
     // owns its version: a dead socket is no reason to tell either to
     // reload.
     setBootstrap({ gitCommit: OLD });
-    stubLocation("openfront.io", `/v/${OLD}/game/dAbCd12345`);
+    stubLocation("laukolaroser.com", `/v/${OLD}/game/dAbCd12345`);
     await ensureServerList();
     expect(reloadWouldRescue("fallback")).toBe(false);
 
-    (window as any).openfrontDesktop = {};
-    setBootstrap({ gitCommit: OLD, serverHost: "openfront.io" });
-    stubLocation("openfront");
+    (window as any).laukolaroserDesktop = {};
+    setBootstrap({ gitCommit: OLD, serverHost: "laukolaroser.com" });
+    stubLocation("laukolaroser");
     await ensureServerList();
     expect(reloadWouldRescue("fallback")).toBe(false);
   });
@@ -1892,7 +1916,7 @@ describe("redirectToGameVersion", () => {
   }
 
   it("navigates to the page of the version the game's server runs", async () => {
-    const loc = stubLocation("openfront.io", "/game/cAbCd12345", "?lobby");
+    const loc = stubLocation("laukolaroser.com", "/game/cAbCd12345", "?lobby");
     await withList();
     expect(redirectToGameVersion("cAbCd12345")).toBe(true);
     expect(loc.href).toBe(`/v/${SHORT_OLD}/game/cAbCd12345?lobby`);
@@ -1902,36 +1926,40 @@ describe("redirectToGameVersion", () => {
   // checkActiveLobby also runs from the homepage (a typed or pasted code, a
   // click in the lobby list) and from a page showing a different game.
   it("builds the game's own path when the address bar is elsewhere", async () => {
-    const loc = stubLocation("openfront.io", "/");
+    const loc = stubLocation("laukolaroser.com", "/");
     await withList();
     expect(redirectToGameVersion("cAbCd12345")).toBe(true);
     expect(loc.href).toBe(`/v/${SHORT_OLD}/game/cAbCd12345`);
 
-    const other = stubLocation("openfront.io", "/game/dAbCd12345", "?spectate");
+    const other = stubLocation(
+      "laukolaroser.com",
+      "/game/dAbCd12345",
+      "?spectate",
+    );
     await withList();
     expect(redirectToGameVersion("cAbCd12345")).toBe(true);
     expect(other.href).toBe(`/v/${SHORT_OLD}/game/cAbCd12345`);
   });
 
   it("stays put when the game's server runs this build", async () => {
-    const loc = stubLocation("openfront.io", "/game/dAbCd12345");
+    const loc = stubLocation("laukolaroser.com", "/game/dAbCd12345");
     await withList();
     expect(redirectToGameVersion("dAbCd12345")).toBe(false);
-    expect(loc.href).toBe("https://openfront.io/game/dAbCd12345");
+    expect(loc.href).toBe("https://laukolaroser.com/game/dAbCd12345");
   });
 
   it("stays put with no list loaded", async () => {
-    const loc = stubLocation("openfront.io", "/game/cAbCd12345");
+    const loc = stubLocation("laukolaroser.com", "/game/cAbCd12345");
     expect(redirectToGameVersion("cAbCd12345")).toBe(false);
-    expect(loc.href).toBe("https://openfront.io/game/cAbCd12345");
+    expect(loc.href).toBe("https://laukolaroser.com/game/cAbCd12345");
   });
 
   it("never navigates the desktop shell", async () => {
-    const loc = stubLocation("openfront.io", "/game/cAbCd12345");
+    const loc = stubLocation("laukolaroser.com", "/game/cAbCd12345");
     await withList();
-    (window as any).openfrontDesktop = {};
+    (window as any).laukolaroserDesktop = {};
     expect(redirectToGameVersion("cAbCd12345")).toBe(false);
-    expect(loc.href).toBe("https://openfront.io/game/cAbCd12345");
+    expect(loc.href).toBe("https://laukolaroser.com/game/cAbCd12345");
   });
 
   // replay.<domain> serves the build a record was made on and has no
@@ -1939,10 +1967,10 @@ describe("redirectToGameVersion", () => {
   // archived replay. It does load the site's list (siteHost is injected),
   // so nothing else would stop it.
   it("never navigates a replay shell", async () => {
-    const loc = stubLocation("replay.openfront.io", "/cAbCd12345");
+    const loc = stubLocation("replay.laukolaroser.com", "/cAbCd12345");
     await withList();
     expect(redirectToGameVersion("cAbCd12345")).toBe(false);
-    expect(loc.href).toBe("https://replay.openfront.io/cAbCd12345");
+    expect(loc.href).toBe("https://replay.laukolaroser.com/cAbCd12345");
   });
 });
 
@@ -1956,7 +1984,7 @@ describe("versionedPathForMismatchedGame", () => {
   // The server just refused the join with this commit; the list is
   // stale-while-revalidate and may still name the build we tried.
   it("prefers the refusing server's commit over the list", async () => {
-    stubLocation("openfront.io", "/game/dAbCd12345");
+    stubLocation("laukolaroser.com", "/game/dAbCd12345");
     await withList();
     expect(versionedPathForMismatchedGame("dAbCd12345", OLD)).toBe(
       `/v/${SHORT_OLD}/game/dAbCd12345`,
@@ -1964,7 +1992,7 @@ describe("versionedPathForMismatchedGame", () => {
   });
 
   it("falls back to the list when the server names no commit", async () => {
-    stubLocation("openfront.io", "/game/cAbCd12345");
+    stubLocation("laukolaroser.com", "/game/cAbCd12345");
     await withList();
     expect(versionedPathForMismatchedGame("cAbCd12345", undefined)).toBe(
       `/v/${SHORT_OLD}/game/cAbCd12345`,
@@ -1974,19 +2002,19 @@ describe("versionedPathForMismatchedGame", () => {
   // GIT_COMMIT is "DEV" on a dev server and "unknown" in the Dockerfile's
   // default: no build to ask for, and never a /v/<x>/ URL.
   it("ignores a server commit that names no build", async () => {
-    stubLocation("openfront.io", "/game/cAbCd12345");
+    stubLocation("laukolaroser.com", "/game/cAbCd12345");
     await withList();
     expect(versionedPathForMismatchedGame("cAbCd12345", "unknown")).toBe(
       `/v/${SHORT_OLD}/game/cAbCd12345`,
     );
 
-    stubLocation("openfront.io", "/game/dAbCd12345");
+    stubLocation("laukolaroser.com", "/game/dAbCd12345");
     await withList();
     expect(versionedPathForMismatchedGame("dAbCd12345", "DEV")).toBeNull();
   });
 
   it("stays put when the page is already pinned to that commit", async () => {
-    stubLocation("openfront.io", `/v/${SHORT_OLD}/game/cAbCd12345`);
+    stubLocation("laukolaroser.com", `/v/${SHORT_OLD}/game/cAbCd12345`);
     await withList();
     expect(versionedPathForMismatchedGame("cAbCd12345", OLD)).toBeNull();
   });
@@ -1994,7 +2022,7 @@ describe("versionedPathForMismatchedGame", () => {
   // A pin the server contradicts is an ordinary mismatch: the pre-join
   // redirect used a list that has since moved on.
   it("leaves a pin the server names a different commit than", async () => {
-    stubLocation("openfront.io", "/v/1234567/game/cAbCd12345");
+    stubLocation("laukolaroser.com", "/v/1234567/game/cAbCd12345");
     await withList();
     expect(versionedPathForMismatchedGame("cAbCd12345", OLD)).toBe(
       `/v/${SHORT_OLD}/game/cAbCd12345`,
@@ -2002,13 +2030,13 @@ describe("versionedPathForMismatchedGame", () => {
   });
 
   it("answers nothing on the shells with no /v/<commit>/ routes", async () => {
-    stubLocation("replay.openfront.io", "/cAbCd12345");
+    stubLocation("replay.laukolaroser.com", "/cAbCd12345");
     await withList();
     expect(versionedPathForMismatchedGame("cAbCd12345", OLD)).toBeNull();
 
-    stubLocation("openfront.io", "/game/cAbCd12345");
+    stubLocation("laukolaroser.com", "/game/cAbCd12345");
     await withList();
-    (window as any).openfrontDesktop = {};
+    (window as any).laukolaroserDesktop = {};
     expect(versionedPathForMismatchedGame("cAbCd12345", OLD)).toBeNull();
   });
 });

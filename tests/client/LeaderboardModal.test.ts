@@ -132,8 +132,8 @@ beforeEach(() => {
   );
 });
 
-import { RankedType } from "@openfront/engine-api/game/GameTypes";
-import { RankedLeaderboardResponseSchema } from "@openfront/shared/ApiSchemas";
+import { RankedType } from "@laukolaroser/engine-api/game/GameTypes";
+import { RankedLeaderboardResponseSchema } from "@laukolaroser/shared/ApiSchemas";
 import "../../src/client/components/baseComponents/Modal";
 import { LeaderboardModal } from "../../src/client/LeaderboardModal";
 

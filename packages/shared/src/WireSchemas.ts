@@ -1,10 +1,13 @@
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ArchivedPlayerStatsSchema,
   PlayerStatsSchema,
-} from "@openfront/engine-api/StatsSchemas";
-import { LOBBY_LABEL_MAX } from "@openfront/engine-lib/Util";
-import { zb } from "@openfront/zbin";
+} from "@laukolaroser/engine-api/StatsSchemas";
+import { LOBBY_LABEL_MAX } from "@laukolaroser/engine-lib/Util";
+import { zb } from "@laukolaroser/zbin";
 import { z } from "zod";
 import {
   ColorPaletteSchema,
@@ -28,7 +31,7 @@ import {
   TurnSchema,
   UsernameSchema,
   WinnerSchema,
-} from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/Schemas";
 
 export type ClientMessage =
   | ClientSendWinnerMessage

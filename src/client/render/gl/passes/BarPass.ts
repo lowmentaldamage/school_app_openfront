@@ -12,9 +12,15 @@
  *   UnitState.veterancy → one instance per level (x, y, slot) → solid gold rect
  */
 
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import type { Config } from "@openfront/engine-lib/configuration/Config";
-import { maxHealthWithVeterancy } from "@openfront/engine-lib/game/Veterancy";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { maxHealthWithVeterancy } from "@laukolaroser/engine-lib/game/Veterancy";
+import { navalClass } from "@laukolaroser/engine-lib/naval/NavalClasses";
+import {
+  isRailUnit,
+  RAIL_UNITS,
+  type RailUnitType,
+} from "@laukolaroser/engine-lib/rail/RailUnits";
 import type { RendererConfig, UnitState } from "../../types";
 import { UT_MISSILE_SILO, UT_SAM_LAUNCHER } from "../../types";
 import type { RenderSettings } from "../RenderSettings";
@@ -147,7 +153,11 @@ export class BarPass {
       // Veteran warships have a higher effective max health, so a full veteran
       // ship reads as full. Shared with the engine's UnitImpl.maxHealth().
       const maxHealth = maxHealthWithVeterancy(
-        this.warshipMaxHealth,
+        unit.unitType === UnitType.Warship
+          ? this.warshipMaxHealth
+          : isRailUnit(unit.unitType as UnitType)
+            ? RAIL_UNITS[unit.unitType as RailUnitType].maxHealth
+            : navalClass(unit.unitType as UnitType).maxHealth,
         unit.veterancy,
         this.veterancyHealthBonus,
       );

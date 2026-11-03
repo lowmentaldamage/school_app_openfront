@@ -5,13 +5,13 @@ import {
   PlayerType,
   Tick,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { AllianceExtensionExecution } from "@openfront/engine/execution/alliance/AllianceExtensionExecution";
-import { AllianceRequestExecution } from "@openfront/engine/execution/alliance/AllianceRequestExecution";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { AllianceRequest, Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { AllianceExtensionExecution } from "@laukolaroser/engine/execution/alliance/AllianceExtensionExecution";
+import { AllianceRequestExecution } from "@laukolaroser/engine/execution/alliance/AllianceRequestExecution";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { AllianceRequest, Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 
 let game: Game;

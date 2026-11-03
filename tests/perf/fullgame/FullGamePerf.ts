@@ -38,21 +38,21 @@ import {
   GameMapType,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameConfig, GameStartInfo } from "@openfront/engine-api/Schemas";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { simpleHash } from "@openfront/engine-lib/Util";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { Executor } from "@openfront/engine/execution/ExecutionManager";
-import { createGame } from "@openfront/engine/game/GameImpl";
-import { createNationsForGame } from "@openfront/engine/game/NationCreation";
-import { GameRunner } from "@openfront/engine/GameRunner";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameConfig, GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { simpleHash } from "@laukolaroser/engine-lib/Util";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { Executor } from "@laukolaroser/engine/execution/ExecutionManager";
+import { createGame } from "@laukolaroser/engine/game/GameImpl";
+import { createNationsForGame } from "@laukolaroser/engine/game/NationCreation";
+import { GameRunner } from "@laukolaroser/engine/GameRunner";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import fs from "fs";
 import v8 from "node:v8";
 import path from "path";

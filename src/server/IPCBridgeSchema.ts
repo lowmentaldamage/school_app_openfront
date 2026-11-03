@@ -1,8 +1,8 @@
-import { GameConfigSchema } from "@openfront/engine-api/Schemas";
+import { GameConfigSchema } from "@laukolaroser/engine-api/Schemas";
 import {
   PublicGameInfoSchema,
   PublicGameTypeSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { z } from "zod";
 
 export type InternalGameInfo = z.infer<typeof InternalGameInfoSchema>;

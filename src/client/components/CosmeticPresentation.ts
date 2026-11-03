@@ -1,4 +1,4 @@
-import { CosmeticPack, Pack } from "@openfront/shared/CosmeticSchemas";
+import { CosmeticPack, Pack } from "@laukolaroser/shared/CosmeticSchemas";
 import { ResolvedCosmetic, translateCosmetic } from "../Cosmetics";
 import { translateText } from "../Utils";
 

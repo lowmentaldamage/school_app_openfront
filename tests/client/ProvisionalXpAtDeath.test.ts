@@ -1,16 +1,16 @@
-import type { HumanStatsSnapshot } from "@openfront/engine-api/game/GameTypes";
+import type { HumanStatsSnapshot } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameMode,
   GameType,
   HumansVsNations,
-} from "@openfront/engine-api/game/GameTypes";
-import type { Winner } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { Winner } from "@laukolaroser/engine-api/Schemas";
 import type {
   GameXpResponse,
   Progress,
   ProgressionConfig,
   XpRules,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { projectProgress } from "../../src/client/ProgressProjection";
 import type { XpGameConfig, XpResult } from "../../src/client/ProvisionalXp";

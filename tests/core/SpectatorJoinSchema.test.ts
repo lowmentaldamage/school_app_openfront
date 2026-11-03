@@ -1,4 +1,4 @@
-import { ClientJoinMessageSchema } from "@openfront/shared/WireSchemas";
+import { ClientJoinMessageSchema } from "@laukolaroser/shared/WireSchemas";
 import { describe, expect, it } from "vitest";
 
 const JOIN = {

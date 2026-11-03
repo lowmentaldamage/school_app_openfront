@@ -2,8 +2,8 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { MirvExecution } from "@openfront/engine/execution/MIRVExecution";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MirvExecution } from "@laukolaroser/engine/execution/MIRVExecution";
 import Benchmark from "benchmark";
 import { dirname } from "path";
 import { fileURLToPath } from "url";

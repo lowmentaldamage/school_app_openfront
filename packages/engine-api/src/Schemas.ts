@@ -1,4 +1,4 @@
-import { zb } from "@openfront/zbin";
+import { zb } from "@laukolaroser/zbin";
 import quickChatData from "resources/QuickChat.json";
 import { z } from "zod";
 import {
@@ -15,6 +15,8 @@ import {
   RankedType,
   Trios,
   UnitType,
+  TECH_IDS,
+  WEAPON_IDS,
 } from "./game/GameTypes";
 import { PlayerStatsSchema } from "./StatsSchemas";
 
@@ -46,9 +48,13 @@ export type Intent =
   | KickPlayerIntent
   | TogglePauseIntent
   | UpdateGameConfigIntent
-  | ToggleGameStartTimer;
+  | ToggleGameStartTimer
+  | FireWeaponIntent
+  | ResearchIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
+export type FireWeaponIntent = z.infer<typeof FireWeaponIntentSchema>;
+export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>;
 export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>;
@@ -308,6 +314,11 @@ export const GameConfigSchema = z.object({
   // that only know publicIds at create_game); resolved to clientID at lookup.
   nameRevealPublicIds: z.string().array().max(200).optional(),
   waterNukes: z.boolean().nullable().optional(),
+  // Fog of war (display): enemy units and buildings only show inside the
+  // sight of the player and allies (land, units, radar). See client/fog.
+  fogOfWar: z.boolean().nullable().optional(),
+  // Tech tree: on unless set to true (classic games without research).
+  disableTechTree: z.boolean().nullable().optional(),
   randomSpawn: z.boolean(),
   // The onboarding tutorial (docs/OnboardingTutorial.md): nations and tribes
   // only grow into free land, and the game ends once the human is alone.
@@ -521,6 +532,19 @@ export const MoveWarshipIntentSchema = z.object({
   tile: zb.uint(),
 });
 
+/** Fire a weapon strike at a tile (see engine-lib/weapons/Weapons.ts). */
+export const FireWeaponIntentSchema = z.object({
+  type: z.literal("fire_weapon"),
+  weapon: z.enum(WEAPON_IDS),
+  tile: zb.uint(),
+});
+
+/** Start researching a tech (see engine-lib/tech/Tech.ts). */
+export const ResearchIntentSchema = z.object({
+  type: z.literal("research"),
+  tech: z.enum(TECH_IDS),
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -593,6 +617,8 @@ export const IntentSchema = z.discriminatedUnion("type", [
   TogglePauseIntentSchema,
   UpdateGameConfigIntentSchema,
   ToggleGameStartTimerIntentSchema,
+  FireWeaponIntentSchema,
+  ResearchIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

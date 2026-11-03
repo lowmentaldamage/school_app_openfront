@@ -1,4 +1,4 @@
-import type { Cosmetics, Effect } from "@openfront/shared/CosmeticSchemas";
+import type { Cosmetics, Effect } from "@laukolaroser/shared/CosmeticSchemas";
 import { nothing, type LitElement } from "lit";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CosmeticCard } from "../../src/client/components/CosmeticCard";
@@ -1015,7 +1015,7 @@ describe("StoreModal on the Steam rail", () => {
         > => [],
       ),
     };
-    (window as any).openfrontDesktop = { steam: { microTxn } };
+    (window as any).laukolaroserDesktop = { steam: { microTxn } };
     return microTxn;
   }
 
@@ -1033,7 +1033,7 @@ describe("StoreModal on the Steam rail", () => {
   afterEach(() => {
     store?.remove();
     store = undefined;
-    delete (window as any).openfrontDesktop;
+    delete (window as any).laukolaroserDesktop;
     localStorage.clear();
   });
 

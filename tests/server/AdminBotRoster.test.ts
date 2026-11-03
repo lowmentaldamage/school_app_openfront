@@ -1,4 +1,4 @@
-import { GameType } from "@openfront/engine-api/game/GameTypes";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { registerAdminBotRoutes } from "../../src/server/AdminBotRoutes";
 import { Client } from "../../src/server/Client";

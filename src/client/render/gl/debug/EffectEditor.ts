@@ -13,7 +13,7 @@ import {
   type EffectAttributesFor,
   type EffectType,
   NUKE_EXPLOSION_TYPES,
-} from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/CosmeticSchemas";
 import type GUI from "lil-gui";
 import type { Controller } from "lil-gui";
 import {

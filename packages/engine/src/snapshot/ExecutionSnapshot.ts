@@ -2,7 +2,7 @@ import {
   Migration,
   snapshotType,
   SnapshotType,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import type { Execution } from "../game/Game";
 import type { ExecRecord, SnapshotReader } from "./SnapshotContext";

@@ -1,6 +1,6 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { GameConfig, GameConfigPatch } from "@openfront/engine-api/Schemas";
-import { adjustForTeams } from "@openfront/engine-lib/game/TeamAssignment";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig, GameConfigPatch } from "@laukolaroser/engine-api/Schemas";
+import { adjustForTeams } from "@laukolaroser/engine-lib/game/TeamAssignment";
 
 // The host edits its lobby through update_game_config, which carries a
 // partial GameConfig. Only the keys listed here are taken from it. gameType
@@ -47,6 +47,8 @@ const NULLABLE_KEYS = [
   "disableAlliances",
   "customAllianceDuration",
   "waterNukes",
+  "fogOfWar",
+  "disableTechTree",
 ] as const satisfies readonly (keyof GameConfig)[];
 
 type NullableKey = (typeof NULLABLE_KEYS)[number];

@@ -1,4 +1,4 @@
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/client/Cosmetics", () => ({

@@ -55,9 +55,9 @@ vi.mock("../../../../src/client/CrazyGamesSDK", () => ({
   },
 }));
 
-import { GameType } from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 // The game fetches the XP section when it starts and the Legend ceremony
 // ahead of its moment; here both are loaded up front, as they are by the
 // time a game ends.

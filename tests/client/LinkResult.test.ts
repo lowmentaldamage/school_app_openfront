@@ -99,7 +99,7 @@ describe("consumeLinkResult", () => {
   });
 
   // The dead end this feature exists to remove: the Steam account belongs to
-  // an OpenFront account created by the first launch, and the server is
+  // an Laukolaroser account created by the first launch, and the server is
   // offering to discard it. The confirmation replaces the alert entirely.
   describe("steam_has_progress with a way through", () => {
     it("opens the discard confirmation instead of the dead-end alert", async () => {

@@ -1,6 +1,6 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
-import { Structures } from "@openfront/engine-api/game/GameTypes";
-import { GameLike } from "@openfront/engine-api/game/ReadViews";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { Structures } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { NukeMagnitude } from "../configuration/Config";
 
 export interface NukeBlastParams {

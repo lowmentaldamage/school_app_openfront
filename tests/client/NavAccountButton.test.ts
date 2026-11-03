@@ -1,4 +1,7 @@
-import type { DiscordUser, UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type {
+  DiscordUser,
+  UserMeResponse,
+} from "@laukolaroser/shared/ApiSchemas";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { updateAccountNavButton } from "../../src/client/NavAccountButton";
 import { getDiscordAvatarUrl } from "../../src/client/Utils";

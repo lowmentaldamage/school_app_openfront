@@ -3,8 +3,8 @@ import {
   boatUnits,
   bombUnits,
   otherUnits,
-} from "@openfront/engine-api/StatsSchemas";
-import { renderNumber } from "@openfront/engine-lib/Format";
+} from "@laukolaroser/engine-api/StatsSchemas";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
 import { LitElement, html, nothing, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../../../Utils";
@@ -12,8 +12,8 @@ import { translateText } from "../../../Utils";
 // Display order for the buildings table. Declared as a Record rather than a
 // bare array so `satisfies` fails compilation when a structure is added to
 // `otherUnits` without being placed here — a standalone type-level assertion
-// would trip no-unused-vars. "wshp" is the one deliberate omission: warships
-// are not buildings and have their own section below.
+// would trip no-unused-vars. Combat ships ("wshp", "dstr", "btsh") are the
+// deliberate omission: they are not buildings and have their own section below.
 const BUILDING_ORDER = {
   city: 1,
   port: 2,
@@ -22,7 +22,7 @@ const BUILDING_ORDER = {
   silo: 5,
   saml: 6,
 } as const satisfies Record<
-  Exclude<(typeof otherUnits)[number], "wshp">,
+  Exclude<(typeof otherUnits)[number], "wshp" | "dstr" | "btsh">,
   number
 >;
 
@@ -43,6 +43,8 @@ const UNIT_LABEL_KEYS = {
   saml: "unit_type.sam_launcher",
   silo: "unit_type.missile_silo",
   wshp: "unit_type.warship",
+  dstr: "unit_type.destroyer",
+  btsh: "unit_type.battleship",
   abomb: "unit_type.atom_bomb",
   hbomb: "unit_type.hydrogen_bomb",
   mirv: "unit_type.mirv",
@@ -174,9 +176,15 @@ export class PlayerStatsTable extends LitElement {
           })),
           "player_stats_table.building",
         )}
-        ${statsSection("player_stats_table.warship_stats", UNIT_COLUMNS, [
-          { values: slots(stats?.units?.wshp, 4) },
-        ])}
+        ${statsSection(
+          "player_stats_table.warship_stats",
+          UNIT_COLUMNS,
+          (["wshp", "dstr", "btsh"] as const).map((key) => ({
+            label: UNIT_LABEL_KEYS[key],
+            values: slots(stats?.units?.[key], 4),
+          })),
+          "player_stats_table.ship_type",
+        )}
         ${statsSection(
           "player_stats_table.ship_arrivals",
           [

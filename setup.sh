@@ -59,36 +59,36 @@ else
     echo "Docker installed successfully"
 fi
 
-echo "👤 Setting up openfront user..."
-# Create openfront user if it doesn't exist
-if id "openfront" &> /dev/null; then
-    echo "User openfront already exists"
+echo "👤 Setting up laukolaroser user..."
+# Create laukolaroser user if it doesn't exist
+if id "laukolaroser" &> /dev/null; then
+    echo "User laukolaroser already exists"
 else
-    useradd -m -s /bin/bash openfront
-    echo "User openfront created"
+    useradd -m -s /bin/bash laukolaroser
+    echo "User laukolaroser created"
 fi
 
-# Check if openfront is already in docker group
-if groups openfront | grep -q '\bdocker\b'; then
-    echo "User openfront is already in the docker group"
+# Check if laukolaroser is already in docker group
+if groups laukolaroser | grep -q '\bdocker\b'; then
+    echo "User laukolaroser is already in the docker group"
 else
-    # Add openfront to docker group
-    usermod -aG docker openfront
-    echo "Added openfront to docker group"
+    # Add laukolaroser to docker group
+    usermod -aG docker laukolaroser
+    echo "Added laukolaroser to docker group"
 fi
 
-# Create .ssh directory for openfront if it doesn't exist
-if [ ! -d "/home/openfront/.ssh" ]; then
-    mkdir -p /home/openfront/.ssh
-    chmod 700 /home/openfront/.ssh
-    echo "Created .ssh directory for openfront"
+# Create .ssh directory for laukolaroser if it doesn't exist
+if [ ! -d "/home/laukolaroser/.ssh" ]; then
+    mkdir -p /home/laukolaroser/.ssh
+    chmod 700 /home/laukolaroser/.ssh
+    echo "Created .ssh directory for laukolaroser"
 fi
 
 # Copy SSH keys from root if they exist and haven't been copied yet
-if [ -f /root/.ssh/authorized_keys ] && [ ! -f /home/openfront/.ssh/authorized_keys ]; then
-    cp /root/.ssh/authorized_keys /home/openfront/.ssh/
-    chmod 600 /home/openfront/.ssh/authorized_keys
-    echo "SSH keys copied from root to openfront"
+if [ -f /root/.ssh/authorized_keys ] && [ ! -f /home/laukolaroser/.ssh/authorized_keys ]; then
+    cp /root/.ssh/authorized_keys /home/laukolaroser/.ssh/
+    chmod 600 /home/laukolaroser/.ssh/authorized_keys
+    echo "SSH keys copied from root to laukolaroser"
 fi
 
 # Configure UDP buffer sizes for Cloudflare Tunnel
@@ -108,9 +108,9 @@ else
     echo "UDP buffer sizes configured and applied"
 fi
 
-# Set proper ownership for openfront's home directory
-chown -R openfront:openfront /home/openfront
-echo "Set proper ownership for openfront's home directory"
+# Set proper ownership for laukolaroser's home directory
+chown -R laukolaroser:laukolaroser /home/laukolaroser
+echo "Set proper ownership for laukolaroser's home directory"
 
 # Set up Traefik reverse proxy
 echo "🔀 Setting up Traefik..."
@@ -123,7 +123,7 @@ else
     echo "Created Docker network 'web'"
 fi
 
-TRAEFIK_CONFIG_DIR="/home/openfront/traefik"
+TRAEFIK_CONFIG_DIR="/home/laukolaroser/traefik"
 TRAEFIK_CERTS_DIR="$TRAEFIK_CONFIG_DIR/certs"
 mkdir -p "$TRAEFIK_CERTS_DIR"
 
@@ -179,17 +179,17 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /home/openfront/traefik/traefik.toml:/etc/traefik/traefik.toml:ro
-      - /home/openfront/traefik/tls.toml:/etc/traefik/tls.toml:ro
-      - /home/openfront/traefik/certs:/certs:ro
+      - /home/laukolaroser/traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+      - /home/laukolaroser/traefik/tls.toml:/etc/traefik/tls.toml:ro
+      - /home/laukolaroser/traefik/certs:/certs:ro
     networks:
       - web
 EOF
 
-# Give openfront ownership of config files but keep certs owned by root.
+# Give laukolaroser ownership of config files but keep certs owned by root.
 # Traefik runs as root inside its container so it can read them, but the
-# openfront app user cannot access the TLS private key.
-chown -R openfront:openfront "$TRAEFIK_CONFIG_DIR"
+# laukolaroser app user cannot access the TLS private key.
+chown -R laukolaroser:laukolaroser "$TRAEFIK_CONFIG_DIR"
 chown root:root "$TRAEFIK_CERTS_DIR" "$TRAEFIK_CERTS_DIR/origin.crt" "$TRAEFIK_CERTS_DIR/origin.key"
 
 docker compose -f "$TRAEFIK_CONFIG_DIR/compose.yaml" pull
@@ -204,7 +204,7 @@ fi
 
 # Create directory for OpenTelemetry configuration
 echo "📊 Setting up Node Exporter and OpenTelemetry Collector..."
-OTEL_CONFIG_DIR="/home/openfront/otel"
+OTEL_CONFIG_DIR="/home/laukolaroser/otel"
 
 if [ ! -d "$OTEL_CONFIG_DIR" ]; then
     mkdir -p "$OTEL_CONFIG_DIR"
@@ -224,7 +224,7 @@ receivers:
           relabel_configs:
             - source_labels: [__address__]
               regex: '.*'
-              target_label: openfront.host
+              target_label: laukolaroser.host
               replacement: "\${HOSTNAME}"
 
 processors:
@@ -251,7 +251,7 @@ EOF
 
 # Set ownership of all files
 chmod 600 "$OTEL_CONFIG_DIR/otel-collector-config.yaml"
-chown -R openfront:openfront "$OTEL_CONFIG_DIR"
+chown -R laukolaroser:laukolaroser "$OTEL_CONFIG_DIR"
 
 # Run Node Exporter
 echo "🚀 Starting Node Exporter..."
@@ -294,7 +294,7 @@ fi
 echo "====================================================="
 echo "🎉 SETUP COMPLETE!"
 echo "====================================================="
-echo "The openfront user has been set up and has Docker permissions."
+echo "The laukolaroser user has been set up and has Docker permissions."
 echo "UDP buffer sizes have been configured for optimal QUIC/WebSocket performance."
 echo "Traefik reverse proxy is running (HTTP :80, HTTPS :443 with Cloudflare origin cert)."
 echo "Node Exporter is collecting system metrics."

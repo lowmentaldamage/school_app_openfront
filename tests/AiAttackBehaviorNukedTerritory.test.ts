@@ -3,14 +3,14 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { NationAllianceBehavior } from "@openfront/engine/execution/nation/NationAllianceBehavior";
-import { NationAttackBehavior } from "@openfront/engine/execution/nation/NationAttackBehavior";
-import { NationEmojiBehavior } from "@openfront/engine/execution/nation/NationEmojiBehavior";
-import { NationWarshipBehavior } from "@openfront/engine/execution/nation/NationWarshipBehavior";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { NationAllianceBehavior } from "@laukolaroser/engine/execution/nation/NationAllianceBehavior";
+import { NationAttackBehavior } from "@laukolaroser/engine/execution/nation/NationAttackBehavior";
+import { NationEmojiBehavior } from "@laukolaroser/engine/execution/nation/NationEmojiBehavior";
+import { NationWarshipBehavior } from "@laukolaroser/engine/execution/nation/NationWarshipBehavior";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 import { executeTicks } from "./util/utils";
 

@@ -377,7 +377,7 @@ describe("public profile page", () => {
       expect(modal.querySelector("[data-opened-link]")).toBeNull();
     });
 
-    it("Play OpenFront goes home", async () => {
+    it("Play Laukolaroser goes home", async () => {
       fetchPublicPlayerProfileMock.mockResolvedValue(false);
       await openFromPath("/player/missing1");
       await settle(() =>

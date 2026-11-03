@@ -1,5 +1,5 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_MAP_WEIGHT, MapPlaylist } from "../../src/server/MapPlaylist";
 

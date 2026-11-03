@@ -3,7 +3,7 @@ import {
   type PlayerProfile,
   type PlayerStatsTree,
   type PublicProgress,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";
@@ -58,7 +58,7 @@ export class PlayerProfileModal extends BaseModal {
   // Level / XP, when progression is on and the player has any.
   @state() private progress: PublicProgress | null = null;
   @state() private loading = false;
-  // The link this profile was opened from (`openfront.io/player/<id>`), when
+  // The link this profile was opened from (`laukolaroser.com/player/<id>`), when
   // it was opened from one: the not-found state shows it.
   @state() private openedLink: string | null = null;
   private openedFrom: ProfileOrigin | null = null;

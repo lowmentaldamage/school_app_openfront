@@ -1,0 +1,74 @@
+name: 🪟 Windows test build
+
+# Builds a ready-to-run Windows package: the production game build, its
+# runtime dependencies, a portable Node.js and "Start Laukolaroser.bat"
+# (scripts/launch-local.cjs). Published as the "windows-latest"
+# pre-release: download the zip, unzip, double-click the .bat.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Build Windows zip
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: npm 12
+        run: npm install --global --ignore-scripts npm@12.1.0
+      - name: Install
+        run: npm run inst
+      - name: Production build
+        run: npm run build-prod
+      - name: Smoke test (private mode, login)
+        run: npm run smoke:server
+      - name: Keep runtime dependencies only
+        run: npm prune --omit=dev --ignore-scripts
+      - name: Assemble package
+        shell: pwsh
+        run: |
+          $ver = (node -v)
+          $pkg = "Laukolaroser"
+          New-Item -ItemType Directory -Force $pkg | Out-Null
+          $items = @("src","packages","resources","static","node_modules","scripts","docs","package.json","LICENSE","LICENSE-ASSETS","README.md","index.html","tsconfig.json","tsconfig.base.json")
+          foreach ($i in $items) { if (Test-Path $i) { Copy-Item $i -Destination $pkg -Recurse -Force } }
+          Get-ChildItem -Path . -Filter "*.json" -File | Where-Object { $_.Name -like "tsconfig*" } | Copy-Item -Destination $pkg -Force
+          Invoke-WebRequest "https://nodejs.org/dist/$ver/node-$ver-win-x64.zip" -OutFile node.zip
+          Expand-Archive node.zip -DestinationPath nodetmp
+          Move-Item "nodetmp/node-$ver-win-x64" "$pkg/node"
+          Copy-Item scripts/windows/start.bat "$pkg/Start Laukolaroser.bat"
+          Copy-Item scripts/windows/README.txt "$pkg/README-WINDOWS.txt"
+          Compress-Archive -Path $pkg -DestinationPath laukolaroser-windows.zip -CompressionLevel Optimal
+          (Get-Item laukolaroser-windows.zip).Length / 1MB
+      - name: Test the package starts
+        shell: pwsh
+        run: |
+          Expand-Archive laukolaroser-windows.zip -DestinationPath pkgtest
+          $env:SELFHOST_DATA_DIR = "$PWD/pkgtest/data"
+          $env:SELFHOST_ADMIN_USER = "ciadmin"
+          $env:SELFHOST_ADMIN_PASSWORD = "ci-password-1"
+          Set-Location pkgtest/Laukolaroser
+          node/node.exe scripts/smoke-server.cjs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: laukolaroser-windows
+          path: laukolaroser-windows.zip
+      - name: Publish the windows-latest release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete windows-latest --yes --cleanup-tag || true
+          gh release create windows-latest laukolaroser-windows.zip \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Laukolaroser for Windows (test build)" \
+            --notes "Download laukolaroser-windows.zip, unzip it, double-click 'Start Laukolaroser.bat'. First start asks for an admin username and password; the game opens at http://localhost:3000 and phones on the same Wi-Fi use the address shown in the window. Built from ${GITHUB_SHA::7}."

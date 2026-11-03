@@ -5,11 +5,15 @@ import {
   Tick,
   UnitInfo,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { PlayerLike } from "@openfront/engine-api/game/ReadViews";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { BOMBER } from "../air/Air";
 import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
+import { NAVAL_CLASSES } from "../naval/NavalClasses";
+import { RAIL_UNITS } from "../rail/RailUnits";
+import { hasTech, TECH_EFFECTS } from "../tech/Tech";
 import { assertNever } from "../Util";
 
 export interface NukeMagnitude {
@@ -159,6 +163,19 @@ export class Config {
     return this._gameConfig;
   }
 
+  /**
+   * Gold price of a weapon strike for this player: free for a human with
+   * infinite gold (the game option or the host cheat), like buildings.
+   */
+  strikeCost(baseCost: bigint, player: PlayerLike): bigint {
+    if (player.type() !== PlayerType.Human) return baseCost;
+    const gc = this._gameConfig;
+    const infinite =
+      gc.infiniteGold === true ||
+      (gc.hostCheats?.infiniteGold === true && player.isLobbyCreator());
+    return infinite ? 0n : baseCost;
+  }
+
   cityTroopIncrease(): number {
     return 250_000;
   }
@@ -212,7 +229,37 @@ export class Config {
     let info: UnitInfo;
     switch (type) {
       case UnitType.Warship:
-        info = { maxHealth: 1000 };
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
+        info = { maxHealth: NAVAL_CLASSES[type].maxHealth };
+        break;
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        info = { maxHealth: RAIL_UNITS[type].maxHealth };
+        break;
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.Airbase:
+      case UnitType.RadarStation:
+        info = {
+          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          upgradable: true,
+        };
+        break;
+      case UnitType.OilRig:
+        info = {
+          constructionDuration: this.instantBuild() ? 0 : 8 * 10,
+          upgradable: true,
+        };
+        break;
+      case UnitType.Bomber:
+        info = { maxHealth: BOMBER.maxHealth };
+        break;
+      case UnitType.Fighter:
+        info = {};
         break;
       case UnitType.Shell:
         info = { damage: 250 };
@@ -255,6 +302,8 @@ export class Config {
       case UnitType.MIRVWarhead:
       case UnitType.TradeShip:
       case UnitType.Train:
+      case UnitType.ArtilleryShell:
+      case UnitType.Rocket:
         info = {};
         break;
       default:
@@ -411,6 +460,11 @@ export class Config {
         default:
           assertNever(this._gameConfig.difficulty);
       }
+    }
+
+    // Tech: Conscription.
+    if (player.techMask && hasTech(player.techMask(), "conscription")) {
+      toAdd = (toAdd * TECH_EFFECTS.conscriptionGrowthPercent) / 100;
     }
 
     return Math.min(player.troops() + toAdd, max) - player.troops();

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // GameRenderer only uses GameStartingModal as a type, so importing it there
 // never registers the custom element; register it here.
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import "../../../src/client/GameStartingModal";
 import {
   createRenderer,
@@ -32,6 +32,8 @@ const HUD_TAGS = [
   "settings-modal",
   "graphics-settings-modal",
   "unit-display",
+  "weapons-panel",
+  "research-panel",
   "player-panel",
   "chat-modal",
   "multi-tab-modal",

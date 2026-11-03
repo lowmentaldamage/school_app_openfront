@@ -14,12 +14,12 @@ import {
   RankedType,
   Trios,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig, TeamCountConfig } from "@openfront/engine-api/Schemas";
-import { SAM_CONSTRUCTION_TICKS } from "@openfront/engine-lib/configuration/Config";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { mapPlayerCounts } from "@openfront/shared/MapPlayerCounts";
-import { ScheduledPublicGameType } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig, TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
+import { SAM_CONSTRUCTION_TICKS } from "@laukolaroser/engine-lib/configuration/Config";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { mapPlayerCounts } from "@laukolaroser/shared/MapPlayerCounts";
+import { ScheduledPublicGameType } from "@laukolaroser/shared/WireSchemas";
 import { logger } from "./Logger";
 import { getMapLandTiles } from "./MapLandTiles";
 import { MapWeights } from "./MapWeights";

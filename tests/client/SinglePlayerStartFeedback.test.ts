@@ -1,5 +1,5 @@
-import { GameMapType } from "@openfront/engine-api/game/GameTypes";
-import type { PlayerCosmetics } from "@openfront/shared/WireSchemas";
+import { GameMapType } from "@laukolaroser/engine-api/game/GameTypes";
+import type { PlayerCosmetics } from "@laukolaroser/shared/WireSchemas";
 import { render } from "lit";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

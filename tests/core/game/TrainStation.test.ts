@@ -5,19 +5,19 @@ import {
   GameMode,
   GameType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { TrainExecution } from "@openfront/engine/execution/TrainExecution";
-import { Game, Player, Unit } from "@openfront/engine/game/Game";
-import { Cluster, TrainStation } from "@openfront/engine/game/TrainStation";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { TrainExecution } from "@laukolaroser/engine/execution/TrainExecution";
+import { Game, Player, Unit } from "@laukolaroser/engine/game/Game";
+import { Cluster, TrainStation } from "@laukolaroser/engine/game/TrainStation";
 import { vi, type Mocked } from "vitest";
 
-vi.mock("@openfront/engine/game/Game");
-vi.mock("@openfront/engine-api/game/GameTypes");
-vi.mock("@openfront/engine/execution/TrainExecution");
-vi.mock("@openfront/engine-lib/PseudoRandom");
+vi.mock("@laukolaroser/engine/game/Game");
+vi.mock("@laukolaroser/engine-api/game/GameTypes");
+vi.mock("@laukolaroser/engine/execution/TrainExecution");
+vi.mock("@laukolaroser/engine-lib/PseudoRandom");
 
 describe("TrainStation", () => {
   let game: Mocked<Game>;
@@ -68,6 +68,7 @@ describe("TrainStation", () => {
       owner: vi.fn().mockReturnValue(player),
       level: vi.fn(),
       tradeStopsVisited: vi.fn().mockReturnValue(0),
+      isExpress: vi.fn().mockReturnValue(false),
     } as any;
   });
 

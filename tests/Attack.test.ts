@@ -1,20 +1,20 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameID } from "@openfront/engine-api/Schemas";
-import { AttackExecution } from "@openfront/engine/execution/AttackExecution";
-import { RetreatExecution } from "@openfront/engine/execution/RetreatExecution";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { TransportShipExecution } from "@openfront/engine/execution/TransportShipExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
-import { canBuildTransportShip } from "@openfront/engine/game/TransportShipUtils";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
+import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
+import { RetreatExecution } from "@laukolaroser/engine/execution/RetreatExecution";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { TransportShipExecution } from "@laukolaroser/engine/execution/TransportShipExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
+import { canBuildTransportShip } from "@laukolaroser/engine/game/TransportShipUtils";
 import { setup } from "./util/Setup";
 import { TestConfig } from "./util/TestConfig";
 import { constructionExecution } from "./util/utils";

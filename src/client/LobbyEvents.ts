@@ -1,5 +1,5 @@
-import { GameConfigPatch } from "@openfront/engine-api/Schemas";
-import { GameEvent } from "@openfront/shared/EventBus";
+import { GameConfigPatch } from "@laukolaroser/engine-api/Schemas";
+import { GameEvent } from "@laukolaroser/shared/EventBus";
 
 // Sent from the lobby screens, which load before the game client: here, not
 // in Transport, so emitting them doesn't pull the connection into the

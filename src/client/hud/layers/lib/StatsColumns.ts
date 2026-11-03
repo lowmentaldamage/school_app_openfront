@@ -1,5 +1,5 @@
-import { PlayerType, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { renderNumber, renderTroops } from "@openfront/engine-lib/Format";
+import { PlayerType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { renderNumber, renderTroops } from "@laukolaroser/engine-lib/Format";
 import type { ColumnId, StatsTableKind } from "../../../StatsConstants";
 import { formatPercentage, translateText } from "../../../Utils";
 import type { GameView, PlayerView } from "../../../view";

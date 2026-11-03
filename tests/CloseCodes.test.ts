@@ -5,7 +5,7 @@ import {
   CloseReason,
   isCloseReason,
   isTerminalClose,
-} from "@openfront/shared/CloseCodes";
+} from "@laukolaroser/shared/CloseCodes";
 import fs from "fs";
 import path from "path";
 import { describe, expect, it } from "vitest";

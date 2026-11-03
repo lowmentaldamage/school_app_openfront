@@ -1,15 +1,15 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   PlayerProfile,
   PlayerType,
   Relation,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { AllianceView } from "@openfront/engine-api/game/GameUpdates";
-import { UnitLike } from "@openfront/engine-api/game/ReadViews";
-import { renderNumber, renderTroops } from "@openfront/engine-lib/Format";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { AllianceView } from "@laukolaroser/engine-api/game/GameUpdates";
+import { UnitLike } from "@laukolaroser/engine-api/game/ReadViews";
+import { renderNumber, renderTroops } from "@laukolaroser/engine-lib/Format";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { Controller } from "../../Controller";

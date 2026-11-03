@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllianceInfo,
   AllPlayers,
@@ -26,21 +26,22 @@ import {
   UnitInfo,
   UnitType,
   WarshipState,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdate,
   PlayerUpdate,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   GameLike,
   PlayerLike,
   ReadonlyTileSet,
   UnitLike,
   UnitPredicate,
-} from "@openfront/engine-api/game/ReadViews";
-import { AllPlayersStats, ClientID } from "@openfront/engine-api/Schemas";
-import { MotionPlanRecord } from "@openfront/engine-lib/game/MotionPlans";
+} from "@laukolaroser/engine-api/game/ReadViews";
+import { AllPlayersStats, ClientID } from "@laukolaroser/engine-api/Schemas";
+import { MotionPlanRecord } from "@laukolaroser/engine-lib/game/MotionPlans";
+import type { TechId } from "@laukolaroser/engine-lib/tech/Tech";
 import type { EngineConfig } from "../configuration/EngineConfig";
 import { AbstractGraph } from "../pathfinding/algorithms/AbstractGraph";
 import { PathFinder } from "../pathfinding/types";
@@ -62,7 +63,42 @@ export interface UnitParamsMap {
     patrolTile: TileRef;
   };
 
+  [UnitType.Destroyer]: {
+    patrolTile: TileRef;
+  };
+
+  [UnitType.Battleship]: {
+    patrolTile: TileRef;
+  };
+
+  [UnitType.Submarine]: {
+    patrolTile: TileRef;
+  };
+
+  [UnitType.Carrier]: {
+    patrolTile: TileRef;
+  };
+
+  [UnitType.ArmoredTrain]: Record<string, never>;
+  [UnitType.TroopTrain]: Record<string, never>;
+  [UnitType.RailSAM]: Record<string, never>;
+  [UnitType.GoldMine]: Record<string, never>;
+  [UnitType.Market]: Record<string, never>;
+  [UnitType.OilRig]: Record<string, never>;
+  [UnitType.Airbase]: Record<string, never>;
+  [UnitType.RadarStation]: Record<string, never>;
+  [UnitType.Bomber]: { targetTile?: TileRef };
+  [UnitType.Fighter]: { targetUnit?: Unit };
+
   [UnitType.Shell]: Record<string, never>;
+
+  [UnitType.ArtilleryShell]: {
+    targetTile?: TileRef;
+  };
+
+  [UnitType.Rocket]: {
+    targetTile?: TileRef;
+  };
 
   [UnitType.SAMMissile]: {
     targetUnit: Unit;
@@ -359,6 +395,8 @@ export interface Player extends PlayerLike {
   // Resources & Troops
   gold(): Gold;
   addGold(toAdd: Gold, tile?: TileRef): void;
+  /** True when this player owns land within `range` tiles of `tile`. */
+  ownsLandNear(tile: TileRef, range: number): boolean;
   removeGold(toRemove: Gold): Gold;
 
   // Cumulative trade revenue, surfaced on the live PlayerUpdate so clients can
@@ -442,6 +480,13 @@ export interface Player extends PlayerLike {
   removeAllAlliances(): void;
   createAllianceRequest(recipient: Player): AllianceRequest | null;
   betrayals(): number;
+  /** Tech tree (engine-lib/tech/Tech.ts). */
+  techMask(): number;
+  hasTech(id: TechId): boolean;
+  research(): { tech: TechId; endsAt: number } | null;
+  startResearch(tech: TechId, endsAt: number): void;
+  /** Completes the research in progress; returns its tech. */
+  finishResearch(): TechId | null;
 
   // Targeting
   canTarget(other: Player): boolean;

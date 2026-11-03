@@ -23,7 +23,7 @@ import type {
   Progress,
   ProgressionConfig,
   UserMeResponse,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { NavAccountMenu } from "../../src/client/components/NavAccountMenu";
 import type { GameXpFetchResult } from "../../src/client/ProgressionApi";
 import {

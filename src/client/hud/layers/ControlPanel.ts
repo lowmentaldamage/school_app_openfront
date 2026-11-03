@@ -1,11 +1,15 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { GameMode, GameType, Gold } from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import { ClientID } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { renderNumber, renderTroops } from "@openfront/engine-lib/Format";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import {
+  GameMode,
+  GameType,
+  Gold,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import { ClientID } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { renderNumber, renderTroops } from "@laukolaroser/engine-lib/Format";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { LitElement, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { keyed } from "lit/directives/keyed.js";

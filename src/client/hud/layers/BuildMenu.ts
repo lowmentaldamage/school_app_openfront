@@ -1,14 +1,14 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   BuildableUnit,
   BuildMenus,
   Gold,
   PlayerBuildableUnitType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { renderNumber } from "@openfront/engine-lib/Format";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { css, html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { translateText } from "../../../client/Utils";
@@ -27,6 +27,18 @@ import {
 import { UIState } from "../../UIState";
 import { GameView } from "../../view";
 const warshipIcon = assetUrl("images/BattleshipIconWhite.svg");
+const destroyerIcon = assetUrl("images/LightDestroyerIconWhite.svg");
+const battleshipIcon = assetUrl("images/HeavyBattleshipIconWhite.svg");
+const armoredTrainIcon = assetUrl("images/ArmoredTrainIconWhite.svg");
+const troopTrainIcon = assetUrl("images/TroopTrainIconWhite.svg");
+const railSamIcon = assetUrl("images/RailSamIconWhite.svg");
+const goldMineIcon = assetUrl("images/GoldMineIconWhite.svg");
+const marketIcon = assetUrl("images/MarketIconWhite.svg");
+const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
+const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
+const radarIcon = assetUrl("images/RadarIconWhite.svg");
+const submarineIcon = assetUrl("images/SubmarineIconWhite.svg");
+const carrierIcon = assetUrl("images/CarrierIconWhite.svg");
 const cityIcon = assetUrl("images/CityIconWhite.svg");
 const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");
@@ -74,6 +86,90 @@ const buildTable: BuildItemDisplay[][] = [
       icon: warshipIcon,
       description: "build_menu.desc.warship",
       key: "unit_type.warship",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Destroyer,
+      icon: destroyerIcon,
+      description: "build_menu.desc.destroyer",
+      key: "unit_type.destroyer",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Battleship,
+      icon: battleshipIcon,
+      description: "build_menu.desc.battleship",
+      key: "unit_type.battleship",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Submarine,
+      icon: submarineIcon,
+      description: "build_menu.desc.submarine",
+      key: "unit_type.submarine",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Carrier,
+      icon: carrierIcon,
+      description: "build_menu.desc.carrier",
+      key: "unit_type.carrier",
+      countable: true,
+    },
+    {
+      unitType: UnitType.GoldMine,
+      icon: goldMineIcon,
+      description: "build_menu.desc.gold_mine",
+      key: "unit_type.gold_mine",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Market,
+      icon: marketIcon,
+      description: "build_menu.desc.market",
+      key: "unit_type.market",
+      countable: true,
+    },
+    {
+      unitType: UnitType.OilRig,
+      icon: oilRigIcon,
+      description: "build_menu.desc.oil_rig",
+      key: "unit_type.oil_rig",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Airbase,
+      icon: airbaseIcon,
+      description: "build_menu.desc.airbase",
+      key: "unit_type.airbase",
+      countable: true,
+    },
+    {
+      unitType: UnitType.RadarStation,
+      icon: radarIcon,
+      description: "build_menu.desc.radar_station",
+      key: "unit_type.radar_station",
+      countable: true,
+    },
+    {
+      unitType: UnitType.ArmoredTrain,
+      icon: armoredTrainIcon,
+      description: "build_menu.desc.armored_train",
+      key: "unit_type.armored_train",
+      countable: true,
+    },
+    {
+      unitType: UnitType.TroopTrain,
+      icon: troopTrainIcon,
+      description: "build_menu.desc.troop_train",
+      key: "unit_type.troop_train",
+      countable: true,
+    },
+    {
+      unitType: UnitType.RailSAM,
+      icon: railSamIcon,
+      description: "build_menu.desc.rail_sam",
+      key: "unit_type.rail_sam",
       countable: true,
     },
     {

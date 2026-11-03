@@ -1,4 +1,4 @@
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { TemplateResult } from "lit";
 import { state } from "lit/decorators.js";
 import { getUserMe } from "./Api";

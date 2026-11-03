@@ -6,7 +6,7 @@
  * cannot be re-defined in the file's single jsdom, so a second import of Main
  * (after vi.resetModules) would throw on the first `customElements.define`.
  */
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import fs from "node:fs";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -504,7 +504,7 @@ describe("Client.initialize() booted from Main.ts module scope", () => {
    * OPE-439. The entry-point components dim their own buttons, but every join
    * -- matchmaking's, a deep link, the host/join modals -- funnels through
    * handleJoinLobby without passing one, so the funnel gate is the only thing
-   * that covers them. This is a WEB boot (no openfrontDesktop), which is
+   * that covers them. This is a WEB boot (no laukolaroserDesktop), which is
    * precisely what the pre-existing desktop gate could not cover.
    *
    * Driven through the real ServerList module: the reachability the funnel

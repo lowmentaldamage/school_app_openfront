@@ -5,14 +5,14 @@ import {
   GameMode,
   GameType,
   Nation,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   AdditionalNation,
   Nation as ManifestNation,
-} from "@openfront/engine-api/game/MapFiles";
-import { GameConfig, GameStartInfo } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
-import { createNationsForGame } from "@openfront/engine/game/NationCreation";
+} from "@laukolaroser/engine-api/game/MapFiles";
+import { GameConfig, GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
+import { createNationsForGame } from "@laukolaroser/engine/game/NationCreation";
 
 function makeManifestNations(count: number): ManifestNation[] {
   const result: ManifestNation[] = [];

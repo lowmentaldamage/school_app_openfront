@@ -29,7 +29,7 @@ import {
  * `needs-account` IS included, deliberately, though it is now the weakest
  * member of this set. It used to be here mainly because the shell reported an
  * unreachable status endpoint as `needs-account`, which made it genuinely
- * transient; openfront-desktop#91 and #5465 fixed that, so an API outage now
+ * transient; laukolaroser-desktop#91 and #5465 fixed that, so an API outage now
  * arrives as `network` and this reason means what it says.
  *
  * What keeps it here is the remaining case: a player can complete linking on

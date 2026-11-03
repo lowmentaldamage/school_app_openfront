@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/client/ClientEnv", () => ({

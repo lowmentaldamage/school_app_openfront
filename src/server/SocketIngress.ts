@@ -1,11 +1,11 @@
-import { ClientID } from "@openfront/engine-api/Schemas";
-import { CloseCode, CloseReason } from "@openfront/shared/CloseCodes";
+import { ClientID } from "@laukolaroser/engine-api/Schemas";
+import { CloseCode, CloseReason } from "@laukolaroser/shared/CloseCodes";
 import {
   ClientMessage,
   ClientMessageSchema,
-} from "@openfront/shared/WireSchemas";
-import { decodeClientMessageUnvalidated } from "@openfront/shared/ZbinWire";
-import { ZbContext } from "@openfront/zbin";
+} from "@laukolaroser/shared/WireSchemas";
+import { decodeClientMessageUnvalidated } from "@laukolaroser/shared/ZbinWire";
+import { ZbContext } from "@laukolaroser/zbin";
 import { Logger } from "winston";
 import { z } from "zod";
 import { Client } from "./Client";

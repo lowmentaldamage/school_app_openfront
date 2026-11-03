@@ -1,4 +1,4 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { DebugSpan } from "../../utilities/DebugSpan";
 import {
   AStarWaterBounded,

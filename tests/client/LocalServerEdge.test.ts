@@ -1,6 +1,6 @@
-import type { GameStartInfo } from "@openfront/engine-api/Schemas";
-import { EventBus } from "@openfront/shared/EventBus";
-import type { ServerMessage } from "@openfront/shared/WireSchemas";
+import type { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import type { ServerMessage } from "@laukolaroser/shared/WireSchemas";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/client/Auth", () => ({

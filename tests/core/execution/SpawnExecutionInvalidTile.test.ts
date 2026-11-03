@@ -1,7 +1,10 @@
-import { PlayerInfo, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { GameID } from "@openfront/engine-api/Schemas";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { Game } from "@openfront/engine/game/Game";
+import {
+  PlayerInfo,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { Game } from "@laukolaroser/engine/game/Game";
 import path from "path";
 import { beforeEach, describe, expect, test } from "vitest";
 import { setup } from "../../util/Setup";

@@ -5,11 +5,11 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { NationExecution } from "@openfront/engine/execution/NationExecution";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { Game } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { NationExecution } from "@laukolaroser/engine/execution/NationExecution";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { Game } from "@laukolaroser/engine/game/Game";
 import { setup } from "../../util/Setup";
 import { expectSnapshotRoundTrip } from "../../util/Snapshot";
 import { TestConfig, UseRealAttackLogic } from "../../util/TestConfig";

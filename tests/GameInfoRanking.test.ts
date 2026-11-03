@@ -4,16 +4,16 @@ import {
   GameMapType,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   GOLD_INDEX_STEAL,
   GOLD_INDEX_TRADE,
   GOLD_INDEX_TRAIN_OTHER,
   GOLD_INDEX_TRAIN_SELF,
   GOLD_INDEX_WAR,
-} from "@openfront/engine-api/StatsSchemas";
-import { AnalyticsRecord } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/StatsSchemas";
+import { AnalyticsRecord } from "@laukolaroser/shared/WireSchemas";
 import {
   Ranking,
   RankType,

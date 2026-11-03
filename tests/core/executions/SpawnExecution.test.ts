@@ -1,12 +1,12 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   GameType,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { SpawnExecution } from "@openfront/engine/execution/SpawnExecution";
-import { getSpawnTiles } from "@openfront/engine/execution/Util";
-import { Game } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
+import { getSpawnTiles } from "@laukolaroser/engine/execution/Util";
+import { Game } from "@laukolaroser/engine/game/Game";
 import { describe, expect, it } from "vitest";
 import { playerInfo, setup } from "../../util/Setup";
 

@@ -10,12 +10,12 @@ import {
   PlayerID,
   PlayerType,
   TrainType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ATTACK_DELTA_OUTGOING,
   PlayerUpdate,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   PlayerState,
   PlayerStatic,
@@ -174,6 +174,9 @@ export function playerStateFromUpdate(pu: PlayerUpdate): PlayerState {
     isDecaying: pu.isDecaying ?? false,
     markedDoomsdayClockTick: pu.markedDoomsdayClockTick ?? -1,
     betrayals: pu.betrayals!,
+    techMask: pu.techMask ?? 0,
+    researchTech: pu.researchTech ?? -1,
+    researchEndsAt: pu.researchEndsAt ?? -1,
     hasSpawned: pu.hasSpawned!,
     spawnTile: pu.spawnTile,
     lastDeleteUnitTick: pu.lastDeleteUnitTick!,

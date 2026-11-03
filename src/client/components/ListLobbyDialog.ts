@@ -1,11 +1,11 @@
-import { Duos, Quads, Trios } from "@openfront/engine-api/game/GameTypes";
-import { TeamCountConfig } from "@openfront/engine-api/Schemas";
+import { Duos, Quads, Trios } from "@laukolaroser/engine-api/game/GameTypes";
+import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   HOSTED_LOBBY_AUTO_START_MS,
   MAX_HOSTED_LOBBY_PLAYERS,
   MIN_HOSTED_LOBBY_AUTO_START_MS,
   MIN_HOSTED_LOBBY_PLAYERS,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { html, LitElement, render as litRender, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { translateText } from "../Utils";

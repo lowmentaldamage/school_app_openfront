@@ -52,10 +52,10 @@ describe("tribe-name spend paths map the debt reason", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "test",
-      serverHost: "main.openfront.dev",
+      serverHost: "main.laukolaroser.dev",
     };
     ClientEnv.reset();
     fetchMock = vi.fn();

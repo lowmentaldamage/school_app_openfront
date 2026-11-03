@@ -2,8 +2,8 @@ import {
   Cell,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { performance } from "node:perf_hooks";
 import v8 from "node:v8";
 import {

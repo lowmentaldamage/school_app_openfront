@@ -1,6 +1,6 @@
-import { GAME_ID_REGEX } from "@openfront/engine-api/Schemas";
-import { ClusterConfigSchema } from "@openfront/shared/ClusterConfig";
-import { generateGameID } from "@openfront/shared/SharedUtil";
+import { GAME_ID_REGEX } from "@laukolaroser/engine-api/Schemas";
+import { ClusterConfigSchema } from "@laukolaroser/shared/ClusterConfig";
+import { generateGameID } from "@laukolaroser/shared/SharedUtil";
 import { describe, expect, it } from "vitest";
 
 const entry = (host: string, numWorkers = 2) => ({ host, numWorkers });
@@ -8,8 +8,8 @@ const entry = (host: string, numWorkers = 2) => ({ host, numWorkers });
 describe("ClusterConfigSchema", () => {
   it("accepts a valid multi-entry map", () => {
     const result = ClusterConfigSchema.safeParse({
-      a: entry("blue.openfront.io", 16),
-      b: entry("green.openfront.io", 16),
+      a: entry("blue.laukolaroser.com", 16),
+      b: entry("green.laukolaroser.com", 16),
     });
     expect(result.success).toBe(true);
   });

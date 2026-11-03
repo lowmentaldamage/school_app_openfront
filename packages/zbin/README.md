@@ -34,7 +34,7 @@ reordering object fields, inserting an enum member, or reordering union
 variants all produce structurally valid output that passes `parseBytes` with
 the wrong values. Truncation is caught; semantic drift is not.
 
-OpenFront ships the client and server together, so this is a deliberate
+Laukolaroser ships the client and server together, so this is a deliberate
 trade: no per-message version overhead, in exchange for requiring that
 everything talking zbin comes from one build. If that ever stops being true,
 a version must be added to the handshake before any zbin frame is sent.
@@ -135,7 +135,7 @@ arriving from a peer.**
 `decodeBytesUnvalidated` returns `z.output<S>` by assertion only: nothing is
 checked, so `min`/`max`/`regex`/`.refine()` are all skipped and a hostile
 payload can hand back a 1 MB string where the schema says `max: 4`, or `NaN`
-from a `zb.float()`. Note that OpenFront's server is an intent _relay_ — a
+from a `zb.float()`. Note that Laukolaroser's server is an intent _relay_ — a
 client receiving a turn is receiving content authored by other clients — so
 "the socket is trusted" is not the same as "the values are trusted". Reach for
 this only on data this process produced itself.

@@ -1,4 +1,4 @@
-import type { TileRef } from "@openfront/engine-api/game/GameMap";
+import type { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 
 /** TrainType enum — numeric values matching UnitState.trainType. */
 export enum TrainType {
@@ -81,6 +81,12 @@ export interface PlayerState {
   isDecaying: boolean;
   markedDoomsdayClockTick: number;
   betrayals: number;
+  /** Researched techs, bitmask (engine-lib/tech/Tech.ts). */
+  techMask?: number;
+  /** Tech index being researched, -1 for none. */
+  researchTech?: number;
+  /** Tick the research completes, -1 for none. */
+  researchEndsAt?: number;
   hasSpawned: boolean;
   /** TileRef the player picked as their spawn (undefined if not yet spawned). */
   spawnTile?: number;

@@ -1,7 +1,7 @@
 import {
   readSnapshotHeader,
   SNAPSHOT_FORMAT_VERSION,
-} from "@openfront/engine/snapshot/GameSnapshot";
+} from "@laukolaroser/engine/snapshot/GameSnapshot";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

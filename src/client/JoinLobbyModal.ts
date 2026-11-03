@@ -1,14 +1,18 @@
-import { GameMode, GameType, maps } from "@openfront/engine-api/game/GameTypes";
-import { GAME_ID_REGEX, GameConfig } from "@openfront/engine-api/Schemas";
-import { assetUrl } from "@openfront/shared/AssetUrls";
-import { EventBus } from "@openfront/shared/EventBus";
+import {
+  GameMode,
+  GameType,
+  maps,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GAME_ID_REGEX, GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   ClientInfo,
   GameInfo,
   GameRecordSchema,
   LobbyInfoEvent,
   PublicGameInfo,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { html, TemplateResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";
@@ -25,6 +29,10 @@ import { getApiBase } from "./Api";
 import { BaseModal } from "./components/BaseModal";
 import { GameStartAlertController } from "./components/GameStartAlertController";
 import { hasMapDetails, renderMapDetails } from "./components/map/MapDetails";
+import {
+  fallbackToThumbnail,
+  mapImageSrc,
+} from "./components/map/MapPreviewImage";
 import { inviteFriendsButton } from "./components/ui/InviteFriendsButton";
 import { DEFAULT_TITLE_CLASS, modalHeader } from "./components/ui/ModalHeader";
 import { gamePortal } from "./GamePortal";
@@ -713,6 +721,12 @@ export class JoinLobbyModal extends BaseModal {
     const thumbnailUrl = assetUrl(
       `maps/${encodeURIComponent(normalizedMap)}/thumbnail.webp`,
     );
+    const previewUrl = mapImageSrc({
+      webpPath: thumbnailUrl,
+      preview3dPath: assetUrl(
+        `maps/${encodeURIComponent(normalizedMap)}/preview3d.webp`,
+      ),
+    });
     const modeSubtitle = getGameModeLabel(c);
 
     const tags = notableLobbySettings(c, this.nationCount).map(
@@ -743,11 +757,18 @@ export class JoinLobbyModal extends BaseModal {
           } shrink-0 rounded-lg border border-white/10 bg-black/20 overflow-hidden"
         >
           <img
-            src=${thumbnailUrl}
+            src=${previewUrl}
             alt=${mapName ?? c.gameMap}
             class="block w-full max-h-60 object-contain"
             @error=${(e: Event) => {
-              const frame = (e.target as HTMLElement).parentElement;
+              // A missing 3D preview falls back to the flat thumbnail; if
+              // that fails too, the frame hides itself.
+              const img = e.target as HTMLImageElement;
+              if (previewUrl !== thumbnailUrl && img.dataset.fellBack !== "1") {
+                fallbackToThumbnail(thumbnailUrl)(e);
+                return;
+              }
+              const frame = img.parentElement;
               if (frame) frame.style.display = "none";
             }}
           />
@@ -918,8 +939,8 @@ export class JoinLobbyModal extends BaseModal {
     try {
       const url = new URL(input);
       // Portal invite links carry the id as a query param: gdgameId on Poki
-      // (poki.com/en/g/openfront?gdgameId=…), gameId on CrazyGames. Checked
-      // before the path, since CrazyGames' /game/openfront looks like an id.
+      // (poki.com/en/g/laukolaroser?gdgameId=…), gameId on CrazyGames. Checked
+      // before the path, since CrazyGames' /game/laukolaroser looks like an id.
       for (const param of ["gdgameId", "gameId"]) {
         const value = url.searchParams.get(param);
         if (value && GAME_ID_REGEX.test(value)) return value;

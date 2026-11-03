@@ -1,6 +1,6 @@
-import { Emoji, flattenedEmojiTable } from "@openfront/engine-api/Schemas";
-import { Cosmetics } from "@openfront/shared/CosmeticSchemas";
-import { PlayerPattern } from "@openfront/shared/WireSchemas";
+import { Emoji, flattenedEmojiTable } from "@laukolaroser/engine-api/Schemas";
+import { Cosmetics } from "@laukolaroser/shared/CosmeticSchemas";
+import { PlayerPattern } from "@laukolaroser/shared/WireSchemas";
 import {
   GraphicsOverrides,
   GraphicsOverridesSchema,
@@ -66,6 +66,7 @@ export function getDefaultKeybinds(isMac: boolean): Record<string, string> {
     resetGfx: "KeyR",
     selectAllWarships: "KeyX",
     pauseGame: "KeyP",
+    openResearch: "KeyI",
     gameSpeedUp: "Period",
     gameSpeedDown: "Comma",
     altKey: "AltLeft",
@@ -537,6 +538,24 @@ export class UserSettings {
     this.setBool(MAP_LAYERS_KEY, !this.mapLayers());
   }
 
+  /** 3D view: sun moves through a day/night cycle (visual only). */
+  dayNightCycle() {
+    return this.getBool("settings.dayNightCycle", true);
+  }
+
+  toggleDayNightCycle() {
+    this.setBool("settings.dayNightCycle", !this.dayNightCycle());
+  }
+
+  /** 3D view: clouds, rain, fog and storms (visual only). */
+  weatherEffects() {
+    return this.getBool("settings.weatherEffects", true);
+  }
+
+  toggleWeatherEffects() {
+    this.setBool("settings.weatherEffects", !this.weatherEffects());
+  }
+
   toggleAlertFrame() {
     this.setBool("settings.alertFrame", !this.alertFrame());
   }
@@ -549,8 +568,13 @@ export class UserSettings {
     this.setBool("settings.helpMessages", !this.helpMessages());
   }
 
+  /**
+   * In-game tutorial hints. Off by default: new players get the guided
+   * game from the menu's Tutorial button, which switches the hints back on
+   * for the solo game it leads into (SinglePlayerModal.startSoloWithGuide).
+   */
   tutorialDismissed() {
-    return this.getBool("settings.tutorialDismissed", false);
+    return this.getBool("settings.tutorialDismissed", true);
   }
 
   setTutorialDismissed(value: boolean) {

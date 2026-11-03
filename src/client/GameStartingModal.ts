@@ -20,7 +20,7 @@ export class GameStartingModal extends LitElement {
         }"
       ></div>
       <div
-        class="fixed top-1/2 left-1/2 bg-zinc-900/90 backdrop-blur-md border border-white/10 p-6 rounded-2xl z-[9999] shadow-2xl text-white w-[400px] text-center transition-all duration-300 -translate-x-1/2 ${
+        class="fixed top-1/2 left-1/2 bg-zinc-900/90 backdrop-blur-md border border-white/10 p-6 rounded-2xl z-[9999] shadow-2xl text-white w-[min(400px,calc(100vw-2rem))] text-center transition-all duration-300 -translate-x-1/2 ${
           isVisible
             ? "opacity-100 visible -translate-y-1/2"
             : "opacity-0 invisible -translate-y-[48%]"
@@ -32,7 +32,7 @@ export class GameStartingModal extends LitElement {
           ${translateText("main.copyright")}
         </div>
         <a
-          href="https://github.com/openfrontio/OpenFrontIO/blob/main/CREDITS.md"
+          href="https://github.com/lowmentaldamage/school_app_openfront/blob/HEAD/CREDITS.md"
           target="_blank"
           rel="noopener noreferrer"
           class="block mb-4 text-lg font-medium tracking-wider uppercase text-malibu-blue no-underline transition-colors duration-200 hover:text-aquarius"

@@ -12,11 +12,11 @@ import {
   type RailroadSnapUpdate,
   type SpawnPhaseEndUpdate,
   type UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   PackedUnitUpdateDecoder,
   UNIT_UPDATE_STRIDE,
-} from "@openfront/engine-lib/game/PackedUnitUpdates";
+} from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
 import type { NormalizedFrame } from "../FrameNormalizer";
 import {
   RailroadEventKind,

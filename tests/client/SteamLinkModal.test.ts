@@ -1,4 +1,4 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mocks ───────────────────────────────────────────────────────────────
@@ -355,7 +355,7 @@ describe("SteamLinkModal", () => {
   // — the default state (usernameStatus starts at "unclaimed") — so this is
   // the common case, not an edge case. The confirm step exists precisely
   // because a shared machine's browser might be logged into someone else's
-  // OpenFront session; showing a placeholder noun instead of an identifying
+  // Laukolaroser session; showing a placeholder noun instead of an identifying
   // value there guts the whole point of the screen. Follows the repo-wide
   // `username ?? publicId` convention (see ApiSchemas.ts / PlayerName.ts).
   it("falls back to the account's publicId when the username is unclaimed (null), never a placeholder noun", async () => {
@@ -803,7 +803,7 @@ describe("SteamLinkModal", () => {
   // ─── The discard confirmation ──────────────────────────────────────────
   //
   // `steam_has_progress` used to be a dead end: the Steam account already
-  // belongs to an OpenFront account created by the first launch, the link is
+  // belongs to an Laukolaroser account created by the first launch, the link is
   // permanent, and the only way out was a support ticket. The server may now
   // offer to discard that account, and these cover the modal's half of it.
   describe("conflict discard", () => {

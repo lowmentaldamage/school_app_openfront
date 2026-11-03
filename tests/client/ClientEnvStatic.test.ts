@@ -1,5 +1,5 @@
-import { GameEnv } from "@openfront/shared/configuration/Env";
-import { ServerList } from "@openfront/shared/ServerList";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
+import { ServerList } from "@laukolaroser/shared/ServerList";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ClientEnv, NoServerError } from "../../src/client/ClientEnv";
 
@@ -17,13 +17,13 @@ const LIST: ServerList = {
   latest: OWN,
   servers: {
     c: {
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
       version: OTHER,
       state: "draining",
     },
     d: {
-      host: "falk2-b.openfront.io",
+      host: "falk2-b.laukolaroser.com",
       numWorkers: 8,
       version: OWN,
       state: "open",
@@ -36,7 +36,7 @@ function staticPage() {
   (window as any).BOOTSTRAP_CONFIG = {
     gameEnv: "prod",
     turnstileSiteKey: "site-key",
-    jwtAudience: "openfront.io",
+    jwtAudience: "laukolaroser.com",
     gitCommit: OWN,
   };
 }
@@ -59,7 +59,7 @@ function stubLocation(host: string) {
 describe("a page carrying only environment values", () => {
   beforeEach(() => {
     staticPage();
-    stubLocation("openfront.io");
+    stubLocation("laukolaroser.com");
   });
 
   afterEach(() => {
@@ -70,9 +70,9 @@ describe("a page carrying only environment values", () => {
   it("boots: the environment values all answer", () => {
     expect(ClientEnv.env()).toBe(GameEnv.Prod);
     expect(ClientEnv.gitCommit()).toBe(OWN);
-    expect(ClientEnv.jwtAudience()).toBe("openfront.io");
+    expect(ClientEnv.jwtAudience()).toBe("laukolaroser.com");
     expect(ClientEnv.turnstileSiteKey()).toBe("site-key");
-    expect(ClientEnv.jwtIssuer()).toBe("https://api.openfront.io");
+    expect(ClientEnv.jwtIssuer()).toBe("https://api.laukolaroser.com");
   });
 
   it("reports no instance id rather than throwing", () => {
@@ -119,32 +119,32 @@ describe("a page carrying only environment values", () => {
     // `/game/<id>`, so the WrongWorker redirect must not throw where the
     // socket bases do.
     expect(ClientEnv.gameNavigateBase("dAbCd12345")).toBe(
-      "https://openfront.io",
+      "https://laukolaroser.com",
     );
 
     ClientEnv.applyServerList(LIST, "d");
     // Once a server is known it is the same answer gameHttpBase gives.
     expect(ClientEnv.gameNavigateBase("dAbCd12345")).toBe(
-      "https://falk2-b.openfront.io",
+      "https://falk2-b.laukolaroser.com",
     );
     expect(ClientEnv.gameNavigateBase("cAbCd12345")).toBe(
-      "https://falk2-a.openfront.io",
+      "https://falk2-a.laukolaroser.com",
     );
   });
 
   it("answers from the list once it is applied", () => {
     ClientEnv.applyServerList(LIST, "d");
     expect(ClientEnv.numWorkers()).toBe(8);
-    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.openfront.io");
-    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.openfront.io");
+    expect(ClientEnv.serverWsBase()).toBe("wss://falk2-b.laukolaroser.com");
+    expect(ClientEnv.serverHttpBase()).toBe("https://falk2-b.laukolaroser.com");
     // A foreign letter still routes to its own server, with its own worker
     // count, exactly as it does with an injected cluster map.
     expect(ClientEnv.gameHttpBase("cAbCd12345")).toBe(
-      "https://falk2-a.openfront.io",
+      "https://falk2-a.laukolaroser.com",
     );
     expect(ClientEnv.resolveGame("cAbCd12345")).toEqual({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
   });
@@ -203,7 +203,7 @@ describe("a page a game server rendered", () => {
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       turnstileSiteKey: "site-key",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       gitCommit: OWN,
       ...overrides,
     };
@@ -230,10 +230,10 @@ describe("a page a game server rendered", () => {
   });
 
   it("targets the injected serverHost, not the document, on desktop", () => {
-    // app://openfront — `window.location.host` is the string "openfront".
-    bootstrap({ serverHost: "blue.openfront.io" });
-    expect(ClientEnv.serverWsBase()).toBe("wss://blue.openfront.io");
-    expect(ClientEnv.serverHttpBase()).toBe("https://blue.openfront.io");
+    // app://laukolaroser — `window.location.host` is the string "laukolaroser".
+    bootstrap({ serverHost: "blue.laukolaroser.com" });
+    expect(ClientEnv.serverWsBase()).toBe("wss://blue.laukolaroser.com");
+    expect(ClientEnv.serverHttpBase()).toBe("https://blue.laukolaroser.com");
   });
 });
 
@@ -253,7 +253,7 @@ describe("servedByGameServer", () => {
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       turnstileSiteKey: "site-key",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       gitCommit: OWN,
       ...overrides,
     };
@@ -267,14 +267,14 @@ describe("servedByGameServer", () => {
   it("is true when a serverHost was injected", () => {
     // The desktop shell, and any page a server rendered with an explicit
     // host.
-    bootstrap({ serverHost: "blue.openfront.io" });
+    bootstrap({ serverHost: "blue.laukolaroser.com" });
     expect(ClientEnv.servedByGameServer()).toBe(true);
   });
 
   it("is true when the cluster map and this page's letter were injected", () => {
     // What a web page a game server rendered carries instead of a host.
     bootstrap({
-      cluster: { a: { host: "blue.openfront.io", numWorkers: 2 } },
+      cluster: { a: { host: "blue.laukolaroser.com", numWorkers: 2 } },
       instanceLetter: "a",
     });
     expect(ClientEnv.servedByGameServer()).toBe(true);
@@ -284,7 +284,9 @@ describe("servedByGameServer", () => {
     // Neither half names a server on its own: a map with no own letter says
     // where other deployments are, not which one served this page, and a
     // letter with no map resolves to nothing.
-    bootstrap({ cluster: { a: { host: "blue.openfront.io", numWorkers: 2 } } });
+    bootstrap({
+      cluster: { a: { host: "blue.laukolaroser.com", numWorkers: 2 } },
+    });
     expect(ClientEnv.servedByGameServer()).toBe(false);
     bootstrap({ instanceLetter: "a" });
     expect(ClientEnv.servedByGameServer()).toBe(false);
@@ -293,7 +295,7 @@ describe("servedByGameServer", () => {
   it("is false for a siteHost or a legacy numWorkers alone", () => {
     // A site is not a server (the apex a static page was served behind),
     // and a bare worker count names no host to reach.
-    bootstrap({ siteHost: "openfront.io", numWorkers: 4 });
+    bootstrap({ siteHost: "laukolaroser.com", numWorkers: 4 });
     expect(ClientEnv.servedByGameServer()).toBe(false);
   });
 });

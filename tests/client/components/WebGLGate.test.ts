@@ -10,7 +10,7 @@ describe("webgl-gate", () => {
 
   afterEach(() => {
     gate?.remove();
-    window.openfrontDesktop = undefined;
+    window.laukolaroserDesktop = undefined;
   });
 
   async function mount(status: WebGLGateStatus): Promise<WebGLGate> {
@@ -31,7 +31,7 @@ describe("webgl-gate", () => {
   it.each<WebGLGateStatus>(["unsupported", "software"])(
     "shows Steam instructions instead of browser ones in the desktop shell (%s)",
     async (status) => {
-      window.openfrontDesktop = {};
+      window.laukolaroserDesktop = {};
       await mount(status);
 
       expect(gate!.textContent).toContain(
@@ -44,7 +44,7 @@ describe("webgl-gate", () => {
 
   it("quits through the shell from the desktop gate", async () => {
     const quit = vi.fn(() => Promise.resolve());
-    window.openfrontDesktop = { quit };
+    window.laukolaroserDesktop = { quit };
     await mount("unsupported");
 
     const button = gate!.querySelector("button");
@@ -54,7 +54,7 @@ describe("webgl-gate", () => {
   });
 
   it("has an en.json entry for every string on the desktop gate", async () => {
-    window.openfrontDesktop = { quit: () => Promise.resolve() };
+    window.laukolaroserDesktop = { quit: () => Promise.resolve() };
     await mount("unsupported");
 
     const keys = [...gate!.querySelectorAll("h2, p, li, button")].map((el) =>
@@ -68,14 +68,14 @@ describe("webgl-gate", () => {
   });
 
   it("omits the quit button on a shell without quit()", async () => {
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     await mount("unsupported");
 
     expect(gate!.querySelector("button")).toBeNull();
   });
 
   it("keeps the fingerprinting warning in the desktop shell", async () => {
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     await mount("limited");
 
     expect(gate!.textContent).toContain("Your browser is limiting WebGL");

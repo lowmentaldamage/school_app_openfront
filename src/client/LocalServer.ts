@@ -3,13 +3,13 @@ import {
   ClientID,
   StampedIntent,
   Turn,
-} from "@openfront/engine-api/Schemas";
-import { EventBus } from "@openfront/shared/EventBus";
+} from "@laukolaroser/engine-api/Schemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import {
   createPartialGameRecord,
   decompressGameRecord,
   replacer,
-} from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/shared/SharedUtil";
 import {
   ClientMessage,
   ClientSendWinnerMessage,
@@ -18,7 +18,7 @@ import {
   PlayerRecord,
   ServerMessage,
   ServerStartGameMessage,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { ClientEnv } from "src/client/ClientEnv";
 import { z } from "zod";
 import { getApiBase } from "./Api";
@@ -29,6 +29,8 @@ import {
   GameSpeedUpIntentEvent,
   ReplaySpeedChangeEvent,
 } from "./InputHandler";
+import { isSelfHosted, reportSoloGame } from "./selfhost/SelfHostSession";
+import { winnerClientIds } from "./selfhost/WinnerIds";
 import { startSingleplayerHeartbeat } from "./SingleplayerHeartbeat";
 import {
   defaultReplaySpeedMultiplier,
@@ -345,6 +347,13 @@ export class LocalServer {
       return;
     }
 
+    if (isSelfHosted()) {
+      // Private server: no external archive; record the result in the
+      // player's account stats instead.
+      const won = winnerClientIds(result.data.info.winner).has(this.clientID!);
+      void reportSoloGame(won, result.data.info.duration).catch(() => {});
+      return;
+    }
     void this.archiveGame(result.data, unloading);
   }
 

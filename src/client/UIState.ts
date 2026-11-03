@@ -1,4 +1,7 @@
-import { PlayerBuildableUnitType } from "@openfront/engine-api/game/GameTypes";
+import {
+  PlayerBuildableUnitType,
+  type WeaponId,
+} from "@laukolaroser/engine-api/game/GameTypes";
 
 export interface UIState {
   preventStacking?: boolean;
@@ -6,4 +9,6 @@ export interface UIState {
   ghostStructure: PlayerBuildableUnitType | null;
   rocketDirectionUp: boolean;
   upgradeMultiplier: number;
+  /** Weapon being aimed (next map click fires it), or null. */
+  weaponTargeting?: WeaponId | null;
 }

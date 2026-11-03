@@ -1,6 +1,6 @@
-import type { GameStartInfo } from "@openfront/engine-api/Schemas";
-import { EventBus } from "@openfront/shared/EventBus";
-import type { ClientMessage } from "@openfront/shared/WireSchemas";
+import type { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { EventBus } from "@laukolaroser/shared/EventBus";
+import type { ClientMessage } from "@laukolaroser/shared/WireSchemas";
 import { gunzipSync } from "node:zlib";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

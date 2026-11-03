@@ -26,7 +26,7 @@ describe("portal login", () => {
       gameEnv: "prod",
       numWorkers: 1,
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.dev",
+      jwtAudience: "laukolaroser.dev",
       instanceId: "web",
       gitCommit: "test",
     };
@@ -56,7 +56,7 @@ describe("portal login", () => {
       await userAuth();
       expect(fetchMock).toHaveBeenCalledOnce();
       const [url, init] = fetchMock.mock.calls[0];
-      expect(url).toBe(`https://api.openfront.dev/auth/${name}`);
+      expect(url).toBe(`https://api.laukolaroser.dev/auth/${name}`);
       expect(JSON.parse(init.body)).toEqual({ token: "portal-token" });
       // Bounded, so an exchange that never answers can't stall userAuth().
       expect(init.signal).toBeInstanceOf(AbortSignal);
@@ -68,7 +68,7 @@ describe("portal login", () => {
     await userAuth();
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "https://api.openfront.dev/auth/refresh",
+      "https://api.laukolaroser.dev/auth/refresh",
     );
   });
 });

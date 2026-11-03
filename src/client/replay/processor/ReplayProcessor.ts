@@ -24,20 +24,23 @@ import {
   GameUpdateType,
   GameUpdateViewData,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapFiles } from "@openfront/engine-api/game/MapFiles";
-import { GameStartInfo, Turn } from "@openfront/engine-api/Schemas";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { GameMapLoader, loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapFiles } from "@laukolaroser/engine-api/game/MapFiles";
+import { GameStartInfo, Turn } from "@laukolaroser/engine-api/Schemas";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import {
+  GameMapLoader,
+  loadMapFiles,
+} from "@laukolaroser/shared/GameMapLoader";
 import {
   decompressGameRecord,
   toWireGameStartInfo,
-} from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/shared/SharedUtil";
 import {
   GameRecord,
   WireGameStartInfo,
   WireGameStartInfoSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { StreamingEncoder } from "../codec/encode/StreamingEncoder";
 import type { GzipFn, ReplayAppend, ReplayBase } from "../codec/ReplayTypes";
 import { terrainOf } from "../codec/Terrain";

@@ -1,4 +1,4 @@
-import { GameEnv } from "@openfront/shared/configuration/Env";
+import { GameEnv } from "@laukolaroser/shared/configuration/Env";
 import cluster, { Worker } from "cluster";
 import crypto from "crypto";
 import express from "express";
@@ -26,6 +26,11 @@ import { MasterLobbyService } from "./MasterLobbyService";
 import { setNoStoreHeaders } from "./NoStoreHeaders";
 import { startPolling } from "./PollingLoop";
 import { renderAppShell } from "./RenderHtml";
+import { selfHostEnabled, sessionSecret } from "./selfhost/SelfHost";
+import {
+  bootstrapAdmin,
+  createSelfHostRouter,
+} from "./selfhost/SelfHostRoutes";
 import { ServerEnv } from "./ServerEnv";
 import { applyStaticAssetCacheControl } from "./StaticAssetCache";
 
@@ -59,7 +64,7 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Desktop (Steam) shell release descriptor. See openfront-desktop's
+// Desktop (Steam) shell release descriptor. See laukolaroser-desktop's
 // docs/superpowers/specs/2026-08-20-runtime-asset-updating-design.md.
 //
 // version.json is polled once a minute by every running desktop client, so it
@@ -152,6 +157,17 @@ app.use("/api", (_req, res, next) => {
   next();
 });
 
+// Self-hosted private accounts (see selfhost/SelfHost.ts).
+if (selfHostEnabled()) {
+  app.use("/api/selfhost", createSelfHostRouter());
+} else {
+  // Public mode on your own server: no accounts, but the client still learns
+  // that this server needs no external backend for lobbies and games.
+  app.get("/api/selfhost/status", (_req, res) => {
+    res.json({ enabled: false, ownServer: true });
+  });
+}
+
 // Start the master process
 export async function startMaster() {
   if (!cluster.isPrimary) {
@@ -175,6 +191,12 @@ export async function startMaster() {
   process.env.INSTANCE_ID = INSTANCE_ID;
 
   log.info(`Instance ID: ${INSTANCE_ID}`);
+
+  if (selfHostEnabled()) {
+    // Create the session secret before workers fork so they share it.
+    sessionSecret();
+    log.info(bootstrapAdmin());
+  }
 
   // Join the site's shared public-lobby roster (LobbyCoordinatorClient.ts)
   // when LOBBY_COORDINATOR=api and this server has a public host to

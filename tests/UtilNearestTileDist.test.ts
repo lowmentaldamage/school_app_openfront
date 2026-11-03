@@ -1,12 +1,15 @@
-import { GameMap, TileRef } from "@openfront/engine-api/game/GameMap";
-import { PlayerInfo, PlayerType } from "@openfront/engine-api/game/GameTypes";
-import { TileSet } from "@openfront/engine-lib/game/TileSet";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+import { GameMap, TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import {
+  PlayerInfo,
+  PlayerType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { TileSet } from "@laukolaroser/engine-lib/game/TileSet";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   nearestTileDist,
   nearestTileDistCapped,
-} from "@openfront/engine/execution/Util";
-import { Game } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine/execution/Util";
+import { Game } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 
 // nearestTileDistCapped replaces a linear scan with a Manhattan-ring walk

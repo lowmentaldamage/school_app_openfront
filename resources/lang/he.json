@@ -9,7 +9,7 @@
     "close": "סגור"
   },
   "main": {
-    "title": "OpenFront (ALPHA)",
+    "title": "Laukolaroser (ALPHA)",
     "join_discord": "הצטרף לשרת הדיסקורד!",
     "login_discord": "התחבר עם דיסקורד",
     "checking_login": "בודק התחברות...",
@@ -20,8 +20,7 @@
     "single_player": "שחקן יחיד",
     "instructions": "הוראות",
     "how_to_play": "כיצד לשחק",
-    "advertise": "פרסם",
-    "wiki": "ויקי"
+    "advertise": "פרסם"
   },
   "news": {
     "full_changelog": "ראה את פרטי הגרסה המלאים",
@@ -531,8 +530,8 @@
       "cursor": "סמן",
       "hand": "יד",
       "radiation": "קרינה",
-      "openfront_qr": "קוד QR של OpenFront.io",
-      "openfront": "OpenFront",
+      "laukolaroser_qr": "קוד QR של Laukolaroser",
+      "laukolaroser": "Laukolaroser",
       "t_rex": "טי-רקס",
       "embelem": "סמל",
       "grogu_head": "ראש גרוגו",

@@ -4,7 +4,7 @@
  * which step they're on and whether an action may go through.
  */
 
-import type { GameEvent } from "@openfront/shared/EventBus";
+import type { GameEvent } from "@laukolaroser/shared/EventBus";
 
 export type OnboardingStep =
   | "spawn"

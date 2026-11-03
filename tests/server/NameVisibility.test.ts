@@ -1,5 +1,5 @@
-import { GameMode } from "@openfront/engine-api/game/GameTypes";
-import { GameStartInfo } from "@openfront/engine-api/Schemas";
+import { GameMode } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Client } from "../../src/server/Client";
 import {

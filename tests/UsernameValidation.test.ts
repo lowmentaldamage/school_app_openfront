@@ -2,8 +2,8 @@ import {
   JoinUsernameSchema,
   RENDERABLE_NAME_CHAR_RE,
   UsernameSchema,
-} from "@openfront/engine-api/Schemas";
-import { ClientJoinMessageSchema } from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/engine-api/Schemas";
+import { ClientJoinMessageSchema } from "@laukolaroser/shared/WireSchemas";
 import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 import {

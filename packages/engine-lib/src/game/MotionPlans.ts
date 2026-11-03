@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 
 export enum PackedMotionPlanKind {
   GridPathSet = 1,

@@ -2,13 +2,13 @@ import {
   GameUpdateType,
   GameUpdateViewData,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
-import { unpackUnitUpdates } from "@openfront/engine-lib/game/PackedUnitUpdates";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { createGameRunnerFromSnapshot } from "@openfront/engine/GameRunner";
-import { readSnapshotHeader } from "@openfront/engine/snapshot/GameSnapshot";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { unpackUnitUpdates } from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { createGameRunnerFromSnapshot } from "@laukolaroser/engine/GameRunner";
+import { readSnapshotHeader } from "@laukolaroser/engine/snapshot/GameSnapshot";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

@@ -1,4 +1,4 @@
-import type { PublicProgress } from "@openfront/shared/ApiSchemas";
+import type { PublicProgress } from "@laukolaroser/shared/ApiSchemas";
 import { getUserMe } from "./Api";
 import { fetchPublicPlayerProgress } from "./ProgressionApi";
 import { noteFigure } from "./ProvisionalProgress";

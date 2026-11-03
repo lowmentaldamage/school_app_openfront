@@ -1,6 +1,6 @@
-import { GameMapImpl } from "@openfront/engine-lib/game/GameMapImpl";
-import { MiniMapTransformer } from "@openfront/engine/pathfinding/transformers/MiniMapTransformer";
-import { PathFinder } from "@openfront/engine/pathfinding/types";
+import { GameMapImpl } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { MiniMapTransformer } from "@laukolaroser/engine/pathfinding/transformers/MiniMapTransformer";
+import { PathFinder } from "@laukolaroser/engine/pathfinding/types";
 import { describe, expect, it } from "vitest";
 
 describe("MiniMapTransformer", () => {

@@ -1,6 +1,6 @@
-import { MapInfo } from "@openfront/engine-api/game/GameTypes";
-import { MapManifest } from "@openfront/engine-api/game/MapManifest";
-import { mapPlayerCounts } from "@openfront/shared/MapPlayerCounts";
+import { MapInfo } from "@laukolaroser/engine-api/game/GameTypes";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapManifest";
+import { mapPlayerCounts } from "@laukolaroser/shared/MapPlayerCounts";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../../Utils";

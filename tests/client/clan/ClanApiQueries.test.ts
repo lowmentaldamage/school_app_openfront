@@ -9,7 +9,7 @@ vi.mock("../../../src/client/Auth", () => ({
   getAuthHeader: vi.fn(async () => "Bearer test-token"),
 }));
 
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import { getUserMe } from "../../../src/client/Api";
 import {
   checkClanTagOwnership,

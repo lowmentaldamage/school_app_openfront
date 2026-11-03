@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   GameMode,
@@ -8,16 +8,16 @@ import {
   Relation,
   TerrainType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { GameID } from "@openfront/engine-api/Schemas";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { GameID } from "@laukolaroser/engine-api/Schemas";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   VersionedSchema,
   zNum,
   zPlayerRef,
   zRandom,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { assertNever, simpleHash } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { assertNever, simpleHash } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Execution, Game, Player } from "../game/Game";
 import {
@@ -34,11 +34,16 @@ import type {
 } from "../snapshot/SnapshotContext";
 import { NationAllianceBehavior } from "./nation/NationAllianceBehavior";
 import { NationAttackBehavior } from "./nation/NationAttackBehavior";
+import { NationEconomyBehavior } from "./nation/NationEconomyBehavior";
 import { NationEmojiBehavior } from "./nation/NationEmojiBehavior";
 import { NationMIRVBehavior } from "./nation/NationMIRVBehavior";
+import { NationNavyBehavior } from "./nation/NationNavyBehavior";
 import { NationNukeBehavior } from "./nation/NationNukeBehavior";
+import { NationRailBehavior } from "./nation/NationRailBehavior";
 import { NationStructureBehavior } from "./nation/NationStructureBehavior";
+import { NationTechBehavior } from "./nation/NationTechBehavior";
 import { NationWarshipBehavior } from "./nation/NationWarshipBehavior";
+import { NationWeaponBehavior } from "./nation/NationWeaponBehavior";
 import { tutorialCollapse } from "./nation/TutorialCollapse";
 import { tutorialSilo, tutorialWarship } from "./nation/TutorialSilo";
 import { SpawnExecution } from "./SpawnExecution";
@@ -55,6 +60,11 @@ export class NationExecution implements Execution {
   private warshipBehavior!: NationWarshipBehavior;
   private nukeBehavior!: NationNukeBehavior;
   private structureBehavior!: NationStructureBehavior;
+  private weaponBehavior!: NationWeaponBehavior;
+  private navyBehavior!: NationNavyBehavior;
+  private railBehavior!: NationRailBehavior;
+  private economyBehavior!: NationEconomyBehavior;
+  private techBehavior!: NationTechBehavior;
   private mg: Game;
   private player: Player | null = null;
 
@@ -244,6 +254,11 @@ export class NationExecution implements Execution {
     this.attackBehavior.maybeAttack();
     this.warshipBehavior.counterWarshipInfestation();
     this.nukeBehavior.maybeSendNuke();
+    this.weaponBehavior.maybeFire();
+    this.navyBehavior.maybeBuild();
+    this.railBehavior.maybeBuild();
+    this.economyBehavior.maybeBuild();
+    this.techBehavior.maybeResearch();
   }
 
   private initializeBehaviors(): void {
@@ -295,6 +310,11 @@ export class NationExecution implements Execution {
       this.mg,
       this.player,
     );
+    this.weaponBehavior = new NationWeaponBehavior(this.mg, this.player);
+    this.navyBehavior = new NationNavyBehavior(this.mg, this.player);
+    this.railBehavior = new NationRailBehavior(this.mg, this.player);
+    this.economyBehavior = new NationEconomyBehavior(this.mg, this.player);
+    this.techBehavior = new NationTechBehavior(this.mg, this.player);
     this.behaviorsInitialized = true;
   }
 
@@ -500,6 +520,12 @@ export class NationExecution implements Execution {
     this.attackBehavior = attack;
     this.nukeBehavior = nuke;
     this.structureBehavior = structure;
+    // Stateless (seeds its own random per decision), so nothing to restore.
+    this.weaponBehavior = new NationWeaponBehavior(r.game, player);
+    this.navyBehavior = new NationNavyBehavior(r.game, player);
+    this.railBehavior = new NationRailBehavior(r.game, player);
+    this.economyBehavior = new NationEconomyBehavior(r.game, player);
+    this.techBehavior = new NationTechBehavior(r.game, player);
   }
 }
 

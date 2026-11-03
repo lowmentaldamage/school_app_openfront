@@ -7,12 +7,12 @@ import {
   Quads,
   Trios,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { TeamCountConfig } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   DOOMSDAY_CLOCK_SPEEDS,
   DoomsdayClockSpeed,
-} from "@openfront/engine-lib/game/DoomsdayClock";
+} from "@laukolaroser/engine-lib/game/DoomsdayClock";
 import {
   LitElement,
   SVGTemplateResult,
@@ -112,6 +112,21 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
   { type: UnitType.DefensePost, translationKey: "unit_type.defense_post" },
   { type: UnitType.Port, translationKey: "unit_type.port" },
   { type: UnitType.Warship, translationKey: "unit_type.warship" },
+  { type: UnitType.Destroyer, translationKey: "unit_type.destroyer" },
+  { type: UnitType.Battleship, translationKey: "unit_type.battleship" },
+  { type: UnitType.Submarine, translationKey: "unit_type.submarine" },
+  { type: UnitType.Carrier, translationKey: "unit_type.carrier" },
+  { type: UnitType.ArmoredTrain, translationKey: "unit_type.armored_train" },
+  { type: UnitType.TroopTrain, translationKey: "unit_type.troop_train" },
+  { type: UnitType.RailSAM, translationKey: "unit_type.rail_sam" },
+  { type: UnitType.GoldMine, translationKey: "unit_type.gold_mine" },
+  { type: UnitType.Market, translationKey: "unit_type.market" },
+  { type: UnitType.OilRig, translationKey: "unit_type.oil_rig" },
+  { type: UnitType.Airbase, translationKey: "unit_type.airbase" },
+  {
+    type: UnitType.RadarStation,
+    translationKey: "unit_type.radar_station",
+  },
   { type: UnitType.TransportShip, translationKey: "unit_type.boat" },
   { type: UnitType.MissileSilo, translationKey: "unit_type.missile_silo" },
   { type: UnitType.SAMLauncher, translationKey: "unit_type.sam_launcher" },

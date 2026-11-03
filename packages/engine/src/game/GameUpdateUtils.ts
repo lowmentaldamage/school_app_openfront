@@ -1,4 +1,4 @@
-import type { EmojiMessage } from "@openfront/engine-api/game/GameTypes";
+import type { EmojiMessage } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ATTACK_DELTA_INCOMING,
   ATTACK_DELTA_OUTGOING,
@@ -6,7 +6,7 @@ import {
   AttackUpdate,
   GameUpdateType,
   PlayerUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 
 /**
  * Build a partial PlayerUpdate containing only fields whose value differs
@@ -61,6 +61,9 @@ export function diffPlayerUpdate(
     prev.hasSpawned === next.hasSpawned &&
     prev.spawnTile === next.spawnTile &&
     prev.betrayals === next.betrayals &&
+    prev.techMask === next.techMask &&
+    prev.researchTech === next.researchTech &&
+    prev.researchEndsAt === next.researchEndsAt &&
     prev.lastDeleteUnitTick === next.lastDeleteUnitTick &&
     prev.isLobbyCreator === next.isLobbyCreator &&
     numberArrayEqual(prev.allies, next.allies) &&
@@ -125,6 +128,9 @@ export function diffPlayerUpdate(
   setIfDifferent("hasSpawned", prev.hasSpawned === next.hasSpawned);
   setIfDifferent("spawnTile", prev.spawnTile === next.spawnTile);
   setIfDifferent("betrayals", prev.betrayals === next.betrayals);
+  setIfDifferent("techMask", prev.techMask === next.techMask);
+  setIfDifferent("researchTech", prev.researchTech === next.researchTech);
+  setIfDifferent("researchEndsAt", prev.researchEndsAt === next.researchEndsAt);
   setIfDifferent(
     "lastDeleteUnitTick",
     prev.lastDeleteUnitTick === next.lastDeleteUnitTick,

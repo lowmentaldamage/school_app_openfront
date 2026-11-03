@@ -1,5 +1,5 @@
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
-import { EventBus } from "@openfront/shared/EventBus";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { capturePagePin, resetPagePinForTests } from "../../src/client/PagePin";
 
@@ -401,7 +401,11 @@ describe("version_mismatch on a pinned /v/<commit>/ page", () => {
 
   function stubLocation(pathname: string) {
     Object.defineProperty(window, "location", {
-      value: { href: `https://openfront.io${pathname}`, pathname, search: "" },
+      value: {
+        href: `https://laukolaroser.com${pathname}`,
+        pathname,
+        search: "",
+      },
       writable: true,
       configurable: true,
     });
@@ -425,7 +429,7 @@ describe("version_mismatch on a pinned /v/<commit>/ page", () => {
     stubLocation("/v/5ccc50a7/game/game1234");
     envMocks.resolveGame.mockReturnValue({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
     joinLobby(new EventBus(), makeLobbyConfig(false));
@@ -437,7 +441,7 @@ describe("version_mismatch on a pinned /v/<commit>/ page", () => {
     });
 
     expect(window.location.href).toBe(
-      "https://falk2-a.openfront.io/game/game1234",
+      "https://falk2-a.laukolaroser.com/game/game1234",
     );
     expect(reloadForUpdate).not.toHaveBeenCalled();
   });
@@ -513,8 +517,8 @@ describe("version_mismatch takes the versioned page on this host first", () => {
   function stubLocation(pathname: string) {
     Object.defineProperty(window, "location", {
       value: {
-        href: `https://openfront.io${pathname}`,
-        hostname: "openfront.io",
+        href: `https://laukolaroser.com${pathname}`,
+        hostname: "laukolaroser.com",
         pathname,
         search: "",
       },
@@ -557,7 +561,7 @@ describe("version_mismatch takes the versioned page on this host first", () => {
     envMocks.gameVersion.mockReturnValue(OLD);
     envMocks.resolveGame.mockReturnValue({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
 
@@ -591,7 +595,7 @@ describe("version_mismatch takes the versioned page on this host first", () => {
     sendMismatch(OLD);
 
     expect(window.location.href).toBe(
-      `https://openfront.io/v/${SHORT_OLD}/game/game1234`,
+      `https://laukolaroser.com/v/${SHORT_OLD}/game/game1234`,
     );
     for (let i = 0; i < 10; i++) await Promise.resolve();
     expect(reloadForUpdate).not.toHaveBeenCalled();
@@ -614,14 +618,14 @@ describe("version_mismatch takes the versioned page on this host first", () => {
     stubLocation("/game/game1234");
     envMocks.resolveGame.mockReturnValue({
       kind: "cross",
-      host: "falk2-a.openfront.io",
+      host: "falk2-a.laukolaroser.com",
       numWorkers: 16,
     });
 
     sendMismatch("unknown");
 
     expect(window.location.href).toBe(
-      "https://falk2-a.openfront.io/game/game1234",
+      "https://falk2-a.laukolaroser.com/game/game1234",
     );
     for (let i = 0; i < 10; i++) await Promise.resolve();
     expect(reloadForUpdate).not.toHaveBeenCalled();

@@ -255,6 +255,15 @@ export class AudioMixer {
     );
   }
 
+  /**
+   * A channel's gain without the structure-ambience zoom envelope, for
+   * sources that apply their own (procedural/WorldAudio).
+   */
+  channelVolume(category: PlayableCategory): number {
+    const slider = perceptualGain(this.volumes.get(category) ?? 0);
+    return slider * CATEGORY_TRIM[category] * this.focusFactor(category);
+  }
+
   isAudible(category: AudioCategory): boolean {
     if ((this.volumes.get("master") ?? 0) === 0) return false;
     if (category === "master") return true;

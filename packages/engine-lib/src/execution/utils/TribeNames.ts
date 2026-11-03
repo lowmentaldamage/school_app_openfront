@@ -3,7 +3,7 @@ import {
   GameMapType,
   type MapInfo,
   maps,
-} from "@openfront/engine-api/game/Maps.gen";
+} from "@laukolaroser/engine-api/game/Maps.gen";
 import tribeNameThemesData from "resources/tribeNameThemes.json";
 
 export interface TribeNameData {

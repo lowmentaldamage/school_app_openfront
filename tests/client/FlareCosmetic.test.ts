@@ -16,7 +16,7 @@ vi.mock("../../src/client/components/CosmeticPresentation", () => ({
 }));
 vi.mock("../../src/client/components/CosmeticPreview", () => ({}));
 
-import type { TrackFlare } from "@openfront/shared/ApiSchemas";
+import type { TrackFlare } from "@laukolaroser/shared/ApiSchemas";
 import {
   describeFlareCosmetic,
   findFlareCosmetic,

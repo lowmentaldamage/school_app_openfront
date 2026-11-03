@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   BuildableUnit,
   Cell,
@@ -9,24 +9,28 @@ import {
   PlayerBuildableUnitType,
   PlayerID,
   PlayerProfile,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ErrorUpdate,
   GameUpdateViewData,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapFiles } from "@openfront/engine-api/game/MapFiles";
-import { SnapshotHeader } from "@openfront/engine-api/game/SnapshotHeader";
-import { ClientID, GameStartInfo, Turn } from "@openfront/engine-api/Schemas";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapFiles } from "@laukolaroser/engine-api/game/MapFiles";
+import { SnapshotHeader } from "@laukolaroser/engine-api/game/SnapshotHeader";
+import {
+  ClientID,
+  GameStartInfo,
+  Turn,
+} from "@laukolaroser/engine-api/Schemas";
 import {
   InitMessage,
   ReadSnapshotHeaderMessage,
   WorkerMessage,
-} from "@openfront/engine-api/worker/WorkerMessages";
+} from "@laukolaroser/engine-api/worker/WorkerMessages";
 import {
   loadMapFiles,
   mapFilesTransfer,
-} from "@openfront/shared/GameMapLoader";
-import { generateID } from "@openfront/shared/SharedUtil";
+} from "@laukolaroser/shared/GameMapLoader";
+import { generateID } from "@laukolaroser/shared/SharedUtil";
 import { terrainMapFileLoader } from "./TerrainMapFileLoader";
 
 // Inlined as a same-origin Blob (Vite's `?worker&inline`), sidestepping the
@@ -36,7 +40,7 @@ import { terrainMapFileLoader } from "./TerrainMapFileLoader";
 // instead of inside the main bundle.
 export async function createGameWorker(): Promise<Worker> {
   const { default: GameWorker } =
-    await import("@openfront/engine/worker/Worker.worker?worker&inline");
+    await import("@laukolaroser/engine/worker/Worker.worker?worker&inline");
   return new GameWorker();
 }
 

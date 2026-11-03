@@ -53,7 +53,7 @@ process.stdout.write = process.stderr.write.bind(
 ) as typeof process.stdout.write;
 
 const [{ GameEnv }, { buildDescriptor }, { ServerEnv }] = await Promise.all([
-  import("@openfront/shared/configuration/Env"),
+  import("@laukolaroser/shared/configuration/Env"),
   import("./DesktopRelease"),
   import("./ServerEnv"),
 ]);

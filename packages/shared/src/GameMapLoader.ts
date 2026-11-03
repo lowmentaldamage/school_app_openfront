@@ -1,5 +1,8 @@
-import { GameMapSize, GameMapType } from "@openfront/engine-api/game/GameTypes";
-import { MapFiles, MapManifest } from "@openfront/engine-api/game/MapFiles";
+import {
+  GameMapSize,
+  GameMapType,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MapFiles, MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
 
 /** Where a host gets a map's files, its thumbnail and its layer images. */
 export interface GameMapLoader {
@@ -12,6 +15,11 @@ export interface MapData {
   map16xBin: () => Promise<Uint8Array>;
   manifest: () => Promise<MapManifest>;
   webpPath: string;
+  /**
+   * The map rendered in the 3D look (scripts/maps-3d.cjs --write). May be
+   * missing for a map; callers fall back to `webpPath`.
+   */
+  preview3dPath?: string;
   /**
    * Load a map layer image by layer id. `compact` selects the map4x-sized
    * variant (`<id>.4x.webp`; ids cannot contain dots, so it never collides

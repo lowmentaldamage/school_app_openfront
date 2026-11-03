@@ -9,7 +9,7 @@
     "close": "Pechar"
   },
   "main": {
-    "title": "OpenFront (ALFA)",
+    "title": "Laukolaroser (ALFA)",
     "join_discord": "Únete ó Discord!",
     "login_discord": "Iniciar sesión con Discord",
     "checking_login": "Comprobando a sesión...",
@@ -21,7 +21,6 @@
     "instructions": "Instrucións",
     "how_to_play": "Como xogar",
     "advertise": "Promoción",
-    "wiki": "Wiki",
     "privacy_policy": "Política de privacidade",
     "terms_of_service": "Termos de servizo"
   },
@@ -580,8 +579,8 @@
       "cursor": "Cursor",
       "hand": "Man",
       "radiation": "Radiación",
-      "openfront_qr": "Código QR de OpenFront.io",
-      "openfront": "OpenFront",
+      "laukolaroser_qr": "Código QR de Laukolaroser",
+      "laukolaroser": "Laukolaroser",
       "t_rex": "Tiranosauro",
       "embelem": "Emblema",
       "contributor": "Contribuidor",

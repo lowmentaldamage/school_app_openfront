@@ -368,7 +368,7 @@ describe("parseClaimPromptStore", () => {
 
 describe("isCleanHomepage", () => {
   // The blocking case. The desktop shell serves the renderer from
-  // app://openfront/index.html, so a bare pathname === "/" test is never true
+  // app://laukolaroser/index.html, so a bare pathname === "/" test is never true
   // there and every interrupt below it is unreachable on Steam — including
   // the TEMPORARY#### prompt and the rewards popup, which have both been dead
   // in the Steam build for exactly this reason.

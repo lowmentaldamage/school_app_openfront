@@ -3,8 +3,8 @@
  * so the processing worker's memory doesn't grow with the game.
  */
 
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
+import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 import { EventCollector } from "../../../../src/client/replay/codec/encode/EventCollector";
 import type { NormalizedFrame } from "../../../../src/client/replay/codec/FrameNormalizer";
 

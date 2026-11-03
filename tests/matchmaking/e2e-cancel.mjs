@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import {
   gotoHome,
   launch,
-} from "../../.claude/skills/run-openfront/driver.mjs";
+} from "../../.claude/skills/run-laukolaroser/driver.mjs";
 import { isUp, makeChecker, waitFor } from "./util.mjs";
 
 const MODE = "2v2";

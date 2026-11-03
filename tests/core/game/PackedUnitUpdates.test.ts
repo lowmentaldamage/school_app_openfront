@@ -1,15 +1,15 @@
-import { TrainType, UnitType } from "@openfront/engine-api/game/GameTypes";
+import { TrainType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   UnitUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
+} from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   intToUnitType,
   PackedUnitUpdateDecoder,
   packUnitUpdates as packUnitUpdatesFn,
   unpackUnitUpdates as unpackUnitUpdatesFn,
   unitTypeToInt,
-} from "@openfront/engine-lib/game/PackedUnitUpdates";
+} from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
 import { describe, expect, it } from "vitest";
 
 describe("PackedUnitUpdates", () => {

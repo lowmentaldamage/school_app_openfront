@@ -1,9 +1,9 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
 import {
   EFFECT_TYPES,
   NUKE_EXPLOSION_TYPES,
   type Cosmetics,
-} from "@openfront/shared/CosmeticSchemas";
+} from "@laukolaroser/shared/CosmeticSchemas";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { CosmeticCard } from "../../src/client/components/CosmeticCard";
 import type { EffectsGrid } from "../../src/client/components/EffectsGrid";

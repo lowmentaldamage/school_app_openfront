@@ -4,18 +4,18 @@ import {
   GameType,
   RankedType,
   isDifficulty,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ATTACK_INDEX_MAX_RECV,
   PlayerStats,
-} from "@openfront/engine-api/StatsSchemas";
+} from "@laukolaroser/engine-api/StatsSchemas";
 import {
   PlayerRecentStats,
   PlayerStatsGameMode,
   PlayerStatsGameModes,
   PlayerStatsLeaf,
   PlayerStatsTree,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { LitElement, PropertyValues, TemplateResult, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { translateText } from "../../../Utils";

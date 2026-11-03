@@ -2,7 +2,7 @@ import {
   Difficulty,
   GameMapType,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import {
@@ -12,6 +12,7 @@ import {
 import { translateText } from "../../Utils";
 import { type MapStats, mapStats } from "./MapDetails";
 import { starIcon } from "./MapFavorites";
+import { fallbackToThumbnail, mapImageSrc } from "./MapPreviewImage";
 import { MEDAL_ORDER, medalIcon } from "./Medals";
 
 @customElement("map-display")
@@ -24,6 +25,7 @@ export class MapDisplay extends LitElement {
   @property({ attribute: false }) wins: Set<Difficulty> = new Set();
   @property({ attribute: false }) onToggleFavorite?: () => void;
   @state() private mapWebpPath: string | null = null;
+  @state() private mapImage: string | null = null;
   @state() private mapName: string | null = null;
   @state() private isLoading = true;
   @state() private hasNations = true;
@@ -77,7 +79,9 @@ export class MapDisplay extends LitElement {
       this.isLoading = true;
       this.stats = undefined;
       const mapValue = GameMapType[this.mapKey as keyof typeof GameMapType];
-      this.mapWebpPath = terrainMapFileLoader.getMapData(mapValue).webpPath;
+      const mapData = terrainMapFileLoader.getMapData(mapValue);
+      this.mapWebpPath = mapData.webpPath;
+      this.mapImage = mapImageSrc(mapData);
       const manifest = await loadCachedManifest(mapValue);
       this.mapName = manifest.name;
       this.stats = mapStats(manifest);
@@ -158,7 +162,8 @@ export class MapDisplay extends LitElement {
                   class="w-full aspect-[2/1] relative overflow-hidden rounded-lg bg-black/20"
                 >
                   <img
-                    src="${this.mapWebpPath}"
+                    src="${this.mapImage ?? this.mapWebpPath}"
+                    @error=${fallbackToThumbnail(this.mapWebpPath)}
                     alt="${this.translation || this.mapName}"
                     draggable="false"
                     @dragstart=${this.preventImageDrag}

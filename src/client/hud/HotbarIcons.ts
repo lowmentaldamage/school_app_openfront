@@ -1,6 +1,18 @@
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 
 export const warshipIcon = assetUrl("images/BattleshipIconWhite.svg");
+export const destroyerIcon = assetUrl("images/LightDestroyerIconWhite.svg");
+export const battleshipIcon = assetUrl("images/HeavyBattleshipIconWhite.svg");
+export const armoredTrainIcon = assetUrl("images/ArmoredTrainIconWhite.svg");
+export const troopTrainIcon = assetUrl("images/TroopTrainIconWhite.svg");
+export const railSamIcon = assetUrl("images/RailSamIconWhite.svg");
+export const goldMineIcon = assetUrl("images/GoldMineIconWhite.svg");
+export const marketIcon = assetUrl("images/MarketIconWhite.svg");
+export const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
+export const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
+export const radarIcon = assetUrl("images/RadarIconWhite.svg");
+export const submarineIcon = assetUrl("images/SubmarineIconWhite.svg");
+export const carrierIcon = assetUrl("images/CarrierIconWhite.svg");
 export const cityIcon = assetUrl("images/CityIconWhite.svg");
 export const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 export const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");

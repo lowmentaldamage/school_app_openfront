@@ -27,7 +27,7 @@ import type {
   Progress,
   ProgressionConfig,
   TrackFlare,
-} from "@openfront/shared/ApiSchemas";
+} from "@laukolaroser/shared/ApiSchemas";
 import { html } from "lit";
 import type { FlareCosmeticView } from "../../src/client/components/FlareCosmetic";
 import {

@@ -1,9 +1,9 @@
-import { Duos, Quads, Trios } from "@openfront/engine-api/game/GameTypes";
-import { TeamCountConfig } from "@openfront/engine-api/Schemas";
+import { Duos, Quads, Trios } from "@laukolaroser/engine-api/game/GameTypes";
+import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   MAX_HOSTED_LOBBY_PLAYERS,
   MIN_HOSTED_LOBBY_PLAYERS,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { describe, expect, it } from "vitest";
 // The class is used as a type below, so this import is needed for registration.
 // oxlint-disable-next-line import/no-duplicates -- Required custom-element registration.

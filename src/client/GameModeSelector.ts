@@ -1,6 +1,6 @@
-import { GameMapType, GameType } from "@openfront/engine-api/game/GameTypes";
-import { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import { PublicGameInfo, PublicGames } from "@openfront/shared/WireSchemas";
+import { GameMapType, GameType } from "@laukolaroser/engine-api/game/GameTypes";
+import { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import { PublicGameInfo, PublicGames } from "@laukolaroser/shared/WireSchemas";
 import { html, LitElement, nothing, type TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ClientEnv } from "src/client/ClientEnv";
@@ -10,7 +10,6 @@ import {
   canJoinTrustedLobby,
   lobbyCard,
   mapAspectRatios,
-  trustLockIcon,
   trustRequiredDialog,
   viewerIsSignedIn,
   viewerIsTrusted,
@@ -30,6 +29,7 @@ import type { JoinLobbyModal } from "./JoinLobbyModal";
 import { whenModalLoaded } from "./LazyModals";
 import { PublicLobbySocket } from "./LobbySocket";
 import { JoinLobbyEvent } from "./Main";
+import { isOwnServer, isSelfHosted } from "./selfhost/SelfHostSession";
 import {
   backendUnreachableConfirmed,
   isPinnedToAVersion,
@@ -120,6 +120,9 @@ const TUTORIAL_CARD_MAX_GAMES = 5;
  * 404 for a site with no list is a reachable backend.
  */
 export function multiplayerAllowedForBackend(backendOutage: boolean): boolean {
+  // A self-hosted server has no external backend; its own game server is
+  // what lobbies and games need, so "API unreachable" is not an outage.
+  if (isSelfHosted() || isOwnServer()) return true;
   return !backendOutage;
 }
 
@@ -701,7 +704,7 @@ export class GameModeSelector extends LitElement {
           }
         </div>
         <div
-          class="grid grid-cols-3 gap-4 sm:compact:gap-3 h-14 sm:col-span-2 sm:row-start-4"
+          class="grid grid-cols-2 gap-4 sm:compact:gap-3 h-14 sm:col-span-2 sm:row-start-4"
         >
           ${this.renderSmallActionCard(
             translateText("main.create"),
@@ -710,26 +713,11 @@ export class GameModeSelector extends LitElement {
             undefined,
             true,
           )}
-          ${this.renderSmallActionCard(
-            translateText("mode_selector.ranked_title"),
-            this.openRankedMenu,
-            SECONDARY_ACTION,
-            undefined,
-            true,
-            // Ranked admits trusted accounts only. A trusted viewer gets the
-            // green open lock; anyone else meets the red locks and the trust
-            // popup inside the ranked modal. Small, so it clears the label on
-            // narrow (mobile) buttons.
-            this.viewerTrusted
-              ? trustLockIcon(true, {
-                  tooltipTitle: translateText(
-                    "mode_selector.ranked_trust_tooltip_title",
-                  ),
-                  position: "top-1 right-1",
-                  small: true,
-                })
-              : nothing,
-          )}
+          ${
+            // Ranked needs the closed upstream API (accounts, trust,
+            // matchmaking), which Laukolaroser does not use.
+            nothing
+          }
           ${this.renderSmallActionCard(
             translateText("main.join"),
             this.openJoinLobby,

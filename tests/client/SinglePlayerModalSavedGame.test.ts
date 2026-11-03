@@ -4,8 +4,8 @@ import {
   GameMapType,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
-import type { SnapshotHeader } from "@openfront/engine-api/game/SnapshotHeader";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import type { SnapshotHeader } from "@laukolaroser/engine-api/game/SnapshotHeader";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/client/Cosmetics", () => ({

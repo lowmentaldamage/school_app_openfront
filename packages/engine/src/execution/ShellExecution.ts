@@ -1,13 +1,15 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { UnitType } from "@openfront/engine-api/game/GameTypes";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { CombatShips, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { navalClass } from "@laukolaroser/engine-lib/naval/NavalClasses";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   zInt,
   zPlayerRef,
   zRandom,
   zRef,
   zTile,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { PathFinding } from "../pathfinding/PathFinder";
@@ -81,7 +83,7 @@ export class ShellExecution implements Execution {
           targetWasActive &&
           !this.target.isActive() &&
           this.ownerUnit.isActive() &&
-          this.ownerUnit.type() === UnitType.Warship
+          CombatShips.has(this.ownerUnit.type())
         ) {
           this.ownerUnit.recordKill(targetType);
         }
@@ -108,6 +110,25 @@ export class ShellExecution implements Execution {
       const bonusPercent = this.mg.config().warshipVeterancyShellDamageBonus();
       damageMultiplier = Math.floor(
         (damageMultiplier * (100 + veterancy * bonusPercent)) / 100,
+      );
+    }
+
+    // Naval class: destroyers hit lighter, battleships much harder.
+    const pct = navalClass(this.ownerUnit.type()).damagePercent;
+    if (pct !== 100 && CombatShips.has(this.ownerUnit.type())) {
+      damageMultiplier = Math.floor((damageMultiplier * pct) / 100);
+    }
+
+    // Tech: Naval Gunnery (shooter) and Armored Hulls (target).
+    if (this._owner.hasTech("gunnery")) {
+      damageMultiplier = Math.floor(
+        (damageMultiplier * TECH_EFFECTS.gunneryDamagePercent) / 100,
+      );
+    }
+    const targetOwner = this.target.owner();
+    if (CombatShips.has(this.target.type()) && targetOwner.hasTech("hulls")) {
+      damageMultiplier = Math.floor(
+        (damageMultiplier * TECH_EFFECTS.hullsDamageTakenPercent) / 100,
       );
     }
 

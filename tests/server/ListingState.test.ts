@@ -2,7 +2,7 @@ import {
   FEATURED_LOBBY_AUTO_START_MS,
   HOSTED_LOBBY_AUTO_START_MS,
   LobbyLabelSchema,
-} from "@openfront/shared/WireSchemas";
+} from "@laukolaroser/shared/WireSchemas";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ListingState } from "../../src/server/ListingState";
 

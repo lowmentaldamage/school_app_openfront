@@ -1,4 +1,4 @@
-import { EventBus } from "@openfront/shared/EventBus";
+import { EventBus } from "@laukolaroser/shared/EventBus";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import en from "../../resources/lang/en.json";
 import { ChatModal } from "../../src/client/hud/layers/ChatModal";

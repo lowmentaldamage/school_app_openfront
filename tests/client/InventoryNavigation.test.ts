@@ -1,5 +1,5 @@
-import type { UserMeResponse } from "@openfront/shared/ApiSchemas";
-import type { Cosmetics } from "@openfront/shared/CosmeticSchemas";
+import type { UserMeResponse } from "@laukolaroser/shared/ApiSchemas";
+import type { Cosmetics } from "@laukolaroser/shared/CosmeticSchemas";
 import fs from "fs";
 import type { LitElement } from "lit";
 import path from "path";

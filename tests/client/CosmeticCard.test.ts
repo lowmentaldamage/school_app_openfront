@@ -300,7 +300,7 @@ describe("CosmeticCard", () => {
 
   it("omits the ad-free entitlement in the desktop shell, which has no ads", async () => {
     installTranslations();
-    window.openfrontDesktop = {};
+    window.laukolaroserDesktop = {};
     try {
       await createCard();
       card!.resolved = {
@@ -317,7 +317,7 @@ describe("CosmeticCard", () => {
         card!.querySelector("[data-cosmetic-info]")?.textContent,
       ).not.toContain("ad-free for life!");
     } finally {
-      delete window.openfrontDesktop;
+      delete window.laukolaroserDesktop;
     }
   });
 

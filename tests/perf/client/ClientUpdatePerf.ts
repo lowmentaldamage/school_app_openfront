@@ -38,18 +38,18 @@ import {
   GameMapType,
   GameMode,
   GameType,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameUpdateType,
   GameUpdateViewData,
   HashUpdate,
-} from "@openfront/engine-api/game/GameUpdates";
-import { GameConfig, GameStartInfo } from "@openfront/engine-api/Schemas";
-import { Config } from "@openfront/engine-lib/configuration/Config";
-import { UNIT_UPDATE_STRIDE } from "@openfront/engine-lib/game/PackedUnitUpdates";
-import { loadTerrainMap } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { createGameRunner } from "@openfront/engine/GameRunner";
-import { loadMapFiles } from "@openfront/shared/GameMapLoader";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { GameConfig, GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import { UNIT_UPDATE_STRIDE } from "@laukolaroser/engine-lib/game/PackedUnitUpdates";
+import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { createGameRunner } from "@laukolaroser/engine/GameRunner";
+import { loadMapFiles } from "@laukolaroser/shared/GameMapLoader";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

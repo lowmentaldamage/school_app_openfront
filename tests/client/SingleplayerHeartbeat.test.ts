@@ -8,7 +8,7 @@ import {
 // The heartbeat is the server's only sign a singleplayer game exists, so it
 // must reach the game server (not the page host) on the worker the id hashes
 // to, carry the platform, keep beating on the interval, and stop cleanly.
-const SERVER_HOST = "main.openfront.dev";
+const SERVER_HOST = "main.laukolaroser.dev";
 const GAME_ID = "WKk9mHgY";
 
 let fetchMock: ReturnType<typeof vi.fn>;
@@ -19,7 +19,7 @@ beforeEach(() => {
     gameEnv: "prod",
     numWorkers: 8,
     turnstileSiteKey: "x",
-    jwtAudience: "openfront.io",
+    jwtAudience: "laukolaroser.com",
     instanceId: "test",
     gitCommit: "test",
     serverHost: SERVER_HOST,
@@ -63,7 +63,7 @@ describe("startSingleplayerHeartbeat", () => {
     (window as any).BOOTSTRAP_CONFIG = {
       gameEnv: "prod",
       turnstileSiteKey: "x",
-      jwtAudience: "openfront.io",
+      jwtAudience: "laukolaroser.com",
       instanceId: "test",
       gitCommit: "test",
     };

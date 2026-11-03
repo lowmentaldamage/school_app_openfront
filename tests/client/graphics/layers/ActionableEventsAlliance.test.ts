@@ -1,4 +1,4 @@
-import { GameUpdateType } from "@openfront/engine-api/game/GameUpdates";
+import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 
 vi.mock("lit", () => ({
   html: () => {},
@@ -21,7 +21,7 @@ vi.mock("lit/directives/unsafe-html.js", () => ({
   UnsafeHTMLDirective: class {},
 }));
 
-import { MessageType } from "@openfront/engine-api/game/GameTypes";
+import { MessageType } from "@laukolaroser/engine-api/game/GameTypes";
 import { ActionableEvents } from "../../../../src/client/hud/layers/ActionableEvents";
 
 describe("ActionableEvents - alliance renewal cleanup (allianceID based)", () => {

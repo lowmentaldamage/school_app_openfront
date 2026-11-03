@@ -50,7 +50,8 @@ export class KeyboardLayoutController implements ReactiveController {
     if (!initialized) {
       initialized = true;
       const keyboard = getKeyboardApi();
-      if (keyboard) {
+      // Some browsers expose navigator.keyboard without events.
+      if (keyboard && typeof keyboard.addEventListener === "function") {
         listeningKeyboard = keyboard;
         keyboard.addEventListener("layoutchange", refreshGlobalLayoutMap);
       }

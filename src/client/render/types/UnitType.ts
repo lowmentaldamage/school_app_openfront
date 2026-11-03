@@ -14,6 +14,13 @@
 export const UT_TRANSPORT = "Transport" as const;
 export const UT_TRADE_SHIP = "Trade Ship" as const;
 export const UT_WARSHIP = "Warship" as const;
+export const UT_DESTROYER = "Destroyer" as const;
+export const UT_BATTLESHIP = "Battleship" as const;
+export const UT_SUBMARINE = "Submarine" as const;
+export const UT_CARRIER = "Aircraft Carrier" as const;
+export const UT_ARMORED_TRAIN = "Armored Train" as const;
+export const UT_TROOP_TRAIN = "Troop Train" as const;
+export const UT_RAIL_SAM = "Rail SAM" as const;
 export const UT_ATOM_BOMB = "Atom Bomb" as const;
 export const UT_HYDROGEN_BOMB = "Hydrogen Bomb" as const;
 export const UT_MIRV = "MIRV" as const;
@@ -99,4 +106,11 @@ export const ALL_UNIT_TYPES = [
   UT_SAM_LAUNCHER,
   UT_MISSILE_SILO,
   UT_TRAIN,
+  UT_DESTROYER,
+  UT_BATTLESHIP,
+  UT_ARMORED_TRAIN,
+  UT_SUBMARINE,
+  UT_CARRIER,
+  UT_TROOP_TRAIN,
+  UT_RAIL_SAM,
 ] as const;

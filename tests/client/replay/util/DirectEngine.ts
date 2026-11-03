@@ -7,11 +7,11 @@
 import {
   ErrorUpdate,
   GameUpdateViewData,
-} from "@openfront/engine-api/game/GameUpdates";
-import { MapFiles } from "@openfront/engine-api/game/MapFiles";
-import { GameStartInfo } from "@openfront/engine-api/Schemas";
-import { Game } from "@openfront/engine/game/Game";
-import { createGameRunner } from "@openfront/engine/GameRunner";
+} from "@laukolaroser/engine-api/game/GameUpdates";
+import { MapFiles } from "@laukolaroser/engine-api/game/MapFiles";
+import { GameStartInfo } from "@laukolaroser/engine-api/Schemas";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { createGameRunner } from "@laukolaroser/engine/GameRunner";
 import type { ReplayEngine } from "../../../../src/client/replay/processor/ReplayProcessor";
 
 export function directEngine(

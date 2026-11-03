@@ -1,5 +1,5 @@
-import { TrainType, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { assetUrl } from "@openfront/shared/AssetUrls";
+import { TrainType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { Colord } from "colord";
 import { Theme } from "../theme/ThemeProvider";
 import { UnitView } from "../view";
@@ -26,6 +26,13 @@ type TrainTypeSprite = (typeof TrainTypeSprite)[keyof typeof TrainTypeSprite];
 const SPRITE_CONFIG: Partial<Record<UnitType | TrainTypeSprite, string>> = {
   [UnitType.TransportShip]: transportShipSprite,
   [UnitType.Warship]: warshipSprite,
+  [UnitType.Destroyer]: warshipSprite,
+  [UnitType.Battleship]: warshipSprite,
+  [UnitType.Submarine]: warshipSprite,
+  [UnitType.Carrier]: warshipSprite,
+  [UnitType.ArmoredTrain]: trainEngineSprite,
+  [UnitType.TroopTrain]: trainEngineSprite,
+  [UnitType.RailSAM]: trainEngineSprite,
   [UnitType.SAMMissile]: samMissileSprite,
   [UnitType.AtomBomb]: atomBombSprite,
   [UnitType.HydrogenBomb]: hydrogenBombSprite,

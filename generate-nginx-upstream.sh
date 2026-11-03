@@ -9,7 +9,7 @@
 # no traffic, too many and it proxies to ports nothing listens on.
 # Emits two things, both in the http context, into a single conf.d file:
 #
-#   1. upstream openfront_workers  - random-balanced across the live workers, so
+#   1. upstream laukolaroser_workers  - random-balanced across the live workers, so
 #      nginx can spread requests (e.g. POST /api/create_game) without the caller
 #      knowing the worker count.
 #   2. map $worker $worker_port    - worker index -> port (3001 + index), so the
@@ -31,7 +31,7 @@ case "$n" in
 esac
 
 {
-    echo 'upstream openfront_workers {'
+    echo 'upstream laukolaroser_workers {'
     echo '    random;'
     i=0
     while [ "$i" -lt "$n" ]; do

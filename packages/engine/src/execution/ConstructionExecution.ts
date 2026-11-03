@@ -1,10 +1,10 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { Tick, UnitType } from "@openfront/engine-api/game/GameTypes";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { Tick, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   zInt,
   zPlayerRef,
   zRef,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { UnitTypeSchema } from "../snapshot/CommonSchemas";
@@ -14,13 +14,16 @@ import type {
   SnapshotReader,
   SnapshotWriter,
 } from "../snapshot/SnapshotContext";
+import { AirbaseExecution } from "./AirExecutions";
 import { CityExecution } from "./CityExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { FactoryExecution } from "./FactoryExecution";
+import { IncomeBuildingExecution } from "./IncomeBuildingExecution";
 import { MirvExecution } from "./MIRVExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
+import { RailUnitExecution } from "./RailUnitExecution";
 import { SAMLauncherExecution } from "./SAMLauncherExecution";
 import { WarshipExecution } from "./WarshipExecution";
 
@@ -140,8 +143,27 @@ export class ConstructionExecution implements Execution {
         this.mg.addExecution(new MirvExecution(player, this.tile));
         break;
       case UnitType.Warship:
+      case UnitType.Destroyer:
+      case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         this.mg.addExecution(
-          new WarshipExecution({ owner: player, patrolTile: this.tile }),
+          new WarshipExecution({
+            owner: player,
+            patrolTile: this.tile,
+            type: this.constructionType,
+          }),
+        );
+        break;
+      case UnitType.ArmoredTrain:
+      case UnitType.TroopTrain:
+      case UnitType.RailSAM:
+        this.mg.addExecution(
+          new RailUnitExecution({
+            owner: player,
+            tile: this.tile,
+            type: this.constructionType,
+          }),
         );
         break;
       case UnitType.Port:
@@ -164,6 +186,17 @@ export class ConstructionExecution implements Execution {
       case UnitType.Factory:
         this.mg.addExecution(new FactoryExecution(this.structure!));
         break;
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.OilRig:
+        this.mg.addExecution(new IncomeBuildingExecution(this.structure!));
+        break;
+      case UnitType.Airbase:
+        this.mg.addExecution(new AirbaseExecution(this.structure!));
+        break;
+      case UnitType.RadarStation:
+        // Passive: warships and the fog of war read radars directly.
+        break;
       default:
         console.warn(
           `unit type ${this.constructionType} cannot be constructed`,
@@ -180,6 +213,11 @@ export class ConstructionExecution implements Execution {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.OilRig:
+      case UnitType.Airbase:
+      case UnitType.RadarStation:
         return true;
       default:
         return false;

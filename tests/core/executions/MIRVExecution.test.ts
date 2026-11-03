@@ -3,13 +3,13 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { readVersioned } from "@openfront/engine-lib/snapshot/SnapshotType";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { readVersioned } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import {
   MirvExecution,
   MirvExecutionSnapshot,
-} from "@openfront/engine/execution/MIRVExecution";
-import { Game, Player } from "@openfront/engine/game/Game";
+} from "@laukolaroser/engine/execution/MIRVExecution";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "../../util/Setup";
 import { executeTicks } from "../../util/utils";
 
@@ -635,9 +635,9 @@ describe("MIRVExecution", () => {
     executeTicks(game, 2);
 
     const { snapshotGame } =
-      await import("@openfront/engine/snapshot/GameSnapshot");
+      await import("@laukolaroser/engine/snapshot/GameSnapshot");
     const { decodeSnapshotValue, encodeSnapshotValue } =
-      await import("@openfront/engine/snapshot/SnapshotCodec");
+      await import("@laukolaroser/engine/snapshot/SnapshotCodec");
     const { restoreTestGame } = await import("../../util/Snapshot");
 
     // Take snapshot and downgrade MIRV execution record to v1

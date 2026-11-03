@@ -4,7 +4,7 @@ import {
   GameMapType,
   MapInfo,
   maps,
-} from "@openfront/engine-api/game/GameTypes";
+} from "@laukolaroser/engine-api/game/GameTypes";
 import fs from "fs";
 import path from "path";
 

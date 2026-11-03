@@ -1,4 +1,4 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   GameMode,
@@ -9,9 +9,9 @@ import {
   TerraNullius,
   Tick,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { euclDistFN } from "@openfront/engine-lib/game/GameMapImpl";
-import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { euclDistFN } from "@laukolaroser/engine-lib/game/GameMapImpl";
+import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   readVersioned,
   snapshotType,
@@ -20,8 +20,8 @@ import {
   zPlayerRef,
   zRef,
   zTile,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { assertNever, boundingBoxTiles } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { assertNever, boundingBoxTiles } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Game, Player, Unit } from "../../game/Game";
 import type {

@@ -1,4 +1,4 @@
-import type { GameType } from "@openfront/engine-api/game/GameTypes";
+import type { GameType } from "@laukolaroser/engine-api/game/GameTypes";
 import { html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "./components/baseComponents/stats/GameInfoView";

@@ -2,9 +2,9 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-} from "@openfront/engine-api/game/GameTypes";
-import { Game, Player } from "@openfront/engine/game/Game";
-import { PlayerImpl } from "@openfront/engine/game/PlayerImpl";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { Game, Player } from "@laukolaroser/engine/game/Game";
+import { PlayerImpl } from "@laukolaroser/engine/game/PlayerImpl";
 import { setup } from "./util/Setup";
 
 let game: Game;

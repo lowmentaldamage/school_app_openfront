@@ -4,9 +4,9 @@ import {
   LevelBadge,
   packLevelBadge,
   unpackLevelBadge,
-} from "@openfront/shared/LevelBadgeWire";
-import { ClientInfoSchema } from "@openfront/shared/WireSchemas";
-import { zb } from "@openfront/zbin";
+} from "@laukolaroser/shared/LevelBadgeWire";
+import { ClientInfoSchema } from "@laukolaroser/shared/WireSchemas";
+import { zb } from "@laukolaroser/zbin";
 import { describe, expect, it } from "vitest";
 
 // The roster carries a badge as one packed integer: level in bits 0-6,

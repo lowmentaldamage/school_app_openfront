@@ -7,7 +7,7 @@ const STEAM_APP_ID = 3560670;
 export type SteamHandoffMode = "none" | "ask" | "steam";
 
 // The desktop shell reads `+join_game <gameID>` from its launch arguments
-// (openfront-desktop, inviteIds.ts). The flag name is a contract with builds
+// (laukolaroser-desktop, inviteIds.ts). The flag name is a contract with builds
 // already installed on players' machines.
 export function steamJoinUrl(gameId: string): string {
   return `steam://run/${STEAM_APP_ID}//+join_game%20${gameId}/`;

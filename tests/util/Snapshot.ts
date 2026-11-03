@@ -1,27 +1,27 @@
-import { GameMap } from "@openfront/engine-api/game/GameMap";
-import { MapManifest } from "@openfront/engine-api/game/MapFiles";
-import { genTerrainFromBin } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { TileSet } from "@openfront/engine-lib/game/TileSet";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { FlatBinaryHeap } from "@openfront/engine/execution/utils/FlatBinaryHeap";
-import { Game } from "@openfront/engine/game/Game";
-import { AStar } from "@openfront/engine/pathfinding/algorithms/AStar";
-import { AbstractGraphAStar } from "@openfront/engine/pathfinding/algorithms/AStar.AbstractGraph";
-import { AStarRail } from "@openfront/engine/pathfinding/algorithms/AStar.Rail";
-import { AStarWater } from "@openfront/engine/pathfinding/algorithms/AStar.Water";
-import { AStarWaterBounded } from "@openfront/engine/pathfinding/algorithms/AStar.WaterBounded";
-import { AStarWaterHierarchical } from "@openfront/engine/pathfinding/algorithms/AStar.WaterHierarchical";
-import { BFSGrid } from "@openfront/engine/pathfinding/algorithms/BFS.Grid";
+import { GameMap } from "@laukolaroser/engine-api/game/GameMap";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
+import { genTerrainFromBin } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { TileSet } from "@laukolaroser/engine-lib/game/TileSet";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { FlatBinaryHeap } from "@laukolaroser/engine/execution/utils/FlatBinaryHeap";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { AStar } from "@laukolaroser/engine/pathfinding/algorithms/AStar";
+import { AbstractGraphAStar } from "@laukolaroser/engine/pathfinding/algorithms/AStar.AbstractGraph";
+import { AStarRail } from "@laukolaroser/engine/pathfinding/algorithms/AStar.Rail";
+import { AStarWater } from "@laukolaroser/engine/pathfinding/algorithms/AStar.Water";
+import { AStarWaterBounded } from "@laukolaroser/engine/pathfinding/algorithms/AStar.WaterBounded";
+import { AStarWaterHierarchical } from "@laukolaroser/engine/pathfinding/algorithms/AStar.WaterHierarchical";
+import { BFSGrid } from "@laukolaroser/engine/pathfinding/algorithms/BFS.Grid";
 import {
   BucketQueue,
   MinHeap,
-} from "@openfront/engine/pathfinding/algorithms/PriorityQueue";
-import { WaterPathMemo } from "@openfront/engine/pathfinding/PathFinder";
+} from "@laukolaroser/engine/pathfinding/algorithms/PriorityQueue";
+import { WaterPathMemo } from "@laukolaroser/engine/pathfinding/PathFinder";
 import {
   restoreGame,
   snapshotGame,
-} from "@openfront/engine/snapshot/GameSnapshot";
-import { decodeSnapshotValue } from "@openfront/engine/snapshot/SnapshotCodec";
+} from "@laukolaroser/engine/snapshot/GameSnapshot";
+import { decodeSnapshotValue } from "@laukolaroser/engine/snapshot/SnapshotCodec";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -164,6 +164,7 @@ const DERIVED_FIELDS = new Set<string>([
   "tilesToDestroyCache", // NukeExecution: filled and read in the detonation tick only
   // executions: attacks, ships and trains
   "nbuf2", // AttackExecution scratch neighbor buffer (nbuf is above)
+  "hgBuf", // AttackExecution scratch buffer for the high-ground check
   // executions: nations and tribes
   // NationStructurePlacement: both reset at the start of doHandleStructures
   // and only read inside it. (AiAttackBehavior.nbuf is covered above.)

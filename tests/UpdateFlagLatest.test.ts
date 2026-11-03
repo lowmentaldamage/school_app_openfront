@@ -115,7 +115,7 @@ printf '%s' "$CODE"
     `FLAG_LATEST_TIMEOUT=${opts.timeout ?? 5}`,
     "FLAG_LATEST_RETRY_DELAY=0",
     extractFlagLatestBlock(),
-    `flag_latest 'openfront.io' 'abc123' 'https://api.openfront.io' 'k3y'`,
+    `flag_latest 'laukolaroser.com' 'abc123' 'https://api.laukolaroser.com' 'k3y'`,
     'echo "exit=$?"',
   ].join("\n");
 
@@ -146,9 +146,9 @@ describe.skipIf(isWindows)("update.sh flag_latest", () => {
     expect(result.status).toBe(0);
     expect(result.requests).toHaveLength(1);
     expect(result.requests[0]).toContain(
-      "https://api.openfront.io/cluster/latest",
+      "https://api.laukolaroser.com/cluster/latest",
     );
-    expect(result.requests[0]).toContain('"site": "openfront.io"');
+    expect(result.requests[0]).toContain('"site": "laukolaroser.com"');
     expect(result.requests[0]).toContain('"version": "abc123"');
   });
 

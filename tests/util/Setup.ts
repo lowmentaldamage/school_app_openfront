@@ -7,13 +7,13 @@ import {
   Nation,
   PlayerInfo,
   PlayerType,
-} from "@openfront/engine-api/game/GameTypes";
-import { MapManifest } from "@openfront/engine-api/game/MapFiles";
-import { GameConfig } from "@openfront/engine-api/Schemas";
-import { genTerrainFromBin } from "@openfront/engine-lib/game/TerrainMapLoader";
-import { EngineConfig } from "@openfront/engine/configuration/EngineConfig";
-import { Game } from "@openfront/engine/game/Game";
-import { createGame } from "@openfront/engine/game/GameImpl";
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
+import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { genTerrainFromBin } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
+import { Game } from "@laukolaroser/engine/game/Game";
+import { createGame } from "@laukolaroser/engine/game/GameImpl";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

@@ -1,13 +1,13 @@
-import { TileRef } from "@openfront/engine-api/game/GameMap";
-import { MessageType, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { renderNumber } from "@openfront/engine-lib/Format";
+import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
+import { MessageType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { renderNumber } from "@laukolaroser/engine-lib/Format";
 import {
   zInt,
   zPlayerRef,
   zRef,
   zTile,
-} from "@openfront/engine-lib/snapshot/SnapshotType";
-import { findClosestBy } from "@openfront/engine-lib/Util";
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import { findClosestBy } from "@laukolaroser/engine-lib/Util";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { WaterPathFinder } from "../pathfinding/PathFinder";

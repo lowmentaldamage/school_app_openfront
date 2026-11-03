@@ -6,14 +6,13 @@
     "lang_code": "hi"
   },
   "main": {
-    "title": "Openfront (ALPHA)",
+    "title": "Laukolaroser (ALPHA)",
     "join_discord": "Discord से जुड़ें!",
     "create_lobby": "लॉबी बनाएं",
     "join_lobby": "लॉबी में शामिल हों",
     "single_player": "कंप्यूटर मोड",
     "instructions": "निर्देश",
-    "how_to_play": "कैसे खेलें",
-    "wiki": "विकी"
+    "how_to_play": "कैसे खेलें"
   },
   "help_modal": {
     "hotkeys": "हट की]",

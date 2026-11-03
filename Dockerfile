@@ -7,7 +7,7 @@ RUN npm install --global --ignore-scripts npm@12.1.0
 FROM base AS build
 ENV HUSKY=0
 # Copy package files first for better caching. The workspace manifests come
-# along so npm ci can link node_modules/@openfront/* to packages/*.
+# along so npm ci can link node_modules/@laukolaroser/* to packages/*.
 COPY package*.json .npmrc ./
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/engine-api/package.json ./packages/engine-api/
@@ -23,7 +23,7 @@ COPY vite.config.ts ./
 COPY index.html ./
 COPY client-api.json ./
 COPY resources ./resources
-COPY proprietary ./proprietary
+# (No proprietary/ directory in Laukolaroser: the build uses resources/.)
 COPY src ./src
 COPY packages ./packages
 # build-prod runs scripts/buildAssetHashes.ts after vite, to emit
@@ -91,7 +91,7 @@ RUN rm -rf ./resources/maps
 COPY tsconfig.json tsconfig.base.json ./
 COPY client-api.json ./
 COPY src ./src
-# node_modules/@openfront/* are symlinks into packages/; without this copy
+# node_modules/@laukolaroser/* are symlinks into packages/; without this copy
 # they dangle and the server dies at boot.
 COPY packages ./packages
 
@@ -106,7 +106,14 @@ RUN <<'EOF' tee /usr/local/bin/start.sh
 # Generate the create-game nginx upstream from NUM_WORKERS before nginx starts.
 /usr/local/bin/generate-nginx-upstream.sh
 
-if [ "$DOMAIN" = openfront.dev ] && [ "$SUBDOMAIN" != main ]; then
+# Self-hosted mode keeps accounts and the session secret in a volume that
+# the (non-root) game server must be able to write.
+if [ -n "${SELFHOST_DATA_DIR:-}" ]; then
+    mkdir -p "$SELFHOST_DATA_DIR"
+    chown -R node:node "$SELFHOST_DATA_DIR"
+fi
+
+if [ "$DOMAIN" = laukolaroser.dev ] && [ "$SUBDOMAIN" != main ]; then
     exec timeout 25h /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 else
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
