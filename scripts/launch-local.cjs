@@ -14,6 +14,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const readline = require("readline");
+const { ensureWorkspaceLinks } = require("./ensure-workspace-links.cjs");
 
 const ROOT = path.resolve(__dirname, "..");
 const PORT = Number(process.env.PORT ?? 3000);
@@ -111,6 +112,7 @@ async function main() {
     env.SELFHOST_ADMIN_USER = user;
     env.SELFHOST_ADMIN_PASSWORD = pass;
   }
+  ensureWorkspaceLinks(ROOT);
   if (!fs.existsSync(tsxCli)) {
     console.error(
       "  Missing dependencies. Run `npm run inst` and `npm run build-prod` first.",

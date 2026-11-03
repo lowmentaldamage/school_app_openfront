@@ -18,6 +18,7 @@ const PORT = 3000;
 const BASE = `http://127.0.0.1:${PORT}`;
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "laukolaroser-smoke-"));
 const tsxCli = path.join(ROOT, "node_modules", "tsx", "dist", "cli.mjs");
+require("./ensure-workspace-links.cjs").ensureWorkspaceLinks(ROOT);
 
 const child = spawn(
   process.execPath,

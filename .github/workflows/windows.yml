@@ -38,8 +38,13 @@ jobs:
           $ver = (node -v)
           $pkg = "Laukolaroser"
           New-Item -ItemType Directory -Force $pkg | Out-Null
-          $items = @("src","packages","resources","static","node_modules","scripts","docs","package.json","LICENSE","LICENSE-ASSETS","README.md","index.html","tsconfig.json","tsconfig.base.json")
-          foreach ($i in $items) { if (Test-Path $i) { Copy-Item $i -Destination $pkg -Recurse -Force } }
+          # Everything the server needs: the repo minus dev-only folders,
+          # plus the build (static/) and runtime node_modules.
+          $skip = @(".git",".github",".husky",".vscode",".claude","android","tests","map-generator","deploy",$pkg,"node.zip","nodetmp")
+          Get-ChildItem -Force | Where-Object { $skip -notcontains $_.Name } | ForEach-Object { Copy-Item $_.FullName -Destination $pkg -Recurse -Force }
+          # Workspace links can't live in a zip; the launcher recreates them
+          # (scripts/ensure-workspace-links.cjs).
+          Remove-Item "$pkg/node_modules/@laukolaroser" -Recurse -Force -ErrorAction SilentlyContinue
           Get-ChildItem -Path . -Filter "*.json" -File | Where-Object { $_.Name -like "tsconfig*" } | Copy-Item -Destination $pkg -Force
           Invoke-WebRequest "https://nodejs.org/dist/$ver/node-$ver-win-x64.zip" -OutFile node.zip
           Expand-Archive node.zip -DestinationPath nodetmp
