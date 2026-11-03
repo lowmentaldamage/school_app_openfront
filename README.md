@@ -36,18 +36,25 @@ desktop or on your phone.
 
 ## Quick start
 
+Full step-by-step guide for **Windows 11, Linux, macOS, Android (APK) and
+iOS**: [docs/Install.md](docs/Install.md).
+
 Requires Node.js 24 (≥ 24.15) and npm 12 (≥ 12.1).
 
 ```bash
 git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
 cd laukolaroser
 npm run inst          # npm ci --ignore-scripts
-npm run dev           # client (http://localhost:9000) + game server
+npm run dev           # http://localhost:9000  (dev:lan = reachable from phones)
 ```
 
-The 3D battlefield is the default. Append `?renderer=2d` to the URL for the
-classic flat map (`?renderer=3d` switches back). See
-[docs/World3D.md](docs/World3D.md).
+**Android app:** download `laukolaroser.apk` from the
+[android-latest release](https://github.com/lowmentaldamage/school_app_openfront/releases/tag/android-latest).
+**iPhone:** Safari → Share → _Add to Home Screen_.
+**Public PC:** just open your server's address in the browser.
+
+The 3D battlefield is the default; `?renderer=2d` gives the classic flat
+map (`?renderer=3d` switches back). See [docs/World3D.md](docs/World3D.md).
 
 ## Your own server
 

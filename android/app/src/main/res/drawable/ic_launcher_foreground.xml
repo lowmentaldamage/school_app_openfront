@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mountain range with an amber summit flag, in the military-command colours. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#6F8F3C" android:pathData="M22,74 L44,42 L56,58 L66,46 L86,74 Z" />
+    <path android:fillColor="#E8E8DE" android:pathData="M44,42 L50,51 L46,49 L41,54 L38,51 Z" />
+    <path android:fillColor="#E8E8DE" android:pathData="M66,46 L71,53 L67,52 L63,55 L61,52 Z" />
+    <path android:fillColor="#B4B6A2" android:pathData="M43,30 L45,30 L45,43 L43,43 Z" />
+    <path android:fillColor="#F5A524" android:pathData="M45,30 L56,34 L45,38 Z" />
+    <path android:fillColor="#3D3F33" android:pathData="M22,74 L86,74 L86,78 L22,78 Z" />
+</vector>
