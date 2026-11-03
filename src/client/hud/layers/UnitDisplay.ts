@@ -176,8 +176,14 @@ export class UnitDisplay extends LitElement implements Controller {
     }
 
     return html`
-      <div class="border-t border-white/10 p-0.5 w-full">
-        <div class="grid grid-rows-1 grid-flow-col gap-0.5 w-fit mx-auto">
+      <div
+        class="border-t border-white/10 px-1 py-1 w-full flex flex-col gap-1"
+      >
+        <div class="flex items-center gap-1 w-fit mx-auto">
+          <span
+            class="w-14 shrink-0 text-[9px] font-bold uppercase tracking-[0.15em] text-sky-400"
+            >${translateText("unit_display.group_build")}</span
+          >
           ${this.renderUnitItem(
             cityIcon,
             this._cities,
@@ -220,6 +226,12 @@ export class UnitDisplay extends LitElement implements Controller {
             "sam_launcher",
             this.getHotkey("buildSamLauncher", "Digit6"),
           )}
+        </div>
+        <div class="flex items-center gap-1 w-fit mx-auto">
+          <span
+            class="w-14 shrink-0 text-[9px] font-bold uppercase tracking-[0.15em] text-sky-400"
+            >${translateText("unit_display.group_forces")}</span
+          >
           ${this.renderUnitItem(
             warshipIcon,
             this._warships,
@@ -421,7 +433,7 @@ export class UnitDisplay extends LitElement implements Controller {
               : nothing
           }
           <div class="flex items-center gap-0.5 pt-0.5">
-            <img src=${icon} alt=${structureKey} class="align-middle size-5" />
+            <img src=${icon} alt=${structureKey} class="align-middle size-6" />
             ${
               number !== null
                 ? html`<span class="text-xs">${renderNumber(number)}</span>`

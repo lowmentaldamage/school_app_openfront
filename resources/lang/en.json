@@ -2963,5 +2963,9 @@
     "rotate_right": "Rotate camera right",
     "tilt_down": "Tilt camera down",
     "tilt_up": "Tilt camera up"
+  },
+  "unit_display": {
+    "group_build": "Build",
+    "group_forces": "Forces"
   }
 }

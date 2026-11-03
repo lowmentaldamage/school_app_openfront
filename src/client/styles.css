@@ -22,33 +22,126 @@
   --font-display: "Laukolaroser", Inter, Arial, sans-serif;
 
   /* Laukolaroser.io brand palette — see Laukolaroser_Brand_Guidelines.pdf §4 */
-  --color-malibu-blue: #0084d1;
-  --color-aquarius: #3fa9f5;
+  --color-malibu-blue: #6f8f3c;
+  --color-aquarius: #f5a524;
   --color-dawn-blue: #cccccc;
   --color-bright-white: #ffffff;
-  --color-bright-blue: #1e90ff;
+  --color-bright-blue: #8aa856;
 
   /* Laukolaroser Masters sub-brand */
   --color-cyber-yellow: #ffd700;
   --color-limestone: #999999;
 
   /* Background & decorative — not for standalone UI use */
-  --color-deep-navy: #0a1628;
-  --color-hex-cyan: #00c8ff;
+  --color-deep-navy: #12130e;
+  --color-hex-cyan: #e0a526;
   --color-frame-orange: #f97316;
 
   /* App-specific surface colors */
-  --color-surface: #0a1628;
+  --color-surface: #12130e;
 
-  --shadow-malibu-blue: 0 0 15px rgba(0, 132, 209, 0.2);
-  --shadow-malibu-blue-soft: 0 0 12px rgba(0, 132, 209, 0.2);
-  --shadow-malibu-blue-strong: 0 0 15px rgba(0, 132, 209, 0.3);
-  --shadow-malibu-blue-pill: 0 0 6px rgba(0, 132, 209, 0.35);
-  --shadow-malibu-blue-ring-sm: 0 0 0 4px rgba(0, 132, 209, 0.2);
-  --shadow-malibu-blue-ring-lg: 0 0 0 6px rgba(0, 132, 209, 0.3);
-  --shadow-lobby-card-hover: 0 0 0 2px #0084d1, 0 0 20px rgba(0, 132, 209, 0.5);
+  /* Military-command theme: the UI is built on Tailwind's palette, so
+     redefining it restyles every screen at once. Neutrals are olive-slate
+     greys, the primary accent (blue) is army green, sky is amber. */
+  --color-gray-50: #f4f4ee;
+  --color-gray-100: #e8e8de;
+  --color-gray-200: #d3d4c5;
+  --color-gray-300: #b4b6a2;
+  --color-gray-400: #8d907a;
+  --color-gray-500: #6b6e5a;
+  --color-gray-600: #525544;
+  --color-gray-700: #3d3f33;
+  --color-gray-800: #2a2c23;
+  --color-gray-900: #1c1e17;
+  --color-gray-950: #12130e;
+  --color-zinc-50: #f4f4ee;
+  --color-zinc-100: #e8e8de;
+  --color-zinc-200: #d3d4c5;
+  --color-zinc-300: #b4b6a2;
+  --color-zinc-400: #8d907a;
+  --color-zinc-500: #6b6e5a;
+  --color-zinc-600: #525544;
+  --color-zinc-700: #3d3f33;
+  --color-zinc-800: #2a2c23;
+  --color-zinc-900: #1c1e17;
+  --color-zinc-950: #12130e;
+  --color-slate-50: #f4f4ee;
+  --color-slate-100: #e8e8de;
+  --color-slate-200: #d3d4c5;
+  --color-slate-300: #b4b6a2;
+  --color-slate-400: #8d907a;
+  --color-slate-500: #6b6e5a;
+  --color-slate-600: #525544;
+  --color-slate-700: #3d3f33;
+  --color-slate-800: #2a2c23;
+  --color-slate-900: #1c1e17;
+  --color-slate-950: #12130e;
+  --color-neutral-50: #f4f4ee;
+  --color-neutral-100: #e8e8de;
+  --color-neutral-200: #d3d4c5;
+  --color-neutral-300: #b4b6a2;
+  --color-neutral-400: #8d907a;
+  --color-neutral-500: #6b6e5a;
+  --color-neutral-600: #525544;
+  --color-neutral-700: #3d3f33;
+  --color-neutral-800: #2a2c23;
+  --color-neutral-900: #1c1e17;
+  --color-neutral-950: #12130e;
+  --color-stone-50: #f4f4ee;
+  --color-stone-100: #e8e8de;
+  --color-stone-200: #d3d4c5;
+  --color-stone-300: #b4b6a2;
+  --color-stone-400: #8d907a;
+  --color-stone-500: #6b6e5a;
+  --color-stone-600: #525544;
+  --color-stone-700: #3d3f33;
+  --color-stone-800: #2a2c23;
+  --color-stone-900: #1c1e17;
+  --color-stone-950: #12130e;
+  --color-blue-50: #f3f6ec;
+  --color-blue-100: #e3ebd0;
+  --color-blue-200: #c8d7a5;
+  --color-blue-300: #a8c077;
+  --color-blue-400: #8aa856;
+  --color-blue-500: #6f8f3c;
+  --color-blue-600: #58742f;
+  --color-blue-700: #455b27;
+  --color-blue-800: #384922;
+  --color-blue-900: #2f3d1f;
+  --color-blue-950: #18210e;
+  --color-indigo-50: #f3f6ec;
+  --color-indigo-100: #e3ebd0;
+  --color-indigo-200: #c8d7a5;
+  --color-indigo-300: #a8c077;
+  --color-indigo-400: #8aa856;
+  --color-indigo-500: #6f8f3c;
+  --color-indigo-600: #58742f;
+  --color-indigo-700: #455b27;
+  --color-indigo-800: #384922;
+  --color-indigo-900: #2f3d1f;
+  --color-indigo-950: #18210e;
+  --color-sky-50: #fff8e6;
+  --color-sky-100: #feecc0;
+  --color-sky-200: #fdd98a;
+  --color-sky-300: #fbc04f;
+  --color-sky-400: #f5a524;
+  --color-sky-500: #e08d0e;
+  --color-sky-600: #c06f09;
+  --color-sky-700: #9a520c;
+  --color-sky-800: #7d4211;
+  --color-sky-900: #683713;
+  --color-sky-950: #3c1c05;
+
+  --shadow-malibu-blue: 0 0 15px rgba(111, 143, 60, 0.2);
+  --shadow-malibu-blue-soft: 0 0 12px rgba(111, 143, 60, 0.2);
+  --shadow-malibu-blue-strong: 0 0 15px rgba(111, 143, 60, 0.3);
+  --shadow-malibu-blue-pill: 0 0 6px rgba(111, 143, 60, 0.35);
+  --shadow-malibu-blue-ring-sm: 0 0 0 4px rgba(111, 143, 60, 0.2);
+  --shadow-malibu-blue-ring-lg: 0 0 0 6px rgba(111, 143, 60, 0.3);
+  --shadow-lobby-card-hover:
+    0 0 0 2px #6f8f3c, 0 0 20px rgba(111, 143, 60, 0.5);
   --shadow-action-card-hover:
-    0 0 0 1px #0084d1, 0 0 12px rgba(0, 132, 209, 0.35);
+    0 0 0 1px #6f8f3c, 0 0 12px rgba(111, 143, 60, 0.35);
 }
 
 @layer base {
@@ -804,4 +897,73 @@ unit-display .tutorial-highlight::after {
 
 .remove-player-btn:hover {
   background: #ef4444;
+}
+
+/* ------------------------------------------------------------------------
+   Military-command layout (Laukolaroser)
+   ------------------------------------------------------------------------ */
+
+/* Online-only pages need the closed upstream API, which this game does not
+   use: keep the menu to what works (play, settings, help). */
+[data-page="page-item-store"],
+[data-page="page-inventory"],
+[data-page="page-leaderboard"],
+[data-page="page-clan"],
+nav-account-menu {
+  display: none !important;
+}
+
+/* War-room panels: amber command stripe on the bottom HUD and tutorial. */
+body.in-game .bg-gray-800\/92 {
+  border-top: 2px solid var(--color-sky-500);
+}
+
+/* Tutorial: a compact card under the top bar instead of covering the
+   bottom controls. */
+body.in-game tutorial-panel {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100vw - 16px));
+  z-index: 950;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+body.in-game tutorial-panel > div {
+  border-radius: 10px;
+  border: 1px solid var(--color-gray-600);
+}
+@media (max-width: 640px) {
+  body.in-game tutorial-panel {
+    top: 56px;
+    left: 8px;
+    transform: none;
+    width: calc(100vw - 68px);
+    font-size: 0.78rem;
+  }
+}
+
+/* Camera compass: out of the middle of the map. Desktop: bottom-right
+   above the HUD. Phones: a small draggable compass under the top bar
+   (turn and tilt by dragging it or with two fingers). */
+#world3d-compass {
+  top: auto !important;
+  bottom: 200px !important;
+  right: 14px !important;
+  transform: none !important;
+}
+@media (pointer: coarse), (max-width: 640px) {
+  #world3d-compass {
+    top: 64px !important;
+    bottom: auto !important;
+    right: 8px !important;
+  }
+  #world3d-compass .lkr-cam-btn {
+    display: none;
+  }
+  #world3d-compass .lkr-cam-compass {
+    width: 44px;
+    height: 44px;
+  }
 }
