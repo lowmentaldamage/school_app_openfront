@@ -38,6 +38,7 @@ import {
   turnToward,
   wrapAngle,
 } from "./Motion";
+import { StructureMarkers } from "./StructureMarkers";
 import {
   arcAt,
   arcPeak,
@@ -228,6 +229,8 @@ export class UnitRenderer {
     { at: number; building: boolean }
   >();
   private rising: Rising[] = [];
+  /** Icon badge above every building (always readable, any zoom). */
+  private readonly markers = new StructureMarkers();
   private lastAnimMs = 0;
   private readonly airHeight = new Map<number, number>();
   private tickAt = 0;
@@ -244,6 +247,7 @@ export class UnitRenderer {
     private readonly mapWidth: number,
   ) {
     this.group.name = "units";
+    this.group.add(this.markers.mesh);
     for (const kind of ALL_MODEL_KINDS) {
       this.pools.set(
         kind,
@@ -284,12 +288,16 @@ export class UnitRenderer {
     this.tickAt = nowMs;
 
     for (const pool of this.pools.values()) pool.begin();
+    this.markers.begin();
     const movers: Mover[] = [];
     const rising: Rising[] = [];
     const seen = new Set<number>();
     const structsNow = new Set<number>();
     const w = this.mapWidth;
-    const structScale = zoomScale(cameraDistance, 80, 8);
+    // Buildings grow only a little when zoomed out (the icon badges keep
+    // them readable), so they never cover the map.
+    const structScale = zoomScale(cameraDistance, 110, 2.2);
+    const metro = metroFactors(units.values(), w);
 
     for (const u of units.values()) {
       if (!u.isActive || u.waitTicks > 0) continue;
@@ -306,7 +314,11 @@ export class UnitRenderer {
       if (STRUCTURE_KINDS.has(kind)) {
         if (u.underConstruction) this.c.lerp(CONSTRUCTION_GREY, 0.6);
         const h = Math.max(0, this.hf.sample(x, y));
-        const lvl = 1 + 0.14 * Math.min(Math.max(u.level, 1) - 1, 10);
+        // Higher levels and nearby cities of the same owner (a metropolis)
+        // make bigger models.
+        const lvl =
+          (1 + 0.14 * Math.min(Math.max(u.level, 1) - 1, 10)) *
+          (metro.get(u.id) ?? 1);
         const built = u.underConstruction ? 0.4 : 1;
         const yaw = ((tileHash(u.pos) & 3) * Math.PI) / 2;
         this.e.set(0, yaw, 0);
@@ -328,6 +340,7 @@ export class UnitRenderer {
         this.s.set(sxz, sy * buildRise(age), sxz);
         this.m.compose(this.p, this.q, this.s);
         const slot = pool.push(this.m, this.c);
+        this.markers.push(kind, x, h + 1.2 * sy, y, this.c);
         if (age < BUILD_RISE_MS) {
           rising.push({ kind, slot, at: st.at, x, h, y, yaw, sxz, sy });
         }
@@ -378,6 +391,7 @@ export class UnitRenderer {
       if (!structsNow.has(id)) this.structSeen.delete(id);
     this.movers = movers;
     this.rising = rising;
+    this.markers.end();
     for (const pool of this.pools.values()) pool.end(true);
   }
 
@@ -388,6 +402,7 @@ export class UnitRenderer {
         ? Math.min(0.1, Math.max(0, (nowMs - this.lastAnimMs) / 1000))
         : 0;
     this.lastAnimMs = nowMs;
+    this.markers.setView(cameraDistance, this.showMarkers);
     this.animateRising(nowMs);
     if (this.movers.length === 0) return;
     const alpha = Math.min(1, (nowMs - this.tickAt) / this.tickIntervalMs);
@@ -532,6 +547,13 @@ export class UnitRenderer {
     this.rising.length = live;
   }
 
+  private showMarkers = true;
+
+  /** Show or hide the icon badges above buildings. */
+  setMarkersVisible(visible: boolean): void {
+    this.showMarkers = visible;
+  }
+
   /** 0 by day … 1 at night (lit windows). */
   setNight(night: number): void {
     this.materialSet.uniforms.uNight.value = night;
@@ -545,6 +567,7 @@ export class UnitRenderer {
   dispose(): void {
     for (const pool of this.pools.values()) pool.dispose();
     this.pools.clear();
+    this.markers.dispose();
     this.material.dispose();
   }
 
@@ -556,4 +579,64 @@ export class UnitRenderer {
       this.c.setRGB(0.6, 0.6, 0.6, SRGBColorSpace);
     }
   }
+}
+
+/** Cities closer than this (tiles) to another of the same owner merge. */
+const METRO_RADIUS = 5;
+
+/**
+ * Size factor per city: each other city of the same owner within
+ * METRO_RADIUS adds 15% (max +60%), so clusters read as one metropolis.
+ */
+export function metroFactors(
+  units: Iterable<{
+    id: number;
+    unitType: string;
+    ownerID: number;
+    pos: number;
+    isActive: boolean;
+  }>,
+  mapWidth: number,
+): Map<number, number> {
+  const cities: { id: number; owner: number; x: number; y: number }[] = [];
+  for (const u of units) {
+    if (!u.isActive || u.unitType !== "City") continue;
+    cities.push({
+      id: u.id,
+      owner: u.ownerID,
+      x: u.pos % mapWidth,
+      y: Math.floor(u.pos / mapWidth),
+    });
+  }
+  const out = new Map<number, number>();
+  if (cities.length < 2) return out;
+  // Spatial hash by METRO_RADIUS cells.
+  const grid = new Map<string, typeof cities>();
+  const key = (cx: number, cy: number) => `${cx},${cy}`;
+  for (const c of cities) {
+    const k = key(
+      Math.floor(c.x / METRO_RADIUS),
+      Math.floor(c.y / METRO_RADIUS),
+    );
+    const list = grid.get(k);
+    if (list) list.push(c);
+    else grid.set(k, [c]);
+  }
+  const r2 = METRO_RADIUS * METRO_RADIUS;
+  for (const c of cities) {
+    const cx = Math.floor(c.x / METRO_RADIUS);
+    const cy = Math.floor(c.y / METRO_RADIUS);
+    let n = 0;
+    for (let dy = -1; dy <= 1; dy++)
+      for (let dx = -1; dx <= 1; dx++) {
+        for (const o of grid.get(key(cx + dx, cy + dy)) ?? []) {
+          if (o === c || o.owner !== c.owner) continue;
+          const ex = o.x - c.x;
+          const ey = o.y - c.y;
+          if (ex * ex + ey * ey <= r2) n++;
+        }
+      }
+    if (n > 0) out.set(c.id, 1 + 0.15 * Math.min(n, 4));
+  }
+  return out;
 }

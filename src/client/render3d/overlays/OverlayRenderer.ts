@@ -92,7 +92,7 @@ export class OverlayRenderer {
     this.ghost = new Mesh(modelGeometry("city"), this.ghostMat);
     this.ghost.visible = false;
     this.ghost.renderOrder = 10;
-    const ring = new RingGeometry(0.96, 1, 96, 1);
+    const ring = new RingGeometry(0.985, 1, 128, 1);
     ring.rotateX(-Math.PI / 2);
     this.range = new Mesh(ring, this.rangeMat);
     this.range.visible = false;

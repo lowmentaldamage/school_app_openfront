@@ -9,8 +9,10 @@ import { BOMBER } from "@laukolaroser/engine-lib/air/Air";
 import {
   ECONOMY_BUILDINGS,
   incomePerInterval,
+  MOUNTAIN_MINE_BONUS_PERCENT,
 } from "@laukolaroser/engine-lib/economy/Economy";
 import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
+import { IncomeBuildingExecution } from "@laukolaroser/engine/execution/IncomeBuildingExecution";
 import { NationEconomyBehavior } from "@laukolaroser/engine/execution/nation/NationEconomyBehavior";
 import { WeaponStrikeExecution } from "@laukolaroser/engine/execution/WeaponStrikeExecution";
 import { Game, Player, Unit } from "@laukolaroser/engine/game/Game";
@@ -91,6 +93,46 @@ describe("income buildings", () => {
     expect(spawn).not.toBe(false);
     const t = world.terrainType(spawn as number);
     expect([TerrainType.Highland, TerrainType.Mountain]).toContain(t);
+  });
+
+  it("a gold mine on a true mountain earns 50% more than on highland", async () => {
+    const world = await setup("world", { instantBuild: true }, [
+      new PlayerInfo("b", PlayerType.Human, "b", "b"),
+    ]);
+    const b = world.player("b");
+    const find = (t: TerrainType) => {
+      for (let y = 100; y < 900; y += 3)
+        for (let x = 100; x < 1900; x += 3) {
+          const r = world.ref(x, y);
+          if (world.terrainType(r) === t && !world.isImpassable(r)) return r;
+        }
+      throw new Error("no tile");
+    };
+    const pay = (tile: number) => {
+      b.conquer(tile);
+      const mine = b.buildUnit(UnitType.GoldMine, tile, {});
+      world.addExecution(new IncomeBuildingExecution(mine));
+      executeTicks(world, 2);
+      const g = b.gold();
+      executeTicks(world, 100);
+      const earned = b.gold() - g;
+      mine.delete(false);
+      return earned;
+    };
+    const workers = () => {
+      const g = b.gold();
+      executeTicks(world, 100);
+      return b.gold() - g;
+    };
+    const base = workers();
+    const high = pay(find(TerrainType.Highland)) - base;
+    const mountain = pay(find(TerrainType.Mountain)) - base;
+    expect(high).toBeGreaterThan(0n);
+    expect(mountain).toBeGreaterThan(high);
+    expect(Number(mountain) / Number(high)).toBeCloseTo(
+      MOUNTAIN_MINE_BONUS_PERCENT / 100,
+      1,
+    );
   });
 
   it("oil rigs stand offshore near your land and are lost with it", async () => {

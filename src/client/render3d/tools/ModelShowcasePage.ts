@@ -156,6 +156,8 @@ async function run(): Promise<void> {
 
     let now = performance.now();
     world.updateFrame(frame(null), pal, now);
+    // Let the building icon atlas load.
+    await new Promise((r) => setTimeout(r, 2500));
     const cam = {
       centerX: W / 2,
       centerY: H * 0.52,

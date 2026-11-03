@@ -3089,6 +3089,8 @@
     "your_team": "Your team won!"
   },
   "world3d": {
+    "reset_hint": "Back to north-up and the default tilt (Home key). Arrow keys turn and tilt; on a phone twist two fingers.",
+    "reset_short": "Reset view",
     "reset_view": "Reset camera (north up)",
     "rotate_left": "Rotate camera left",
     "rotate_right": "Rotate camera right",

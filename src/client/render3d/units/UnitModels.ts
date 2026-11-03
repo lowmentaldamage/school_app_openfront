@@ -492,19 +492,70 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       })
       .build(),
 
-  // Hillside mine: rock mound, timbered entrance, gold heap, team flag.
-  goldMine: () =>
-    new ModelBuilder()
-      .cylinder(1.0, 1.25, 0.7, 7, { color: 0x6b6458 })
-      .box(0.5, 0.45, 0.2, { color: 0x5a4030, pos: [0, 0.05, 1.05] })
-      .box(0.32, 0.32, 0.22, { color: BLACK, pos: [0, 0.05, 1.08] })
-      .cone(0.35, 0.3, 6, { color: BRASS, pos: [0.7, 0.05, 0.7] })
-      .cylinder(0.03, 0.03, 0.9, 4, {
-        color: DARK_STEEL,
-        pos: [-0.5, 0.6, -0.3],
+  // Mine shaft: a tall steel headframe with the hoist wheel on top, the
+  // winding-engine house, an ore heap and a cart on its track. Reads as a
+  // vertical landmark on a mountainside.
+  goldMine: () => {
+    const b = new ModelBuilder()
+      .cylinder(0.95, 1.1, 0.18, 8, { color: 0x6b6458 })
+      // Four tapering legs of the headframe.
+      .box(0.08, 2.2, 0.08, {
+        color: 0x4b5157,
+        pos: [-0.32, 0.18, -0.32],
+        rot: [0.08, 0, -0.08],
       })
-      .box(0.32, 0.2, 0.03, { team: true, pos: [-0.33, 1.35, -0.3] })
-      .build(),
+      .box(0.08, 2.2, 0.08, {
+        color: 0x4b5157,
+        pos: [0.32, 0.18, -0.32],
+        rot: [0.08, 0, 0.08],
+      })
+      .box(0.08, 2.2, 0.08, {
+        color: 0x4b5157,
+        pos: [-0.32, 0.18, 0.32],
+        rot: [-0.08, 0, -0.08],
+      })
+      .box(0.08, 2.2, 0.08, {
+        color: 0x4b5157,
+        pos: [0.32, 0.18, 0.32],
+        rot: [-0.08, 0, 0.08],
+      })
+      // Cross bracing.
+      .box(0.62, 0.05, 0.05, { color: 0x5d646b, pos: [0, 0.9, -0.3] })
+      .box(0.62, 0.05, 0.05, { color: 0x5d646b, pos: [0, 0.9, 0.3] })
+      .box(0.05, 0.05, 0.62, { color: 0x5d646b, pos: [-0.3, 0.9, 0] })
+      .box(0.05, 0.05, 0.62, { color: 0x5d646b, pos: [0.3, 0.9, 0] })
+      .box(0.5, 0.05, 0.05, { color: 0x5d646b, pos: [0, 1.6, -0.24] })
+      .box(0.5, 0.05, 0.05, { color: 0x5d646b, pos: [0, 1.6, 0.24] })
+      // Platform and hoist wheel (team coloured hub).
+      .box(0.56, 0.08, 0.56, { color: 0x3c444c, pos: [0, 2.3, 0] })
+      .cylinder(0.32, 0.32, 0.06, 14, {
+        color: 0x2a2f34,
+        pos: [0, 2.68, 0.0],
+        rot: [Math.PI / 2, 0, 0],
+      })
+      .cylinder(0.1, 0.1, 0.1, 8, {
+        team: true,
+        pos: [0, 2.68, -0.02],
+        rot: [Math.PI / 2, 0, 0],
+      })
+      // Winding-engine house with a team roof.
+      .box(0.62, 0.55, 0.5, {
+        color: 0x8a5a44,
+        pattern: "brick",
+        pos: [0.62, 0.18, 0.55],
+      })
+      .box(0.66, 0.08, 0.54, { team: true, pos: [0.62, 0.73, 0.55] })
+      .cylinder(0.06, 0.08, 0.6, 6, {
+        color: 0x2a2f34,
+        pos: [0.82, 0.73, 0.68],
+      })
+      // Ore heap glinting gold, and a cart on rails.
+      .cone(0.38, 0.34, 7, { color: BRASS, pos: [-0.62, 0.18, 0.55] })
+      .box(0.9, 0.03, 0.12, { color: 0x3c3226, pos: [-0.1, 0.18, -0.75] })
+      .box(0.28, 0.16, 0.18, { color: 0x5a4030, pos: [-0.3, 0.21, -0.75] })
+      .cone(0.12, 0.08, 6, { color: BRASS, pos: [-0.3, 0.37, -0.75] });
+    return b.build();
+  },
 
   // Market hall with team-coloured awning and stalls.
   market: () =>

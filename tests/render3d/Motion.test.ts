@@ -69,3 +69,32 @@ describe("Motion", () => {
     expect(buildRise(10_000)).toBe(1);
   });
 });
+
+describe("metroFactors", () => {
+  test("nearby cities of one owner grow; others don't", async () => {
+    const { metroFactors } =
+      await import("../../src/client/render3d/units/UnitRenderer");
+    const W = 100;
+    const city = (id: number, owner: number, x: number, y: number) => ({
+      id,
+      unitType: "City",
+      ownerID: owner,
+      pos: y * W + x,
+      isActive: true,
+    });
+    const f = metroFactors(
+      [
+        city(1, 1, 10, 10),
+        city(2, 1, 12, 11),
+        city(3, 1, 13, 13),
+        city(4, 2, 11, 10), // other owner: no merge
+        city(5, 1, 60, 60), // far away
+      ],
+      W,
+    );
+    expect(f.get(1)).toBeCloseTo(1.3);
+    expect(f.get(2)).toBeCloseTo(1.3);
+    expect(f.get(4)).toBeUndefined();
+    expect(f.get(5)).toBeUndefined();
+  });
+});

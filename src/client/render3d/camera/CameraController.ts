@@ -195,21 +195,40 @@ export class CameraController {
     tmpDir.subVectors(tmpFar, tmpNear).normalize();
     if (tmpDir.y >= -1e-6) return null;
 
-    // Fixed-point refinement: intersect the plane at the surface height
-    // found by the previous estimate. Converges in a few steps for the
-    // smooth heightfield.
-    let h = 0;
-    let x = 0;
-    let z = 0;
-    for (let i = 0; i < 6; i++) {
-      const t = (h - tmpNear.y) / tmpDir.y;
-      x = tmpNear.x + tmpDir.x * t;
-      z = tmpNear.z + tmpDir.z * t;
-      const nh = Math.max(0, this.hf.sample(x, z));
-      if (Math.abs(nh - h) < 1e-3) break;
-      h = nh;
+    // Ray march against the terrain, then binary search the crossing: exact
+    // on steep mountains too (a plane-intersection refinement oscillates
+    // there and lands clicks several tiles off).
+    const top = this.hf.maxHeight() + 1;
+    const above = (t: number) => {
+      const y = tmpNear.y + tmpDir.y * t;
+      const h = Math.max(
+        0,
+        this.hf.sample(tmpNear.x + tmpDir.x * t, tmpNear.z + tmpDir.z * t),
+      );
+      return y - h;
+    };
+    // Start where the ray comes down to the highest terrain, end at sea level.
+    let t0 = Math.max(0, (top - tmpNear.y) / tmpDir.y);
+    const tEnd = (0 - tmpNear.y) / tmpDir.y;
+    if (tEnd <= t0) t0 = 0;
+    const horiz = Math.hypot(tmpDir.x, tmpDir.z);
+    // Steps of about half a tile along the ground.
+    const step = Math.max(0.05, 0.5 / Math.max(horiz, 0.05));
+    let lo = t0;
+    let hi = tEnd;
+    for (let t = t0; t <= tEnd; t += step) {
+      if (above(t) <= 0) {
+        hi = t;
+        break;
+      }
+      lo = t;
     }
-    return { x, y: z };
+    for (let i = 0; i < 18; i++) {
+      const mid = (lo + hi) / 2;
+      if (above(mid) > 0) lo = mid;
+      else hi = mid;
+    }
+    return { x: tmpNear.x + tmpDir.x * hi, y: tmpNear.z + tmpDir.z * hi };
   }
 
   /** Continuous tile coordinate → viewport pixel (on the surface). */

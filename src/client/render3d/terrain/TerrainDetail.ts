@@ -136,10 +136,13 @@ export function upscaleTerrainDetail(
         (src[c * 2] * (1 - wx) + src[d * 2] * wx) * wy;
       if (isLand) {
         if (l < 0.52) l = 0.52;
-        // Roughness grows with elevation: plains ≈ flat, mountains rugged.
-        const r = (h - 0.6) / 4;
-        const rough = (r < 0 ? 0 : r > 1 ? 1 : r) * 0.6 + 0.02;
-        h += (noise[nrow + (X & NOISE_MASK)] - 0.5) * rough;
+        // Roughness grows with elevation: plains ≈ flat, mountains rugged
+        // with ridged crests (folded |noise| makes sharp edges, not bumps).
+        const r = (h - 0.6) / 6;
+        const rc = r < 0 ? 0 : r > 1 ? 1 : r;
+        const n = noise[nrow + (X & NOISE_MASK)];
+        const ridge = 1 - Math.abs(n * 2 - 1);
+        h += (n - 0.5) * (rc * 0.7 + 0.02) + ridge * rc * rc * 0.9;
         if (h < 0.12) h = 0.12;
       } else {
         if (l > 0.48) l = 0.48;

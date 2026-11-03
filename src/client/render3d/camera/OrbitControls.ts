@@ -1,7 +1,9 @@
 /**
  * OrbitControls — rotate and tilt the 3D camera.
  *
- *  - Keyboard: `[` / `]` rotate 45°, Page Up / Page Down tilt, Home resets.
+ *  - Keyboard: hold ← / → to turn the full 360°, ↑ / ↓ to tilt (smooth,
+ *    while held — WASD still moves the map); `[` / `]` rotate 45°,
+ *    Page Up / Page Down tilt, Home or the "Reset view" button resets.
  *  - Touch: twisting two fingers rotates (pinch-zoom keeps working; the
  *    game's own handler still receives the touches).
  *  - On-screen compass (bottom-right): rotate buttons, tilt buttons, and a
@@ -21,6 +23,10 @@ const DRAG_YAW_PER_PX = 0.6;
 const DRAG_TILT_PER_PX = 0.35;
 /** Two-finger vertical slide: degrees of tilt per CSS pixel. */
 const TOUCH_TILT_PER_PX = 0.25;
+/** Held arrow keys: degrees per second. */
+const KEY_YAW_PER_S = 110;
+const KEY_TILT_PER_S = 45;
+const ARROWS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
 
 export class OrbitControls {
   readonly widget: HTMLElement;
@@ -29,19 +35,33 @@ export class OrbitControls {
   private twoFinger: { midY: number; dist: number } | null = null;
   private lastNeedle = "";
   private twistAngle: number | null = null;
+  private readonly held = new Set<string>();
+  private lastFrame = 0;
 
   constructor(
     private readonly camera: CameraController,
     touchTarget: EventTarget,
   ) {
     const signal = this.abort.signal;
+    // Capture phase: arrow keys turn the 3D camera here before the 2D
+    // input handler would pan the map with them.
     globalThis.addEventListener(
       "keydown",
       (e) => this.onKey(e as KeyboardEvent),
-      {
-        signal,
-      },
+      { signal, capture: true },
     );
+    globalThis.addEventListener(
+      "keyup",
+      (e) => {
+        const k = e as KeyboardEvent;
+        if (ARROWS.has(k.code)) {
+          this.held.delete(k.code);
+          k.stopImmediatePropagation();
+        }
+      },
+      { signal, capture: true },
+    );
+    globalThis.addEventListener("blur", () => this.held.clear(), { signal });
     touchTarget.addEventListener(
       "touchmove",
       (e) => this.onTouchMove(e as TouchEvent),
@@ -75,7 +95,8 @@ export class OrbitControls {
         </button>
         <button data-act="rot-right" class="lkr-cam-btn" aria-label="${attr(translateText("world3d.rotate_right"))}">⟳</button>
       </div>
-      <button data-act="tilt-down" class="lkr-cam-btn" aria-label="${attr(translateText("world3d.tilt_down"))}">▼</button>`;
+      <button data-act="tilt-down" class="lkr-cam-btn" aria-label="${attr(translateText("world3d.tilt_down"))}">▼</button>
+      <button data-act="reset" class="lkr-cam-reset" title="${attr(translateText("world3d.reset_hint"))}">⟲ ${translateText("world3d.reset_short")}</button>`;
     const style = document.createElement("style");
     style.textContent = `
       .lkr-cam-btn { width: 34px; height: 34px; border-radius: 10px; color: #fff;
@@ -93,6 +114,10 @@ export class OrbitControls {
         background: linear-gradient(#ef4444 0 50%, #e4e4e7 50% 100%); }
       .lkr-cam-n { position: absolute; left: 0; right: 0; top: -1px; font: 700 9px system-ui;
         color: #fca5a5; text-align: center; pointer-events: none; }
+      .lkr-cam-reset { margin-top: 2px; padding: 4px 8px; border-radius: 9px; color: #fff;
+        background: rgba(24,24,27,.82); border: 1px solid rgba(255,255,255,.12);
+        font: 600 11px system-ui; white-space: nowrap; touch-action: manipulation; }
+      .lkr-cam-reset:hover { background: rgba(39,39,42,.95); }
       body:not(.in-game) #world3d-compass { display: none; }`;
     w.prepend(style);
     // Drag the compass to orbit freely: sideways turns the full 360°, up and
@@ -152,8 +177,19 @@ export class OrbitControls {
     this.needle = w.querySelector(".lkr-cam-needle") as HTMLElement;
   }
 
-  /** Per frame: keep the compass needle pointing north. */
+  /** Per frame: held arrow keys turn/tilt; keep the needle pointing north. */
   update(): void {
+    const now = performance.now();
+    const dt =
+      this.lastFrame > 0 ? Math.min(0.1, (now - this.lastFrame) / 1000) : 0;
+    this.lastFrame = now;
+    if (this.held.size > 0 && dt > 0) {
+      if (this.held.has("ArrowLeft")) this.camera.rotateBy(KEY_YAW_PER_S * dt);
+      if (this.held.has("ArrowRight"))
+        this.camera.rotateBy(-KEY_YAW_PER_S * dt);
+      if (this.held.has("ArrowUp")) this.camera.tiltBy(KEY_TILT_PER_S * dt);
+      if (this.held.has("ArrowDown")) this.camera.tiltBy(-KEY_TILT_PER_S * dt);
+    }
     const t = `rotate(${this.camera.yawDeg.toFixed(1)}deg)`;
     if (t !== this.lastNeedle) {
       this.needle.style.transform = t;
@@ -175,6 +211,14 @@ export class OrbitControls {
       return;
     }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (ARROWS.has(e.code)) {
+      // Only while a game is on screen (menus keep normal arrow keys).
+      if (!document.body.classList.contains("in-game")) return;
+      this.held.add(e.code);
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
     switch (e.code) {
       case "BracketLeft":
         this.camera.rotateBy(ROTATE_STEP);

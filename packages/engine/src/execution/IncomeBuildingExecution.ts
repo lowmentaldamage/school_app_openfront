@@ -1,9 +1,10 @@
-import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import { TerrainType, UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   ECONOMY_BUILDINGS,
   type EconomyBuildingType,
   INCOME_INTERVAL_TICKS,
   incomePerInterval,
+  MOUNTAIN_MINE_BONUS_PERCENT,
   OIL_RIG_RANGE,
 } from "@laukolaroser/engine-lib/economy/Economy";
 import { zInt, zRef } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
@@ -62,6 +63,13 @@ export class IncomeBuildingExecution implements Execution {
     const spec = ECONOMY_BUILDINGS[b.type() as EconomyBuildingType];
     if (spec === undefined) return;
     let pay = incomePerInterval(spec, b.level());
+    // Richer veins in true mountains.
+    if (
+      b.type() === UnitType.GoldMine &&
+      this.mg!.terrainType(b.tile()) === TerrainType.Mountain
+    ) {
+      pay = (pay * BigInt(MOUNTAIN_MINE_BONUS_PERCENT)) / 100n;
+    }
     // Tech: Industrialization.
     if (b.owner().hasTech("industry")) {
       pay = techPercentBig(pay, TECH_EFFECTS.industryIncomePercent);

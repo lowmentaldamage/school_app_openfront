@@ -19,6 +19,12 @@ describe("BuildPreviewController ghost preservation (locked nuke / Enter confirm
       expect(shouldPreserveGhostAfterBuild(UnitType.HydrogenBomb)).toBe(true);
     });
 
+    test("MIRVs stay armed, and Shift keeps any building selected", () => {
+      expect(shouldPreserveGhostAfterBuild(UnitType.MIRV)).toBe(true);
+      expect(shouldPreserveGhostAfterBuild(UnitType.City, true)).toBe(true);
+      expect(shouldPreserveGhostAfterBuild(UnitType.Port, true)).toBe(true);
+    });
+
     test("returns false for City so ghost is cleared after placement", () => {
       expect(shouldPreserveGhostAfterBuild(UnitType.City)).toBe(false);
     });
@@ -27,13 +33,12 @@ describe("BuildPreviewController ghost preservation (locked nuke / Enter confirm
       expect(shouldPreserveGhostAfterBuild(UnitType.Factory)).toBe(false);
     });
 
-    test("returns false for other buildable types (Port, DefensePost, MissileSilo, SAMLauncher, Warship, MIRV)", () => {
+    test("returns false for other buildable types (Port, DefensePost, MissileSilo, SAMLauncher, Warship)", () => {
       expect(shouldPreserveGhostAfterBuild(UnitType.Port)).toBe(false);
       expect(shouldPreserveGhostAfterBuild(UnitType.DefensePost)).toBe(false);
       expect(shouldPreserveGhostAfterBuild(UnitType.MissileSilo)).toBe(false);
       expect(shouldPreserveGhostAfterBuild(UnitType.SAMLauncher)).toBe(false);
       expect(shouldPreserveGhostAfterBuild(UnitType.Warship)).toBe(false);
-      expect(shouldPreserveGhostAfterBuild(UnitType.MIRV)).toBe(false);
     });
   });
 });

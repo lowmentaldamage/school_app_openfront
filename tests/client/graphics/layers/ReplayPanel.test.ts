@@ -60,7 +60,7 @@ describe("ReplayPanel", () => {
     // Without a game (or with a non-replay one) the label is "game speed".
     expect(JSON.stringify(rendered)).toContain("replay_panel.game_speed");
     // One button per ReplaySpeedMultiplier member.
-    expect(JSON.stringify(rendered).match(/<button/g)).toHaveLength(4);
+    expect(JSON.stringify(rendered).match(/<button/g)).toHaveLength(6);
   });
 
   it("clicking a speed button routes through onReplaySpeedChange", () => {
@@ -76,8 +76,9 @@ describe("ReplayPanel", () => {
         for (const v of Object.values(node)) walk(v);
     };
     rendered.values.forEach(walk);
-    // One contextmenu handler on the container plus four button clicks.
-    expect(clicks.length).toBe(5);
+    // One contextmenu handler on the container plus six button clicks
+    // (×0.5, ×1, ×2, ×5, ×10, Max).
+    expect(clicks.length).toBe(7);
     clicks[1]();
 
     const event = emit.mock.calls[0][0];

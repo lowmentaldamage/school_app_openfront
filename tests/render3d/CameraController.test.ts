@@ -143,4 +143,42 @@ describe("CameraController orbit", () => {
     expect(cc.yawDeg % 360).toBeCloseTo(0);
     expect(cc.pitchDeg).toBeCloseTo(56);
   });
+
+  it("clicks land on the exact tile on steep mountains, at any rotation", async () => {
+    const { cc, hf } = await makeController();
+    // Find the highest peak and test tiles around it.
+    let px = 0;
+    let py = 0;
+    let best = -1;
+    for (let y = 50; y < hf.height - 50; y += 2)
+      for (let x = 50; x < hf.width - 50; x += 2) {
+        const h = hf.sample(x + 0.5, y + 0.5);
+        if (h > best) {
+          best = h;
+          px = x;
+          py = y;
+        }
+      }
+    expect(best).toBeGreaterThan(15);
+    for (const yaw of [0, 90, 200]) {
+      cc.rotateBy(yaw);
+      for (let i = 0; i < 40; i++) cc.step(100);
+      cc.sync({
+        centerX: px,
+        centerY: py,
+        scale: 14,
+        viewWidth: 1280,
+        viewHeight: 720,
+      });
+      for (let dy = -4; dy <= 4; dy += 2)
+        for (let dx = -4; dx <= 4; dx += 2) {
+          const tx = px + dx + 0.5;
+          const ty = py + dy + 0.5;
+          const s = cc.tileToScreen(tx, ty);
+          const back = cc.screenToTile(s.x, s.y)!;
+          expect(Math.floor(back.x)).toBe(Math.floor(tx));
+          expect(Math.floor(back.y)).toBe(Math.floor(ty));
+        }
+    }
+  });
 });

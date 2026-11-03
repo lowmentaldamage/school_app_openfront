@@ -42,8 +42,29 @@ import { UserSettings } from "../UserSettings";
 import { GameView } from "../view";
 
 /** True for nuke types (AtomBomb, HydrogenBomb): ghost is preserved after placement so user can place multiple or keep selection (Enter/key confirm). */
-export function shouldPreserveGhostAfterBuild(unitType: UnitType): boolean {
-  return unitType === UnitType.AtomBomb || unitType === UnitType.HydrogenBomb;
+export function shouldPreserveGhostAfterBuild(
+  unitType: UnitType,
+  shiftHeld = false,
+): boolean {
+  // Nukes stay armed for a quick salvo; holding Shift keeps any building
+  // selected to place several in a row.
+  return (
+    shiftHeld ||
+    unitType === UnitType.AtomBomb ||
+    unitType === UnitType.HydrogenBomb ||
+    unitType === UnitType.MIRV
+  );
+}
+
+/** Whether Shift is held right now (multi-place). */
+let shiftHeld = false;
+if (typeof window !== "undefined") {
+  const track = (e: KeyboardEvent) => {
+    shiftHeld = e.shiftKey;
+  };
+  window.addEventListener("keydown", track, { capture: true });
+  window.addEventListener("keyup", track, { capture: true });
+  window.addEventListener("blur", () => (shiftHeld = false));
 }
 
 // tSamIntercept value used to flag an untargetable (impassable) destination:
@@ -976,7 +997,7 @@ export class BuildPreviewController implements Controller {
           isNuke ? this.uiState.upgradeMultiplier || 1 : undefined,
         ),
       );
-      if (!shouldPreserveGhostAfterBuild(unitType)) {
+      if (!shouldPreserveGhostAfterBuild(unitType, shiftHeld)) {
         this.removeGhostStructure();
       }
     } else {

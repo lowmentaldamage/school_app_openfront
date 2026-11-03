@@ -28,6 +28,11 @@ export const DEFAULT_HEIGHTFIELD_OPTIONS: HeightfieldOptions = {
   verticalScale: 1,
 };
 
+/** Raw heights above this keep sharp peaks after smoothing. */
+const MOUNTAIN_PEAK_FROM = 6;
+/** Share of the blurred-away peak height given back (0..1). */
+const PEAK_RESTORE = 0.6;
+
 /** Minimum land height after smoothing, so coasts stay above water. */
 export const MIN_LAND_HEIGHT = 0.12;
 /** Maximum water height after smoothing, so water stays below the surface. */
@@ -42,10 +47,10 @@ export function rawHeight(terrainByte: number): number {
   }
   // Exaggerated relief: on a map thousands of tiles wide, true-to-scale
   // mountains would be invisible bumps.
-  if (m >= IMPASSABLE_MAGNITUDE) return 22;
+  if (m >= IMPASSABLE_MAGNITUDE) return 34;
   if (m < 10) return 0.3 + m * 0.1; // plains: 0.3 … 1.2
-  if (m < 20) return 1.3 + (m - 10) * 0.38; // highland: 1.3 … 4.72
-  return 5.0 + (m - 20) * 1.5; // mountains: 5.0 … 21.5
+  if (m < 20) return 1.3 + (m - 10) * 0.45; // highland: 1.3 … 5.35
+  return 6.0 + (m - 20) * 2.3; // mountains: 6.0 … 31.3
 }
 
 export class Heightfield {
@@ -83,14 +88,34 @@ export class Heightfield {
 
     // Blurring pulls coasts toward sea level from both sides; clamp so the
     // land/water classification of every tile is preserved exactly.
+    // Mountain peaks get most of their height back, so ranges keep sharp
+    // summits while the slopes below stay smooth.
     const s = options.verticalScale;
     for (let i = 0; i < h.length; i++) {
+      const raw = rawHeight(terrain[i]);
+      if (raw > MOUNTAIN_PEAK_FROM && raw > h[i]) {
+        h[i] += (raw - h[i]) * PEAK_RESTORE;
+      }
       const v = h[i] * s;
       h[i] = isLandByte(terrain[i])
         ? Math.max(v, MIN_LAND_HEIGHT)
         : Math.min(v, MAX_WATER_HEIGHT);
     }
     return new Heightfield(width, height, h);
+  }
+
+  private maxH = Number.NaN;
+
+  /** Highest point of the field (cached). */
+  maxHeight(): number {
+    if (Number.isNaN(this.maxH)) {
+      let m = 0;
+      for (let i = 0; i < this.heights.length; i++) {
+        if (this.heights[i] > m) m = this.heights[i];
+      }
+      this.maxH = m;
+    }
+    return this.maxH;
   }
 
   /** Height of the tile containing (x, y); coordinates are clamped. */

@@ -37,6 +37,9 @@ export const ECONOMY_BUILDINGS: Readonly<
 
 export const INCOME_INTERVAL_TICKS = 10;
 
+/** A gold mine dug into a true mountain tile earns this much more (%). */
+export const MOUNTAIN_MINE_BONUS_PERCENT = 150;
+
 /** Oil rigs stand on water at most this far (tiles) from their owner's land. */
 export const OIL_RIG_RANGE = 8;
 

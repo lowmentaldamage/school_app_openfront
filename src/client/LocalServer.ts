@@ -42,6 +42,8 @@ const SPEED_ORDER: ReplaySpeedMultiplier[] = [
   ReplaySpeedMultiplier.slow,
   ReplaySpeedMultiplier.normal,
   ReplaySpeedMultiplier.fast,
+  ReplaySpeedMultiplier.faster,
+  ReplaySpeedMultiplier.turbo,
   ReplaySpeedMultiplier.fastest,
 ];
 
