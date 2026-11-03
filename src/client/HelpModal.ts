@@ -142,6 +142,7 @@ export class HelpModal extends BaseModal {
                 "trains",
                 "weapons",
                 "economy",
+                "terrain",
                 "borders",
               ] as const
             ).map(

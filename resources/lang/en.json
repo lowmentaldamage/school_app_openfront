@@ -1270,6 +1270,8 @@
     "lk_phone_title": "On a phone",
     "lk_ships_desc": "Warship: all-rounder. Destroyer: cheap and fast, hunts transports and trade ships. Battleship: slow and very tough, shells enemy coasts during a land war. Select ships and click water to move them.",
     "lk_ships_title": "Navy",
+    "lk_terrain_desc": "Mountains cost about 3x the troops and time of plains, highlands about 1.6x. Holding the high ground helps: attacking from your own peaks or downhill is cheaper. Use mountain ranges as natural borders.",
+    "lk_terrain_title": "Terrain",
     "lk_title": "Quick guide",
     "lk_trains_desc": "Factories link nearby cities and ports with railways; trade trains earn gold. With a level 2 factory some become fast Express trains. Armored Trains shell enemies near the tracks, Troop Trains bring reinforcements, Rail SAMs shoot down nukes.",
     "lk_trains_title": "Trains",

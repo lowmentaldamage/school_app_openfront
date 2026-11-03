@@ -40,6 +40,12 @@ export interface AttackLogicInput {
   } | null;
   /** A defense post owned by the defender is in range of the tile. */
   defenderHasDefensePost: boolean;
+  /**
+   * Highest terrain the attacker already holds next to the tile (where the
+   * assault comes from), for the high-ground rule; undefined when unknown
+   * (e.g. a boat landing), which applies no modifier.
+   */
+  attackerTerrain?: TerrainType;
   /** Fraction of land tiles with fallout, or null if the tile has no fallout. */
   falloutRatio: number | null;
   /** Tiles on the attack front this tick (plus jitter); fixed for the tick. */
@@ -103,6 +109,33 @@ function largeTerritoryBonus(numTiles: number, depth: number): number {
   );
 }
 
+function terrainRank(t: TerrainType): number {
+  return t === TerrainType.Mountain ? 2 : t === TerrainType.Highland ? 1 : 0;
+}
+
+/**
+ * High ground: an assault from terrain at least as high as the target is
+ * easier than one up the slope. Uphill (or unknown origin): full cost.
+ * Along a ridge (highland/mountain from the same height): 25% cheaper.
+ * Downhill: 15% cheaper. Plains to plains: unchanged.
+ */
+export function highGroundModifier(
+  target: TerrainType,
+  from: TerrainType | undefined,
+): number {
+  if (from === undefined) return 1;
+  const diff = terrainRank(target) - terrainRank(from);
+  if (diff > 0) return 1;
+  if (diff < 0) return 0.85;
+  return terrainRank(target) > 0 ? 0.75 : 1;
+}
+
+/**
+ * Terrain cost of taking one tile: `mag` scales the attacker's troop losses,
+ * `tileCost` how slowly the front advances. Mountains are a real obstacle
+ * (about 3x the losses and 3x slower than plains), highlands a moderate one,
+ * so natural barriers shape borders and wars like on real maps.
+ */
 function terrainAttackBase(terrain: TerrainType): {
   mag: number;
   tileCost: number;
@@ -111,9 +144,9 @@ function terrainAttackBase(terrain: TerrainType): {
     case TerrainType.Plains:
       return { mag: 80, tileCost: 16.5 };
     case TerrainType.Highland:
-      return { mag: 100, tileCost: 20 };
+      return { mag: 130, tileCost: 26 };
     case TerrainType.Mountain:
-      return { mag: 120, tileCost: 25 };
+      return { mag: 240, tileCost: 50 };
     case TerrainType.Impassable:
       throw new Error(`impassable terrain cannot be attacked`);
     default:
@@ -549,6 +582,9 @@ export class EngineConfig extends Config {
   attackLogic(input: AttackLogicInput): AttackLogicResult {
     const { attackTroops, attacker, defender } = input;
     let { mag, tileCost } = terrainAttackBase(input.terrain);
+    const hg = highGroundModifier(input.terrain, input.attackerTerrain);
+    mag *= hg;
+    tileCost *= hg;
 
     if (defender !== null && input.defenderHasDefensePost) {
       mag *= this.defensePostDefenseBonus();

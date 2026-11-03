@@ -79,6 +79,20 @@ Chrome: menu → _Install app_.
   capturing enemy trade ships.
 - **Alliances**: right-click / tap a player → handshake. Allies don't attack
   each other and trade more.
+- **Terrain matters.** Each tile costs troops and time to take:
+
+  | Terrain   | Troop losses | Speed        |
+  | --------- | ------------ | ------------ |
+  | Plains    | 1×           | fast         |
+  | Highlands | ~1.6×        | ~1.6× slower |
+  | Mountains | ~3×          | ~3× slower   |
+
+  **High ground:** attacking from mountains you already hold onto the next
+  peak is 25% cheaper than assaulting from below, and attacking downhill is
+  15% cheaper. Fronts advance through plains and valleys first and take the
+  mountains last — mountain ranges make strong natural borders. Boat
+  landings never get the high-ground bonus.
+
 - **Bots** are weak AI tribes (small grey names with low numbers) that fill
   empty land — easy early targets. **Nations** are stronger AI players.
 

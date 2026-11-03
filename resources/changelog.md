@@ -65,3 +65,9 @@
 - Clearer borders and colours, trees cleared from claimed land, taller mountains
 - Faster: much lighter forests and labels, quality follows your screen's refresh rate (up to 120 Hz and more)
 - Quick guide in Help for the 3D camera, ships, trains and weapons
+
+⛰️ **Terrain warfare**
+
+- Mountains are now about 3x as costly and slow to invade as plains, highlands about 1.6x
+- High ground: attacking from your own mountains or downhill is cheaper than assaulting from below
+- Fronts push through plains and valleys first and take mountains last — ranges make natural borders

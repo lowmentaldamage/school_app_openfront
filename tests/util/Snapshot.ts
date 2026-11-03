@@ -164,6 +164,7 @@ const DERIVED_FIELDS = new Set<string>([
   "tilesToDestroyCache", // NukeExecution: filled and read in the detonation tick only
   // executions: attacks, ships and trains
   "nbuf2", // AttackExecution scratch neighbor buffer (nbuf is above)
+  "hgBuf", // AttackExecution scratch buffer for the high-ground check
   // executions: nations and tribes
   // NationStructurePlacement: both reset at the start of doHandleStructures
   // and only read inside it. (AiAttackBehavior.nbuf is covered above.)
