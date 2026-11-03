@@ -85,6 +85,9 @@ void (async () => {
     body: JSON.stringify({
       username: "smokeadmin",
       password: "smoke-password-1",
+      // Sign-ins are bound to a device (2 devices per account).
+      deviceId: "smoke-test-device-1",
+      deviceName: "Smoke test",
     }),
   });
   if (!login.ok) return finish(1, `FAIL: login HTTP ${login.status}`);
