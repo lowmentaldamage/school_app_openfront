@@ -230,6 +230,8 @@ export class Config {
       case UnitType.Warship:
       case UnitType.Destroyer:
       case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         info = { maxHealth: NAVAL_CLASSES[type].maxHealth };
         break;
       case UnitType.ArmoredTrain:

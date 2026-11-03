@@ -160,6 +160,8 @@ export class SoundEffectController implements Controller {
       case UnitType.Warship:
       case UnitType.Destroyer:
       case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         if (unit.owner() === myPlayer) this.emit("build-warship");
         break;
       case UnitType.ArmoredTrain:

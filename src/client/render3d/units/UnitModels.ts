@@ -14,6 +14,8 @@ export type ModelKind =
   | "warship"
   | "destroyer"
   | "battleship"
+  | "submarine"
+  | "carrier"
   | "transport"
   | "tradeShip"
   | "trainEngine"
@@ -131,6 +133,38 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
     }
     return b.build();
   },
+
+  // Low, dark hull mostly under water, conning tower with a team band.
+  submarine: () =>
+    new ModelBuilder()
+      .cylinder(0.22, 0.18, 2.4, 10, {
+        color: 0x2b3036,
+        pos: [0, -0.08, 0],
+        rot: [0, 0, PI / 2],
+      })
+      .box(0.5, 0.36, 0.22, { color: 0x2b3036, pos: [0.15, 0.08, 0] })
+      .box(0.52, 0.07, 0.24, { team: true, pos: [0.15, 0.4, 0] })
+      .cylinder(0.02, 0.02, 0.35, 4, {
+        color: DARK_STEEL,
+        pos: [0.25, 0.45, 0],
+      })
+      .box(0.25, 0.04, 0.5, { color: 0x2b3036, pos: [-1.05, -0.02, 0] })
+      .build(),
+
+  // Long flat deck with an island on the starboard side.
+  carrier: () =>
+    new ModelBuilder()
+      .hull(4.4, 1.0, 0.42, { color: 0x5f6870 })
+      .box(4.6, 0.08, 1.3, { color: 0x3d3f33, pos: [0, 0.4, 0] })
+      .box(4.2, 0.02, 0.05, { color: WHITE, pos: [0, 0.44, 0] })
+      .box(0.9, 0.55, 0.28, { color: 0x5f6870, pos: [0.3, 0.44, -0.52] })
+      .box(0.92, 0.1, 0.3, { team: true, pos: [0.3, 0.99, -0.52] })
+      .cylinder(0.03, 0.03, 0.5, 4, {
+        color: DARK_STEEL,
+        pos: [0.3, 1.09, -0.52],
+      })
+      .box(4.4, 0.05, 1.0, { team: true, pos: [0, 0.02, 0] })
+      .build(),
 
   transport: () =>
     new ModelBuilder()

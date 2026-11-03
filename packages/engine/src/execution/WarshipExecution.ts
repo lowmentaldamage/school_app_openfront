@@ -7,6 +7,7 @@ import {
   type NavalClassSpec,
   navalStepsOnTick,
   scalePercent,
+  SUBMARINE_DETECT_RANGE,
 } from "@laukolaroser/engine-lib/naval/NavalClasses";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
@@ -41,6 +42,7 @@ import type {
   SnapshotReader,
   SnapshotWriter,
 } from "../snapshot/SnapshotContext";
+import { AirbaseExecution } from "./AirExecutions";
 import { ProjectileExecution } from "./ProjectileExecution";
 import { ShellExecution } from "./ShellExecution";
 
@@ -89,6 +91,11 @@ export class WarshipExecution implements Execution {
       );
     }
     this.spec = navalClass(this.warship.type());
+    // A carrier is a floating airbase: air raids launch from it (weapon
+    // launchers) and this wing scrambles fighters at enemy bombers.
+    if (!isUnit(this.input) && this.warship.type() === UnitType.Carrier) {
+      mg.addExecution(new AirbaseExecution(this.warship));
+    }
     this.lastObservedPatrolTile = this.warship.warshipState().patrolTile;
   }
 
@@ -386,6 +393,15 @@ export class WarshipExecution implements Execution {
         !owner.canAttackPlayer(unit.owner(), true) ||
         this.alreadySentShell.has(unit) ||
         (isCombatShip(unit.type()) && unit.warshipState().state === "docked")
+      ) {
+        continue;
+      }
+      // Stealth: only destroyers hunt submarines at range; other ships must
+      // be close to detect one.
+      if (
+        unit.type() === UnitType.Submarine &&
+        this.warship.type() !== UnitType.Destroyer &&
+        distSquared > SUBMARINE_DETECT_RANGE * SUBMARINE_DETECT_RANGE
       ) {
         continue;
       }

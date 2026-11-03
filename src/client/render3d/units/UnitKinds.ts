@@ -17,6 +17,8 @@ const BY_TYPE: Record<string, ModelKind> = {
   Warship: "warship",
   Destroyer: "destroyer",
   Battleship: "battleship",
+  Submarine: "submarine",
+  "Aircraft Carrier": "carrier",
   "Armored Train": "armoredTrain",
   "Troop Train": "troopTrain",
   "Rail SAM": "railSam",
@@ -61,6 +63,8 @@ export const SHIP_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
   "warship",
   "destroyer",
   "battleship",
+  "submarine",
+  "carrier",
   "transport",
   "tradeShip",
 ]);
@@ -165,4 +169,61 @@ export function tileHash(ref: number): number {
   h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
   h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
   return (h ^ (h >>> 16)) >>> 0;
+}
+
+/** Units that let their owner see enemy submarines nearby. */
+const SUB_SPOTTERS = new Set([
+  "Warship",
+  "Destroyer",
+  "Battleship",
+  "Submarine",
+  "Aircraft Carrier",
+  "Port",
+]);
+
+/**
+ * Enemy submarines the local player cannot see: those with no ship or port
+ * of the player within `range` tiles. (Display only — the simulation is
+ * shared; the engine has its own detection rule for ships.)
+ */
+export function hiddenSubmarines(
+  units: Iterable<{
+    id: number;
+    unitType: string;
+    ownerID: number;
+    pos: number;
+    isActive: boolean;
+  }>,
+  mySmallID: number | null,
+  mapWidth: number,
+  range: number,
+): Set<number> {
+  const hidden = new Set<number>();
+  if (mySmallID === null) return hidden;
+  const subs: { id: number; x: number; y: number }[] = [];
+  const spotters: { x: number; y: number }[] = [];
+  for (const u of units) {
+    if (!u.isActive) continue;
+    const x = u.pos % mapWidth;
+    const y = Math.floor(u.pos / mapWidth);
+    if (u.ownerID === mySmallID) {
+      if (SUB_SPOTTERS.has(u.unitType)) spotters.push({ x, y });
+    } else if (u.unitType === "Submarine") {
+      subs.push({ id: u.id, x, y });
+    }
+  }
+  const r2 = range * range;
+  for (const s of subs) {
+    let seen = false;
+    for (const p of spotters) {
+      const dx = p.x - s.x;
+      const dy = p.y - s.y;
+      if (dx * dx + dy * dy <= r2) {
+        seen = true;
+        break;
+      }
+    }
+    if (!seen) hidden.add(s.id);
+  }
+  return hidden;
 }

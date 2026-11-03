@@ -35,6 +35,7 @@ import {
   modelKindFor,
   SHIP_KINDS,
   AIR_KINDS,
+  hiddenSubmarines,
   STRUCTURE_KINDS,
   tileHash,
   TRAIN_KINDS,
@@ -99,6 +100,9 @@ export function createUnitMaterial(): MeshStandardMaterial {
   return m;
 }
 
+/** Enemy submarines are visible within this many tiles of your ships/ports. */
+const SUB_SIGHT_RANGE = 30;
+
 /** Camera distance beyond which trade ships are not drawn (clutter). */
 const TRADE_HIDE_DISTANCE = 700;
 
@@ -148,7 +152,14 @@ export class UnitRenderer {
     palette: Float32Array,
     nowMs: number,
     cameraDistance: number,
+    mySmallID: number | null = null,
   ): void {
+    const hiddenSubs = hiddenSubmarines(
+      units.values(),
+      mySmallID,
+      this.mapWidth,
+      SUB_SIGHT_RANGE,
+    );
     if (this.tickAt > 0) {
       const dt = nowMs - this.tickAt;
       if (dt > 20 && dt < 1000)
@@ -164,6 +175,7 @@ export class UnitRenderer {
 
     for (const u of units.values()) {
       if (!u.isActive || u.waitTicks > 0) continue;
+      if (hiddenSubs.has(u.id)) continue;
       const kind = modelKindFor(u);
       if (kind === null) continue;
       const pool = this.pools.get(kind)!;
@@ -267,7 +279,9 @@ export class UnitRenderer {
 
         if (SHIP_KINDS.has(mv.kind)) {
           const phase = mv.id * 1.7;
-          h = 0.02 + Math.sin(t * 1.6 + phase) * 0.04;
+          h =
+            (mv.kind === "submarine" ? -0.12 : 0.02) +
+            Math.sin(t * 1.6 + phase) * 0.04;
           roll = Math.sin(t * 1.1 + phase) * 0.05;
           pitch = Math.sin(t * 1.3 + phase * 0.7) * 0.025;
         } else if (AIR_KINDS.has(mv.kind)) {

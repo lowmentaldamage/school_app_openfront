@@ -437,7 +437,7 @@ export abstract class AiAttackBehavior {
 
   protected hostileWarships(): Unit[] {
     return this.game
-      .units(...CombatShips.types)
+      .units(CombatShips.types)
       .filter(
         (w) =>
           w.owner() !== this.player &&

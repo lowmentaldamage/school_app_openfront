@@ -21,6 +21,7 @@ import {
   armoredTrainIcon,
   atomBombIcon,
   battleshipIcon,
+  carrierIcon,
   cityIcon,
   defensePostIcon,
   destroyerIcon,
@@ -35,6 +36,7 @@ import {
   portIcon,
   railSamIcon,
   samLauncherIcon,
+  submarineIcon,
   troopTrainIcon,
   warshipIcon,
 } from "../HotbarIcons";
@@ -53,6 +55,8 @@ export class UnitDisplay extends LitElement implements Controller {
   private _warships = 0;
   private _destroyers = 0;
   private _battleships = 0;
+  private _submarines = 0;
+  private _carriers = 0;
   private _armoredTrains = 0;
   private _troopTrains = 0;
   private _railSams = 0;
@@ -128,6 +132,8 @@ export class UnitDisplay extends LitElement implements Controller {
       case UnitType.Warship:
       case UnitType.Destroyer:
       case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         return (
           this.cost(item) <= (player?.gold() ?? 0n) &&
           (player?.units(UnitType.Port).length ?? 0) > 0
@@ -155,6 +161,8 @@ export class UnitDisplay extends LitElement implements Controller {
     this._warships = player.totalUnitLevels(UnitType.Warship);
     this._destroyers = player.totalUnitLevels(UnitType.Destroyer);
     this._battleships = player.totalUnitLevels(UnitType.Battleship);
+    this._submarines = player.totalUnitLevels(UnitType.Submarine);
+    this._carriers = player.totalUnitLevels(UnitType.Carrier);
     this._armoredTrains = player.totalUnitLevels(UnitType.ArmoredTrain);
     this._troopTrains = player.totalUnitLevels(UnitType.TroopTrain);
     this._railSams = player.totalUnitLevels(UnitType.RailSAM);
@@ -291,6 +299,20 @@ export class UnitDisplay extends LitElement implements Controller {
             this._battleships,
             UnitType.Battleship,
             "battleship",
+            "",
+          )}
+          ${this.renderUnitItem(
+            submarineIcon,
+            this._submarines,
+            UnitType.Submarine,
+            "submarine",
+            "",
+          )}
+          ${this.renderUnitItem(
+            carrierIcon,
+            this._carriers,
+            UnitType.Carrier,
+            "carrier",
             "",
           )}
           ${this.renderUnitItem(
@@ -443,6 +465,8 @@ export class UnitDisplay extends LitElement implements Controller {
               case UnitType.Warship:
               case UnitType.Destroyer:
               case UnitType.Battleship:
+              case UnitType.Submarine:
+              case UnitType.Carrier:
                 this.eventBus?.emit(new ToggleStructureEvent([UnitType.Port]));
                 break;
               case UnitType.ArmoredTrain:

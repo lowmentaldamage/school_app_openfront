@@ -87,3 +87,8 @@
 - Ships, trains and planes stay small when zoomed out; trade ships are hidden when the whole map is in view
 - Less surface grain on land
 - Trains explained step by step in Help and in the Factory description
+
+🌊 **Submarines and carriers**
+
+- Submarine: stealth raider with heavy torpedoes — most ships only spot it up close, destroyers hunt it, and enemies can't see it unless their ships or ports are near
+- Aircraft Carrier: a floating airbase that launches air raids from the sea and sends fighters at enemy bombers

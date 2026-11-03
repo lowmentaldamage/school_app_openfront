@@ -28,6 +28,8 @@ const SPRITE_CONFIG: Partial<Record<UnitType | TrainTypeSprite, string>> = {
   [UnitType.Warship]: warshipSprite,
   [UnitType.Destroyer]: warshipSprite,
   [UnitType.Battleship]: warshipSprite,
+  [UnitType.Submarine]: warshipSprite,
+  [UnitType.Carrier]: warshipSprite,
   [UnitType.ArmoredTrain]: trainEngineSprite,
   [UnitType.TroopTrain]: trainEngineSprite,
   [UnitType.RailSAM]: trainEngineSprite,

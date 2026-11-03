@@ -58,7 +58,30 @@ export const NAVAL_CLASSES: Readonly<Record<CombatShipType, NavalClassSpec>> = {
     damagePercent: 220,
     bombard: { range: 40, reloadTicks: 9 * 10 },
   },
+  // Stealth raider: heavy torpedoes, slow reload. Hidden from most ships
+  // beyond SUBMARINE_DETECT_RANGE; destroyers hunt it at full range.
+  [UnitType.Submarine]: {
+    stepsPer6Ticks: 6,
+    maxHealth: 500,
+    rangePercent: 80,
+    reloadPercent: 130,
+    damagePercent: 180,
+    bombard: null,
+  },
+  // Floating airbase: slow and tough, weak guns; launches air raids and
+  // fighters (see AirExecutions).
+  [UnitType.Carrier]: {
+    stepsPer6Ticks: 4,
+    maxHealth: 2500,
+    rangePercent: 90,
+    reloadPercent: 140,
+    damagePercent: 40,
+    bombard: null,
+  },
 };
+
+/** Non-destroyer ships only see enemy submarines this close (tiles). */
+export const SUBMARINE_DETECT_RANGE = 8;
 
 export function isCombatShip(type: UnitType): type is CombatShipType {
   return CombatShips.has(type);

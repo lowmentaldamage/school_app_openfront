@@ -114,6 +114,8 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
   { type: UnitType.Warship, translationKey: "unit_type.warship" },
   { type: UnitType.Destroyer, translationKey: "unit_type.destroyer" },
   { type: UnitType.Battleship, translationKey: "unit_type.battleship" },
+  { type: UnitType.Submarine, translationKey: "unit_type.submarine" },
+  { type: UnitType.Carrier, translationKey: "unit_type.carrier" },
   { type: UnitType.ArmoredTrain, translationKey: "unit_type.armored_train" },
   { type: UnitType.TroopTrain, translationKey: "unit_type.troop_train" },
   { type: UnitType.RailSAM, translationKey: "unit_type.rail_sam" },

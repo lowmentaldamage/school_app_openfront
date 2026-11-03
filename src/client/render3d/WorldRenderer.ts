@@ -200,7 +200,12 @@ export class WorldRenderer {
    * Per simulation tick: territory, rails, units and new explosions.
    * `palette` is the same Float32Array the 2D renderer uses.
    */
-  updateFrame(frame: WorldFrame, palette: Float32Array, nowMs: number): void {
+  updateFrame(
+    frame: WorldFrame,
+    palette: Float32Array,
+    nowMs: number,
+    mySmallID: number | null = null,
+  ): void {
     this.territory.updatePalette(palette);
     this.territory.updateOwners(frame.tileState, frame.changedTiles);
     if (frame.railroadDirty || this.firstFrame) {
@@ -212,6 +217,7 @@ export class WorldRenderer {
       palette,
       nowMs,
       this.cameraController.distance,
+      mySmallID,
     );
     this.effects.onEvents(frame.events.deadUnits);
   }

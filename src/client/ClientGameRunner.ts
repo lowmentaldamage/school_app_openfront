@@ -681,6 +681,7 @@ function mountWebGLFrameLoop(
         palette,
         gv.players(),
         gv.myPlayer()?.id() ?? null,
+        gv.myPlayer()?.smallID() ?? null,
       ),
     );
   }

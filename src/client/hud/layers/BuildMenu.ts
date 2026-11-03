@@ -36,6 +36,8 @@ const goldMineIcon = assetUrl("images/GoldMineIconWhite.svg");
 const marketIcon = assetUrl("images/MarketIconWhite.svg");
 const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
 const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
+const submarineIcon = assetUrl("images/SubmarineIconWhite.svg");
+const carrierIcon = assetUrl("images/CarrierIconWhite.svg");
 const cityIcon = assetUrl("images/CityIconWhite.svg");
 const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");
@@ -97,6 +99,20 @@ const buildTable: BuildItemDisplay[][] = [
       icon: battleshipIcon,
       description: "build_menu.desc.battleship",
       key: "unit_type.battleship",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Submarine,
+      icon: submarineIcon,
+      description: "build_menu.desc.submarine",
+      key: "unit_type.submarine",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Carrier,
+      icon: carrierIcon,
+      description: "build_menu.desc.carrier",
+      key: "unit_type.carrier",
       countable: true,
     },
     {

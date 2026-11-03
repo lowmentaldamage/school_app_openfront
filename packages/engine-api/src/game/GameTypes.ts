@@ -220,6 +220,8 @@ export enum UnitType {
   // Naval classes (see engine-lib/naval/NavalClasses.ts).
   Destroyer = "Destroyer",
   Battleship = "Battleship",
+  Submarine = "Submarine",
+  Carrier = "Aircraft Carrier",
   // Military trains (see engine-lib/rail/RailUnits.ts).
   ArmoredTrain = "Armored Train",
   TroopTrain = "Troop Train",
@@ -263,6 +265,8 @@ export const BuildableAttacks = unitTypeGroup([
   UnitType.Warship,
   UnitType.Destroyer,
   UnitType.Battleship,
+  UnitType.Submarine,
+  UnitType.Carrier,
   UnitType.ArmoredTrain,
   UnitType.TroopTrain,
   UnitType.RailSAM,
@@ -284,6 +288,8 @@ export const CombatShips = unitTypeGroup([
   UnitType.Warship,
   UnitType.Destroyer,
   UnitType.Battleship,
+  UnitType.Submarine,
+  UnitType.Carrier,
 ] as const);
 
 export const Structures = unitTypeGroup([

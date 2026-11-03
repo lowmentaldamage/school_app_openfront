@@ -50,6 +50,8 @@ import {
   UT_BATTLESHIP,
   UT_DESTROYER,
   UT_RAIL_SAM,
+  UT_SUBMARINE,
+  UT_CARRIER,
   UT_TRANSPORT,
   UT_TROOP_TRAIN,
   UT_WARSHIP,
@@ -112,6 +114,8 @@ const COMBAT_SHIP_TYPES: ReadonlySet<string> = new Set([
   UT_WARSHIP,
   UT_DESTROYER,
   UT_BATTLESHIP,
+  UT_SUBMARINE,
+  UT_CARRIER,
 ]);
 
 /** First atlas column of the train sprites (engine, carriage, loaded

@@ -145,6 +145,8 @@ export class ConstructionExecution implements Execution {
       case UnitType.Warship:
       case UnitType.Destroyer:
       case UnitType.Battleship:
+      case UnitType.Submarine:
+      case UnitType.Carrier:
         this.mg.addExecution(
           new WarshipExecution({
             owner: player,

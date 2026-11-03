@@ -4,6 +4,7 @@
  * - Destroyers: escorts once the nation already runs a warship and has gold
  *   to spare; at most one per port, four in total.
  * - Battleships: only while fighting a land war, when rich, at most two.
+ * - Submarines (≤ 2) once it runs a warship; one carrier during a war.
  *
  * Never on Easy. Stateless, with its own PseudoRandom seeded from the tick
  * and the nation, so it never shifts the nation's main random sequence.
@@ -17,6 +18,8 @@ import { ConstructionExecution } from "../ConstructionExecution";
 
 const MAX_DESTROYERS = 4;
 const MAX_BATTLESHIPS = 2;
+const MAX_SUBMARINES = 2;
+const MAX_CARRIERS = 1;
 
 export class NationNavyBehavior {
   constructor(
@@ -61,6 +64,29 @@ export class NationNavyBehavior {
       const port = ports[rand.nextInt(0, ports.length)];
       if (this.build(UnitType.Destroyer, port.tile(), rand)) {
         return UnitType.Destroyer;
+      }
+    }
+
+    // Submarines raid enemy shipping; a carrier backs a war at sea.
+    if (
+      !cfg.isUnitDisabled(UnitType.Submarine) &&
+      this.player.units(UnitType.Warship).length > 0 &&
+      this.player.units(UnitType.Submarine).length < MAX_SUBMARINES &&
+      gold > this.cost(UnitType.Submarine) * 4n
+    ) {
+      const port = ports[rand.nextInt(0, ports.length)];
+      if (this.build(UnitType.Submarine, port.tile(), rand)) {
+        return UnitType.Submarine;
+      }
+    }
+    if (
+      atWar &&
+      !cfg.isUnitDisabled(UnitType.Carrier) &&
+      this.player.units(UnitType.Carrier).length < MAX_CARRIERS &&
+      gold > this.cost(UnitType.Carrier) * 2n
+    ) {
+      if (this.build(UnitType.Carrier, ports[0].tile(), rand)) {
+        return UnitType.Carrier;
       }
     }
     return null;

@@ -14,6 +14,7 @@ import { MoveWarshipExecution } from "@laukolaroser/engine/execution/MoveWarship
 import { NationNavyBehavior } from "@laukolaroser/engine/execution/nation/NationNavyBehavior";
 import { ShellExecution } from "@laukolaroser/engine/execution/ShellExecution";
 import { WarshipExecution } from "@laukolaroser/engine/execution/WarshipExecution";
+import { WeaponStrikeExecution } from "@laukolaroser/engine/execution/WeaponStrikeExecution";
 import { Game, Player, Unit } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 import { expectSnapshotRoundTrip } from "./util/Snapshot";
@@ -237,5 +238,68 @@ describe("NationNavyBehavior", () => {
     expect(p1.outgoingAttacks().length).toBeGreaterThan(0);
     run(behavior, 300);
     expect(p1.units(UnitType.Battleship).length).toBeGreaterThan(0);
+  });
+});
+
+describe("Submarine and Aircraft Carrier", () => {
+  beforeEach(makeGame);
+
+  test("submarines are hidden from warships beyond close range", () => {
+    const sub = ship(p2, UnitType.Submarine, 14, 2);
+    const w = ship(p1, UnitType.Warship, 10, 14); // ~12.6 tiles away
+    executeTicks(game, 3);
+    expect(sub.health()).toBe(NAVAL_CLASSES[UnitType.Submarine].maxHealth);
+    void w;
+  });
+
+  test("destroyers hunt submarines at range", () => {
+    const sub = ship(p2, UnitType.Submarine, 14, 2);
+    ship(p1, UnitType.Destroyer, 10, 13);
+    let hurt = false;
+    for (let i = 0; i < 60 && !hurt; i++) {
+      game.executeNextTick();
+      hurt =
+        !sub.isActive() ||
+        sub.health() < NAVAL_CLASSES[UnitType.Submarine].maxHealth;
+    }
+    expect(hurt).toBe(true);
+  });
+
+  test("a carrier launches air raids and fighters", () => {
+    p1.conquer(game.ref(COAST_X, 8));
+    p1.buildUnit(UnitType.Port, game.ref(COAST_X, 8), {});
+    game.addExecution(
+      new WarshipExecution({
+        owner: p1,
+        patrolTile: game.ref(12, 8),
+        type: UnitType.Carrier,
+      }),
+    );
+    executeTicks(game, 3);
+    const carrier = p1.units(UnitType.Carrier)[0];
+    expect(carrier).toBeDefined();
+    // Air raid from the carrier at p2 land.
+    p2.conquer(game.ref(2, 2));
+    const exec = new WeaponStrikeExecution(p1, "airstrike", game.ref(2, 2));
+    game.addExecution(exec);
+    game.executeNextTick();
+    expect(exec.rejection).toBeNull();
+    let bomber = false;
+    for (let i = 0; i < 20; i++) {
+      game.executeNextTick();
+      if (game.units(UnitType.Bomber).length > 0) bomber = true;
+    }
+    expect(bomber).toBe(true);
+    // Enemy bomber near the carrier: its wing scrambles a fighter.
+    const enemy = p2.buildUnit(UnitType.Bomber, game.ref(14, 14), {});
+    let fighter = false;
+    for (let i = 0; i < 10; i++) {
+      game.executeNextTick();
+      if (game.units(UnitType.Fighter).some((f) => f.owner() === p1)) {
+        fighter = true;
+      }
+    }
+    expect(fighter).toBe(true);
+    void enemy;
   });
 });

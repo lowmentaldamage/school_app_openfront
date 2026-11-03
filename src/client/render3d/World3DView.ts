@@ -101,8 +101,9 @@ export class World3DView implements ScreenProjector {
     palette: Float32Array,
     players: Iterable<LabelPlayer>,
     myPlayerID: string | null,
+    mySmallID: number | null = null,
   ): void {
-    this.world.updateFrame(frame, palette, performance.now());
+    this.world.updateFrame(frame, palette, performance.now(), mySmallID);
     const texts = new Map<string, LabelText>();
     for (const p of players) {
       const id = p.id();

@@ -96,7 +96,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponSpec>> = {
   // `shots` bombs (each an impact with these rules); see BomberExecution.
   airstrike: {
     id: "airstrike",
-    launchers: [UnitType.Airbase],
+    launchers: [UnitType.Airbase, UnitType.Carrier],
     projectile: UnitType.ArtilleryShell,
     range: 320,
     cost: 100_000n,
