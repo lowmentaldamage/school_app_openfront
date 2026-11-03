@@ -224,10 +224,23 @@ export enum UnitType {
   ArmoredTrain = "Armored Train",
   TroopTrain = "Troop Train",
   RailSAM = "Rail SAM",
+  // Economy (see engine-lib/economy/Economy.ts).
+  GoldMine = "Gold Mine",
+  Market = "Market",
+  OilRig = "Oil Rig",
+  // Air war (see engine-lib/air/Air.ts).
+  Airbase = "Airbase",
+  Bomber = "Bomber",
+  Fighter = "Fighter",
 }
 
 /** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
-export const WEAPON_IDS = ["artillery", "naval", "rocket"] as const;
+export const WEAPON_IDS = [
+  "artillery",
+  "naval",
+  "rocket",
+  "airstrike",
+] as const;
 export type WeaponId = (typeof WEAPON_IDS)[number];
 
 export enum TrainType {
@@ -280,10 +293,21 @@ export const Structures = unitTypeGroup([
   UnitType.MissileSilo,
   UnitType.Port,
   UnitType.Factory,
+  UnitType.GoldMine,
+  UnitType.Market,
+  UnitType.Airbase,
+] as const);
+
+/** Income buildings (engine-lib/economy/Economy.ts). */
+export const EconomyBuildings = unitTypeGroup([
+  UnitType.GoldMine,
+  UnitType.Market,
+  UnitType.OilRig,
 ] as const);
 
 export const BuildMenus = unitTypeGroup([
   ...Structures.types,
+  UnitType.OilRig,
   ...BuildableAttacks.types,
 ] as const);
 

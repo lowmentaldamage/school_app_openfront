@@ -11,8 +11,13 @@ import {
 import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import { NukeType } from "@laukolaroser/engine-api/StatsSchemas";
+import { AIRBASE } from "@laukolaroser/engine-lib/air/Air";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { exp, log, pow2 } from "@laukolaroser/engine-lib/DetMath";
+import {
+  ECONOMY_BUILDINGS,
+  economyCost,
+} from "@laukolaroser/engine-lib/economy/Economy";
 import {
   RAIL_UNITS,
   railUnitCost,
@@ -399,6 +404,21 @@ export class EngineConfig extends Config {
           type,
         );
       }
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.OilRig: {
+        const spec = ECONOMY_BUILDINGS[type];
+        return this.costWrapper(
+          (numUnits: number) => economyCost(spec, numUnits),
+          type,
+        );
+      }
+      case UnitType.Airbase:
+        return this.costWrapper(
+          (numUnits: number) =>
+            Math.min(AIRBASE.maxCost, AIRBASE.baseCost * (numUnits + 1)),
+          UnitType.Airbase,
+        );
       case UnitType.Port:
         return this.costWrapper(
           (numUnits: number) => Math.min(1_000_000, pow2(numUnits) * 125_000),
@@ -451,6 +471,9 @@ export class EngineConfig extends Config {
       // Weapon strikes charge their own price (WeaponSpec.cost).
       case UnitType.ArtilleryShell:
       case UnitType.Rocket:
+      // Planes come from an Airbase (bombers via the airstrike weapon).
+      case UnitType.Bomber:
+      case UnitType.Fighter:
         return () => 0n;
       default:
         assertNever(type);

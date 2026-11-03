@@ -275,6 +275,8 @@ const STRUCTURES = [
   UnitType.DefensePost,
   UnitType.SAMLauncher,
   UnitType.MissileSilo,
+  UnitType.Market,
+  UnitType.Airbase,
 ] as const;
 
 function nearbyWater(
@@ -356,6 +358,25 @@ function buildStructureIntent(
     }
   }
   return null;
+}
+
+function airfieldRaidIntent(game: Game, p: Player): Intent | null {
+  const mine = p
+    .units(UnitType.Airbase)
+    .find((u) => u.isActive() && !u.isUnderConstruction() && !u.isInCooldown());
+  if (mine === undefined) return null;
+  let best: TileRef | null = null;
+  let bestD = 300 * 300;
+  for (const u of game.units(UnitType.Airbase)) {
+    if (u.owner() === p || p.isFriendly(u.owner())) continue;
+    const d = game.euclideanDistSquared(u.tile(), mine.tile());
+    if (d < bestD) {
+      best = u.tile();
+      bestD = d;
+    }
+  }
+  if (best === null || p.gold() < 100_000n) return null;
+  return { type: "fire_weapon", weapon: "airstrike", tile: best };
 }
 
 const RAIL_UNIT_TYPES = [
@@ -482,6 +503,9 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
     const warshipIntent = buildWarshipIntent(game, p, rand);
     if (warshipIntent !== null) return warshipIntent;
   }
+  // Air raids on enemy airfields in range (their fighters scramble).
+  const raid = airfieldRaidIntent(game, p);
+  if (raid !== null && rand.chance(3)) return raid;
   const others = game.players().filter((o) => o !== p && o.isPlayer());
   const other = pick(rand, others);
   const own = (types: UnitType[]) => p.units(types);
@@ -607,16 +631,35 @@ function playIntent(game: Game, p: Player, rand: PseudoRandom): Intent | null {
       return { type: "delete_unit", unitId: s.id() };
     }
     case 22: {
-      // Weapon strikes: a rocket from a silo, else artillery or naval fire.
+      // Weapon strikes: an air raid from an airbase, a rocket from a silo,
+      // else artillery or naval fire.
       if (other === null) return null;
       const tile = randomOwnedTile(rand, other);
       if (tile === null) return null;
       const weapon =
-        own([UnitType.MissileSilo]).length > 0
-          ? "rocket"
-          : own([UnitType.Warship]).length > 0
-            ? "naval"
-            : "artillery";
+        own([UnitType.Airbase]).length > 0 && rand.chance(2)
+          ? "airstrike"
+          : own([UnitType.MissileSilo]).length > 0
+            ? "rocket"
+            : own([UnitType.Warship]).length > 0
+              ? "naval"
+              : "artillery";
+      // Air raids go for the enemy's airfields when it has one (so its
+      // fighters scramble), else any of its land.
+      if (weapon === "airstrike") {
+        const mine = own([UnitType.Airbase])[0];
+        let best: TileRef | null = null;
+        let bestD = 320 * 320;
+        for (const u of game.units(UnitType.Airbase)) {
+          if (u.owner() === p || p.isFriendly(u.owner())) continue;
+          const d = game.euclideanDistSquared(u.tile(), mine.tile());
+          if (d < bestD) {
+            best = u.tile();
+            bestD = d;
+          }
+        }
+        if (best !== null) return { type: "fire_weapon", weapon, tile: best };
+      }
       return { type: "fire_weapon", weapon, tile };
     }
     case 21:

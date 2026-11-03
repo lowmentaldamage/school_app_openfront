@@ -131,17 +131,53 @@ click the water to send them there.
 
 ## 7. Trains
 
-Factories connect nearby cities and ports with railways; **trade trains**
-run on their own and earn gold at every stop.
+**How to start trains (step by step):**
 
-| Train             | How you get it                             | What it does                                                               |
-| ----------------- | ------------------------------------------ | -------------------------------------------------------------------------- |
-| **Express cargo** | Automatic with a level 2+ factory          | Faster, shorter train; 60% more gold per stop                              |
-| **Armored Train** | Build on a city/port/factory with railways | Patrols your railways, shells enemy land near the tracks during a land war |
-| **Troop Train**   | same                                       | Brings reinforcements to each of your cities it reaches                    |
-| **Rail SAM**      | same                                       | Mobile air defence: shoots down enemy nukes nearby                         |
+1. Build two or more **Cities** (or **Ports**) on your land.
+2. Build a **Factory** between them — cities and ports **15 to 110 tiles**
+   from the factory get connected.
+3. **Railways** appear on the map and **trade trains** start running on
+   their own, earning gold at every city and port they reach (more when
+   they visit several).
+4. Upgrade the Factory to **level 2**: some trains become fast **express**
+   trains (60% more gold per stop).
+
+Military trains are built from the **Forces** row on one of your cities,
+ports or factories that already has railways:
+
+| Train             | What it does                                                               |
+| ----------------- | -------------------------------------------------------------------------- |
+| **Armored Train** | Patrols your railways, shells enemy land near the tracks during a land war |
+| **Troop Train**   | Brings reinforcements to each of your cities it reaches                    |
+| **Rail SAM**      | Mobile air defence: shoots down enemy nukes and bombers nearby             |
 
 ---
+
+## 7b. More ways to earn gold
+
+| Building      | Where                              | Gold per minute (level 1) |
+| ------------- | ---------------------------------- | ------------------------- |
+| Workers       | (everyone)                         | ~60,000                   |
+| **Gold Mine** | Your highland or mountain land     | ~24,000                   |
+| **Market**    | Anywhere on your land              | ~15,000                   |
+| **Oil Rig**   | Water within 8 tiles of your coast | ~42,000                   |
+
+Each upgrade level adds the same again. Oil rigs are lost if you lose the
+coast next to them; gold mines make mountains worth holding.
+
+---
+
+## 7c. Air war (WW2 style)
+
+1. Build an **Airbase** (Build row).
+2. Pick **Air raid** (✈️) on the left, then tap a target up to 320 tiles
+   away: a **bomber** flies there, drops 4 bombs (troops, ships and
+   buildings in the blast — each bomb knocks a building down a level) and
+   flies home. One raid per airbase every 30 seconds.
+3. **Defence:** your airbases automatically send **fighters** at enemy
+   bombers within 70 tiles, and your **SAM launchers** and **Rail SAMs**
+   fire at bombers flying past. A bomber takes about two fighter passes to
+   bring down.
 
 ## 8. Weapons
 

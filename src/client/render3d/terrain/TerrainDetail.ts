@@ -138,7 +138,7 @@ export function upscaleTerrainDetail(
         if (l < 0.52) l = 0.52;
         // Roughness grows with elevation: plains ≈ flat, mountains rugged.
         const r = (h - 0.6) / 4;
-        const rough = (r < 0 ? 0 : r > 1 ? 1 : r) * 0.9 + 0.04;
+        const rough = (r < 0 ? 0 : r > 1 ? 1 : r) * 0.6 + 0.02;
         h += (noise[nrow + (X & NOISE_MASK)] - 0.5) * rough;
         if (h < 0.12) h = 0.12;
       } else {

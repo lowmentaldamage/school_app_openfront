@@ -71,3 +71,19 @@
 - Mountains are now about 3x as costly and slow to invade as plains, highlands about 1.6x
 - High ground: attacking from your own mountains or downhill is cheaper than assaulting from below
 - Fronts push through plains and valleys first and take mountains last — ranges make natural borders
+
+✈️ **Air war**
+
+- Airbase: launch bomber raids (Weapons → Air raid) — the bomber flies there, bombs troops, ships and buildings and flies home
+- Airbases scramble fighters at enemy bombers nearby; SAM launchers and Rail SAMs fire at them too
+
+💰 **More ways to earn gold**
+
+- Gold Mine on highland or mountain land, Market anywhere, Oil Rig off your coast
+- Weapon strikes are free with Infinite gold, like buildings
+
+🗺️ **Clearer map**
+
+- Ships, trains and planes stay small when zoomed out; trade ships are hidden when the whole map is in view
+- Less surface grain on land
+- Trains explained step by step in Help and in the Factory description

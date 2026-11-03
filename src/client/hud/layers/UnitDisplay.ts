@@ -17,6 +17,7 @@ import { UserSettings } from "../../UserSettings";
 import { resolveKeybindLabel, translateText } from "../../Utils";
 import { GameView } from "../../view";
 import {
+  airbaseIcon,
   armoredTrainIcon,
   atomBombIcon,
   battleshipIcon,
@@ -25,9 +26,12 @@ import {
   destroyerIcon,
   factoryIcon,
   goldCoinIcon,
+  goldMineIcon,
   hydrogenBombIcon,
+  marketIcon,
   mirvIcon,
   missileSiloIcon,
+  oilRigIcon,
   portIcon,
   railSamIcon,
   samLauncherIcon,
@@ -52,6 +56,10 @@ export class UnitDisplay extends LitElement implements Controller {
   private _armoredTrains = 0;
   private _troopTrains = 0;
   private _railSams = 0;
+  private _goldMines = 0;
+  private _markets = 0;
+  private _oilRigs = 0;
+  private _airbases = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -150,6 +158,10 @@ export class UnitDisplay extends LitElement implements Controller {
     this._armoredTrains = player.totalUnitLevels(UnitType.ArmoredTrain);
     this._troopTrains = player.totalUnitLevels(UnitType.TroopTrain);
     this._railSams = player.totalUnitLevels(UnitType.RailSAM);
+    this._goldMines = player.totalUnitLevels(UnitType.GoldMine);
+    this._markets = player.totalUnitLevels(UnitType.Market);
+    this._oilRigs = player.totalUnitLevels(UnitType.OilRig);
+    this._airbases = player.totalUnitLevels(UnitType.Airbase);
     this.requestUpdate();
   }
 
@@ -225,6 +237,34 @@ export class UnitDisplay extends LitElement implements Controller {
             UnitType.SAMLauncher,
             "sam_launcher",
             this.getHotkey("buildSamLauncher", "Digit6"),
+          )}
+          ${this.renderUnitItem(
+            goldMineIcon,
+            this._goldMines,
+            UnitType.GoldMine,
+            "gold_mine",
+            "",
+          )}
+          ${this.renderUnitItem(
+            marketIcon,
+            this._markets,
+            UnitType.Market,
+            "market",
+            "",
+          )}
+          ${this.renderUnitItem(
+            oilRigIcon,
+            this._oilRigs,
+            UnitType.OilRig,
+            "oil_rig",
+            "",
+          )}
+          ${this.renderUnitItem(
+            airbaseIcon,
+            this._airbases,
+            UnitType.Airbase,
+            "airbase",
+            "",
           )}
         </div>
         <div class="flex items-center gap-1 w-fit mx-auto">

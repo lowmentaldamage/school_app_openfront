@@ -34,6 +34,7 @@ import {
   flightProgress,
   modelKindFor,
   SHIP_KINDS,
+  AIR_KINDS,
   STRUCTURE_KINDS,
   tileHash,
   TRAIN_KINDS,
@@ -97,6 +98,9 @@ export function createUnitMaterial(): MeshStandardMaterial {
   m.customProgramCacheKey = () => "laukolaroser-unit-v2";
   return m;
 }
+
+/** Camera distance beyond which trade ships are not drawn (clutter). */
+const TRADE_HIDE_DISTANCE = 700;
 
 export class UnitRenderer {
   readonly group = new Group();
@@ -231,8 +235,15 @@ export class UnitRenderer {
     if (this.movers.length === 0) return;
     const alpha = Math.min(1, (nowMs - this.tickAt) / this.tickIntervalMs);
     const t = nowMs / 1000;
-    const shipScale = zoomScale(cameraDistance, 70, 16);
-    const airScale = zoomScale(cameraDistance, 60, 14);
+    // Units grow a little when zoomed out so they stay visible, but never
+    // so much that they cover the map. Trade ships are the most numerous:
+    // smaller still, and hidden when the whole map is in view.
+    const shipScale = zoomScale(cameraDistance, 120, 5);
+    const tradeScale =
+      cameraDistance > TRADE_HIDE_DISTANCE
+        ? 0
+        : zoomScale(cameraDistance, 160, 3.5);
+    const airScale = zoomScale(cameraDistance, 90, 7);
     this.airHeight.clear();
 
     // Ballistic first, so SAM missiles can read their target's altitude.
@@ -252,16 +263,21 @@ export class UnitRenderer {
         let h = 0;
         let pitch = 0;
         let roll = 0;
-        let scale = shipScale;
+        let scale = mv.kind === "tradeShip" ? tradeScale : shipScale;
 
         if (SHIP_KINDS.has(mv.kind)) {
           const phase = mv.id * 1.7;
           h = 0.02 + Math.sin(t * 1.6 + phase) * 0.04;
           roll = Math.sin(t * 1.1 + phase) * 0.05;
           pitch = Math.sin(t * 1.3 + phase * 0.7) * 0.025;
+        } else if (AIR_KINDS.has(mv.kind)) {
+          scale = airScale * (mv.kind === "bomber" ? 1.4 : 1);
+          h =
+            Math.max(0, this.hf.sample(x, y)) + (mv.kind === "bomber" ? 9 : 11);
+          roll = Math.sin(t * 0.9 + mv.id) * 0.06;
         } else if (TRAIN_KINDS.has(mv.kind)) {
           h = Math.max(0, this.hf.sample(x, y));
-          scale = zoomScale(cameraDistance, 90, 8);
+          scale = zoomScale(cameraDistance, 130, 4);
         } else if (ballistic) {
           scale = airScale;
           if (Number.isFinite(mv.ox)) {

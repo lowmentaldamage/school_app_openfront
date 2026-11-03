@@ -52,6 +52,7 @@ const HIT_MESSAGE_KEYS: Record<WeaponId, string> = {
   artillery: "events_display.artillery_strike_hit",
   naval: "events_display.naval_strike_hit",
   rocket: "events_display.rocket_strike_hit",
+  airstrike: "events_display.airstrike_hit",
 };
 
 const SHIP_TYPES = [

@@ -8,6 +8,7 @@ import {
 } from "@laukolaroser/engine-api/game/GameTypes";
 import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { GameConfig } from "@laukolaroser/engine-api/Schemas";
+import { BOMBER } from "../air/Air";
 import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
 import { NAVAL_CLASSES } from "../naval/NavalClasses";
@@ -161,6 +162,19 @@ export class Config {
     return this._gameConfig;
   }
 
+  /**
+   * Gold price of a weapon strike for this player: free for a human with
+   * infinite gold (the game option or the host cheat), like buildings.
+   */
+  strikeCost(baseCost: bigint, player: PlayerLike): bigint {
+    if (player.type() !== PlayerType.Human) return baseCost;
+    const gc = this._gameConfig;
+    const infinite =
+      gc.infiniteGold === true ||
+      (gc.hostCheats?.infiniteGold === true && player.isLobbyCreator());
+    return infinite ? 0n : baseCost;
+  }
+
   cityTroopIncrease(): number {
     return 250_000;
   }
@@ -222,6 +236,26 @@ export class Config {
       case UnitType.TroopTrain:
       case UnitType.RailSAM:
         info = { maxHealth: RAIL_UNITS[type].maxHealth };
+        break;
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.Airbase:
+        info = {
+          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          upgradable: true,
+        };
+        break;
+      case UnitType.OilRig:
+        info = {
+          constructionDuration: this.instantBuild() ? 0 : 8 * 10,
+          upgradable: true,
+        };
+        break;
+      case UnitType.Bomber:
+        info = { maxHealth: BOMBER.maxHealth };
+        break;
+      case UnitType.Fighter:
+        info = {};
         break;
       case UnitType.Shell:
         info = { damage: 250 };

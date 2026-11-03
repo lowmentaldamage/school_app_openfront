@@ -1,4 +1,9 @@
 // Every entry is `<ClassName>Snapshot`, exported next to its class.
+import {
+  AirbaseSnapshot,
+  BomberSnapshot,
+  FighterSnapshot,
+} from "../execution/AirExecutions";
 import { AllianceExtensionExecutionSnapshot } from "../execution/alliance/AllianceExtensionExecution";
 import { AllianceRejectExecutionSnapshot } from "../execution/alliance/AllianceRejectExecution";
 import { AllianceRequestExecutionSnapshot } from "../execution/alliance/AllianceRequestExecution";
@@ -16,6 +21,7 @@ import { EmbargoAllExecutionSnapshot } from "../execution/EmbargoAllExecution";
 import { EmbargoExecutionSnapshot } from "../execution/EmbargoExecution";
 import { EmojiExecutionSnapshot } from "../execution/EmojiExecution";
 import { FactoryExecutionSnapshot } from "../execution/FactoryExecution";
+import { IncomeBuildingSnapshot } from "../execution/IncomeBuildingExecution";
 import { MarkDisconnectedExecutionSnapshot } from "../execution/MarkDisconnectedExecution";
 import { MirvExecutionSnapshot } from "../execution/MIRVExecution";
 import { MissileSiloExecutionSnapshot } from "../execution/MissileSiloExecution";
@@ -85,6 +91,10 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   PortExecutionSnapshot,
   ProjectileExecutionSnapshot,
   RailUnitExecutionSnapshot,
+  AirbaseSnapshot,
+  BomberSnapshot,
+  FighterSnapshot,
+  IncomeBuildingSnapshot,
   QuickChatExecutionSnapshot,
   RecomputeRailClusterExecutionSnapshot,
   RetreatExecutionSnapshot,

@@ -19,6 +19,7 @@ import {
   Relation,
   Structures,
   Team,
+  TerrainType,
   TerraNullius,
   Tick,
   UnitType,
@@ -33,6 +34,7 @@ import {
 } from "@laukolaroser/engine-api/game/GameUpdates";
 import { ReadonlyTileSet } from "@laukolaroser/engine-api/game/ReadViews";
 import { ClientID } from "@laukolaroser/engine-api/Schemas";
+import { OIL_RIG_RANGE } from "@laukolaroser/engine-lib/economy/Economy";
 import {
   andFN,
   manhattanDistFN,
@@ -1639,7 +1641,16 @@ export class PlayerImpl implements Player {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.Market:
+      case UnitType.Airbase:
         return this.landBasedStructureSpawn(targetTile, validTiles);
+      case UnitType.GoldMine:
+        return this.goldMineSpawn(targetTile, validTiles);
+      case UnitType.OilRig:
+        return this.oilRigSpawn(targetTile);
+      case UnitType.Bomber:
+      case UnitType.Fighter:
+        return targetTile;
       default:
         assertNever(unitType);
     }
@@ -1751,6 +1762,67 @@ export class PlayerImpl implements Player {
       bestD = d;
     }
     return best;
+  }
+
+  /** Gold mines need highland or mountain land. */
+  goldMineSpawn(
+    tile: TileRef,
+    validTiles: TileRef[] | null = null,
+  ): TileRef | false {
+    const tiles = (validTiles ?? this.validStructureSpawnTiles(tile)).filter(
+      (t) => {
+        const tt = this.mg.terrainType(t);
+        return tt === TerrainType.Highland || tt === TerrainType.Mountain;
+      },
+    );
+    return tiles.length === 0 ? false : tiles[0];
+  }
+
+  /**
+   * Oil rigs stand on open water within OIL_RIG_RANGE of the player's land,
+   * at least structureMinDist from other rigs.
+   */
+  oilRigSpawn(tile: TileRef): TileRef | false {
+    const mg = this.mg;
+    if (!mg.isValidRef(tile) || !mg.isWater(tile) || mg.isShore(tile)) {
+      return false;
+    }
+    if (!this.ownsLandNear(tile, OIL_RIG_RANGE)) return false;
+    const minDist = mg.config().structureMinDist();
+    if (
+      mg.anyUnitNearby(
+        tile,
+        minDist,
+        [UnitType.OilRig],
+        () => true,
+        undefined,
+        true,
+      )
+    ) {
+      return false;
+    }
+    return tile;
+  }
+
+  /** True when this player owns land within `range` tiles of `tile`. */
+  ownsLandNear(tile: TileRef, range: number): boolean {
+    const mg = this.mg;
+    const cx = mg.x(tile);
+    const cy = mg.y(tile);
+    const me = this.smallID();
+    for (let dy = -range; dy <= range; dy++) {
+      const y = cy + dy;
+      if (y < 0 || y >= mg.height()) continue;
+      for (let dx = -range; dx <= range; dx++) {
+        const x = cx + dx;
+        if (x < 0 || x >= mg.width() || dx * dx + dy * dy > range * range) {
+          continue;
+        }
+        const t = mg.ref(x, y);
+        if (mg.isLand(t) && mg.ownerID(t) === me) return true;
+      }
+    }
+    return false;
   }
 
   landBasedUnitSpawn(tile: TileRef): TileRef | false {

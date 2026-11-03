@@ -12,7 +12,10 @@
  */
 
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
-import { Difficulty } from "@laukolaroser/engine-api/game/GameTypes";
+import {
+  Difficulty,
+  Structures,
+} from "@laukolaroser/engine-api/game/GameTypes";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   WEAPONS,
@@ -26,6 +29,7 @@ const PLAN: readonly { weapon: WeaponId; reserve: bigint }[] = [
   { weapon: "rocket", reserve: 6n },
   { weapon: "artillery", reserve: 4n },
   { weapon: "naval", reserve: 4n },
+  { weapon: "airstrike", reserve: 5n },
 ];
 
 const SAMPLES_PER_LAUNCHER = 12;
@@ -57,12 +61,10 @@ export class NationWeaponBehavior {
         if (tried >= MAX_LAUNCHERS_TRIED) break;
         if (!launcherReady(this.mg, launcher, spec)) continue;
         tried++;
-        const target = this.findTarget(
-          launcher.tile(),
-          spec.range,
-          enemies,
-          rand,
-        );
+        const target =
+          weapon === "airstrike"
+            ? this.raidTarget(launcher.tile(), spec.range, enemies, rand)
+            : this.findTarget(launcher.tile(), spec.range, enemies, rand);
         if (target !== null) {
           this.mg.addExecution(
             new WeaponStrikeExecution(this.player, weapon, target),
@@ -88,6 +90,32 @@ export class NationWeaponBehavior {
   }
 
   /** A random enemy-owned tile within range, sampled (cheap, bounded). */
+  /**
+   * Strategic bombing: an enemy building in range (cities and factories
+   * first), else a random tile of the enemy's border in range.
+   */
+  private raidTarget(
+    from: TileRef,
+    range: number,
+    enemies: Set<Player>,
+    rand: PseudoRandom,
+  ): TileRef | null {
+    const r2 = range * range;
+    const sorted = [...enemies].sort((a, b) => a.smallID() - b.smallID());
+    for (const e of sorted) {
+      const buildings = e
+        .units(Structures.types)
+        .filter(
+          (u) =>
+            u.isActive() && this.mg.euclideanDistSquared(u.tile(), from) <= r2,
+        );
+      if (buildings.length > 0) {
+        return buildings[rand.nextInt(0, buildings.length)].tile();
+      }
+    }
+    return this.findTarget(from, range, enemies, rand);
+  }
+
   private findTarget(
     from: TileRef,
     range: number,

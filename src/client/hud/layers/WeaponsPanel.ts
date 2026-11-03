@@ -1,8 +1,8 @@
 /**
  * WeaponsPanel — pick a weapon, then tap a target on the map.
  *
- * Shows the three strikes (artillery from defense posts, naval fire from
- * warships, rockets from missile silos) with their price and how many
+ * Shows the four strikes (artillery from defense posts, naval fire from
+ * warships, rockets from missile silos, bomber raids from airbases) with their price and how many
  * launchers are ready. Choosing one enters aiming mode (UIState
  * .weaponTargeting); the next map click/tap fires it (ClientGameRunner),
  * Escape or tapping the button again cancels. Rules come from the shared
@@ -31,17 +31,20 @@ const NAME_KEYS: Record<WeaponId, string> = {
   artillery: "weapons.artillery",
   naval: "weapons.naval",
   rocket: "weapons.rocket",
+  airstrike: "weapons.airstrike",
 };
 const NEEDS_KEYS: Record<WeaponId, string> = {
   artillery: "weapons.needs_artillery",
   naval: "weapons.needs_naval",
   rocket: "weapons.needs_rocket",
+  airstrike: "weapons.needs_airstrike",
 };
 
 const ICONS: Record<WeaponId, string> = {
   artillery: "💥",
   naval: "⚓",
   rocket: "🚀",
+  airstrike: "✈️",
 };
 
 /** Client mirror of the engine's launcherReady (read-only). */
@@ -67,11 +70,13 @@ export class WeaponsPanel extends LitElement implements Controller {
     artillery: 0,
     naval: 0,
     rocket: 0,
+    airstrike: 0,
   };
   @state() private owned: Record<WeaponId, number> = {
     artillery: 0,
     naval: 0,
     rocket: 0,
+    airstrike: 0,
   };
   @state() private gold = 0n;
   @state() private visible = false;
@@ -95,8 +100,8 @@ export class WeaponsPanel extends LitElement implements Controller {
     this.visible = playing;
     if (!playing || !me) return;
     const tick = this.game.ticks();
-    const ready = { artillery: 0, naval: 0, rocket: 0 };
-    const owned = { artillery: 0, naval: 0, rocket: 0 };
+    const ready = { artillery: 0, naval: 0, rocket: 0, airstrike: 0 };
+    const owned = { artillery: 0, naval: 0, rocket: 0, airstrike: 0 };
     for (const id of WEAPON_IDS) {
       const spec = WEAPONS[id];
       for (const u of me.units(...spec.launchers)) {
@@ -129,7 +134,12 @@ export class WeaponsPanel extends LitElement implements Controller {
       >
         ${WEAPON_IDS.map((id) => {
           const spec = WEAPONS[id];
-          const affordable = this.gold >= spec.cost;
+          const me = this.game.myPlayer();
+          const cost =
+            me === null
+              ? spec.cost
+              : this.game.config().strikeCost(spec.cost, me);
+          const affordable = this.gold >= cost;
           const usable = this.ready[id] > 0 && affordable;
           const active = aiming === id;
           const reason =

@@ -35,6 +35,7 @@ import type {
   SnapshotReader,
   SnapshotWriter,
 } from "../snapshot/SnapshotContext";
+import { BomberExecution } from "./AirExecutions";
 import { ProjectileExecution } from "./ProjectileExecution";
 
 /** Why a strike could not be fired (exposed for tests and the UI). */
@@ -108,12 +109,21 @@ export class WeaponStrikeExecution implements Execution {
       this.rejection = "no_launcher";
       return;
     }
-    if (this.player.gold() < spec.cost) {
+    const cost = mg.config().strikeCost(spec.cost, this.player);
+    if (this.player.gold() < cost) {
       this.rejection = "not_enough_gold";
       return;
     }
-    this.player.removeGold(spec.cost);
+    if (cost > 0n) this.player.removeGold(cost);
     launcher.launch();
+
+    // Air raid: a bomber flies there and drops the bombs itself.
+    if (this.weapon === "airstrike") {
+      mg.addExecution(
+        new BomberExecution(this.player, launcher.tile(), this.tile),
+      );
+      return;
+    }
 
     // Shots scatter around the aim point (seeded: identical on every client).
     const rand = new PseudoRandom(ticks * 7919 + this.tile);

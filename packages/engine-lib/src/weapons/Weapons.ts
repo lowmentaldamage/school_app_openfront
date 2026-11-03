@@ -92,6 +92,25 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponSpec>> = {
     damagesStructures: false,
     cooldownTicks: 12 * 10,
   },
+  // Bomber raid from an Airbase: the bomber flies to the target and drops
+  // `shots` bombs (each an impact with these rules); see BomberExecution.
+  airstrike: {
+    id: "airstrike",
+    launchers: [UnitType.Airbase],
+    projectile: UnitType.ArtilleryShell,
+    range: 320,
+    cost: 100_000n,
+    shots: 4,
+    shotInterval: 3,
+    spread: 4,
+    radius: 3,
+    speed: 3,
+    lossPerMille: 1_400,
+    troopsPerTile: 7,
+    warshipDamage: 300,
+    damagesStructures: true,
+    cooldownTicks: 30 * 10,
+  },
   rocket: {
     id: "rocket",
     launchers: [UnitType.MissileSilo],

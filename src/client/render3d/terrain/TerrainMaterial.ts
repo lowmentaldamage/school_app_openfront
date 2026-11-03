@@ -75,7 +75,7 @@ vec3 terrainDetailNormal(vec3 wp) {
   // Micro relief on land (rocks, field furrows), fading out with distance.
   float land = terrainDetailAt(wp.xz).g;
   float foot = length(fwidth(wp.xz));
-  float micro = land * (1.0 - smoothstep(0.08, 0.5, foot));
+  float micro = land * (1.0 - smoothstep(0.05, 0.25, foot));
   if (micro > 0.0) {
     vec2 q = wp.xz * 2.3;
     float e = 0.15;
@@ -83,7 +83,7 @@ vec3 terrainDetailNormal(vec3 wp) {
     float gx = tNoise(q + vec2(e, 0.0)) - c0;
     float gz = tNoise(q + vec2(0.0, e)) - c0;
     float steep = 0.35 + 0.65 * smoothstep(0.6, 3.0, terrainDetailAt(wp.xz).r);
-    n.xz -= vec2(gx, gz) / e * 0.35 * steep * micro;
+    n.xz -= vec2(gx, gz) / e * 0.2 * steep * micro;
   }
   return normalize(n);
 }
@@ -119,7 +119,7 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   c = mix(shallowWater, c, smoothstep(0.46, 0.52, land));
   // Authored in sRGB; convert to linear for lighting.
   // Fine grain only where it is larger than a pixel (no distant sparkle).
-  float grainAmt = 1.0 - smoothstep(0.3, 1.2, length(fwidth(wp.xz)));
+  float grainAmt = 1.0 - smoothstep(0.15, 0.6, length(fwidth(wp.xz)));
   return pow(c * (1.0 + (grain - 0.5) * 0.14 * grainAmt), vec3(2.2));
 }
 `;
@@ -200,7 +200,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v5";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v6";
   return { material, uniforms };
 }
 

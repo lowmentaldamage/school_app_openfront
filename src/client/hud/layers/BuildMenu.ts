@@ -32,6 +32,10 @@ const battleshipIcon = assetUrl("images/HeavyBattleshipIconWhite.svg");
 const armoredTrainIcon = assetUrl("images/ArmoredTrainIconWhite.svg");
 const troopTrainIcon = assetUrl("images/TroopTrainIconWhite.svg");
 const railSamIcon = assetUrl("images/RailSamIconWhite.svg");
+const goldMineIcon = assetUrl("images/GoldMineIconWhite.svg");
+const marketIcon = assetUrl("images/MarketIconWhite.svg");
+const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
+const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
 const cityIcon = assetUrl("images/CityIconWhite.svg");
 const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
 const goldCoinIcon = assetUrl("images/GoldCoinIcon.svg");
@@ -93,6 +97,34 @@ const buildTable: BuildItemDisplay[][] = [
       icon: battleshipIcon,
       description: "build_menu.desc.battleship",
       key: "unit_type.battleship",
+      countable: true,
+    },
+    {
+      unitType: UnitType.GoldMine,
+      icon: goldMineIcon,
+      description: "build_menu.desc.gold_mine",
+      key: "unit_type.gold_mine",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Market,
+      icon: marketIcon,
+      description: "build_menu.desc.market",
+      key: "unit_type.market",
+      countable: true,
+    },
+    {
+      unitType: UnitType.OilRig,
+      icon: oilRigIcon,
+      description: "build_menu.desc.oil_rig",
+      key: "unit_type.oil_rig",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Airbase,
+      icon: airbaseIcon,
+      description: "build_menu.desc.airbase",
+      key: "unit_type.airbase",
       countable: true,
     },
     {

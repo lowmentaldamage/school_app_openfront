@@ -20,6 +20,12 @@ const BY_TYPE: Record<string, ModelKind> = {
   "Armored Train": "armoredTrain",
   "Troop Train": "troopTrain",
   "Rail SAM": "railSam",
+  "Gold Mine": "goldMine",
+  Market: "market",
+  "Oil Rig": "oilRig",
+  Airbase: "airbase",
+  Bomber: "bomber",
+  Fighter: "fighter",
   Transport: "transport",
   "Trade Ship": "tradeShip",
   "Atom Bomb": "atomBomb",
@@ -39,6 +45,10 @@ const BY_TYPE: Record<string, ModelKind> = {
 };
 
 export const STRUCTURE_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
+  "goldMine",
+  "market",
+  "oilRig",
+  "airbase",
   "city",
   "port",
   "factory",
@@ -53,6 +63,12 @@ export const SHIP_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
   "battleship",
   "transport",
   "tradeShip",
+]);
+
+/** Planes: fly level at cruise height. */
+export const AIR_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
+  "bomber",
+  "fighter",
 ]);
 
 export const TRAIN_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([

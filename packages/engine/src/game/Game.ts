@@ -73,6 +73,12 @@ export interface UnitParamsMap {
   [UnitType.ArmoredTrain]: Record<string, never>;
   [UnitType.TroopTrain]: Record<string, never>;
   [UnitType.RailSAM]: Record<string, never>;
+  [UnitType.GoldMine]: Record<string, never>;
+  [UnitType.Market]: Record<string, never>;
+  [UnitType.OilRig]: Record<string, never>;
+  [UnitType.Airbase]: Record<string, never>;
+  [UnitType.Bomber]: { targetTile?: TileRef };
+  [UnitType.Fighter]: { targetUnit?: Unit };
 
   [UnitType.Shell]: Record<string, never>;
 
@@ -379,6 +385,8 @@ export interface Player extends PlayerLike {
   // Resources & Troops
   gold(): Gold;
   addGold(toAdd: Gold, tile?: TileRef): void;
+  /** True when this player owns land within `range` tiles of `tile`. */
+  ownsLandNear(tile: TileRef, range: number): boolean;
   removeGold(toRemove: Gold): Gold;
 
   // Cumulative trade revenue, surfaced on the live PlayerUpdate so clients can

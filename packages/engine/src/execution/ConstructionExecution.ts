@@ -14,9 +14,11 @@ import type {
   SnapshotReader,
   SnapshotWriter,
 } from "../snapshot/SnapshotContext";
+import { AirbaseExecution } from "./AirExecutions";
 import { CityExecution } from "./CityExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { FactoryExecution } from "./FactoryExecution";
+import { IncomeBuildingExecution } from "./IncomeBuildingExecution";
 import { MirvExecution } from "./MIRVExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
@@ -182,6 +184,14 @@ export class ConstructionExecution implements Execution {
       case UnitType.Factory:
         this.mg.addExecution(new FactoryExecution(this.structure!));
         break;
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.OilRig:
+        this.mg.addExecution(new IncomeBuildingExecution(this.structure!));
+        break;
+      case UnitType.Airbase:
+        this.mg.addExecution(new AirbaseExecution(this.structure!));
+        break;
       default:
         console.warn(
           `unit type ${this.constructionType} cannot be constructed`,
@@ -198,6 +208,10 @@ export class ConstructionExecution implements Execution {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.GoldMine:
+      case UnitType.Market:
+      case UnitType.OilRig:
+      case UnitType.Airbase:
         return true;
       default:
         return false;

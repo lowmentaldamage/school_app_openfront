@@ -34,6 +34,7 @@ import type {
 } from "../snapshot/SnapshotContext";
 import { NationAllianceBehavior } from "./nation/NationAllianceBehavior";
 import { NationAttackBehavior } from "./nation/NationAttackBehavior";
+import { NationEconomyBehavior } from "./nation/NationEconomyBehavior";
 import { NationEmojiBehavior } from "./nation/NationEmojiBehavior";
 import { NationMIRVBehavior } from "./nation/NationMIRVBehavior";
 import { NationNavyBehavior } from "./nation/NationNavyBehavior";
@@ -61,6 +62,7 @@ export class NationExecution implements Execution {
   private weaponBehavior!: NationWeaponBehavior;
   private navyBehavior!: NationNavyBehavior;
   private railBehavior!: NationRailBehavior;
+  private economyBehavior!: NationEconomyBehavior;
   private mg: Game;
   private player: Player | null = null;
 
@@ -253,6 +255,7 @@ export class NationExecution implements Execution {
     this.weaponBehavior.maybeFire();
     this.navyBehavior.maybeBuild();
     this.railBehavior.maybeBuild();
+    this.economyBehavior.maybeBuild();
   }
 
   private initializeBehaviors(): void {
@@ -307,6 +310,7 @@ export class NationExecution implements Execution {
     this.weaponBehavior = new NationWeaponBehavior(this.mg, this.player);
     this.navyBehavior = new NationNavyBehavior(this.mg, this.player);
     this.railBehavior = new NationRailBehavior(this.mg, this.player);
+    this.economyBehavior = new NationEconomyBehavior(this.mg, this.player);
     this.behaviorsInitialized = true;
   }
 
@@ -516,6 +520,7 @@ export class NationExecution implements Execution {
     this.weaponBehavior = new NationWeaponBehavior(r.game, player);
     this.navyBehavior = new NationNavyBehavior(r.game, player);
     this.railBehavior = new NationRailBehavior(r.game, player);
+    this.economyBehavior = new NationEconomyBehavior(r.game, player);
   }
 }
 
