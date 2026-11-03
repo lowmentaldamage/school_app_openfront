@@ -49,7 +49,8 @@
     "start:selfhost": "cross-env GAME_ENV=dev SELF_HOSTED=1 tsx src/server/Server.ts",
     "maps:3d": "node scripts/maps-3d.cjs",
     "smoke:server": "node scripts/smoke-server.cjs",
-    "dev:lan": "cross-env VITE_HOST=lan npm run dev"
+    "dev:lan": "cross-env VITE_HOST=lan npm run dev",
+    "play": "node scripts/launch-local.cjs"
   },
   "lint-staged": {
     "**/*.{js,mjs,cjs,ts,jsx,tsx}": [

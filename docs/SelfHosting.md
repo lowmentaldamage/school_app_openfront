@@ -53,11 +53,12 @@ After editing `.env`: `docker compose up -d`.
 A private server is a closed group: only accounts you approve can play
 — with each other in lobbies, or solo against bots and AI nations.
 
-| Rule                       | Default | Change with (in `deploy/selfhost/.env`) |
-| -------------------------- | ------- | --------------------------------------- |
-| Accounts on the server     | 100     | `MAX_ACCOUNTS=30` (any number)          |
-| Devices per account        | 2       | `MAX_DEVICES=2`                         |
-| Players can ask for access | on      | `REGISTRATION=off` (you add everyone)   |
+| Rule                        | Default | Change with (in `deploy/selfhost/.env`) |
+| --------------------------- | ------- | --------------------------------------- |
+| Accounts on the server      | 100     | `MAX_ACCOUNTS=30` (any number)          |
+| Devices per account         | 2       | `MAX_DEVICES=2`                         |
+| Players can ask for access  | on      | `REGISTRATION=off` (you add everyone)   |
+| Wrong passwords before lock | 10      | `MAX_FAILED_LOGINS=10`                  |
 
 Then `docker compose up -d` again.
 
@@ -75,8 +76,18 @@ In the game menu tap your name (bottom-left) → **Manage players**:
   account out everywhere and frees both slots, e.g. when a player gets a
   new phone. A third device is refused with a message to ask you.
 - **Stats**: wins / games and hours played (multiplayer and solo).
+- **Locked** accounts (🔒, listed first): after 10 wrong passwords in a row
+  an account locks — even the right password is refused — until you press
+  **Unlock** (or reset its password). Players see a warning when 3, 2 and
+  1 tries are left.
 - **Reset password**, **Disable / Enable**, **Make admin / player**,
   **Remove**.
+
+**Switching players on a shared device:** tap your name (bottom-left) →
+**Switch player** lists everyone signed in on this device (one tap, no
+password), **+ Add another player** signs in someone else. The login
+screen also shows "Tap to continue as …". Each account still counts the
+shared device as one of its 2 devices.
 
 Each player's **settings** (keybinds, sound, gameplay options, day/night
 and weather) follow their account to every device; graphics quality stays
@@ -97,6 +108,7 @@ docker compose exec game npx tsx scripts/selfhost-admin.ts disable <user>
 docker compose exec game npx tsx scripts/selfhost-admin.ts remove <user>
 docker compose exec game npx tsx scripts/selfhost-admin.ts approve <user>
 docker compose exec game npx tsx scripts/selfhost-admin.ts devices <user>   # free device slots
+docker compose exec game npx tsx scripts/selfhost-admin.ts unlock <user>    # after 10 wrong passwords
 ```
 
 The last admin cannot be removed, disabled or demoted, so you cannot lock

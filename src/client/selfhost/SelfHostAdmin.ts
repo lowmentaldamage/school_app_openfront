@@ -40,6 +40,7 @@ export class SelfHostAdmin extends LitElement {
       // Requests first, then by name.
       this.users = [...r.users].sort(
         (a, b) =>
+          Number(b.locked) - Number(a.locked) ||
           Number(b.pending) - Number(a.pending) ||
           a.username.localeCompare(b.username),
       );
@@ -179,7 +180,7 @@ export class SelfHostAdmin extends LitElement {
                     >
                       <td class="py-2 font-semibold">${u.username}</td>
                       <td class="py-2">
-                        ${u.pending ? html`<span class="rounded bg-amber-500/20 px-1.5 py-0.5 text-amber-300">${translateText("selfhost.pending")}</span>` : u.role === "admin" ? translateText("selfhost.admin") : translateText("selfhost.player")}${u.disabled && !u.pending ? ` · ${translateText("selfhost.disabled")}` : ""}
+                        ${u.locked ? html`<span class="mr-1 rounded bg-red-500/20 px-1.5 py-0.5 text-red-300">🔒 ${translateText("selfhost.locked")}</span>` : ""}${u.pending ? html`<span class="rounded bg-amber-500/20 px-1.5 py-0.5 text-amber-300">${translateText("selfhost.pending")}</span>` : u.role === "admin" ? translateText("selfhost.admin") : translateText("selfhost.player")}${u.disabled && !u.pending ? ` · ${translateText("selfhost.disabled")}` : ""}
                       </td>
                       <td
                         class="py-2 text-xs text-white/70"
@@ -203,6 +204,16 @@ export class SelfHostAdmin extends LitElement {
                                   @click=${() => void this.run(() => adminApi.approve(u.username), translateText("selfhost.approved", { name: u.username }))}
                                 >
                                   ${translateText("selfhost.approve")}
+                                </button>`
+                              : ""
+                          }
+                          ${
+                            u.locked
+                              ? html`<button
+                                  class="${btn} bg-red-600/50 hover:bg-red-500"
+                                  @click=${() => void this.run(() => adminApi.unlock(u.username), translateText("selfhost.unlocked", { name: u.username }))}
+                                >
+                                  ${translateText("selfhost.unlock")}
                                 </button>`
                               : ""
                           }

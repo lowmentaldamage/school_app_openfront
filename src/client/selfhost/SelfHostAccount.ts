@@ -10,8 +10,11 @@ import type { SelfHostAdmin } from "./SelfHostAdmin";
 import {
   changeOwnPassword,
   currentSession,
+  addAnotherAccount,
   logout,
   ownStats,
+  savedSessions,
+  switchTo,
 } from "./SelfHostSession";
 
 @customElement("selfhost-account")
@@ -44,6 +47,43 @@ export class SelfHostAccount extends LitElement {
     void panel?.show();
   }
 
+  private renderSwitcher(me: string, item: string) {
+    const others = savedSessions().filter(
+      (x) => x.username.toLowerCase() !== me.toLowerCase(),
+    );
+    return html`<div class="border-b border-white/10 py-1">
+      <div
+        class="px-4 pt-1 text-[10px] font-bold uppercase tracking-wider text-white/40"
+      >
+        ${translateText("selfhost.switch_account")}
+      </div>
+      ${others.map(
+        (o) =>
+          html`<button
+            class="${item} flex items-center gap-2"
+            @click=${() => {
+              if (switchTo(o.username)) location.reload();
+            }}
+          >
+            <span
+              class="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-700 text-[10px] font-bold uppercase"
+              >${o.username.slice(0, 1)}</span
+            >
+            ${o.username}
+          </button>`,
+      )}
+      <button
+        class="${item} text-sky-300"
+        @click=${() => {
+          addAnotherAccount();
+          location.reload();
+        }}
+      >
+        + ${translateText("selfhost.add_account")}
+      </button>
+    </div>`;
+  }
+
   private renderStats() {
     const st = ownStats();
     if (st === null) return "";
@@ -71,7 +111,7 @@ export class SelfHostAccount extends LitElement {
             ? html`<div
                 class="mb-2 min-w-48 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/95 shadow-xl backdrop-blur"
               >
-                ${this.renderStats()}
+                ${this.renderStats()} ${this.renderSwitcher(s.username, item)}
                 <button class=${item} @click=${() => this.changePassword()}>
                   ${translateText("selfhost.change_password")}
                 </button>

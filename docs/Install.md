@@ -14,7 +14,7 @@ Android app.
 | Host it 24/7 for friends               | [SelfHosting.md](SelfHosting.md)                |
 
 Repository: `https://github.com/lowmentaldamage/school_app_openfront`
-(branch `ccr-f2fe3bd8-k0h6kk`). If it is private, sign in to GitHub first.
+(branch `main`). If it is private, sign in to GitHub first.
 
 **Tested automatically** on every push (GitHub Actions _💻 Platforms_):
 install, production build, server start + login on **Windows**, **macOS**
@@ -23,6 +23,22 @@ and **Linux**; the _📱 Android APK_ workflow builds the app.
 ---
 
 ## 1. Windows 11 (main PC)
+
+### Fastest — one-click test build (no install)
+
+1. Open `https://github.com/lowmentaldamage/school_app_openfront/releases/tag/windows-latest`
+   and download **laukolaroser-windows.zip**.
+2. Right-click it → **Extract All…** (e.g. to the Desktop).
+3. Open the folder, double-click **Start Laukolaroser.bat**. If Windows
+   says _"Windows protected your PC"_: **More info → Run anyway**. Allow
+   Node.js through the firewall if asked (so phones can join).
+4. First start: type an admin username and password. The game opens at
+   `http://localhost:3000`; phones on the same Wi-Fi use the address shown
+   in the window. Keep the window open while you play.
+
+(Mac / Linux equivalent from a clone: `npm run inst && npm run build-prod && npm run play`.)
+
+### From source (developers)
 
 Open **PowerShell** (Start → type _PowerShell_) and run, one line at a time:
 
@@ -133,7 +149,7 @@ Docker Desktop for Mac, then [SelfHosting.md](SelfHosting.md).
    - over the internet: `https://game.example.com`.
 5. On a private server: sign in, or tap **Request access** and wait for
    the admin to approve you. One account works on up to 2 devices (phone
-   + PC, for example); your settings and stats follow you.
+   - PC, for example); your settings and stats follow you.
 6. Play. Back button → _Reload / Change server / Quit_.
 
 The APK is rebuilt automatically when `android/` changes (workflow

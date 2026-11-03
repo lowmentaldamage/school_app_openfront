@@ -12,7 +12,10 @@
  *  - players can request access (SELFHOST_REGISTRATION, on by default):
  *    the account waits, disabled, until an admin approves it;
  *  - each account can sign in on at most SELFHOST_MAX_DEVICES devices
- *    (default 2); an admin frees slots.
+ *    (default 2); an admin frees slots;
+ *  - after SELFHOST_MAX_FAILED_LOGINS wrong passwords in a row (default
+ *    10) the account locks until an admin unlocks it (or resets its
+ *    password).
  * Only the master writes this file (logins, admin actions).
  */
 
@@ -36,6 +39,10 @@ const AccountSchema = z.object({
   createdAt: z.number(),
   /** Waiting for an admin to approve an access request. */
   pending: z.boolean().optional(),
+  /** Wrong passwords in a row since the last successful sign-in. */
+  failedLogins: z.number().int().nonnegative().optional(),
+  /** Locked after too many wrong passwords; only an admin unlocks. */
+  locked: z.boolean().optional(),
   /** Devices this account has signed in on (oldest first). */
   devices: z
     .array(
@@ -58,8 +65,21 @@ export interface PublicAccount {
   disabled: boolean;
   createdAt: number;
   pending: boolean;
+  locked: boolean;
+  failedLogins: number;
   devices: { id: string; name: string; lastSeen: number }[];
 }
+
+/** Wrong passwords in a row that lock an account (default 10). */
+export function maxFailedLogins(): number {
+  const n = Number(process.env.SELFHOST_MAX_FAILED_LOGINS ?? 10);
+  return Number.isInteger(n) && n > 0 ? n : 10;
+}
+
+export type LoginResult =
+  | { ok: true; account: Account }
+  | { ok: false; reason: "wrong"; attemptsLeft: number | null }
+  | { ok: false; reason: "locked" };
 
 export const DEVICE_ID_RE = /^[A-Za-z0-9-]{8,64}$/;
 
@@ -141,6 +161,8 @@ export class AccountStore {
       disabled: a.disabled,
       createdAt: a.createdAt,
       pending: a.pending === true,
+      locked: a.locked === true,
+      failedLogins: a.failedLogins ?? 0,
       devices: (a.devices ?? []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -177,16 +199,45 @@ export class AccountStore {
   }
 
   /**
-   * The account if the password matches, enabled or not (to tell a
-   * pending player their request is still waiting). Same timing either way.
+   * A sign-in attempt with lockout: wrong passwords count per account;
+   * at maxFailedLogins() the account locks until an admin unlocks it.
+   * `attemptsLeft` is only given for an existing account, when few remain.
    */
-  checkPassword(username: string, password: string): Account | null {
+  login(username: string, password: string): LoginResult {
     const a = this.find(username);
     if (!a) {
       verifyPassword(password, DUMMY_HASH);
-      return null;
+      return { ok: false, reason: "wrong", attemptsLeft: null };
     }
-    return verifyPassword(password, a.passwordHash) ? a : null;
+    const good = verifyPassword(password, a.passwordHash);
+    if (a.locked) return { ok: false, reason: "locked" };
+    if (good) {
+      if ((a.failedLogins ?? 0) > 0) {
+        a.failedLogins = 0;
+        this.save();
+      }
+      return { ok: true, account: a };
+    }
+    a.failedLogins = (a.failedLogins ?? 0) + 1;
+    if (a.failedLogins >= maxFailedLogins()) {
+      a.locked = true;
+      this.save();
+      return { ok: false, reason: "locked" };
+    }
+    this.save();
+    const left = maxFailedLogins() - a.failedLogins;
+    return {
+      ok: false,
+      reason: "wrong",
+      attemptsLeft: left <= 3 ? left : null,
+    };
+  }
+
+  unlock(username: string): void {
+    const a = this.require(username);
+    a.locked = false;
+    a.failedLogins = 0;
+    this.save();
   }
 
   /** A player's access request: a disabled account an admin must approve. */
@@ -284,6 +335,9 @@ export class AccountStore {
     const a = this.require(username);
     a.passwordHash = hashPassword(password);
     a.version++;
+    // A new password from the admin also unlocks the account.
+    a.locked = false;
+    a.failedLogins = 0;
     this.save();
   }
 

@@ -390,11 +390,48 @@ describe("self-host HTTP API", () => {
     delete process.env.SELFHOST_MAX_ACCOUNTS;
   });
 
-  it("rate limits repeated login attempts", async () => {
+  it("10 wrong passwords lock the account until the admin unlocks it", async () => {
+    const boss = (
+      await call("POST", "/login", { username: "boss", password: "secret123" })
+    ).json.token as string;
+    await call(
+      "POST",
+      "/users",
+      { username: "lucky", password: "lucky123" },
+      boss,
+    );
+    const tryPw = (password: string) =>
+      call("POST", "/login", { username: "lucky", password });
+    // A good login in between resets the count.
+    for (let i = 0; i < 5; i++) await tryPw("nope");
+    expect((await tryPw("lucky123")).status).toBe(200);
+    let r = { status: 0, json: {} as Record<string, unknown> };
+    for (let i = 0; i < 9; i++) r = await tryPw("nope");
+    expect(r.status).toBe(401);
+    expect(String(r.json.error)).toContain("1 try left");
+    r = await tryPw("nope");
+    expect(r.status).toBe(423);
+    // Even the right password is refused now.
+    expect((await tryPw("lucky123")).status).toBe(423);
+    const list = (await call("GET", "/users", undefined, boss)).json.users as {
+      username: string;
+      locked: boolean;
+    }[];
+    expect(list.find((u) => u.username === "lucky")?.locked).toBe(true);
+    // Players cannot unlock; the admin can.
+    const pat = (await tryPw("lucky123")).json.token;
+    expect(pat).toBeUndefined();
+    expect((await call("POST", "/users/lucky/unlock", {}, boss)).status).toBe(
+      200,
+    );
+    expect((await tryPw("lucky123")).status).toBe(200);
+  });
+
+  it("rate limits a flood of failed logins from one address", async () => {
     let last = 0;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 35; i++) {
       last = (
-        await call("POST", "/login", { username: "boss", password: "wrong" })
+        await call("POST", "/login", { username: "ghost", password: "wrong" })
       ).status;
     }
     expect(last).toBe(429);

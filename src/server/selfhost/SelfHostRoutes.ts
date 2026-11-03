@@ -18,6 +18,7 @@
  *   POST   /users/:name/role     {role}                → admin/player
  *   DELETE /users/:name                                → remove
  *   POST   /users/:name/approve                        → approve a request
+ *   POST   /users/:name/unlock                         → unlock after wrong passwords
  *   DELETE /users/:name/devices[/:id]                  → free device slot(s)
  *
  * Login attempts are rate limited per IP. Every change takes effect at
@@ -75,11 +76,15 @@ const OwnPasswordSchema = z.object({
   password: z.string().max(200),
 });
 
-/** Sliding-window limiter on FAILED logins: 10 / 10 min / IP. */
+/**
+ * Sliding-window limiter on FAILED logins: 30 / 10 min / IP. Generous so
+ * players behind one school/home connection don't block each other; the
+ * real guard is the per-account lockout (AccountStore.login).
+ */
 class LoginLimiter {
   private readonly hits = new Map<string, number[]>();
   constructor(
-    private readonly max = 10,
+    private readonly max = 30,
     private readonly windowMs = 10 * 60 * 1000,
   ) {}
   blocked(key: string, now = Date.now()): boolean {
@@ -194,15 +199,27 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 400, "Username and password required");
         return;
       }
-      const account = store.checkPassword(
-        body.data.username,
-        body.data.password,
-      );
-      if (account === null) {
+      const result = store.login(body.data.username, body.data.password);
+      if (!result.ok) {
         limiter.recordFailure(ip);
-        fail(res, 401, "Wrong username or password");
+        if (result.reason === "locked") {
+          fail(
+            res,
+            423,
+            "This account is locked after too many wrong passwords. Ask the admin to unlock it.",
+          );
+          return;
+        }
+        fail(
+          res,
+          401,
+          result.attemptsLeft === null
+            ? "Wrong username or password"
+            : `Wrong username or password — ${result.attemptsLeft} ${result.attemptsLeft === 1 ? "try" : "tries"} left before the account locks`,
+        );
         return;
       }
+      const account = result.account;
       if (account.pending) {
         fail(res, 403, "Your access request is waiting for the admin");
         return;
@@ -417,6 +434,15 @@ export function createSelfHostRouter(): express.Router {
       const gone = store.find(String(req.params.name));
       store.remove(String(req.params.name));
       if (gone) forgetAccount(gone.persistentId);
+      res.json({ ok: true });
+    }),
+  );
+
+  router.post(
+    "/users/:name/unlock",
+    handle((req, res) => {
+      if (!requireAdmin(req, res)) return;
+      store.unlock(String(req.params.name));
       res.json({ ok: true });
     }),
   );

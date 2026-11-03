@@ -11,6 +11,8 @@
 const SESSION_KEY = "laukolaroser.session";
 /** This browser/app install's id for the device limit (kept on logout). */
 const DEVICE_KEY = "laukolaroser.device";
+/** Other accounts signed in on this device, for quick switching. */
+const SAVED_KEY = "laukolaroser.saved-sessions";
 /** Settings last pushed to the server (to send only real changes). */
 const SYNCED_KEY = "laukolaroser.synced-settings";
 const USERNAME_KEY = "username"; // the name box on the homepage
@@ -36,6 +38,8 @@ export interface SelfHostUser {
   disabled: boolean;
   createdAt: number;
   pending: boolean;
+  locked: boolean;
+  failedLogins: number;
   devices: { id: string; name: string; lastSeen: number }[];
   stats: SelfHostStats;
 }
@@ -145,10 +149,65 @@ export function selfHostToken(): string | null {
   return isSelfHosted() ? (currentSession()?.token ?? null) : null;
 }
 
+// ------------------------------------------------------- account switcher
+
+/** Accounts signed in on this device (newest first), current included. */
+export function savedSessions(): SelfHostSession[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]");
+    return Array.isArray(raw)
+      ? (raw as SelfHostSession[]).filter((s) => typeof s?.token === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeSaved(list: SelfHostSession[]): void {
+  try {
+    localStorage.setItem(SAVED_KEY, JSON.stringify(list.slice(0, 8)));
+  } catch {
+    // no storage
+  }
+}
+
+function remember(s: SelfHostSession): void {
+  const key = s.username.toLowerCase();
+  writeSaved([
+    s,
+    ...savedSessions().filter((x) => x.username.toLowerCase() !== key),
+  ]);
+}
+
+function forget(username: string): void {
+  const key = username.toLowerCase();
+  writeSaved(savedSessions().filter((x) => x.username.toLowerCase() !== key));
+}
+
+/** Switch to another account signed in on this device (then reload). */
+export function switchTo(username: string): boolean {
+  const s = savedSessions().find(
+    (x) => x.username.toLowerCase() === username.toLowerCase(),
+  );
+  if (!s) return false;
+  save(s);
+  return true;
+}
+
+/** Show the login screen to add another account, keeping this one saved. */
+export function addAnotherAccount(): void {
+  try {
+    localStorage.removeItem(SESSION_KEY);
+  } catch {
+    // no storage
+  }
+}
+
 function save(s: SelfHostSession | null): void {
   try {
     if (s === null) localStorage.removeItem(SESSION_KEY);
     else {
+      remember(s);
       localStorage.setItem(SESSION_KEY, JSON.stringify(s));
       // Show the account name in the name box (the server uses it anyway).
       localStorage.setItem(USERNAME_KEY, s.username);
@@ -200,7 +259,10 @@ export async function requestAccess(
   await api("POST", "/register", { username, password }, false);
 }
 
+/** Sign out this account on this device (other saved accounts stay). */
 export function logout(): void {
+  const s = currentSession();
+  if (s) forget(s.username);
   save(null);
 }
 
@@ -219,6 +281,8 @@ export async function validateSession(): Promise<SelfHostSession | null> {
     save(fresh);
     return fresh;
   } catch {
+    // Expired, removed, locked or device slot freed: drop it from the list.
+    forget(s.username);
     save(null);
     return null;
   }
@@ -314,6 +378,8 @@ export const adminApi = {
       "GET",
       "/users",
     ),
+  unlock: (username: string) =>
+    api("POST", `/users/${encodeURIComponent(username)}/unlock`),
   approve: (username: string) =>
     api("POST", `/users/${encodeURIComponent(username)}/approve`),
   resetDevices: (username: string) =>

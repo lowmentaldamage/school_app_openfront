@@ -13,6 +13,8 @@ import {
   maxDevices,
   registrationOpen,
   requestAccess,
+  savedSessions,
+  switchTo,
 } from "./SelfHostSession";
 
 @customElement("selfhost-login")
@@ -56,6 +58,36 @@ export class SelfHostLogin extends LitElement {
     }
   }
 
+  private renderSaved() {
+    const saved = this.mode === "login" ? savedSessions() : [];
+    if (saved.length === 0) return "";
+    return html`<div class="mb-4">
+      <div
+        class="mb-1 text-xs font-semibold uppercase tracking-wide text-white/60"
+      >
+        ${translateText("selfhost.signed_in_here")}
+      </div>
+      <div class="flex flex-wrap gap-2">
+        ${saved.map(
+          (s) =>
+            html`<button
+              type="button"
+              class="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/15"
+              @click=${() => {
+                if (switchTo(s.username)) location.reload();
+              }}
+            >
+              <span
+                class="flex h-5 w-5 items-center justify-center rounded-full bg-sky-600 text-[10px] font-bold uppercase"
+                >${s.username.slice(0, 1)}</span
+              >
+              ${s.username}
+            </button>`,
+        )}
+      </div>
+    </div>`;
+  }
+
   render() {
     return html`
       <div
@@ -84,6 +116,7 @@ export class SelfHostLogin extends LitElement {
                 : translateText("selfhost.login_hint")
             }
           </p>
+          ${this.renderSaved()}
           <label
             class="mb-1 block text-xs font-semibold uppercase tracking-wide text-white/60"
             >${translateText("selfhost.username")}</label

@@ -23,7 +23,7 @@ const store = AccountStore.inDir(selfHostDataDir());
 
 function usage(): never {
   console.log(
-    "usage: selfhost:admin -- add <user> <password> [admin|player] | passwd <user> <password> | remove <user> | disable <user> | enable <user> | approve <user> | devices <user> | list",
+    "usage: selfhost:admin -- add <user> <password> [admin|player] | passwd <user> <password> | remove <user> | disable <user> | enable <user> | approve <user> | devices <user> | unlock <user> | list",
   );
   process.exit(1);
 }
@@ -65,6 +65,11 @@ try {
       store.approve(a);
       console.log(`approved "${a}"`);
       break;
+    case "unlock":
+      if (!a) usage();
+      store.unlock(a);
+      console.log(`unlocked "${a}"`);
+      break;
     case "devices":
       if (!a) usage();
       store.removeDevice(a, null);
@@ -73,7 +78,7 @@ try {
     case "list":
       for (const u of store.list()) {
         console.log(
-          `${u.username.padEnd(24)} ${u.role.padEnd(7)} ${String(u.devices.length).padStart(1)} device(s) ${u.pending ? "REQUEST" : u.disabled ? "disabled" : ""}`,
+          `${u.username.padEnd(24)} ${u.role.padEnd(7)} ${String(u.devices.length).padStart(1)} device(s) ${u.pending ? "REQUEST" : u.locked ? "LOCKED" : u.disabled ? "disabled" : ""}`,
         );
       }
       break;
