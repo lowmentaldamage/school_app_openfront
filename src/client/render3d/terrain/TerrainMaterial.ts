@@ -135,6 +135,8 @@ export interface TerrainMaterialUniforms {
   uFillStrength: { value: number };
   uBorderWidth: { value: number };
   uHighlightOwner: { value: number };
+  /** Current capture stamp (OwnerBuffer.captureStamp, fractional). */
+  uCaptureNow: { value: number };
 }
 
 export function createTerrainMaterial(
@@ -157,6 +159,7 @@ export function createTerrainMaterial(
     uFillStrength: { value: 0.88 },
     uBorderWidth: { value: 0.3 },
     uHighlightOwner: { value: -1 },
+    uCaptureNow: { value: 0 },
   };
 
   const material = new MeshStandardMaterial({
@@ -200,7 +203,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v6";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v7";
   return { material, uniforms };
 }
 

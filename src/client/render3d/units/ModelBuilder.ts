@@ -3,6 +3,8 @@
  * non-indexed BufferGeometry with:
  *   - `color`    per-vertex base colour (linear),
  *   - `teamMask` 1 where the part takes the owner's team colour, else 0.
+ *   - `pattern`  procedural surface detail drawn by the unit shader:
+ *                0 plain, 1 windows (lit at night), 2 metal panels, 3 brick.
  *
  * One merged geometry per model means one InstancedMesh (one draw call) per
  * model kind, however many ships or buildings are on the map.
@@ -32,10 +34,20 @@ export interface PartOptions {
   /** sRGB hex colour; ignored where team = true (still used as fallback). */
   color?: number;
   team?: boolean;
+  /** Procedural surface detail (see the unit shader). */
+  pattern?: Pattern;
   pos?: [number, number, number];
   rot?: [number, number, number];
   scale?: [number, number, number];
 }
+
+export type Pattern = "windows" | "panels" | "brick";
+
+const PATTERN_IDS: Record<Pattern, number> = {
+  windows: 1,
+  panels: 2,
+  brick: 3,
+};
 
 const tmpColor = new Color();
 
@@ -121,6 +133,8 @@ export class ModelBuilder {
     const n = g.getAttribute("position").count;
     const colors = new Float32Array(n * 3);
     const mask = new Float32Array(n);
+    const pattern = new Float32Array(n);
+    pattern.fill(o.pattern ? PATTERN_IDS[o.pattern] : 0);
     tmpColor.setHex(o.color ?? 0xffffff); // hex is sRGB → stored linear
     for (let i = 0; i < n; i++) {
       colors[i * 3] = tmpColor.r;
@@ -130,6 +144,7 @@ export class ModelBuilder {
     }
     g.setAttribute("color", new BufferAttribute(colors, 3));
     g.setAttribute("teamMask", new BufferAttribute(mask, 1));
+    g.setAttribute("pattern", new BufferAttribute(pattern, 1));
     this.parts.push(g);
     return this;
   }

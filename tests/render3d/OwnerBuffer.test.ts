@@ -11,7 +11,12 @@ import {
 import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
 import { SpawnExecution } from "@laukolaroser/engine/execution/SpawnExecution";
 import { describe, expect, it } from "vitest";
-import { OwnerBuffer } from "../../src/client/render3d/territory/OwnerBuffer";
+import {
+  CAPTURE_ANIM_MS,
+  CAPTURE_STAMP_PERIOD,
+  captureStamp,
+  OwnerBuffer,
+} from "../../src/client/render3d/territory/OwnerBuffer";
 import { setup } from "../util/Setup";
 
 function changedRefs(prev: Uint16Array, next: Uint16Array): number[] {
@@ -83,10 +88,11 @@ describe("OwnerBuffer ↔ simulation", () => {
     state[10] = 7 | (1 << 14);
     buf.applyChanged(state, [5, 10]);
     expect(buf.ownerAt(5)).toBe(0x0abc);
-    expect(buf.data[5 * 4 + 2]).toBe(255);
+    expect(buf.data[5 * 4 + 2]).toBe(128);
     expect(buf.data[5 * 4 + 3]).toBe(0);
+    expect(buf.captureStampAt(5)).toBe(0); // no time given: no animation
     expect(buf.ownerAt(10)).toBe(7);
-    expect(buf.data[10 * 4 + 3]).toBe(255);
+    expect(buf.data[10 * 4 + 3]).toBe(128);
     expect(buf.dirtyMin).toBe(1);
     expect(buf.dirtyMax).toBe(2);
     buf.clearDirty();
@@ -104,5 +110,50 @@ describe("OwnerBuffer dirty rows", () => {
     expect(buf.dirtyRows).toEqual([]);
     buf.applyChanged(state, [5]);
     expect(buf.dirtyRows).toEqual([1]);
+  });
+
+  it("stamps captured tiles and clears them when the animation ends", () => {
+    const buf = new OwnerBuffer(4, 3);
+    const state = new Uint16Array(12);
+    state[5] = 3 | (1 << 13); // fallout too
+    buf.applyChanged(state, [5, 6], 1000); // 6 did not change owner
+    const stamp = captureStamp(1000);
+    expect(buf.captureStampAt(5)).toBe(stamp);
+    expect(buf.captureStampAt(6)).toBe(0);
+    expect(buf.data[5 * 4 + 2] & 128).toBe(128); // fallout kept
+    expect(buf.pendingCaptures()).toBe(1);
+    // Re-encoding (e.g. fallout clears) keeps the running stamp.
+    state[5] = 3;
+    buf.applyChanged(state, [5], 1100);
+    expect(buf.captureStampAt(5)).toBe(stamp);
+    buf.clearDirty();
+    buf.expireCaptures(1000 + CAPTURE_ANIM_MS - 1);
+    expect(buf.captureStampAt(5)).toBe(stamp);
+    buf.expireCaptures(1000 + CAPTURE_ANIM_MS);
+    expect(buf.captureStampAt(5)).toBe(0);
+    expect(buf.pendingCaptures()).toBe(0);
+    expect(buf.isDirty()).toBe(true);
+    expect(buf.ownerAt(5)).toBe(3);
+  });
+
+  it("a newer capture of the same tile is not cleared early", () => {
+    const buf = new OwnerBuffer(4, 3);
+    const state = new Uint16Array(12);
+    state[2] = 1;
+    buf.applyChanged(state, [2], 0);
+    state[2] = 2;
+    buf.applyChanged(state, [2], 500);
+    buf.expireCaptures(CAPTURE_ANIM_MS);
+    expect(buf.captureStampAt(2)).toBe(captureStamp(500));
+    buf.expireCaptures(500 + CAPTURE_ANIM_MS);
+    expect(buf.captureStampAt(2)).toBe(0);
+  });
+
+  it("stamps stay in 1..period and never collide with 'none'", () => {
+    for (const t of [0, 49, 50, 819_149, 819_150, 1e9]) {
+      const s = captureStamp(t);
+      expect(s).toBeGreaterThanOrEqual(1);
+      expect(s).toBeLessThanOrEqual(CAPTURE_STAMP_PERIOD);
+    }
   });
 });

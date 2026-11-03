@@ -28,6 +28,17 @@ import {
 import type { Heightfield } from "../terrain/Heightfield";
 import { InstancedPool } from "./InstancedPool";
 import {
+  airAltitude,
+  airClimbPitch,
+  bankFor,
+  BUILD_RISE_MS,
+  buildRise,
+  smoothTo,
+  turnRate,
+  turnToward,
+  wrapAngle,
+} from "./Motion";
+import {
   arcAt,
   arcPeak,
   BALLISTIC_KINDS,
@@ -78,7 +89,89 @@ interface Mover {
 
 const CONSTRUCTION_GREY = new Color(0.55, 0.55, 0.55);
 
-export function createUnitMaterial(): MeshStandardMaterial {
+/** A structure currently playing its "rises from the ground" animation. */
+interface Rising {
+  kind: ModelKind;
+  slot: number;
+  at: number;
+  x: number;
+  h: number;
+  y: number;
+  yaw: number;
+  sxz: number;
+  sy: number;
+}
+
+/** Uniforms shared by every unit and structure. */
+export interface UnitMaterialUniforms {
+  /** 0 by day, 1 at night: lights up windows. */
+  uNight: { value: number };
+}
+
+const UNIT_VERT_HEAD = /* glsl */ `
+attribute float teamMask;
+attribute float pattern;
+varying float vPattern;
+varying vec3 vLocalPos;
+varying vec3 vLocalNormal;
+varying float vSeed;
+`;
+
+const UNIT_FRAG_HEAD = /* glsl */ `
+uniform float uNight;
+varying float vPattern;
+varying vec3 vLocalPos;
+varying vec3 vLocalNormal;
+varying float vSeed;
+float unitHash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+`;
+
+// Surface detail in model space, so it scales with the model. Fades out
+// when the pattern would be smaller than a pixel (no shimmering).
+const UNIT_PATTERN_GLSL = /* glsl */ `
+float unitWindowLight = 0.0;
+if (vPattern > 0.5) {
+  vec3 ln = normalize(vLocalNormal);
+  float side = 1.0 - step(0.6, abs(ln.y));
+  float u = abs(ln.x) > abs(ln.z) ? vLocalPos.z : vLocalPos.x;
+  // Soft contact shadow at the foot of walls.
+  diffuseColor.rgb *= mix(0.7, 1.0, smoothstep(0.0, 0.35, vLocalPos.y));
+  if (vPattern < 1.5) {
+    vec2 g = vec2(u * 6.0, vLocalPos.y * 5.0);
+    vec2 f = fract(g);
+    float win = step(0.22, f.x) * step(f.x, 0.78) * step(0.3, f.y) * step(f.y, 0.8);
+    float lod = 1.0 - smoothstep(0.3, 0.7, max(fwidth(g.x), fwidth(g.y)));
+    win *= side * lod * step(0.18, vLocalPos.y);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.03, 0.05, 0.08), win * 0.8);
+    float lit = step(0.42, unitHash(floor(g) + vSeed));
+    unitWindowLight = win * lit;
+  } else if (vPattern < 2.5) {
+    // Ribbed metal: seams on walls, ridges on roofs.
+    float w = side > 0.5 ? u : vLocalPos.x + vLocalPos.z;
+    float rib = fract(w * 5.0);
+    float lod = 1.0 - smoothstep(0.3, 0.7, fwidth(w * 5.0));
+    diffuseColor.rgb *= 1.0 - 0.22 * lod * (smoothstep(0.8, 0.95, rib) + 0.5 * smoothstep(0.2, 0.0, rib));
+  } else {
+    // Brick courses with staggered joints.
+    vec2 g = vec2(u * 9.0, vLocalPos.y * 18.0);
+    g.x += 0.5 * mod(floor(g.y), 2.0);
+    vec2 f = fract(g);
+    float mortar = max(step(f.x, 0.08), step(f.y, 0.12));
+    float lod = 1.0 - smoothstep(0.3, 0.7, max(fwidth(g.x), fwidth(g.y)));
+    float tone = 0.9 + 0.2 * unitHash(floor(g));
+    diffuseColor.rgb *= mix(1.0, tone, lod * side);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.55, 0.52, 0.48), mortar * lod * side * 0.6);
+  }
+}
+`;
+
+export function createUnitMaterial(): {
+  material: MeshStandardMaterial;
+  uniforms: UnitMaterialUniforms;
+} {
+  const uniforms: UnitMaterialUniforms = { uNight: { value: 0 } };
   const m = new MeshStandardMaterial({
     vertexColors: true,
     flatShading: true,
@@ -86,18 +179,30 @@ export function createUnitMaterial(): MeshStandardMaterial {
     metalness: 0.15,
   });
   m.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = shader.vertexShader
-      .replace(
-        "#include <common>",
-        "#include <common>\nattribute float teamMask;",
-      )
+      .replace("#include <common>", "#include <common>\n" + UNIT_VERT_HEAD)
       .replace(
         "#include <color_vertex>",
-        "vColor = vec4(mix(color.rgb, instanceColor.rgb, teamMask), 1.0);",
+        `vColor = vec4(mix(color.rgb, instanceColor.rgb, teamMask), 1.0);
+vPattern = pattern;
+vLocalPos = position;
+vLocalNormal = normal;
+vSeed = instanceMatrix[3].x * 0.37 + instanceMatrix[3].z * 0.71;`,
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", "#include <common>\n" + UNIT_FRAG_HEAD)
+      .replace(
+        "#include <color_fragment>",
+        "#include <color_fragment>\n" + UNIT_PATTERN_GLSL,
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        "#include <emissivemap_fragment>\ntotalEmissiveRadiance += vec3(1.0, 0.72, 0.38) * unitWindowLight * uNight * 1.8;",
       );
   };
-  m.customProgramCacheKey = () => "laukolaroser-unit-v2";
-  return m;
+  m.customProgramCacheKey = () => "laukolaroser-unit-v3";
+  return { material: m, uniforms };
 }
 
 /** Enemy submarines are visible within this many tiles of your ships/ports. */
@@ -108,12 +213,22 @@ const TRADE_HIDE_DISTANCE = 700;
 
 export class UnitRenderer {
   readonly group = new Group();
-  private readonly material = createUnitMaterial();
+  private readonly materialSet = createUnitMaterial();
+  private readonly material = this.materialSet.material;
   private readonly pools = new Map<ModelKind, InstancedPool>();
   private movers: Mover[] = [];
   /** Where each ballistic unit was first seen (its launch point). */
   private readonly origins = new Map<number, { x: number; y: number }>();
   private readonly headings = new Map<number, number>();
+  /** Pose state per moving unit: displayed yaw and roll. */
+  private readonly poses = new Map<number, { yaw: number; roll: number }>();
+  /** When each structure appeared or was finished (for the rise). */
+  private readonly structSeen = new Map<
+    number,
+    { at: number; building: boolean }
+  >();
+  private rising: Rising[] = [];
+  private lastAnimMs = 0;
   private readonly airHeight = new Map<number, number>();
   private tickAt = 0;
   private tickIntervalMs = 100;
@@ -169,7 +284,9 @@ export class UnitRenderer {
 
     for (const pool of this.pools.values()) pool.begin();
     const movers: Mover[] = [];
+    const rising: Rising[] = [];
     const seen = new Set<number>();
+    const structsNow = new Set<number>();
     const w = this.mapWidth;
     const structScale = zoomScale(cameraDistance, 80, 8);
 
@@ -192,14 +309,26 @@ export class UnitRenderer {
         const yaw = ((tileHash(u.pos) & 3) * Math.PI) / 2;
         this.e.set(0, yaw, 0);
         this.q.setFromEuler(this.e);
+        // Rise from the ground when placed and again when finished.
+        structsNow.add(u.id);
+        let st = this.structSeen.get(u.id);
+        if (st === undefined) {
+          st = { at: nowMs, building: u.underConstruction };
+          this.structSeen.set(u.id, st);
+        } else if (st.building && !u.underConstruction) {
+          st.at = nowMs;
+          st.building = false;
+        }
+        const age = nowMs - st.at;
+        const sxz = structScale * lvl;
+        const sy = structScale * lvl * built;
         this.p.set(x, h, y);
-        this.s.set(
-          structScale * lvl,
-          structScale * lvl * built,
-          structScale * lvl,
-        );
+        this.s.set(sxz, sy * buildRise(age), sxz);
         this.m.compose(this.p, this.q, this.s);
-        pool.push(this.m, this.c);
+        const slot = pool.push(this.m, this.c);
+        if (age < BUILD_RISE_MS) {
+          rising.push({ kind, slot, at: st.at, x, h, y, yaw, sxz, sy });
+        }
         continue;
       }
 
@@ -218,7 +347,8 @@ export class UnitRenderer {
         targetUnitId: u.targetUnitId,
         slot: 0,
       };
-      if (BALLISTIC_KINDS.has(kind) && u.targetTile !== null) {
+      const ballistic = BALLISTIC_KINDS.has(kind) && u.targetTile !== null;
+      if (ballistic || AIR_KINDS.has(kind)) {
         let o = this.origins.get(u.id);
         if (o === undefined) {
           o = { x: mover.x0, y: mover.y0 };
@@ -226,6 +356,8 @@ export class UnitRenderer {
         }
         mover.ox = o.x;
         mover.oy = o.y;
+      }
+      if (ballistic && u.targetTile !== null) {
         mover.tx = (u.targetTile % w) + 0.5;
         mover.ty = Math.floor(u.targetTile / w) + 0.5;
       }
@@ -238,12 +370,23 @@ export class UnitRenderer {
       if (!seen.has(id)) this.origins.delete(id);
     for (const id of this.headings.keys())
       if (!seen.has(id)) this.headings.delete(id);
+    for (const id of this.poses.keys())
+      if (!seen.has(id)) this.poses.delete(id);
+    for (const id of this.structSeen.keys())
+      if (!structsNow.has(id)) this.structSeen.delete(id);
     this.movers = movers;
+    this.rising = rising;
     for (const pool of this.pools.values()) pool.end(true);
   }
 
   /** Per render frame: interpolate and pose every moving unit. */
   animate(nowMs: number, cameraDistance: number): void {
+    const dt =
+      this.lastAnimMs > 0
+        ? Math.min(0.1, Math.max(0, (nowMs - this.lastAnimMs) / 1000))
+        : 0;
+    this.lastAnimMs = nowMs;
+    this.animateRising(nowMs);
     if (this.movers.length === 0) return;
     const alpha = Math.min(1, (nowMs - this.tickAt) / this.tickIntervalMs);
     const t = nowMs / 1000;
@@ -265,16 +408,39 @@ export class UnitRenderer {
         if ((pass === 0) !== ballistic) continue;
         const x = mv.x0 + (mv.x1 - mv.x0) * alpha;
         const y = mv.y0 + (mv.y1 - mv.y0) * alpha;
-        let yaw = this.headings.get(mv.id) ?? 0;
+        let targetYaw = this.headings.get(mv.id) ?? 0;
         const dx = mv.x1 - mv.x0;
         const dy = mv.y1 - mv.y0;
         if (dx * dx + dy * dy > 1e-6) {
-          yaw = Math.atan2(-dy, dx);
-          this.headings.set(mv.id, yaw);
+          targetYaw = Math.atan2(-dy, dx);
+          this.headings.set(mv.id, targetYaw);
+        }
+        // Vehicles turn at a limited rate and lean into the turn;
+        // missiles and shells point straight along their path.
+        let yaw = targetYaw;
+        let lean = 0;
+        if (!ballistic && mv.kind !== "samMissile") {
+          let pose = this.poses.get(mv.id);
+          if (pose === undefined) {
+            pose = { yaw: targetYaw, roll: 0 };
+            this.poses.set(mv.id, pose);
+          }
+          const before = pose.yaw;
+          pose.yaw = turnToward(pose.yaw, targetYaw, turnRate(mv.kind) * dt);
+          const rate = dt > 0 ? wrapAngle(pose.yaw - before) / dt : 0;
+          const air = AIR_KINDS.has(mv.kind);
+          pose.roll = smoothTo(
+            pose.roll,
+            TRAIN_KINDS.has(mv.kind) ? 0 : bankFor(air, rate),
+            dt,
+            air ? 0.35 : 0.6,
+          );
+          yaw = pose.yaw;
+          lean = pose.roll;
         }
         let h = 0;
         let pitch = 0;
-        let roll = 0;
+        let roll = lean;
         let scale = mv.kind === "tradeShip" ? tradeScale : shipScale;
 
         if (SHIP_KINDS.has(mv.kind)) {
@@ -282,13 +448,28 @@ export class UnitRenderer {
           h =
             (mv.kind === "submarine" ? -0.12 : 0.02) +
             Math.sin(t * 1.6 + phase) * 0.04;
-          roll = Math.sin(t * 1.1 + phase) * 0.05;
-          pitch = Math.sin(t * 1.3 + phase * 0.7) * 0.025;
+          // Swell: heavy ships roll less.
+          const heavy =
+            mv.kind === "battleship" || mv.kind === "carrier" ? 0.5 : 1;
+          roll += Math.sin(t * 1.1 + phase) * 0.05 * heavy;
+          pitch = Math.sin(t * 1.3 + phase * 0.7) * 0.025 * heavy;
+          // Bow lifts a little under way.
+          if (dx * dx + dy * dy > 1e-6) pitch += 0.03;
         } else if (AIR_KINDS.has(mv.kind)) {
           scale = airScale * (mv.kind === "bomber" ? 1.4 : 1);
-          h =
-            Math.max(0, this.hf.sample(x, y)) + (mv.kind === "bomber" ? 9 : 11);
-          roll = Math.sin(t * 0.9 + mv.id) * 0.06;
+          const cruise = mv.kind === "bomber" ? 9 : 11;
+          const fromBase = Number.isFinite(mv.ox)
+            ? Math.hypot(x - mv.ox, y - mv.oy)
+            : 99;
+          h = Math.max(0, this.hf.sample(x, y)) + airAltitude(fromBase, cruise);
+          // Outbound when moving away from base.
+          const away =
+            (mv.x1 - mv.ox) * (mv.x1 - mv.ox) +
+              (mv.y1 - mv.oy) * (mv.y1 - mv.oy) >=
+            (mv.x0 - mv.ox) * (mv.x0 - mv.ox) +
+              (mv.y0 - mv.oy) * (mv.y0 - mv.oy);
+          pitch = airClimbPitch(fromBase, cruise, away);
+          roll += Math.sin(t * 0.9 + mv.id) * 0.03;
         } else if (TRAIN_KINDS.has(mv.kind)) {
           h = Math.max(0, this.hf.sample(x, y));
           scale = zoomScale(cameraDistance, 130, 4);
@@ -328,6 +509,30 @@ export class UnitRenderer {
       }
     }
     for (const mv of this.movers) this.pools.get(mv.kind)!.touchMatrices();
+  }
+
+  /** Pose buildings that are still rising out of the ground. */
+  private animateRising(nowMs: number): void {
+    if (this.rising.length === 0) return;
+    let live = 0;
+    for (const r of this.rising) {
+      const age = nowMs - r.at;
+      this.e.set(0, r.yaw, 0);
+      this.q.setFromEuler(this.e);
+      this.p.set(r.x, r.h, r.y);
+      this.s.set(r.sxz, r.sy * buildRise(age), r.sxz);
+      this.m.compose(this.p, this.q, this.s);
+      const pool = this.pools.get(r.kind)!;
+      pool.setMatrix(r.slot, this.m);
+      pool.touchMatrices();
+      if (age < BUILD_RISE_MS) this.rising[live++] = r;
+    }
+    this.rising.length = live;
+  }
+
+  /** 0 by day … 1 at night (lit windows). */
+  setNight(night: number): void {
+    this.materialSet.uniforms.uNight.value = night;
   }
 
   /** Number of moving units currently animated. */

@@ -79,10 +79,19 @@ export class TerritoryTextures {
   updateOwners(
     tileState: Uint16Array,
     changed: readonly number[] | null,
+    nowMs: number | null = null,
   ): void {
     if (changed === null) this.owners.applyFull(tileState);
-    else if (changed.length > 0) this.owners.applyChanged(tileState, changed);
-    else return;
+    else if (changed.length > 0) {
+      this.owners.applyChanged(tileState, changed, nowMs);
+    } else return;
+    this.flushOwners();
+  }
+
+  /** Per frame: end finished conquest animations. */
+  expireCaptures(nowMs: number): void {
+    if (this.owners.pendingCaptures() === 0) return;
+    this.owners.expireCaptures(nowMs);
     this.flushOwners();
   }
 

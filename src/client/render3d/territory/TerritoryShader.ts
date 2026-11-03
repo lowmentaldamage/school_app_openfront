@@ -21,6 +21,7 @@ uniform float uTime;
 uniform float uFillStrength;
 uniform float uBorderWidth;
 uniform float uHighlightOwner;
+uniform float uCaptureNow;
 `;
 
 export const TERRITORY_FUNCTIONS_GLSL = /* glsl */ `
@@ -63,8 +64,28 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
   vec3 color = mix(albedo, fill.rgb, clamp(fill.a * uFillStrength, 0.0, 1.0));
 
   ivec2 tile = ivec2(floor(tilePos));
-  // Nuclear fallout: scorched, sickly ground (owner texture B channel).
-  float fallout = texelFetch(uOwnerTex, clamp(tile, ivec2(0), ivec2(uMapSize) - 1), 0).b;
+  vec4 ownTexel = texelFetch(uOwnerTex, clamp(tile, ivec2(0), ivec2(uMapSize) - 1), 0);
+
+  // Conquest: a freshly taken tile fades in from bare ground with a bright
+  // flash of the new owner's colour (stamp in the low bits of B and A,
+  // see OwnerBuffer).
+  int capStamp = ((int(ownTexel.b * 255.0 + 0.5) & 127) << 7)
+               | (int(ownTexel.a * 255.0 + 0.5) & 127);
+  if (capStamp != 0) {
+    float age = mod(uCaptureNow - float(capStamp), 16383.0) * 0.05;
+    if (age < 0.9) {
+      float k = smoothstep(0.0, 0.9, age);
+      color = mix(albedo, color, 0.2 + 0.8 * k);
+      int capOwner = territoryOwnerAt(tile);
+      vec3 glow = capOwner != 0
+        ? territoryBorderColor(capOwner) * 1.6 + vec3(0.25)
+        : vec3(0.02);
+      color = mix(color, glow, (1.0 - k) * (1.0 - k) * 0.75);
+    }
+  }
+
+  // Nuclear fallout: scorched, sickly ground (owner texture B bit 7).
+  float fallout = ownTexel.b;
   if (fallout > 0.5) {
     float n = fract(sin(dot(vec2(tile), vec2(12.9898, 78.233))) * 43758.5453);
     color = mix(color, vec3(0.06, 0.09, 0.03) + vec3(0.05, 0.12, 0.0) * n, 0.7);

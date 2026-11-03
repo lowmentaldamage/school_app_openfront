@@ -398,17 +398,52 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
   rocket: () => missile(1.3, 0.12, 0xc9ced3),
 
   // Structures: origin at ground level, centred on their tile.
+  // Downtown block: glass tower, offices and brick houses on a plaza.
+  // Facades get windows (lit at night); roofs take the owner colour.
   city: () =>
     new ModelBuilder()
-      .box(2.4, 0.08, 2.4, { color: CONCRETE })
-      .box(0.7, 1.6, 0.7, { color: 0xcfc8b8, pos: [-0.5, 0.08, -0.45] })
-      .box(0.72, 0.1, 0.72, { team: true, pos: [-0.5, 1.68, -0.45] })
-      .box(0.6, 1.0, 0.8, { color: 0xb8b0a0, pos: [0.55, 0.08, -0.5] })
-      .box(0.62, 0.1, 0.82, { team: true, pos: [0.55, 1.08, -0.5] })
-      .box(0.9, 0.7, 0.6, { color: 0xd8d2c4, pos: [0.4, 0.08, 0.55] })
-      .box(0.92, 0.08, 0.62, { team: true, pos: [0.4, 0.78, 0.55] })
-      .box(0.5, 2.3, 0.5, { color: 0x9fb1bf, pos: [-0.45, 0.08, 0.6] })
-      .box(0.52, 0.1, 0.52, { team: true, pos: [-0.45, 2.38, 0.6] })
+      .box(2.4, 0.08, 2.4, { color: 0x9a978f })
+      .box(0.62, 2.4, 0.62, {
+        color: 0x8fa4b4,
+        pattern: "windows",
+        pos: [-0.45, 0.08, -0.45],
+      })
+      .box(0.66, 0.1, 0.66, { team: true, pos: [-0.45, 2.48, -0.45] })
+      .box(0.2, 0.18, 0.2, { color: DARK_STEEL, pos: [-0.45, 2.58, -0.45] })
+      .box(0.75, 1.5, 0.7, {
+        color: 0xd6cfc0,
+        pattern: "windows",
+        pos: [0.5, 0.08, -0.5],
+      })
+      .box(0.79, 0.1, 0.74, { team: true, pos: [0.5, 1.58, -0.5] })
+      .box(0.9, 0.9, 0.62, {
+        color: 0xc8bfae,
+        pattern: "windows",
+        pos: [0.42, 0.08, 0.55],
+      })
+      .box(0.94, 0.1, 0.66, { team: true, pos: [0.42, 0.98, 0.55] })
+      .box(0.42, 0.36, 0.42, {
+        color: 0xb5654a,
+        pattern: "brick",
+        pos: [-0.55, 0.08, 0.35],
+      })
+      .cone(0.34, 0.3, 4, {
+        team: true,
+        pos: [-0.55, 0.44, 0.35],
+        rot: [0, PI / 4, 0],
+      })
+      .box(0.42, 0.36, 0.42, {
+        color: 0xa9705a,
+        pattern: "brick",
+        pos: [-0.55, 0.08, 0.88],
+      })
+      .cone(0.34, 0.3, 4, {
+        team: true,
+        pos: [-0.55, 0.44, 0.88],
+        rot: [0, PI / 4, 0],
+      })
+      .sphere(0.17, { color: 0x3f6b35, pos: [0.05, 0.25, 0.05] })
+      .sphere(0.14, { color: 0x4a7a3c, pos: [-0.05, 0.22, 1.0] })
       .build(),
 
   port: () =>
@@ -416,7 +451,12 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .box(2.6, 0.18, 1.0, { color: CONCRETE, pos: [0, 0, -0.5] })
       .box(0.5, 0.14, 1.6, { color: 0x7d6b55, pos: [0.6, 0, 0.6] })
       .box(0.5, 0.14, 1.6, { color: 0x7d6b55, pos: [-0.6, 0, 0.6] })
-      .box(0.9, 0.6, 0.7, { team: true, pos: [-0.6, 0.18, -0.55] })
+      .box(0.9, 0.6, 0.7, {
+        color: 0x8d8579,
+        pattern: "panels",
+        pos: [-0.6, 0.18, -0.55],
+      })
+      .box(0.94, 0.08, 0.74, { team: true, pos: [-0.6, 0.78, -0.55] })
       // crane
       .box(0.16, 1.6, 0.16, { color: BRASS, pos: [0.6, 0.18, -0.5] })
       .box(1.3, 0.12, 0.12, { color: BRASS, pos: [0.85, 1.7, -0.5] })
@@ -426,8 +466,16 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
   factory: () =>
     new ModelBuilder()
       .box(2.0, 0.08, 1.8, { color: CONCRETE })
-      .box(1.6, 0.8, 1.2, { color: 0x8c5a4a, pos: [0, 0.08, 0] })
-      .box(1.62, 0.12, 1.22, { team: true, pos: [0, 0.88, 0] })
+      .box(1.6, 0.8, 1.2, {
+        color: 0x8c5a4a,
+        pattern: "brick",
+        pos: [0, 0.08, 0],
+      })
+      .box(1.62, 0.12, 1.22, {
+        team: true,
+        pattern: "panels",
+        pos: [0, 0.88, 0],
+      })
       .cylinder(0.14, 0.18, 1.6, 8, {
         color: 0x6e4a3d,
         pos: [0.55, 0.08, -0.35],
@@ -436,7 +484,11 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
         color: 0x6e4a3d,
         pos: [0.15, 0.08, -0.35],
       })
-      .box(0.6, 0.5, 0.5, { color: 0x9a6b5a, pos: [-0.7, 0.08, 0.5] })
+      .box(0.6, 0.5, 0.5, {
+        color: 0xb9b2a3,
+        pattern: "windows",
+        pos: [-0.7, 0.08, 0.5],
+      })
       .build(),
 
   // Hillside mine: rock mound, timbered entrance, gold heap, team flag.
@@ -457,7 +509,11 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
   market: () =>
     new ModelBuilder()
       .box(1.8, 0.08, 1.4, { color: CONCRETE })
-      .box(1.4, 0.55, 0.9, { color: 0xc9b48a, pos: [0, 0.08, -0.1] })
+      .box(1.4, 0.55, 0.9, {
+        color: 0xc9b48a,
+        pattern: "brick",
+        pos: [0, 0.08, -0.1],
+      })
       .box(1.5, 0.1, 1.0, { team: true, pos: [0, 0.63, -0.1] })
       .box(0.36, 0.25, 0.3, { color: 0xc0392b, pos: [-0.5, 0.08, 0.5] })
       .box(0.36, 0.25, 0.3, { color: 0x27ae60, pos: [0, 0.08, 0.5] })
@@ -486,7 +542,11 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .box(1.5, 0.15, 1.5, { color: STEEL, pos: [0, 0.5, 0] })
       .box(1.52, 0.06, 1.52, { team: true, pos: [0, 0.65, 0] })
       .cone(0.32, 1.4, 4, { color: 0xb8b2a2, pos: [0.3, 0.7, 0.2] })
-      .box(0.5, 0.35, 0.4, { color: WHITE, pos: [-0.4, 0.7, -0.35] })
+      .box(0.5, 0.35, 0.4, {
+        color: WHITE,
+        pattern: "windows",
+        pos: [-0.4, 0.7, -0.35],
+      })
       .cylinder(0.05, 0.05, 0.5, 5, { color: RUST, pos: [-0.55, 1.05, 0.5] })
       .build(),
 
@@ -495,7 +555,11 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
     new ModelBuilder()
       .box(2.6, 0.06, 0.55, { color: 0x3d3f33 })
       .box(2.4, 0.07, 0.06, { color: WHITE, pos: [0, 0.0, 0] })
-      .box(0.9, 0.45, 0.7, { color: 0x6f7a5a, pos: [-0.6, 0.06, 0.75] })
+      .box(0.9, 0.45, 0.7, {
+        color: 0x6f7a5a,
+        pattern: "panels",
+        pos: [-0.6, 0.06, 0.75],
+      })
       .box(0.92, 0.08, 0.72, { team: true, pos: [-0.6, 0.51, 0.75] })
       .cylinder(0.12, 0.14, 0.8, 6, { color: CONCRETE, pos: [0.8, 0.06, 0.75] })
       .box(0.3, 0.2, 0.3, { color: GLASS, pos: [0.8, 0.86, 0.75] })

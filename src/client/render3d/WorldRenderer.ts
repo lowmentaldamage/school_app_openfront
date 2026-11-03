@@ -45,8 +45,15 @@ import {
   type TerrainMaterialUniforms,
 } from "./terrain/TerrainMaterial";
 import { baseStrideFor, TerrainRenderer } from "./terrain/TerrainRenderer";
+import {
+  CAPTURE_STAMP_MS,
+  CAPTURE_STAMP_PERIOD,
+} from "./territory/OwnerBuffer";
 import { TerritoryTextures } from "./territory/TerritoryTextures";
 import { UnitRenderer, type UnitInput } from "./units/UnitRenderer";
+
+/** On a still camera, redraw shadows every this many frames. */
+const SHADOW_EVERY_FRAMES = 2;
 
 export interface WorldRendererInit {
   canvas: HTMLCanvasElement;
@@ -96,6 +103,8 @@ export class WorldRenderer {
   private cssWidth = 1;
   private cssHeight = 1;
   private disposed = false;
+  private shadowFrame = 0;
+  private readonly lastShadowView = new Float64Array(6);
 
   constructor(init: WorldRendererInit) {
     this.profile = init.profile ?? detectDeviceProfile();
@@ -114,6 +123,9 @@ export class WorldRenderer {
     this.renderer.toneMapping = ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.shadowMap.type = PCFShadowMap;
+    // Shadows are redrawn when the view moves, else every other frame
+    // (moving units): halves the shadow pass on a still camera.
+    this.renderer.shadowMap.autoUpdate = false;
 
     this.heightfield = Heightfield.fromTerrain(
       init.terrain,
@@ -211,7 +223,11 @@ export class WorldRenderer {
     mySmallID: number | null = null,
   ): void {
     this.territory.updatePalette(palette);
-    this.territory.updateOwners(frame.tileState, frame.changedTiles);
+    this.territory.updateOwners(
+      frame.tileState,
+      frame.changedTiles,
+      this.firstFrame ? null : nowMs,
+    );
     if (frame.railroadDirty || this.firstFrame) {
       this.territory.updateRails(frame.railroadState);
     }
@@ -273,6 +289,9 @@ export class WorldRenderer {
 
     const t = (nowMs - this.startMs) / 1000;
     this.terrainUniforms.uTime.value = t;
+    this.territory.expireCaptures(nowMs);
+    this.terrainUniforms.uCaptureNow.value =
+      ((nowMs / CAPTURE_STAMP_MS) % CAPTURE_STAMP_PERIOD) + 1;
     this.water.update(t);
 
     const cc = this.cameraController;
@@ -281,6 +300,8 @@ export class WorldRenderer {
     this.forests.update(t, cc.distance);
     this.overlays.update(cc.distance, t);
     this.units.animate(nowMs, cc.distance);
+    const sky = this.environment.state;
+    this.units.setNight(sky === null ? 0 : 1 - sky.daylight);
     const fov = (cc.camera.fov * Math.PI) / 180;
     const bufferH = this.cssHeight * this.renderer.getPixelRatio();
     this.effects.update(t, bufferH / (2 * Math.tan(fov / 2)));
@@ -291,7 +312,31 @@ export class WorldRenderer {
       cc.camera,
       nowMs,
     );
+    this.scheduleShadows();
     this.renderer.render(this.scene, cc.camera);
+  }
+
+  private scheduleShadows(): void {
+    if (!this.renderer.shadowMap.enabled) return;
+    const cc = this.cameraController;
+    const v = this.lastShadowView;
+    const moved =
+      Math.abs(v[0] - cc.focus.x) > 1e-3 ||
+      Math.abs(v[1] - cc.focus.y) > 1e-3 ||
+      Math.abs(v[2] - cc.focus.z) > 1e-3 ||
+      Math.abs(v[3] - cc.distance) > 1e-3 ||
+      v[4] !== cc.yawDeg ||
+      v[5] !== cc.pitchDeg;
+    if (moved || ++this.shadowFrame >= SHADOW_EVERY_FRAMES) {
+      this.renderer.shadowMap.needsUpdate = true;
+      this.shadowFrame = 0;
+      v[0] = cc.focus.x;
+      v[1] = cc.focus.y;
+      v[2] = cc.focus.z;
+      v[3] = cc.distance;
+      v[4] = cc.yawDeg;
+      v[5] = cc.pitchDeg;
+    }
   }
 
   screenToTile(px: number, py: number): { x: number; y: number } | null {
@@ -335,6 +380,8 @@ export class WorldRenderer {
       });
     }
     this.environment.setQuality(q);
+    // A new shadow map size needs a fresh shadow pass right away.
+    this.renderer.shadowMap.needsUpdate = true;
     this.effects.density =
       this.quality.index <= 0 ? 0.5 : this.quality.index === 1 ? 0.75 : 1;
   }

@@ -12,6 +12,9 @@
 - Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
 - Build previews, range rings and nuke flight paths shown in 3D
 - Classic flat map still available with `?renderer=2d`
+- Conquest animation: captured land flashes in the new owner's colour as the front advances
+- Detailed buildings: windowed towers, brick and metal facades; city windows light up at night
+- Vehicles turn smoothly; ships heel in turns, planes bank, take off and land at their base; new buildings rise from the ground
 - Day and night: the sun crosses the sky in a 12-minute day; moonlit nights stay readable
 - Weather: clouds, rain, fog and thunderstorms — the same sky for every player (Settings → Graphics, both can be switched off)
 
