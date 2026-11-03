@@ -117,11 +117,13 @@ Buildings can be upgraded: build again on the same one (or use its menu).
 
 Build ships from the **Forces** row, then click water near one of your ports.
 
-| Ship           | Speed  | Strength                                                            |
-| -------------- | ------ | ------------------------------------------------------------------- |
-| **Warship**    | Normal | All-rounder: sinks transports, fights ships, captures trade ships   |
-| **Destroyer**  | Fast   | Cheap escort, light guns, hunts transports and trade ships          |
-| **Battleship** | Slow   | Very tough, heavy long-range guns; shells enemy coasts during a war |
+| Ship                 | Speed  | Strength                                                                                                                                                                 |
+| -------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Warship**          | Normal | All-rounder: sinks transports, fights ships, captures trade ships                                                                                                        |
+| **Destroyer**        | Fast   | Cheap escort, light guns, hunts transports and trade ships                                                                                                               |
+| **Battleship**       | Slow   | Very tough, heavy long-range guns; shells enemy coasts during a war                                                                                                      |
+| **Submarine**        | Normal | Stealth raider with heavy torpedoes; most ships only spot it within 8 tiles, destroyers hunt it at range; you only see enemy subs within 30 tiles of your ships or ports |
+| **Aircraft Carrier** | Slow   | Floating airbase: air raids from the sea (✈️) and fighters against enemy bombers; tough, weak guns                                                                       |
 
 Ships patrol on their own and repair at your ports. **Move them**: select
 a ship by clicking it (hold **Shift and drag** to select several), then
