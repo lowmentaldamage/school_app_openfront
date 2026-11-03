@@ -23,7 +23,7 @@ const store = AccountStore.inDir(selfHostDataDir());
 
 function usage(): never {
   console.log(
-    "usage: selfhost:admin -- add <user> <password> [admin|player] | passwd <user> <password> | remove <user> | disable <user> | enable <user> | list",
+    "usage: selfhost:admin -- add <user> <password> [admin|player] | passwd <user> <password> | remove <user> | disable <user> | enable <user> | approve <user> | devices <user> | list",
   );
   process.exit(1);
 }
@@ -60,10 +60,20 @@ try {
       store.setDisabled(a, cmd === "disable");
       console.log(`${cmd}d "${a}"`);
       break;
+    case "approve":
+      if (!a) usage();
+      store.approve(a);
+      console.log(`approved "${a}"`);
+      break;
+    case "devices":
+      if (!a) usage();
+      store.removeDevice(a, null);
+      console.log(`freed all devices of "${a}" (they were signed out)`);
+      break;
     case "list":
       for (const u of store.list()) {
         console.log(
-          `${u.username.padEnd(24)} ${u.role.padEnd(7)} ${u.disabled ? "disabled" : ""}`,
+          `${u.username.padEnd(24)} ${u.role.padEnd(7)} ${String(u.devices.length).padStart(1)} device(s) ${u.pending ? "REQUEST" : u.disabled ? "disabled" : ""}`,
         );
       }
       break;

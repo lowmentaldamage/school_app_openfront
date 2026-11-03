@@ -6,6 +6,14 @@
  * tokens) always agree without a database. Writes are atomic (temp file +
  * rename). Passwords are hashed with scrypt and a per-account salt; the
  * plain password is never stored or logged.
+ *
+ * Private-group rules (see docs/SelfHosting.md):
+ *  - at most SELFHOST_MAX_ACCOUNTS accounts (default 100), pending included;
+ *  - players can request access (SELFHOST_REGISTRATION, on by default):
+ *    the account waits, disabled, until an admin approves it;
+ *  - each account can sign in on at most SELFHOST_MAX_DEVICES devices
+ *    (default 2); an admin frees slots.
+ * Only the master writes this file (logins, admin actions).
  */
 
 import crypto from "crypto";
@@ -26,6 +34,19 @@ const AccountSchema = z.object({
   version: z.number().int().nonnegative(),
   disabled: z.boolean(),
   createdAt: z.number(),
+  /** Waiting for an admin to approve an access request. */
+  pending: z.boolean().optional(),
+  /** Devices this account has signed in on (oldest first). */
+  devices: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        firstSeen: z.number(),
+        lastSeen: z.number(),
+      }),
+    )
+    .optional(),
 });
 export type Account = z.infer<typeof AccountSchema>;
 const FileSchema = z.object({ accounts: z.array(AccountSchema) });
@@ -36,7 +57,32 @@ export interface PublicAccount {
   role: Account["role"];
   disabled: boolean;
   createdAt: number;
+  pending: boolean;
+  devices: { id: string; name: string; lastSeen: number }[];
 }
+
+export const DEVICE_ID_RE = /^[A-Za-z0-9-]{8,64}$/;
+
+/** Max accounts on this server (SELFHOST_MAX_ACCOUNTS, default 100). */
+export function maxAccounts(): number {
+  const n = Number(process.env.SELFHOST_MAX_ACCOUNTS ?? 100);
+  return Number.isInteger(n) && n > 0 ? n : 100;
+}
+
+/** Max devices per account (SELFHOST_MAX_DEVICES, default 2). */
+export function maxDevices(): number {
+  const n = Number(process.env.SELFHOST_MAX_DEVICES ?? 2);
+  return Number.isInteger(n) && n > 0 ? n : 2;
+}
+
+/** Whether players may request access (SELFHOST_REGISTRATION, default on). */
+export function registrationOpen(): boolean {
+  const v = (process.env.SELFHOST_REGISTRATION ?? "on").toLowerCase();
+  return !["0", "off", "false", "no"].includes(v);
+}
+
+/** Why a device may not sign in, or null if it may. */
+export type DeviceRefusal = "too_many_devices" | null;
 
 const SCRYPT_N = 16384;
 const SCRYPT_R = 8;
@@ -94,6 +140,12 @@ export class AccountStore {
       role: a.role,
       disabled: a.disabled,
       createdAt: a.createdAt,
+      pending: a.pending === true,
+      devices: (a.devices ?? []).map((d) => ({
+        id: d.id,
+        name: d.name,
+        lastSeen: d.lastSeen,
+      })),
     }));
   }
 
@@ -124,7 +176,88 @@ export class AccountStore {
     return verifyPassword(password, a.passwordHash) ? a : null;
   }
 
+  /**
+   * The account if the password matches, enabled or not (to tell a
+   * pending player their request is still waiting). Same timing either way.
+   */
+  checkPassword(username: string, password: string): Account | null {
+    const a = this.find(username);
+    if (!a) {
+      verifyPassword(password, DUMMY_HASH);
+      return null;
+    }
+    return verifyPassword(password, a.passwordHash) ? a : null;
+  }
+
+  /** A player's access request: a disabled account an admin must approve. */
+  request(username: string, password: string): Account {
+    const a = this.create(username, password, "player");
+    a.pending = true;
+    a.disabled = true;
+    this.save();
+    return a;
+  }
+
+  approve(username: string): void {
+    const a = this.require(username);
+    a.pending = false;
+    a.disabled = false;
+    a.version++;
+    this.save();
+  }
+
+  /**
+   * Register a sign-in from `deviceId`. Known devices just refresh;
+   * a new one takes a free slot or is refused.
+   */
+  useDevice(
+    username: string,
+    deviceId: string,
+    deviceName: string,
+    now = Date.now(),
+  ): DeviceRefusal {
+    const a = this.require(username);
+    const list = (a.devices ??= []);
+    const known = list.find((d) => d.id === deviceId);
+    if (known) {
+      // Avoid rewriting the file on every page load.
+      if (now - known.lastSeen > 60 * 60 * 1000) {
+        known.lastSeen = now;
+        this.save();
+      }
+      return null;
+    }
+    if (list.length >= maxDevices()) return "too_many_devices";
+    list.push({
+      id: deviceId,
+      name: deviceName.slice(0, 60),
+      firstSeen: now,
+      lastSeen: now,
+    });
+    this.save();
+    return null;
+  }
+
+  hasDevice(account: Account, deviceId: string): boolean {
+    return (account.devices ?? []).some((d) => d.id === deviceId);
+  }
+
+  /** Free one device slot (or all with `deviceId` null); signs it out. */
+  removeDevice(username: string, deviceId: string | null): void {
+    const a = this.require(username);
+    a.devices =
+      deviceId === null
+        ? []
+        : (a.devices ?? []).filter((d) => d.id !== deviceId);
+    this.save();
+  }
+
   create(username: string, password: string, role: Account["role"]): Account {
+    if (this.count() >= maxAccounts()) {
+      throw new AccountError(
+        `This server is full (${maxAccounts()} accounts). Ask the admin.`,
+      );
+    }
     if (!USERNAME_RE.test(username)) {
       throw new AccountError(
         "Username must be 3–24 characters: letters, numbers, _ . -",

@@ -25,6 +25,8 @@ export const SessionPayloadSchema = z.object({
   r: z.enum(["admin", "player"]),
   /** Account version: bumped on password change, invalidating old tokens. */
   v: z.number().int().nonnegative(),
+  /** Device the token was issued to (device limit). */
+  d: z.string().optional(),
   iat: z.number().int(),
   exp: z.number().int(),
 });

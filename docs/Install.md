@@ -131,7 +131,10 @@ Docker Desktop for Mac, then [SelfHosting.md](SelfHosting.md).
    - same Wi-Fi as your PC: `http://192.168.1.20:9000` (dev, `npm run dev:lan`)
      or `http://192.168.1.20:8080` (Docker server);
    - over the internet: `https://game.example.com`.
-5. Play. Back button → _Reload / Change server / Quit_.
+5. On a private server: sign in, or tap **Request access** and wait for
+   the admin to approve you. One account works on up to 2 devices (phone
+   + PC, for example); your settings and stats follow you.
+6. Play. Back button → _Reload / Change server / Quit_.
 
 The APK is rebuilt automatically when `android/` changes (workflow
 _📱 Android APK_); it is a debug-signed build for testing and personal use,

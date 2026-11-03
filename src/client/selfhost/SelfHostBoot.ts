@@ -10,7 +10,11 @@
 import "./SelfHostAccount";
 import "./SelfHostAdmin";
 import "./SelfHostLogin";
-import { detectSelfHost, validateSession } from "./SelfHostSession";
+import {
+  detectSelfHost,
+  startSettingsSync,
+  validateSession,
+} from "./SelfHostSession";
 
 export async function startSelfHostSession(): Promise<boolean> {
   if (!(await detectSelfHost())) return true;
@@ -19,6 +23,8 @@ export async function startSelfHostSession(): Promise<boolean> {
     document.body.appendChild(document.createElement("selfhost-login"));
     return false;
   }
+  // Settings follow the account across devices.
+  await startSettingsSync();
   document.body.append(
     document.createElement("selfhost-account"),
     document.createElement("selfhost-admin"),

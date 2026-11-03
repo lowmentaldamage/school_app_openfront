@@ -130,6 +130,10 @@ describe("self-host HTTP API", () => {
     body?: unknown,
     token?: string,
   ) => {
+    // Logins come from one test device unless the test names another.
+    if (p === "/login" && body && typeof body === "object") {
+      body = { deviceId: "test-device-0001", deviceName: "Test", ...body };
+    }
     const res = await fetch(base + p, {
       method,
       headers: {
@@ -245,6 +249,145 @@ describe("self-host HTTP API", () => {
       (await verifyClientToken("0b8f7c4e-2f9b-4a8e-9c1d-3e5f6a7b8c9d")).type,
     ).toBe("error");
     delete process.env.SELF_HOSTED;
+  });
+
+  it("access requests wait for an admin, then can sign in", async () => {
+    const boss = (
+      await call("POST", "/login", { username: "boss", password: "secret123" })
+    ).json.token as string;
+    expect(
+      (
+        await call("POST", "/register", {
+          username: "newbie",
+          password: "newbie123",
+        })
+      ).status,
+    ).toBe(201);
+    const early = await call("POST", "/login", {
+      username: "newbie",
+      password: "newbie123",
+    });
+    expect(early.status).toBe(403);
+    expect(String(early.json.error)).toContain("waiting");
+    const list = await call("GET", "/users", undefined, boss);
+    const users = list.json.users as { username: string; pending: boolean }[];
+    expect(users.find((u) => u.username === "newbie")?.pending).toBe(true);
+    expect(list.json.maxAccounts).toBe(100);
+    expect((await call("POST", "/users/newbie/approve", {}, boss)).status).toBe(
+      200,
+    );
+    expect(
+      (
+        await call("POST", "/login", {
+          username: "newbie",
+          password: "newbie123",
+        })
+      ).status,
+    ).toBe(200);
+  });
+
+  it("an account works on at most two devices; freeing them signs out", async () => {
+    const boss = (
+      await call("POST", "/login", { username: "boss", password: "secret123" })
+    ).json.token as string;
+    await call(
+      "POST",
+      "/users",
+      { username: "duo", password: "duo12345" },
+      boss,
+    );
+    const on = (deviceId: string) =>
+      call("POST", "/login", {
+        username: "duo",
+        password: "duo12345",
+        deviceId,
+      });
+    const a = await on("phone-aaaa-1111");
+    expect(a.status).toBe(200);
+    expect((await on("pc-bbbb-22222")).status).toBe(200);
+    // Same device again is fine; a third is refused.
+    expect((await on("phone-aaaa-1111")).status).toBe(200);
+    const third = await on("tablet-cccc-333");
+    expect(third.status).toBe(403);
+    expect(String(third.json.error)).toContain("2 devices");
+    // Admin frees the slots: old tokens stop working, a new device fits.
+    const tokenA = a.json.token as string;
+    expect((await call("GET", "/me", undefined, tokenA)).status).toBe(200);
+    await call("DELETE", "/users/duo/devices", undefined, boss);
+    expect((await call("GET", "/me", undefined, tokenA)).status).toBe(401);
+    expect((await on("tablet-cccc-333")).status).toBe(200);
+  });
+
+  it("stats and settings follow the account", async () => {
+    const t1 = (
+      await call("POST", "/login", {
+        username: "duo",
+        password: "duo12345",
+        deviceId: "tablet-cccc-333",
+      })
+    ).json.token as string;
+    await call("POST", "/stats/solo", { won: true, seconds: 600 }, t1);
+    await call("POST", "/stats/solo", { won: false, seconds: 300 }, t1);
+    const me = await call("GET", "/me", undefined, t1);
+    expect(me.json.stats).toMatchObject({
+      soloGames: 2,
+      soloWins: 1,
+      playSeconds: 900,
+    });
+    await call(
+      "PUT",
+      "/settings",
+      { settings: { "settings.darkMode": "true" } },
+      t1,
+    );
+    const t2 = (
+      await call("POST", "/login", {
+        username: "duo",
+        password: "duo12345",
+        deviceId: "phone-dddd-4444",
+      })
+    ).json.token as string;
+    expect(
+      (await call("GET", "/settings", undefined, t2)).json.settings,
+    ).toEqual({ "settings.darkMode": "true" });
+  });
+
+  it("multiplayer results are recorded from the game record", async () => {
+    process.env.SELF_HOSTED = "1";
+    const { accountStore } =
+      await import("../../src/server/selfhost/SelfHostAuth");
+    const { recordSelfHostedGame } =
+      await import("../../src/server/selfhost/GameStats");
+    const { readStats } = await import("../../src/server/selfhost/PlayerData");
+    const duo = accountStore().find("duo")!;
+    const boss = accountStore().find("boss")!;
+    const n = recordSelfHostedGame({
+      info: {
+        config: { gameType: "Public" },
+        duration: 1200,
+        winner: ["player", "C1"],
+        players: [
+          { clientID: "C1", persistentID: duo.persistentId },
+          { clientID: "C2", persistentID: boss.persistentId },
+          { clientID: "C3", persistentID: null },
+        ],
+      },
+    } as never);
+    expect(n).toBe(2);
+    expect(readStats(duo.persistentId)).toMatchObject({ games: 1, wins: 1 });
+    expect(readStats(boss.persistentId)).toMatchObject({ games: 1, wins: 0 });
+    delete process.env.SELF_HOSTED;
+  });
+
+  it("the account cap blocks new accounts and requests", async () => {
+    process.env.SELFHOST_MAX_ACCOUNTS = "2";
+    const r = await call("POST", "/register", {
+      username: "late",
+      password: "late12345",
+    });
+    expect(r.status).toBe(400);
+    expect(String(r.json.error)).toContain("full");
+    delete process.env.SELFHOST_MAX_ACCOUNTS;
   });
 
   it("rate limits repeated login attempts", async () => {

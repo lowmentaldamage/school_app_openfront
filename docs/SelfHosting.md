@@ -50,12 +50,37 @@ After editing `.env`: `docker compose up -d`.
 
 ## 3. Players and admins (private mode)
 
+A private server is a closed group: only accounts you approve can play
+— with each other in lobbies, or solo against bots and AI nations.
+
+| Rule                       | Default | Change with (in `deploy/selfhost/.env`) |
+| -------------------------- | ------- | --------------------------------------- |
+| Accounts on the server     | 100     | `MAX_ACCOUNTS=30` (any number)          |
+| Devices per account        | 2       | `MAX_DEVICES=2`                         |
+| Players can ask for access | on      | `REGISTRATION=off` (you add everyone)   |
+
+Then `docker compose up -d` again.
+
+**How players join:** they open your server's address (browser or the
+Android app), tap **Request access**, pick a username and password. The
+request waits until you approve it. They cannot play before that.
+
 In the game menu tap your name (bottom-left) → **Manage players**:
 
+- **Approve** a request (shown first, marked _Request_), or **Remove** it.
 - **Add player**: username (3–24 letters, digits, `_ . -`) + password
   (6+ characters); tick _Admin_ to create another admin.
+- **Devices** shows how many of the device slots are used (hover for the
+  device names and when each was last seen). **Free devices** signs the
+  account out everywhere and frees both slots, e.g. when a player gets a
+  new phone. A third device is refused with a message to ask you.
+- **Stats**: wins / games and hours played (multiplayer and solo).
 - **Reset password**, **Disable / Enable**, **Make admin / player**,
   **Remove**.
+
+Each player's **settings** (keybinds, sound, gameplay options, day/night
+and weather) follow their account to every device; graphics quality stays
+per device. Players see their own stats in the same menu.
 
 Changes apply immediately: a disabled or removed player cannot join new
 games, and a password reset logs out that player's old sessions. Players
@@ -70,6 +95,8 @@ docker compose exec game npx tsx scripts/selfhost-admin.ts passwd <user> <new-pa
 docker compose exec game npx tsx scripts/selfhost-admin.ts add <user> <password> admin
 docker compose exec game npx tsx scripts/selfhost-admin.ts disable <user>
 docker compose exec game npx tsx scripts/selfhost-admin.ts remove <user>
+docker compose exec game npx tsx scripts/selfhost-admin.ts approve <user>
+docker compose exec game npx tsx scripts/selfhost-admin.ts devices <user>   # free device slots
 ```
 
 The last admin cannot be removed, disabled or demoted, so you cannot lock
@@ -128,7 +155,8 @@ Accounts in `deploy/selfhost/data/` are kept.
 ## 7. Backups
 
 Everything worth keeping is in `deploy/selfhost/data/`:
-`accounts.json` (scrypt-hashed passwords, never plain text) and
+`accounts.json` (scrypt-hashed passwords, never plain text; devices),
+`stats/` and `settings/` (one small file per player), and
 `session-secret` (signs logins; if lost, everyone logs in again).
 
 ```bash

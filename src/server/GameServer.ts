@@ -80,6 +80,7 @@ import { ListingState } from "./ListingState";
 import { friendsLookup, NameVisibility } from "./NameVisibility";
 import { poolTargetFor } from "./PoolRouting";
 import { Roster } from "./Roster";
+import { recordSelfHostedGame } from "./selfhost/GameStats";
 import { ServerEnv } from "./ServerEnv";
 import { SocketIngress } from "./SocketIngress";
 import {
@@ -193,7 +194,11 @@ function mintGroupToken(): string {
 
 function defaultGameServerDeps(): GameServerDeps {
   return {
-    archive: (record) => archive(finalizeGameRecord(record)),
+    archive: (record) => {
+      const full = finalizeGameRecord(record);
+      recordSelfHostedGame(full);
+      return archive(full);
+    },
     replayWinner: replayWinnerInChild,
     replayPending: () => winnerReplayMetrics.pending,
     fetchTribes: fetchCustomTribes,

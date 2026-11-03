@@ -8,12 +8,20 @@ import { assetUrl } from "@laukolaroser/shared/AssetUrls";
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { translateText } from "../Utils";
-import { login } from "./SelfHostSession";
+import {
+  login,
+  maxDevices,
+  registrationOpen,
+  requestAccess,
+} from "./SelfHostSession";
 
 @customElement("selfhost-login")
 export class SelfHostLogin extends LitElement {
   @state() private error = "";
   @state() private busy = false;
+  /** "login" or "request" (ask the admin for an account). */
+  @state() private mode: "login" | "request" = "login";
+  @state() private notice = "";
 
   createRenderRoot() {
     return this;
@@ -31,7 +39,15 @@ export class SelfHostLogin extends LitElement {
     }
     this.busy = true;
     this.error = "";
+    this.notice = "";
     try {
+      if (this.mode === "request") {
+        await requestAccess(username, password);
+        this.notice = translateText("selfhost.request_sent");
+        this.mode = "login";
+        this.busy = false;
+        return;
+      }
       await login(username, password);
       location.reload();
     } catch (err) {
@@ -55,10 +71,18 @@ export class SelfHostLogin extends LitElement {
             class="mx-auto mb-5 h-10"
           />
           <h1 class="mb-1 text-center text-lg font-bold">
-            ${translateText("selfhost.login_title")}
+            ${
+              this.mode === "request"
+                ? translateText("selfhost.request_title")
+                : translateText("selfhost.login_title")
+            }
           </h1>
           <p class="mb-5 text-center text-sm text-white/60">
-            ${translateText("selfhost.login_hint")}
+            ${
+              this.mode === "request"
+                ? translateText("selfhost.request_hint")
+                : translateText("selfhost.login_hint")
+            }
           </p>
           <label
             class="mb-1 block text-xs font-semibold uppercase tracking-wide text-white/60"
@@ -78,9 +102,18 @@ export class SelfHostLogin extends LitElement {
           <input
             name="password"
             type="password"
-            autocomplete="current-password"
+            autocomplete=${this.mode === "request" ? "new-password" : "current-password"}
             class="mb-4 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2.5 text-base outline-none focus:border-sky-400"
           />
+          ${
+            this.notice
+              ? html`<p
+                  class="mb-3 rounded-lg bg-emerald-500/15 px-3 py-2 text-sm text-emerald-300"
+                >
+                  ${this.notice}
+                </p>`
+              : ""
+          }
           ${
             this.error
               ? html`<p
@@ -95,10 +128,36 @@ export class SelfHostLogin extends LitElement {
             ?disabled=${this.busy}
             class="w-full rounded-lg bg-sky-600 py-2.5 font-bold uppercase tracking-wide transition hover:bg-sky-500 disabled:opacity-60"
           >
-            ${this.busy ? translateText("selfhost.signing_in") : translateText("selfhost.sign_in")}
+            ${
+              this.busy
+                ? translateText("selfhost.signing_in")
+                : this.mode === "request"
+                  ? translateText("selfhost.send_request")
+                  : translateText("selfhost.sign_in")
+            }
           </button>
-          <p class="mt-4 text-center text-xs text-white/40">
-            ${translateText("selfhost.no_account")}
+          ${
+            registrationOpen()
+              ? html`<button
+                  type="button"
+                  class="mt-3 w-full rounded-lg border border-white/15 py-2 text-sm text-white/80 hover:bg-white/10"
+                  @click=${() => {
+                    this.mode = this.mode === "login" ? "request" : "login";
+                    this.error = "";
+                  }}
+                >
+                  ${
+                    this.mode === "login"
+                      ? translateText("selfhost.request_access")
+                      : translateText("selfhost.back_to_login")
+                  }
+                </button>`
+              : html`<p class="mt-4 text-center text-xs text-white/40">
+                  ${translateText("selfhost.no_account")}
+                </p>`
+          }
+          <p class="mt-3 text-center text-[11px] text-white/35">
+            ${translateText("selfhost.device_note", { max: maxDevices() })}
           </p>
         </form>
       </div>

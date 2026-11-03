@@ -1,7 +1,8 @@
 /**
- * Admin panel for self-hosted servers: add players with a password, reset
- * passwords, make admin, disable or remove. Only reachable for admins (the
- * server checks every call as well).
+ * Admin panel for self-hosted servers: approve access requests, add
+ * players with a password, reset passwords, make admin, disable or remove,
+ * free device slots, and see each player's stats. Only reachable for
+ * admins (the server checks every call as well).
  */
 
 import { html, LitElement } from "lit";
@@ -13,6 +14,8 @@ import { adminApi, currentSession, type SelfHostUser } from "./SelfHostSession";
 export class SelfHostAdmin extends LitElement {
   @state() private open = false;
   @state() private users: SelfHostUser[] = [];
+  @state() private maxAccounts = 0;
+  @state() private maxDevices = 2;
   @state() private message = "";
   @state() private error = "";
 
@@ -33,7 +36,15 @@ export class SelfHostAdmin extends LitElement {
 
   private async refresh() {
     try {
-      this.users = await adminApi.list();
+      const r = await adminApi.list();
+      // Requests first, then by name.
+      this.users = [...r.users].sort(
+        (a, b) =>
+          Number(b.pending) - Number(a.pending) ||
+          a.username.localeCompare(b.username),
+      );
+      this.maxAccounts = r.maxAccounts;
+      this.maxDevices = r.maxDevices;
     } catch (e) {
       this.error = (e as Error).message;
     }
@@ -98,13 +109,19 @@ export class SelfHostAdmin extends LitElement {
         @click=${(e: Event) => e.target === e.currentTarget && this.close()}
       >
         <div
-          class="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 text-white shadow-2xl"
+          class="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 text-white shadow-2xl"
         >
           <div
             class="flex items-center justify-between border-b border-white/10 px-5 py-3"
           >
             <h2 class="text-lg font-bold">
               ${translateText("selfhost.admin_title")}
+              <span class="ml-2 text-sm font-normal text-white/50"
+                >${translateText("selfhost.account_count", {
+                  count: this.users.length,
+                  max: this.maxAccounts,
+                })}</span
+              >
             </h2>
             <button
               class="text-2xl leading-none text-white/60 hover:text-white"
@@ -149,6 +166,8 @@ export class SelfHostAdmin extends LitElement {
                 <tr>
                   <th class="pb-2">${translateText("selfhost.username")}</th>
                   <th class="pb-2">${translateText("selfhost.role")}</th>
+                  <th class="pb-2">${translateText("selfhost.devices")}</th>
+                  <th class="pb-2">${translateText("selfhost.stats")}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -160,10 +179,43 @@ export class SelfHostAdmin extends LitElement {
                     >
                       <td class="py-2 font-semibold">${u.username}</td>
                       <td class="py-2">
-                        ${u.role === "admin" ? translateText("selfhost.admin") : translateText("selfhost.player")}${u.disabled ? ` · ${translateText("selfhost.disabled")}` : ""}
+                        ${u.pending ? html`<span class="rounded bg-amber-500/20 px-1.5 py-0.5 text-amber-300">${translateText("selfhost.pending")}</span>` : u.role === "admin" ? translateText("selfhost.admin") : translateText("selfhost.player")}${u.disabled && !u.pending ? ` · ${translateText("selfhost.disabled")}` : ""}
+                      </td>
+                      <td
+                        class="py-2 text-xs text-white/70"
+                        title=${u.devices.map((d) => `${d.name} · ${new Date(d.lastSeen).toLocaleString()}`).join("\n")}
+                      >
+                        ${u.devices.length}/${this.maxDevices}
+                      </td>
+                      <td class="py-2 text-xs text-white/70">
+                        ${translateText("selfhost.stats_line", {
+                          wins: u.stats.wins + u.stats.soloWins,
+                          games: u.stats.games + u.stats.soloGames,
+                          hours: (u.stats.playSeconds / 3600).toFixed(1),
+                        })}
                       </td>
                       <td class="py-2 text-right">
                         <div class="flex flex-wrap justify-end gap-1">
+                          ${
+                            u.pending
+                              ? html`<button
+                                  class="${btn} bg-emerald-600/60 hover:bg-emerald-500"
+                                  @click=${() => void this.run(() => adminApi.approve(u.username), translateText("selfhost.approved", { name: u.username }))}
+                                >
+                                  ${translateText("selfhost.approve")}
+                                </button>`
+                              : ""
+                          }
+                          ${
+                            u.devices.length > 0
+                              ? html`<button
+                                  class=${btn}
+                                  @click=${() => void this.run(() => adminApi.resetDevices(u.username), translateText("selfhost.devices_reset", { name: u.username }))}
+                                >
+                                  ${translateText("selfhost.reset_devices")}
+                                </button>`
+                              : ""
+                          }
                           <button
                             class=${btn}
                             @click=${() => this.resetPassword(u)}

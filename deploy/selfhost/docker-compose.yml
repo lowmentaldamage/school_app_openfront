@@ -29,6 +29,10 @@ services:
       SELFHOST_DATA_DIR: /data
       SELFHOST_ADMIN_USER: ${ADMIN_USER:-}
       SELFHOST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Private group rules (see docs/SelfHosting.md §3).
+      SELFHOST_MAX_ACCOUNTS: ${MAX_ACCOUNTS:-100}
+      SELFHOST_MAX_DEVICES: ${MAX_DEVICES:-2}
+      SELFHOST_REGISTRATION: ${REGISTRATION:-on}
       DOMAIN: ${DOMAIN:-localhost}
       # 2 game workers: plenty for 2 games x 15 players (players' devices run
       # the simulation; the server only relays their moves).

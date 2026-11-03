@@ -9,6 +9,10 @@
  */
 
 const SESSION_KEY = "laukolaroser.session";
+/** This browser/app install's id for the device limit (kept on logout). */
+const DEVICE_KEY = "laukolaroser.device";
+/** Settings last pushed to the server (to send only real changes). */
+const SYNCED_KEY = "laukolaroser.synced-settings";
 const USERNAME_KEY = "username"; // the name box on the homepage
 
 export interface SelfHostSession {
@@ -17,15 +21,74 @@ export interface SelfHostSession {
   role: "admin" | "player";
 }
 
+export interface SelfHostStats {
+  games: number;
+  wins: number;
+  soloGames: number;
+  soloWins: number;
+  playSeconds: number;
+  lastPlayed: number;
+}
+
 export interface SelfHostUser {
   username: string;
   role: "admin" | "player";
   disabled: boolean;
   createdAt: number;
+  pending: boolean;
+  devices: { id: string; name: string; lastSeen: number }[];
+  stats: SelfHostStats;
 }
 
 let enabled: boolean | null = null;
 let ownServer = false;
+let registration = false;
+let deviceLimit = 2;
+let myStats: SelfHostStats | null = null;
+
+/** Whether players may request access on this server. */
+export function registrationOpen(): boolean {
+  return registration;
+}
+
+export function maxDevices(): number {
+  return deviceLimit;
+}
+
+/** The signed-in player's stats (after validateSession). */
+export function ownStats(): SelfHostStats | null {
+  return myStats;
+}
+
+/** A stable id for this browser / app install. */
+export function deviceId(): string {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id || !/^[A-Za-z0-9-]{8,64}$/.test(id)) {
+      id =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `d-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  } catch {
+    return "nostorage-device";
+  }
+}
+
+/** A readable device label for the admin list ("Android phone", …). */
+export function deviceName(ua = navigator.userAgent): string {
+  const app = /LaukolaroserApp/i.test(ua) ? " (app)" : "";
+  if (/Android/i.test(ua))
+    return `Android${/Mobile/i.test(ua) ? " phone" : " tablet"}${app}`;
+  if (/iPhone/i.test(ua)) return `iPhone${app}`;
+  if (/iPad/i.test(ua)) return `iPad${app}`;
+  if (/Windows/i.test(ua)) return `Windows PC${app}`;
+  if (/Mac OS X|Macintosh/i.test(ua)) return `Mac${app}`;
+  if (/Linux/i.test(ua)) return `Linux PC${app}`;
+  return `Device${app}`;
+}
 
 /** Whether this server runs in self-hosted mode (cached after first call). */
 export async function detectSelfHost(): Promise<boolean> {
@@ -36,10 +99,17 @@ export async function detectSelfHost(): Promise<boolean> {
     const res = await fetch("/api/selfhost/status", { signal: ctrl.signal });
     clearTimeout(timer);
     const body = res.ok
-      ? ((await res.json()) as { enabled?: boolean; ownServer?: boolean })
+      ? ((await res.json()) as {
+          enabled?: boolean;
+          ownServer?: boolean;
+          registration?: boolean;
+          maxDevices?: number;
+        })
       : {};
     enabled = body.enabled === true;
     ownServer = body.ownServer === true;
+    registration = body.registration === true;
+    deviceLimit = body.maxDevices ?? 2;
   } catch {
     enabled = false;
   }
@@ -115,11 +185,19 @@ export async function login(
   const s = await api<SelfHostSession>(
     "POST",
     "/login",
-    { username, password },
+    { username, password, deviceId: deviceId(), deviceName: deviceName() },
     false,
   );
   save(s);
   return s;
+}
+
+/** Ask the admin for an account (approved later in the admin panel). */
+export async function requestAccess(
+  username: string,
+  password: string,
+): Promise<void> {
+  await api("POST", "/register", { username, password }, false);
 }
 
 export function logout(): void {
@@ -131,10 +209,12 @@ export async function validateSession(): Promise<SelfHostSession | null> {
   const s = currentSession();
   if (s === null) return null;
   try {
-    const me = await api<{ username: string; role: SelfHostSession["role"] }>(
-      "GET",
-      "/me",
-    );
+    const me = await api<{
+      username: string;
+      role: SelfHostSession["role"];
+      stats?: SelfHostStats;
+    }>("GET", "/me");
+    myStats = me.stats ?? null;
     const fresh = { ...s, username: me.username, role: me.role };
     save(fresh);
     return fresh;
@@ -156,9 +236,88 @@ export async function changeOwnPassword(
   if (s) save({ ...s, token });
 }
 
+/** Record a finished solo game in this account's stats. */
+export async function reportSoloGame(
+  won: boolean,
+  seconds: number,
+): Promise<void> {
+  if (!isSelfHosted() || currentSession() === null) return;
+  await api("POST", "/stats/solo", { won, seconds });
+}
+
+// ---------------------------------------------------------------- settings
+
+/** Settings that follow the player to every device. Graphics stay local. */
+export function isSyncedSettingKey(key: string): boolean {
+  return (
+    key.startsWith("settings.") &&
+    !/graphics|quality|renderer|performance/i.test(key)
+  );
+}
+
+function localSettings(): Record<string, string> {
+  const out: Record<string, string> = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k === null || !isSyncedSettingKey(k)) continue;
+      const v = localStorage.getItem(k);
+      if (v !== null) out[k] = v;
+    }
+  } catch {
+    // no storage
+  }
+  return out;
+}
+
+/**
+ * Load the account's settings from the server into this device (before
+ * the app reads them), then keep pushing local changes every 20 s and when
+ * the page is hidden.
+ */
+export async function startSettingsSync(): Promise<void> {
+  try {
+    const { settings } = await api<{ settings: Record<string, string> }>(
+      "GET",
+      "/settings",
+    );
+    if (Object.keys(settings).length > 0) {
+      for (const [k, v] of Object.entries(settings)) {
+        if (isSyncedSettingKey(k)) localStorage.setItem(k, v);
+      }
+    }
+    localStorage.setItem(SYNCED_KEY, JSON.stringify(localSettings()));
+  } catch {
+    // Offline or older server: keep the local settings.
+  }
+  const push = () => {
+    try {
+      const now = JSON.stringify(localSettings());
+      if (now === localStorage.getItem(SYNCED_KEY)) return;
+      localStorage.setItem(SYNCED_KEY, now);
+      void api("PUT", "/settings", { settings: JSON.parse(now) }).catch(() =>
+        localStorage.removeItem(SYNCED_KEY),
+      );
+    } catch {
+      // ignore
+    }
+  };
+  setInterval(push, 20_000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") push();
+  });
+}
+
 export const adminApi = {
   list: () =>
-    api<{ users: SelfHostUser[] }>("GET", "/users").then((r) => r.users),
+    api<{ users: SelfHostUser[]; maxAccounts: number; maxDevices: number }>(
+      "GET",
+      "/users",
+    ),
+  approve: (username: string) =>
+    api("POST", `/users/${encodeURIComponent(username)}/approve`),
+  resetDevices: (username: string) =>
+    api("DELETE", `/users/${encodeURIComponent(username)}/devices`),
   create: (username: string, password: string, role: SelfHostUser["role"]) =>
     api("POST", "/users", { username, password, role }),
   resetPassword: (username: string, password: string) =>

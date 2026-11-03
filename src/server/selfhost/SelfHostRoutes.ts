@@ -1,10 +1,15 @@
 /**
  * HTTP API for self-hosted accounts, mounted on the master at /api/selfhost.
  *
- *   GET    /status                      → { enabled: true }
- *   POST   /login        {username,password}           → { token, username, role }
- *   GET    /me           (Bearer)       → { username, role }
+ *   GET    /status                      → { enabled, registration, limits }
+ *   POST   /login        {username,password,deviceId,deviceName}
+ *                                       → { token, username, role }
+ *   POST   /register     {username,password} → access request (pending)
+ *   GET    /me           (Bearer)       → { username, role, stats }
  *   POST   /password     (Bearer) {current, password}  → change own password
+ *   POST   /stats/solo   (Bearer) {won, seconds}       → record a solo game
+ *   GET    /settings     (Bearer)       → synced settings
+ *   PUT    /settings     (Bearer) {settings}           → save settings
  *   Admin only (Bearer, role admin):
  *   GET    /users                       → PublicAccount[]
  *   POST   /users        {username, password, role?}   → create
@@ -12,6 +17,8 @@
  *   POST   /users/:name/disabled {disabled}            → enable/disable
  *   POST   /users/:name/role     {role}                → admin/player
  *   DELETE /users/:name                                → remove
+ *   POST   /users/:name/approve                        → approve a request
+ *   DELETE /users/:name/devices[/:id]                  → free device slot(s)
  *
  * Login attempts are rate limited per IP. Every change takes effect at
  * once: tokens are re-checked against the account list on every join.
@@ -19,14 +26,43 @@
 
 import express, { type Request, type Response } from "express";
 import { z } from "zod";
-import { AccountError, type Account } from "./AccountStore";
+import {
+  AccountError,
+  DEVICE_ID_RE,
+  maxAccounts,
+  maxDevices,
+  registrationOpen,
+  type Account,
+} from "./AccountStore";
+import {
+  forgetAccount,
+  readSettings,
+  readStats,
+  recordGame,
+  SettingsSchema,
+  writeSettings,
+} from "./PlayerData";
 import { sessionSecret } from "./SelfHost";
-import { accountFromAuthHeader, accountStore } from "./SelfHostAuth";
+import {
+  accountFromAuthHeader,
+  accountStore,
+  sessionFromAuthHeader,
+} from "./SelfHostAuth";
 import { issueSessionToken } from "./SessionToken";
 
 const LoginSchema = z.object({
   username: z.string().max(64),
   password: z.string().max(200),
+  deviceId: z.string().regex(DEVICE_ID_RE),
+  deviceName: z.string().max(120).default("Device"),
+});
+const RegisterSchema = z.object({
+  username: z.string().max(64),
+  password: z.string().max(200),
+});
+const SoloSchema = z.object({
+  won: z.boolean(),
+  seconds: z.number().nonnegative().max(86_400),
 });
 const CreateSchema = z.object({
   username: z.string().max(64),
@@ -61,13 +97,14 @@ class LoginLimiter {
   }
 }
 
-function tokenFor(account: Account): string {
+function tokenFor(account: Account, deviceId: string): string {
   return issueSessionToken(
     {
       sub: account.persistentId,
       u: account.username,
       r: account.role,
       v: account.version,
+      d: deviceId,
     },
     sessionSecret(),
   );
@@ -76,6 +113,9 @@ function tokenFor(account: Account): string {
 export function createSelfHostRouter(): express.Router {
   const router = express.Router();
   const limiter = new LoginLimiter();
+  // Access requests have their own budget (20 / hour / IP), so a busy
+  // shared network can't lock its players out of signing in.
+  const requestLimiter = new LoginLimiter(20, 60 * 60 * 1000);
   const store = accountStore();
 
   const fail = (res: Response, status: number, error: string) =>
@@ -110,8 +150,36 @@ export function createSelfHostRouter(): express.Router {
   };
 
   router.get("/status", (_req, res) => {
-    res.json({ enabled: true, ownServer: true });
+    res.json({
+      enabled: true,
+      ownServer: true,
+      registration: registrationOpen(),
+      maxDevices: maxDevices(),
+    });
   });
+
+  router.post(
+    "/register",
+    handle((req, res) => {
+      if (!registrationOpen()) {
+        fail(res, 403, "Ask the admin for an account");
+        return;
+      }
+      const ip = req.ip ?? "unknown";
+      if (requestLimiter.blocked(ip)) {
+        fail(res, 429, "Too many requests, try again later");
+        return;
+      }
+      requestLimiter.recordFailure(ip);
+      const body = RegisterSchema.safeParse(req.body);
+      if (!body.success) {
+        fail(res, 400, "Username and password required");
+        return;
+      }
+      store.request(body.data.username, body.data.password);
+      res.status(201).json({ pending: true });
+    }),
+  );
 
   router.post(
     "/login",
@@ -126,7 +194,7 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 400, "Username and password required");
         return;
       }
-      const account = store.authenticate(
+      const account = store.checkPassword(
         body.data.username,
         body.data.password,
       );
@@ -135,8 +203,29 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 401, "Wrong username or password");
         return;
       }
+      if (account.pending) {
+        fail(res, 403, "Your access request is waiting for the admin");
+        return;
+      }
+      if (account.disabled) {
+        fail(res, 403, "This account is disabled");
+        return;
+      }
+      const refused = store.useDevice(
+        account.username,
+        body.data.deviceId,
+        body.data.deviceName,
+      );
+      if (refused !== null) {
+        fail(
+          res,
+          403,
+          `This account is already used on ${maxDevices()} devices. Ask the admin to free one.`,
+        );
+        return;
+      }
       res.json({
-        token: tokenFor(account),
+        token: tokenFor(account, body.data.deviceId),
         username: account.username,
         role: account.role,
       });
@@ -146,12 +235,19 @@ export function createSelfHostRouter(): express.Router {
   router.get(
     "/me",
     handle((req, res) => {
-      const me = accountFromAuthHeader(req.headers.authorization);
-      if (me === null) {
+      const session = sessionFromAuthHeader(req.headers.authorization);
+      if (session === null) {
         fail(res, 401, "Please log in");
         return;
       }
-      res.json({ username: me.username, role: me.role });
+      const me = session.account;
+      // Keeps the device's "last seen" fresh for the admin list.
+      store.useDevice(me.username, session.deviceId, "");
+      res.json({
+        username: me.username,
+        role: me.role,
+        stats: readStats(me.persistentId),
+      });
     }),
   );
 
@@ -174,7 +270,64 @@ export function createSelfHostRouter(): express.Router {
       }
       store.setPassword(me.username, body.data.password);
       // The old token is now invalid; hand back a fresh one.
-      res.json({ token: tokenFor(store.find(me.username)!) });
+      const session = sessionFromAuthHeader(req.headers.authorization);
+      res.json({
+        token: tokenFor(store.find(me.username)!, session?.deviceId ?? ""),
+      });
+    }),
+  );
+
+  router.post(
+    "/stats/solo",
+    handle((req, res) => {
+      const me = accountFromAuthHeader(req.headers.authorization);
+      if (me === null) {
+        fail(res, 401, "Please log in");
+        return;
+      }
+      const body = SoloSchema.safeParse(req.body);
+      if (!body.success) {
+        fail(res, 400, "won and seconds required");
+        return;
+      }
+      res.json({
+        stats: recordGame(me.persistentId, { solo: true, ...body.data }),
+      });
+    }),
+  );
+
+  router.get(
+    "/settings",
+    handle((req, res) => {
+      const me = accountFromAuthHeader(req.headers.authorization);
+      if (me === null) {
+        fail(res, 401, "Please log in");
+        return;
+      }
+      res.json({ settings: readSettings(me.persistentId) });
+    }),
+  );
+
+  router.put(
+    "/settings",
+    handle((req, res) => {
+      const me = accountFromAuthHeader(req.headers.authorization);
+      if (me === null) {
+        fail(res, 401, "Please log in");
+        return;
+      }
+      const body = z.object({ settings: SettingsSchema }).safeParse(req.body);
+      if (!body.success) {
+        fail(res, 400, "settings required");
+        return;
+      }
+      try {
+        writeSettings(me.persistentId, body.data.settings);
+      } catch {
+        fail(res, 413, "Settings too large");
+        return;
+      }
+      res.json({ ok: true });
     }),
   );
 
@@ -182,7 +335,11 @@ export function createSelfHostRouter(): express.Router {
     "/users",
     handle((req, res) => {
       if (!requireAdmin(req, res)) return;
-      res.json({ users: store.list() });
+      const users = store.list().map((u) => ({
+        ...u,
+        stats: readStats(store.find(u.username)!.persistentId),
+      }));
+      res.json({ users, maxAccounts: maxAccounts(), maxDevices: maxDevices() });
     }),
   );
 
@@ -257,7 +414,36 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 400, "You cannot remove yourself");
         return;
       }
+      const gone = store.find(String(req.params.name));
       store.remove(String(req.params.name));
+      if (gone) forgetAccount(gone.persistentId);
+      res.json({ ok: true });
+    }),
+  );
+
+  router.post(
+    "/users/:name/approve",
+    handle((req, res) => {
+      if (!requireAdmin(req, res)) return;
+      store.approve(String(req.params.name));
+      res.json({ ok: true });
+    }),
+  );
+
+  router.delete(
+    "/users/:name/devices",
+    handle((req, res) => {
+      if (!requireAdmin(req, res)) return;
+      store.removeDevice(String(req.params.name), null);
+      res.json({ ok: true });
+    }),
+  );
+
+  router.delete(
+    "/users/:name/devices/:id",
+    handle((req, res) => {
+      if (!requireAdmin(req, res)) return;
+      store.removeDevice(String(req.params.name), String(req.params.id));
       res.json({ ok: true });
     }),
   );

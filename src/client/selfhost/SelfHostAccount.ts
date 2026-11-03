@@ -7,7 +7,12 @@ import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { translateText } from "../Utils";
 import type { SelfHostAdmin } from "./SelfHostAdmin";
-import { changeOwnPassword, currentSession, logout } from "./SelfHostSession";
+import {
+  changeOwnPassword,
+  currentSession,
+  logout,
+  ownStats,
+} from "./SelfHostSession";
 
 @customElement("selfhost-account")
 export class SelfHostAccount extends LitElement {
@@ -39,6 +44,22 @@ export class SelfHostAccount extends LitElement {
     void panel?.show();
   }
 
+  private renderStats() {
+    const st = ownStats();
+    if (st === null) return "";
+    return html`<div
+      class="border-b border-white/10 px-4 py-2 text-xs text-white/70"
+    >
+      ${translateText("selfhost.my_stats", {
+        wins: st.wins,
+        games: st.games,
+        soloWins: st.soloWins,
+        soloGames: st.soloGames,
+        hours: (st.playSeconds / 3600).toFixed(1),
+      })}
+    </div>`;
+  }
+
   render() {
     const s = currentSession();
     if (s === null) return html``;
@@ -50,6 +71,7 @@ export class SelfHostAccount extends LitElement {
             ? html`<div
                 class="mb-2 min-w-48 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/95 shadow-xl backdrop-blur"
               >
+                ${this.renderStats()}
                 <button class=${item} @click=${() => this.changePassword()}>
                   ${translateText("selfhost.change_password")}
                 </button>

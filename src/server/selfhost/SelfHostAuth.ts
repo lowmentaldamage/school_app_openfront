@@ -25,10 +25,29 @@ export function accountForToken(token: string): Account | null {
   if (!account || account.disabled || account.version !== payload.v) {
     return null;
   }
+  // Device limit: the token's device must still hold a slot (an admin can
+  // free it, which signs that device out).
+  if (
+    payload.d === undefined ||
+    !accountStore().hasDevice(account, payload.d)
+  ) {
+    return null;
+  }
   return account;
 }
 
 /** "Bearer <token>" → account, for HTTP routes. */
+export function sessionFromAuthHeader(
+  header: string | undefined,
+): { account: Account; deviceId: string } | null {
+  if (!header || !header.startsWith("Bearer ")) return null;
+  const token = header.slice("Bearer ".length).trim();
+  const account = accountForToken(token);
+  if (account === null) return null;
+  const payload = verifySessionToken(token, sessionSecret());
+  return payload?.d ? { account, deviceId: payload.d } : null;
+}
+
 export function accountFromAuthHeader(
   header: string | undefined,
 ): Account | null {
