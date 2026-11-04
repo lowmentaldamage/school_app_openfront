@@ -1871,6 +1871,7 @@
     "save": "Save",
     "save_failed": "Could not save: {error}",
     "saved": "Saved! Everyone can now pick it under Custom maps in Solo and Create Lobby.",
+    "saved_already": "Saved. Change something to save a new copy.",
     "saved_maps": "Saved maps",
     "saving": "Saving…",
     "sea_level": "Sea level (heightmaps): {n}",

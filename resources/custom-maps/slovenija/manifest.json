@@ -1,0 +1,98 @@
+{
+  "categories": ["new"],
+  "display_name": "Slovenija",
+  "id": "Custom",
+  "map": {
+    "height": 1268,
+    "num_land_tiles": 2411448,
+    "width": 1996
+  },
+  "map16x": {
+    "height": 317,
+    "num_land_tiles": 150351,
+    "width": 499
+  },
+  "map4x": {
+    "height": 634,
+    "num_land_tiles": 602349,
+    "width": 998
+  },
+  "name": "Slovenija",
+  "nations": [
+    {
+      "coordinates": [702, 721],
+      "flag": "si",
+      "name": "Ljubljana"
+    },
+    {
+      "coordinates": [1405, 287],
+      "flag": "si",
+      "name": "Maribor"
+    },
+    {
+      "coordinates": [1170, 565],
+      "flag": "si",
+      "name": "Celje"
+    },
+    {
+      "coordinates": [610, 556],
+      "flag": "si",
+      "name": "Kranj"
+    },
+    {
+      "coordinates": [222, 1155],
+      "flag": "si",
+      "name": "Koper"
+    },
+    {
+      "coordinates": [1109, 938],
+      "flag": "si",
+      "name": "Novo mesto"
+    },
+    {
+      "coordinates": [1725, 191],
+      "flag": "si",
+      "name": "Murska Sobota"
+    },
+    {
+      "coordinates": [192, 787],
+      "flag": "si",
+      "name": "Nova Gorica"
+    },
+    {
+      "coordinates": [1072, 452],
+      "flag": "si",
+      "name": "Velenje"
+    },
+    {
+      "coordinates": [1540, 400],
+      "flag": "si",
+      "name": "Ptuj"
+    },
+    {
+      "coordinates": [425, 391],
+      "flag": "si",
+      "name": "Jesenice"
+    },
+    {
+      "coordinates": [918, 1077],
+      "flag": "si",
+      "name": "Kočevje"
+    },
+    {
+      "coordinates": [912, 356],
+      "flag": "si",
+      "name": "Črna na Koroškem"
+    },
+    {
+      "coordinates": [517, 955],
+      "flag": "si",
+      "name": "Postojna"
+    }
+  ],
+  "custom": {
+    "author": "Laukolaroser",
+    "createdAt": 1793800000003,
+    "tribes": 120
+  }
+}

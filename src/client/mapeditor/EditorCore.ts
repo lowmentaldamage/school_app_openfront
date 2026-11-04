@@ -6,6 +6,7 @@
 
 import {
   blankMap,
+  type BuiltMap,
   buildMap,
   decodeMap,
   type EditableMap,
@@ -31,12 +32,19 @@ export const BRUSH_TOOLS: readonly BrushTool[] = [
   "lower",
 ];
 
-/** Elevation bands, as in the map generator (land magnitude 0-30). */
+/**
+ * Height bands on the 0 (ground) - 100 (mountain tops) scale; they match
+ * the game's plains (< 10), highland (< 20) and mountains (≥ 20) on its
+ * 0-30 magnitude scale.
+ */
 const BAND: Record<"plains" | "highland" | "mountain", [number, number]> = {
-  plains: [1, 8],
-  highland: [11, 18],
-  mountain: [21, 30],
+  plains: [2, 28],
+  highland: [36, 62],
+  mountain: [70, 100],
 };
+const TOP = 100;
+/** Old 0-30 magnitude scale → 0-100 heights. */
+const M = TOP / 30;
 
 export interface EditorNation {
   name: string;
@@ -153,7 +161,7 @@ export function randomIslands(opts: IslandOptions): EditableMap {
     const t = (field[i] - cut) / Math.max(1e-6, top - cut);
     // Mostly plains, highlands inland, mountain ranges in the middle.
     const ridge = fbm((i % w) * scale * 3, Math.floor(i / w) * scale * 3, seed);
-    m.elevation[i] = Math.min(30, Math.round(t * t * 34 + ridge * 6));
+    m.elevation[i] = Math.min(TOP, Math.round((t * t * 34 + ridge * 6) * M));
   }
   return m;
 }
@@ -179,12 +187,14 @@ export class MapDocument {
     return new MapDocument(blankMap(width, height));
   }
 
+  /** From map files; `levels` (height.bin) keeps the 0-100 heights. */
   static fromPacked(
     packed: Uint8Array,
     width: number,
     height: number,
+    levels?: Uint8Array | null,
   ): MapDocument {
-    return new MapDocument(decodeMap(packed, width, height));
+    return new MapDocument(decodeMap(packed, width, height, levels));
   }
 
   get width(): number {
@@ -330,10 +340,10 @@ export class MapDocument {
               break;
             }
             if (m.kind[i] === TERRAIN_IMPASSABLE) break;
-            const step = Math.max(1, Math.round(3 * falloff));
+            const step = Math.max(1, Math.round(10 * falloff));
             const e = m.elevation[i] + (tool === "raise" ? step : -step);
             if (e < 0) this.set(i, TERRAIN_WATER, 0);
-            else this.set(i, TERRAIN_LAND, Math.min(30, e));
+            else this.set(i, TERRAIN_LAND, Math.min(TOP, e));
             break;
           }
         }
@@ -448,6 +458,11 @@ export class MapDocument {
     return buildMap(this.map).map;
   }
 
+  /** All built files: packed tiles plus height levels (0-100). */
+  built(): BuiltMap {
+    return buildMap(this.map);
+  }
+
   landTiles(): number {
     let n = 0;
     for (let i = 0; i < this.map.kind.length; i++) {
@@ -491,9 +506,11 @@ export class MapDocument {
 /** Top-down colour of a tile for the 2D editing view (RGB 0-255). */
 export function tileColor(
   kind: number,
-  elevation: number,
+  level: number,
   out: [number, number, number] = [0, 0, 0],
 ): [number, number, number] {
+  // Colour bands follow the game's 0-30 scale.
+  const elevation = level / M;
   if (kind === TERRAIN_WATER) {
     out[0] = 38;
     out[1] = 84;
@@ -503,12 +520,12 @@ export function tileColor(
     out[1] = 232;
     out[2] = 236;
   } else if (elevation < 10) {
-    const t = elevation / 9;
+    const t = Math.min(1, elevation / 9);
     out[0] = Math.round(120 + 40 * t);
     out[1] = Math.round(168 + 12 * t);
     out[2] = Math.round(92 + 10 * t);
   } else if (elevation < 20) {
-    const t = (elevation - 10) / 9;
+    const t = Math.min(1, (elevation - 10) / 9);
     out[0] = Math.round(176 + 30 * t);
     out[1] = Math.round(170 - 20 * t);
     out[2] = Math.round(108 - 10 * t);
@@ -599,17 +616,17 @@ function pictureTile(
   const light = (r + g + b) / 3;
   // Snow / rock: bright or grey, unsaturated.
   if (sat < 0.15) {
-    if (light > 200) return [TERRAIN_LAND, 28];
-    if (light > 120) return [TERRAIN_LAND, 22];
-    return [TERRAIN_LAND, 14];
+    if (light > 200) return [TERRAIN_LAND, 93];
+    if (light > 120) return [TERRAIN_LAND, 73];
+    return [TERRAIN_LAND, 47];
   }
   // Greens are lowland (darker green = lower), yellows/browns hills.
   if (g >= r && g >= b) {
-    return [TERRAIN_LAND, Math.round(1 + (light / 255) * 7)];
+    return [TERRAIN_LAND, Math.round(3 + (light / 255) * 24)];
   }
   if (r >= g && g > b) {
     // Tan / brown: highland, darker brown higher.
-    return [TERRAIN_LAND, Math.round(18 - (light / 255) * 7)];
+    return [TERRAIN_LAND, Math.round(60 - (light / 255) * 24)];
   }
   return [TERRAIN_LAND, 5];
 }
@@ -637,6 +654,9 @@ export function imageToMap(
   // Heightmaps: grey levels with salt-and-pepper specks removed (a 3×3
   // median), so stray pixels don't become one-tile lakes or peaks.
   const grey = mode === "heightmap" ? despeckledGrey(img) : null;
+  // Heightmaps: the brightest land (99.5th percentile, so a lone spike
+  // doesn't flatten the rest) becomes the mountain tops (100).
+  const top = grey ? greyTop(grey, sea) : 255;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const p = (y * img.width + x) * 4;
@@ -652,25 +672,48 @@ export function imageToMap(
         else if (r === 0 && g === 0 && b === 0) kind = TERRAIN_IMPASSABLE;
         else {
           kind = TERRAIN_LAND;
-          elev = Math.floor((Math.min(200, Math.max(140, b)) - 140) / 2);
+          elev = Math.round(
+            (Math.floor((Math.min(200, Math.max(140, b)) - 140) / 2) * TOP) /
+              30,
+          );
         }
       } else if (mode === "heightmap") {
         const v = grey![y * img.width + x];
         if (a < 20 || v < sea) kind = TERRAIN_WATER;
         else {
           kind = TERRAIN_LAND;
-          elev = Math.round(((v - sea) / Math.max(1, 255 - sea)) * 30);
+          elev = Math.round(
+            Math.min(1, (v - sea) / Math.max(1, top - sea)) * TOP,
+          );
         }
       } else {
         [kind, elev] = pictureTile(r, g, b, a);
       }
       m.kind[i] = kind;
-      m.elevation[i] = Math.min(30, elev);
+      m.elevation[i] = Math.min(TOP, elev);
     }
   }
   // Pictures give noisy heights (labels, outlines, shading): smooth them.
   if (mode === "picture") smoothElevation(m, 2);
   return m;
+}
+
+/** 99.5th percentile of the grey levels at or above the sea. */
+function greyTop(grey: Uint8Array, sea: number): number {
+  const hist = new Uint32Array(256);
+  let n = 0;
+  for (const v of grey) {
+    if (v >= sea) {
+      hist[v]++;
+      n++;
+    }
+  }
+  let acc = 0;
+  for (let v = 255; v >= 0; v--) {
+    acc += hist[v];
+    if (acc > n * 0.005) return Math.max(sea + 1, v);
+  }
+  return 255;
 }
 
 /** Grey level per pixel, 3×3 median filtered. */
@@ -796,13 +839,14 @@ export function autoRelief(
     const ridge = r * r * r;
     const hills = base * 10 * inland;
     const peaks = ridge * 24 * Math.pow(inland, 0.8) * (0.4 + strength);
-    const auto = Math.min(
-      30,
-      1 + hills * (0.5 + strength) + peaks * (base > 0.45 ? 1 : 0.55),
-    );
+    const auto =
+      Math.min(
+        30,
+        1 + hills * (0.5 + strength) + peaks * (base > 0.45 ? 1 : 0.55),
+      ) * M;
     // Keep any relief the source already had.
     out[i] = Math.round(
-      Math.min(30, Math.max(elevation[i], auto * 0.75 + elevation[i] * 0.5)),
+      Math.min(TOP, Math.max(elevation[i], auto * 0.75 + elevation[i] * 0.5)),
     );
   }
   return out;
@@ -815,7 +859,7 @@ export function isFlat(m: EditableMap): boolean {
   for (let i = 0; i < m.kind.length; i++) {
     if (m.kind[i] !== TERRAIN_LAND) continue;
     land++;
-    if (m.elevation[i] >= 10) varied++;
+    if (m.elevation[i] >= 33) varied++;
   }
   return land > 0 && varied / land < 0.05;
 }

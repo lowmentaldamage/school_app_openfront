@@ -44,7 +44,7 @@ describe("map editor document", () => {
     const doc = MapDocument.blank(64, 64);
     doc.paint(32, 32, 5, "mountain");
     const i = 32 * 64 + 32;
-    expect(doc.map.elevation[i]).toBeGreaterThanOrEqual(21);
+    expect(doc.map.elevation[i]).toBeGreaterThanOrEqual(70);
     doc.paint(10, 10, 2, "plains");
     const j = 10 * 64 + 10;
     const before = doc.map.elevation[j];
@@ -122,8 +122,8 @@ describe("image import", () => {
     );
     expect(m.kind[10]).toBe(TERRAIN_WATER);
     expect(m.kind[30]).toBe(TERRAIN_LAND);
-    expect(m.elevation[30]).toBeLessThan(10);
-    expect(m.elevation[50]).toBeGreaterThanOrEqual(20);
+    expect(m.elevation[30]).toBeLessThan(33);
+    expect(m.elevation[50]).toBeGreaterThanOrEqual(66);
   });
 
   test("a greyscale heightmap with a sea level", () => {
@@ -136,6 +136,17 @@ describe("image import", () => {
     expect(m.kind[10]).toBe(TERRAIN_WATER); // 40
     expect(m.kind[30]).toBe(TERRAIN_LAND); // 120
     expect(m.elevation[63]).toBeGreaterThan(m.elevation[30]);
+  });
+
+  test("a dark heightmap still reaches the mountain tops (100)", () => {
+    // Values 0-63 only (a dark DEM export).
+    const hm = img(64, 64, (x) => [x, x, x, 255]);
+    const m = imageToMap(hm, { mode: "heightmap", seaLevel: 3 });
+    expect(m.kind[1]).toBe(TERRAIN_WATER);
+    expect(m.elevation[3]).toBe(0); // ground right at the sea level
+    expect(m.elevation[63]).toBe(100);
+    expect(m.elevation[33]).toBeGreaterThan(40);
+    expect(m.elevation[33]).toBeLessThan(60);
   });
 
   test("heightmap specks don't become one-tile lakes or peaks", () => {
@@ -167,7 +178,7 @@ describe("image import", () => {
     expect(m.kind[5]).toBe(TERRAIN_WATER);
     expect(m.kind[20]).toBe(TERRAIN_WATER);
     expect(m.kind[40]).toBe(TERRAIN_LAND);
-    expect(m.elevation[40]).toBe(20);
+    expect(m.elevation[40]).toBe(67);
   });
 
   test("import size keeps the aspect, multiples of 4", () => {
@@ -194,13 +205,13 @@ describe("automatic terrain and nations", () => {
     const relief = autoRelief(doc.map, 5);
     expect(autoRelief(doc.map, 5)).toEqual(relief);
     const at = (x: number, y: number) => relief[y * 256 + x];
-    expect(at(128 - 69, 96)).toBeLessThan(8); // coast
+    expect(at(128 - 69, 96)).toBeLessThan(27); // coast
     let maxInland = 0;
     for (let y = 80; y < 112; y++)
       for (let x = 112; x < 144; x++) maxInland = Math.max(maxInland, at(x, y));
     expect(maxInland).toBeGreaterThan(at(128 - 69, 96));
     let high = 0;
-    for (let i = 0; i < relief.length; i++) if (relief[i] >= 20) high++;
+    for (let i = 0; i < relief.length; i++) if (relief[i] >= 66) high++;
     expect(high).toBeGreaterThan(0);
     expect(relief[0]).toBe(0); // water untouched
     doc.setElevation(relief);

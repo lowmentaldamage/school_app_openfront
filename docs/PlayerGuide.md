@@ -248,6 +248,11 @@ Press **Map Editor** on the home screen.
   Right-drag or the ✋ tool moves, the wheel or two fingers zoom.
 - **Nations:** the 🚩 tool places an AI nation on land; drag it to move.
   Rename it and pick a flag in the list on the right.
+- **Heights:** every map is drawn with heights from 0 (ground) to 100
+  (mountain tops). Maps made from heightmaps or elevation files keep their
+  real 0-100 heights; other maps get smooth slopes computed from their
+  terrain. Gameplay uses the same plains / highland / mountain rules as
+  before.
 - **✨ Automatic** (right panel, ☰ on phones): **Auto 3D terrain** adds hills
   and mountain ranges (slider = how mountainous; Ctrl+Z undoes it),
   **Place N nations** spreads that many nations over the land, and

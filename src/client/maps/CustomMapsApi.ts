@@ -62,24 +62,30 @@ async function gzip(data: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 
-/** The upload body: gzip of [u32 LE header length][header JSON][tiles]. */
+/**
+ * The upload body: gzip of [u32 LE header length][header JSON][tiles]
+ * [height levels 0-100, one per tile].
+ */
 export async function encodeCustomMap(
   header: CustomMapSave,
   mapBin: Uint8Array,
+  levels: Uint8Array,
 ): Promise<Uint8Array> {
   const json = new TextEncoder().encode(JSON.stringify(header));
-  const out = new Uint8Array(4 + json.length + mapBin.length);
+  const out = new Uint8Array(4 + json.length + mapBin.length * 2);
   new DataView(out.buffer).setUint32(0, json.length, true);
   out.set(json, 4);
   out.set(mapBin, 4 + json.length);
+  out.set(levels, 4 + json.length + mapBin.length);
   return gzip(out);
 }
 
 export async function saveCustomMap(
   header: CustomMapSave,
   mapBin: Uint8Array,
+  levels: Uint8Array,
 ): Promise<string> {
-  const body = await encodeCustomMap(header, mapBin);
+  const body = await encodeCustomMap(header, mapBin, levels);
   const res = await fetch(BASE, {
     method: "POST",
     headers: { "content-type": "application/octet-stream", ...authHeaders() },

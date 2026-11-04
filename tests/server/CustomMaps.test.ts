@@ -70,6 +70,42 @@ describe("custom maps", () => {
     expect(mapBin).toEqual(bin);
   });
 
+  test("height levels (0 ground - 100 mountain tops) are stored", async () => {
+    const bin = island();
+    const levels = new Uint8Array(128 * 96);
+    for (let i = 0; i < levels.length; i++) {
+      if (bin[i] & 0x80) levels[i] = (i % 128) % 101;
+    }
+    const { levels: back } = decodeUpload(
+      Buffer.from(encodeUpload(header(), bin, levels)),
+    );
+    expect(back).toEqual(levels);
+    const save = await fetch(base, {
+      method: "POST",
+      headers: { "content-type": "application/octet-stream" },
+      body: Buffer.from(encodeUpload(header(), bin, levels)),
+    });
+    const { id } = (await save.json()) as { id: string };
+    const h = new Uint8Array(
+      await (await fetch(`${base}/${id}/height.bin`)).arrayBuffer(),
+    );
+    expect(h.length).toBe(128 * 96);
+    expect(h[40 * 128 + 70]).toBe(70);
+    expect(h[2 * 128 + 2]).toBe(0);
+    // The game's own tile: level 70 → magnitude 21 (mountain).
+    const map = new Uint8Array(
+      await (await fetch(`${base}/${id}/map.bin`)).arrayBuffer(),
+    );
+    expect(map[40 * 128 + 70] & 0x1f).toBe(21);
+    const h4 = await fetch(`${base}/${id}/height4x.bin`);
+    expect((await h4.arrayBuffer()).byteLength).toBe(64 * 48);
+    await fetch(`${base}/${id}`, { method: "DELETE" });
+    const bad = new Uint8Array(levels).fill(101);
+    expect(() =>
+      decodeUpload(Buffer.from(encodeUpload(header(), bin, bad))),
+    ).toThrow();
+  });
+
   test("a size that doesn't match the tiles is refused", () => {
     expect(() =>
       decodeUpload(Buffer.from(encodeUpload(header({ width: 132 }), island()))),
@@ -172,21 +208,40 @@ describe("custom maps", () => {
     fs.rmSync(bundle, { recursive: true, force: true });
   });
 
-  test("Črna na Koroškem ships with the game", () => {
-    const m = JSON.parse(
-      fs.readFileSync(
-        path.join(bundledMapsDir(), "crnakoroskem", "manifest.json"),
-        "utf8",
-      ),
-    );
-    expect(m.display_name).toBe("Črna na Koroškem");
-    expect(m.name).toBe("Crna na Koroskem");
-    expect(m.nations.length).toBeGreaterThanOrEqual(6);
-    const bin = fs.readFileSync(
-      path.join(bundledMapsDir(), "crnakoroskem", "map.bin"),
-    );
-    expect(bin.length).toBe(m.map.width * m.map.height);
-  });
+  test.each([
+    ["crnakoroskem", "Črna na Koroškem", "Crna na Koroskem", 8],
+    ["crnakoroskem2", "Črna na Koroškem 2", "Crna na Koroskem 2", 8],
+    ["slovenija", "Slovenija", "Slovenija", 14],
+  ])(
+    "%s ships with the game, with its heights",
+    (id, display, name, nations) => {
+      const dir = path.join(bundledMapsDir(), id);
+      const m = JSON.parse(
+        fs.readFileSync(path.join(dir, "manifest.json"), "utf8"),
+      );
+      expect(m.display_name).toBe(display);
+      expect(m.name).toBe(name);
+      expect(m.nations).toHaveLength(nations);
+      const tiles = m.map.width * m.map.height;
+      const bin = fs.readFileSync(path.join(dir, "map.bin"));
+      expect(bin.length).toBe(tiles);
+      const h = fs.readFileSync(path.join(dir, "height.bin"));
+      expect(h.length).toBe(tiles);
+      // 0 ground … 100 mountain tops, and far more than the 31 steps.
+      const used = new Set(h);
+      expect(Math.max(...used)).toBeLessThanOrEqual(100);
+      expect(used.size).toBeGreaterThan(60);
+      expect(fs.readFileSync(path.join(dir, "height4x.bin")).length).toBe(
+        tiles / 4,
+      );
+      // Every nation stands on land.
+      for (const n of m.nations) {
+        expect(
+          bin[n.coordinates[1] * m.map.width + n.coordinates[0]] & 0x80,
+        ).toBeTruthy();
+      }
+    },
+  );
 
   test("a map with no land is refused", async () => {
     const save = await fetch(base, {

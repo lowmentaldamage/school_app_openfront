@@ -14,11 +14,21 @@
  * the editor (client) and the map store (server) share it.
  */
 
+import {
+  deriveLevels,
+  halveLevels,
+  levelToMagnitude,
+  magnitudeToLevel,
+} from "./TerrainLevels";
+
 export const TERRAIN_WATER = 0;
 export const TERRAIN_LAND = 1;
 export const TERRAIN_IMPASSABLE = 2;
 
-/** Editable map: kind and land elevation (0-30) per tile, row-major. */
+/**
+ * Editable map: kind and land height level (0 ground - 100 mountain tops, see TerrainLevels) per
+ * tile, row-major. The packed files get the matching 0-30 magnitude.
+ */
 export interface EditableMap {
   width: number;
   height: number;
@@ -35,6 +45,9 @@ export interface BuiltMap {
   numLandTiles: number;
   numLandTiles4x: number;
   numLandTiles16x: number;
+  /** Height levels (0-100) per tile at full and half size (height.bin). */
+  levels: Uint8Array;
+  levels4x: Uint8Array;
 }
 
 /** Largest supported side (tiles). */
@@ -52,12 +65,25 @@ export function blankMap(width: number, height: number): EditableMap {
   };
 }
 
-/** Decode a packed map.bin into an editable grid. */
+/**
+ * Decode a packed map.bin into an editable grid. With `levels`
+ * (height.bin) the land keeps its 100-level heights; without, levels are
+ * derived from the magnitudes.
+ */
 export function decodeMap(
   packed: Uint8Array,
   width: number,
   height: number,
+  levels?: Uint8Array | null,
+  /** Without levels: smooth the 31 steps (false: exact steps only). */
+  smooth = true,
 ): EditableMap {
+  const lv =
+    levels && levels.length === width * height
+      ? levels
+      : smooth
+        ? deriveLevels(packed, width, height)
+        : new Uint8Array(width * height);
   const m: EditableMap = {
     width,
     height,
@@ -71,7 +97,12 @@ export function decodeMap(
       if (mag === 31) m.kind[i] = TERRAIN_IMPASSABLE;
       else {
         m.kind[i] = TERRAIN_LAND;
-        m.elevation[i] = mag;
+        m.elevation[i] =
+          levels && levels.length === width * height
+            ? Math.min(100, lv[i])
+            : smooth
+              ? lv[i]
+              : magnitudeToLevel(mag);
       }
     }
   }
@@ -105,7 +136,23 @@ export function buildMap(src: EditableMap): BuiltMap {
     numLandTiles: full.land,
     numLandTiles4x: quarter.land,
     numLandTiles16x: sixteenth.land,
+    levels: landLevels(kind, elev),
+    levels4x: halveLevels(
+      landLevels(kind, elev),
+      kind.map((k) => (k === TERRAIN_LAND ? 1 : 0)),
+      w,
+      h,
+    ),
   };
+}
+
+/** Level per tile, 0 where there is no (passable) land. */
+function landLevels(kind: Uint8Array, elev: Uint8Array): Uint8Array {
+  const out = new Uint8Array(kind.length);
+  for (let i = 0; i < kind.length; i++) {
+    if (kind[i] === TERRAIN_LAND) out[i] = Math.min(100, elev[i]);
+  }
+  return out;
 }
 
 function miniMap(
@@ -259,7 +306,7 @@ function pack(
     if (shore[i]) b |= 0x40;
     if (ocean[i]) b |= 0x20;
     if (k === TERRAIN_LAND) {
-      b |= Math.min(30, elev[i]);
+      b |= levelToMagnitude(elev[i]);
     } else {
       let d = dist[i];
       // Water next to impassable terrain renders deep.

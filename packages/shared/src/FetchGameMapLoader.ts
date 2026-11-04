@@ -58,6 +58,10 @@ export class FetchGameMapLoader implements GameMapLoader {
       webpPath: url("thumbnail.webp"),
       layerImage: () =>
         Promise.reject(new Error("custom maps have no layer images")),
+      levelsBin: (compact) =>
+        this.loadBinaryFromUrl(
+          url(compact ? "height4x.bin" : "height.bin"),
+        ).catch(() => null),
     } satisfies MapData;
     this.customMaps.set(id, data);
     return data;

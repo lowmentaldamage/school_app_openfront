@@ -5,6 +5,11 @@ import {
   TERRAIN_LAND,
   TERRAIN_WATER,
 } from "@laukolaroser/shared/maps/MapBuilder";
+import {
+  deriveLevels,
+  levelToMagnitude,
+  magnitudeToLevel,
+} from "@laukolaroser/shared/maps/TerrainLevels";
 import fs from "fs";
 import path from "path";
 
@@ -24,7 +29,7 @@ describe("MapBuilder", () => {
   test("decoding and rebuilding a real map reproduces its map.bin", () => {
     const { manifest, map } = load("britannia");
     const { width, height } = manifest.map;
-    const rebuilt = buildMap(decodeMap(map, width, height));
+    const rebuilt = buildMap(decodeMap(map, width, height, null, false));
     expect(rebuilt.width).toBe(width);
     expect(rebuilt.numLandTiles).toBe(manifest.map.num_land_tiles);
     let diff = 0;
@@ -35,7 +40,7 @@ describe("MapBuilder", () => {
   test("downscales keep sizes and land counts close to the generator's", () => {
     const { manifest, map } = load("britannia");
     const { width, height } = manifest.map;
-    const rebuilt = buildMap(decodeMap(map, width, height));
+    const rebuilt = buildMap(decodeMap(map, width, height, null, false));
     expect(rebuilt.map4x.length).toBe((width / 2) * (height / 2));
     expect(rebuilt.map16x.length).toBe((width / 4) * (height / 4));
     const off =
@@ -49,7 +54,7 @@ describe("MapBuilder", () => {
     for (let y = 40; y < 80; y++)
       for (let x = 40; x < 80; x++) {
         m.kind[y * 128 + x] = TERRAIN_LAND;
-        m.elevation[y * 128 + x] = x > 60 ? 25 : 3;
+        m.elevation[y * 128 + x] = x > 60 ? 83 : 10; // levels → magnitude 25 / 3
       }
     const b = buildMap(m);
     const at = (x: number, y: number) => b.map[y * 128 + x];
@@ -61,5 +66,53 @@ describe("MapBuilder", () => {
     expect(at(5, 5) & 0x1f).toBeGreaterThan(10); // deep far from land
     expect(b.numLandTiles).toBe(1600);
     expect(m.kind[0]).toBe(TERRAIN_WATER);
+  });
+});
+
+describe("terrain levels 0-100", () => {
+  test("level ↔ magnitude round-trips for every magnitude", () => {
+    for (let m = 0; m <= 30; m++) {
+      expect(levelToMagnitude(magnitudeToLevel(m))).toBe(m);
+    }
+    expect(levelToMagnitude(100)).toBe(30);
+    expect(levelToMagnitude(0)).toBe(0);
+    expect(levelToMagnitude(50)).toBe(15);
+  });
+
+  test("a map built from levels keeps them in height.bin", () => {
+    const m = blankMap(128, 128);
+    for (let x = 20; x < 100; x++)
+      for (let y = 20; y < 100; y++) {
+        m.kind[y * 128 + x] = TERRAIN_LAND;
+        m.elevation[y * 128 + x] = x; // 20 … 99: a smooth ramp
+      }
+    const b = buildMap(m);
+    expect(b.levels[50 * 128 + 60]).toBe(60);
+    expect(b.levels[5 * 128 + 5]).toBe(0);
+    expect(b.map[50 * 128 + 60] & 0x1f).toBe(18);
+    expect(b.levels4x.length).toBe(64 * 64);
+    const back = decodeMap(b.map, 128, 128, b.levels);
+    expect(back.elevation[50 * 128 + 60]).toBe(60);
+  });
+
+  test("derived levels smooth the 31 steps but stay near each tile's step", () => {
+    const { manifest, map } = load("britannia");
+    const { width, height } = manifest.map;
+    const lv = deriveLevels(map, width, height);
+    const distinct = new Set<number>();
+    let far = 0;
+    let wet = 0;
+    for (let i = 0; i < map.length; i++) {
+      const b = map[i];
+      if (!(b & 0x80) || (b & 0x1f) === 31) {
+        if (lv[i] !== 0) wet++;
+        continue;
+      }
+      distinct.add(lv[i]);
+      if (Math.abs(lv[i] - magnitudeToLevel(b & 0x1f)) > 4) far++;
+    }
+    expect(distinct.size).toBeGreaterThan(60);
+    expect(far).toBe(0);
+    expect(wet).toBe(0);
   });
 });

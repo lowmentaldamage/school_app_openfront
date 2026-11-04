@@ -32,6 +32,8 @@ export interface World3DViewInit {
   mapWidth: number;
   mapHeight: number;
   terrain: Uint8Array;
+  /** Land height levels (0-100) when the map has them (height.bin). */
+  levels?: Uint8Array | null;
   paletteSize: number;
 }
 

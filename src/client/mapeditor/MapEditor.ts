@@ -451,9 +451,13 @@ export class MapEditor extends LitElement {
     this.status = t("loading");
     try {
       const d = data();
-      const [manifest, bin] = await Promise.all([d.manifest(), d.mapBin()]);
+      const [manifest, bin, levels] = await Promise.all([
+        d.manifest(),
+        d.mapBin(),
+        d.levelsBin?.(false) ?? null,
+      ]);
       const { width, height } = manifest.map;
-      const doc = MapDocument.fromPacked(bin, width, height);
+      const doc = MapDocument.fromPacked(bin, width, height, levels);
       for (const n of manifest.nations) {
         if (!n.coordinates) continue;
         const [x, y] = n.coordinates;
@@ -584,12 +588,15 @@ export class MapEditor extends LitElement {
     if (!c) return;
     if (this.world && this.worldVersion === this.doc.version) return;
     if (this.world && this.painting) return; // rebuilt when the stroke ends
-    let packed = this.doc.packed();
-    let w = this.doc.width;
-    let h = this.doc.height;
+    const built = this.doc.built();
+    let packed = built.map;
+    let levels = built.levels;
+    let w = built.width;
+    let h = built.height;
     this.worldScale = 1;
     if (w * h > PREVIEW_FULL_TILES) {
       packed = halve(packed, w, h);
+      levels = built.levels4x;
       w >>= 1;
       h >>= 1;
       this.worldScale = 2;
@@ -602,6 +609,7 @@ export class MapEditor extends LitElement {
       mapWidth: w,
       mapHeight: h,
       terrain: packed,
+      levels,
       paletteSize: PALETTE_SIZE,
     });
     this.world.setAtmosphere(1500, { dayNight: false, weather: false });
@@ -1047,6 +1055,7 @@ export class MapEditor extends LitElement {
     this.busy = true;
     this.status = t("saving");
     try {
+      const built = this.doc.built();
       const id = await saveCustomMap(
         {
           name,
@@ -1060,7 +1069,8 @@ export class MapEditor extends LitElement {
           tribes: this.tribes,
           thumbnail: await this.thumbnail(),
         },
-        this.doc.packed(),
+        built.map,
+        built.levels,
       );
       this.savedId = id;
       this.customMaps = await listCustomMaps(true);
@@ -1373,7 +1383,10 @@ export class MapEditor extends LitElement {
       >
         🚩 ${t("place_nations", { n: this.nationCount })}
       </button>
-      ${num(t("tribe_count"), this.tribes, 400, (v) => (this.tribes = v))}
+      ${num(t("tribe_count"), this.tribes, 400, (v) => {
+        this.tribes = v;
+        this.savedId = null;
+      })}
       <p class="text-[11px] leading-snug text-white/50">${t("tribes_hint")}</p>
     </div>`;
   }
@@ -1426,6 +1439,7 @@ export class MapEditor extends LitElement {
                     n.flag,
                   );
                   this.doc.endStroke();
+                  this.savedId = null;
                   this.rev++;
                 }}
               />
@@ -1442,6 +1456,7 @@ export class MapEditor extends LitElement {
                     (e.target as HTMLInputElement).value,
                   );
                   this.doc.endStroke();
+                  this.savedId = null;
                   this.rev++;
                 }}
               />
@@ -1606,7 +1621,8 @@ export class MapEditor extends LitElement {
             }
             <button
               class="lkr-ed-btn bg-sky-600 font-bold"
-              ?disabled=${this.busy}
+              ?disabled=${this.busy || this.savedId !== null}
+              title=${this.savedId ? t("saved_already") : ""}
               @click=${() => void this.save()}
             >
               💾 ${t("save")}

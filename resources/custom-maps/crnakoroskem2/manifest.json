@@ -1,0 +1,68 @@
+{
+  "categories": ["new"],
+  "display_name": "Črna na Koroškem 2",
+  "id": "Custom",
+  "map": {
+    "height": 1104,
+    "num_land_tiles": 1715236,
+    "width": 1600
+  },
+  "map16x": {
+    "height": 276,
+    "num_land_tiles": 106846,
+    "width": 400
+  },
+  "map4x": {
+    "height": 552,
+    "num_land_tiles": 428334,
+    "width": 800
+  },
+  "name": "Crna na Koroskem 2",
+  "nations": [
+    {
+      "coordinates": [549, 136],
+      "flag": "si",
+      "name": "Črna"
+    },
+    {
+      "coordinates": [1539, 1048],
+      "flag": "si",
+      "name": "Žerjav"
+    },
+    {
+      "coordinates": [64, 1048],
+      "flag": "si",
+      "name": "Mežica"
+    },
+    {
+      "coordinates": [1538, 67],
+      "flag": "si",
+      "name": "Koprivna"
+    },
+    {
+      "coordinates": [804, 872],
+      "flag": "si",
+      "name": "Javorje"
+    },
+    {
+      "coordinates": [63, 465],
+      "flag": "si",
+      "name": "Topla"
+    },
+    {
+      "coordinates": [1057, 377],
+      "flag": "si",
+      "name": "Bistra"
+    },
+    {
+      "coordinates": [1517, 562],
+      "flag": "si",
+      "name": "Podpeca"
+    }
+  ],
+  "custom": {
+    "author": "Laukolaroser",
+    "createdAt": 1793800000002,
+    "tribes": 60
+  }
+}

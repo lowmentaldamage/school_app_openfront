@@ -36,8 +36,9 @@ export function detailHeightfield(
   terrain: Uint8Array,
   width: number,
   height: number,
+  levels?: Uint8Array | null,
 ): Heightfield {
-  return Heightfield.fromTerrain(terrain, width, height, DETAIL_BLUR);
+  return Heightfield.fromTerrain(terrain, width, height, DETAIL_BLUR, levels);
 }
 
 export function buildTerrainDetail(

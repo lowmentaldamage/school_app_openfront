@@ -13,6 +13,7 @@
  *   Camera2DState ─► CameraController ─► EnvironmentRenderer (shadow fit)
  */
 
+import { deriveLevels } from "@laukolaroser/shared/maps/TerrainLevels";
 import {
   ACESFilmicToneMapping,
   type DataTexture,
@@ -62,6 +63,11 @@ export interface WorldRendererInit {
   mapHeight: number;
   /** Per-tile terrain bytes (GameMap.terrainByte), row-major. */
   terrain: Uint8Array;
+  /**
+   * Land height levels (0 ground - 100 mountain tops, TerrainLevels) per tile, e.g. a custom map's
+   * height.bin. Missing: derived from the terrain bytes by smoothing.
+   */
+  levels?: Uint8Array | null;
   /** Number of palette slots (smallIDs) — PlayerPalette.PALETTE_SIZE. */
   paletteSize: number;
   /** Device budgets; detected from the browser when omitted. */
@@ -129,10 +135,17 @@ export class WorldRenderer {
     // (moving units): halves the shadow pass on a still camera.
     this.renderer.shadowMap.autoUpdate = false;
 
+    // Heights 0-100 for the drawing (gameplay keeps the bytes' 31).
+    const levels =
+      init.levels && init.levels.length === init.mapWidth * init.mapHeight
+        ? init.levels
+        : deriveLevels(init.terrain, init.mapWidth, init.mapHeight);
     this.heightfield = Heightfield.fromTerrain(
       init.terrain,
       init.mapWidth,
       init.mapHeight,
+      undefined,
+      levels,
     );
     this.territory = new TerritoryTextures(
       init.mapWidth,
@@ -144,6 +157,7 @@ export class WorldRenderer {
       init.terrain,
       init.mapWidth,
       init.mapHeight,
+      levels,
     );
     // Desktop: 2 texels per tile (smoothed coasts, finer relief); phones
     // and huge maps stay at 1. Gameplay tiles are never changed.

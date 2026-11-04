@@ -41,6 +41,10 @@ export const CUSTOM_MAP_FILES = [
   "map4x.bin",
   "map16x.bin",
   "thumbnail.webp",
+  // Height levels 0 (ground) - 100 (mountain tops), one byte per tile, for
+  // the 3D view (normal and compact size).
+  "height.bin",
+  "height4x.bin",
 ] as const;
 
 /** Most maps kept on one server. */
@@ -114,16 +118,26 @@ export async function readCustomMapFile(
 export function encodeUpload(
   header: CustomMapUpload,
   mapBin: Uint8Array,
+  levels?: Uint8Array,
 ): Uint8Array {
   const json = Buffer.from(JSON.stringify(header), "utf8");
   const len = Buffer.alloc(4);
   len.writeUInt32LE(json.length, 0);
-  return zlib.gzipSync(Buffer.concat([len, json, Buffer.from(mapBin)]));
+  return zlib.gzipSync(
+    Buffer.concat([
+      len,
+      json,
+      Buffer.from(mapBin),
+      ...(levels ? [Buffer.from(levels)] : []),
+    ]),
+  );
 }
 
 export function decodeUpload(body: Buffer): {
   header: CustomMapUpload;
   mapBin: Uint8Array;
+  /** Height levels (0-100), when the editor sent them. */
+  levels: Uint8Array | null;
 } {
   const raw = zlib.gunzipSync(body, {
     maxOutputLength: MAX_MAP_SIDE * MAX_MAP_SIDE + 2 * 1024 * 1024,
@@ -136,11 +150,19 @@ export function decodeUpload(body: Buffer): {
   const header = UploadHeaderSchema.parse(
     JSON.parse(raw.subarray(4, 4 + len).toString("utf8")),
   );
-  const mapBin = new Uint8Array(raw.subarray(4 + len));
-  if (mapBin.length !== header.width * header.height) {
+  // Tiles (map.bin), optionally followed by one height level per tile.
+  const tiles = header.width * header.height;
+  const rest = raw.length - 4 - len;
+  if (rest !== tiles && rest !== tiles * 2) {
     throw new Error("tile count does not match the size");
   }
-  return { header, mapBin };
+  const mapBin = new Uint8Array(raw.subarray(4 + len, 4 + len + tiles));
+  const levels =
+    rest === tiles * 2 ? new Uint8Array(raw.subarray(4 + len + tiles)) : null;
+  if (levels && levels.some((v) => v > 100)) {
+    throw new Error("height levels go from 0 to 100");
+  }
+  return { header, mapBin, levels };
 }
 
 function apiName(name: string): string {
@@ -159,6 +181,7 @@ export async function saveCustomMap(
   mapBin: Uint8Array,
   author: string,
   now = Date.now(),
+  levels: Uint8Array | null = null,
 ): Promise<string> {
   const existing = await listCustomMaps();
   if (existing.length >= MAX_CUSTOM_MAPS) {
@@ -166,7 +189,9 @@ export async function saveCustomMap(
       `This server already has ${MAX_CUSTOM_MAPS} maps; ask an admin to delete some`,
     );
   }
-  const built = buildMap(decodeMap(mapBin, header.width, header.height));
+  const built = buildMap(
+    decodeMap(mapBin, header.width, header.height, levels),
+  );
   if (built.numLandTiles < 100) {
     throw new CustomMapError("The map needs some land");
   }
@@ -214,6 +239,8 @@ export async function saveCustomMap(
     fsp.writeFile(path.join(tmp, "map.bin"), built.map),
     fsp.writeFile(path.join(tmp, "map4x.bin"), built.map4x),
     fsp.writeFile(path.join(tmp, "map16x.bin"), built.map16x),
+    fsp.writeFile(path.join(tmp, "height.bin"), built.levels),
+    fsp.writeFile(path.join(tmp, "height4x.bin"), built.levels4x),
     header.thumbnail
       ? fsp.writeFile(
           path.join(tmp, "thumbnail.webp"),
@@ -380,7 +407,13 @@ export function createCustomMapRouter(): express.Router {
         fail(res, 400, e instanceof Error ? e.message : "Bad map");
         return;
       }
-      saveCustomMap(upload.header, upload.mapBin, author).then(
+      saveCustomMap(
+        upload.header,
+        upload.mapBin,
+        author,
+        Date.now(),
+        upload.levels,
+      ).then(
         (id) => res.json({ id }),
         (e) => {
           if (e instanceof CustomMapError) fail(res, 400, e.message);

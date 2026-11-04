@@ -28,6 +28,11 @@ export interface MapData {
    * with another layer), which Compact games draw on directly.
    */
   layerImage: (layerId: string, compact: boolean) => Promise<ImageBitmap>;
+  /**
+   * Height levels 0 (ground) - 100 (mountain tops) per tile for the 3D
+   * view (height.bin / height4x.bin), when the map has them; null if not.
+   */
+  levelsBin?: (compact: boolean) => Promise<Uint8Array | null>;
 }
 
 /** Loads the files a game on this map and size reads (see MapFiles). */

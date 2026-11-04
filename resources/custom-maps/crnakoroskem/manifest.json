@@ -20,49 +20,49 @@
   "name": "Crna na Koroskem",
   "nations": [
     {
-      "coordinates": [1439, 545],
+      "coordinates": [431, 695],
       "flag": "si",
       "name": "Črna"
     },
     {
-      "coordinates": [62, 1051],
+      "coordinates": [1539, 83],
       "flag": "si",
       "name": "Žerjav"
     },
     {
-      "coordinates": [463, 64],
+      "coordinates": [1391, 1052],
       "flag": "si",
       "name": "Mežica"
     },
     {
-      "coordinates": [837, 1022],
+      "coordinates": [796, 55],
       "flag": "si",
       "name": "Koprivna"
     },
     {
-      "coordinates": [1083, 61],
+      "coordinates": [58, 69],
       "flag": "si",
       "name": "Javorje"
     },
     {
-      "coordinates": [59, 465],
+      "coordinates": [1014, 603],
       "flag": "si",
       "name": "Topla"
     },
     {
-      "coordinates": [1542, 1052],
+      "coordinates": [58, 1047],
       "flag": "si",
       "name": "Bistra"
     },
     {
-      "coordinates": [596, 566],
+      "coordinates": [789, 1052],
       "flag": "si",
       "name": "Podpeca"
     }
   ],
   "custom": {
     "author": "Laukolaroser",
-    "createdAt": 1793786128229,
+    "createdAt": 1793800000001,
     "tribes": 60
   }
 }

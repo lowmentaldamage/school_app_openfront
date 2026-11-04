@@ -120,7 +120,7 @@ Maps made in the in-game map editor are saved in `data/maps/<id>/` (the
 same data folder as the accounts). Every logged-in player can save maps;
 only admins can delete them (✕ on the map card under Custom maps). At most
 200 maps are kept. Back them up with the rest of `data/`.
-Maps in `resources/custom-maps/` (such as Črna na Koroškem) ship with the
+Maps in `resources/custom-maps/` (Slovenija, Črna na Koroškem 1 and 2) ship with the
 game and are installed on first start; if an admin deletes one, it stays
 deleted.
 

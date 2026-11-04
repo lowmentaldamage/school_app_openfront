@@ -1,6 +1,7 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   BuildableUnit,
+  GameMapSize,
   PlayerType,
   Structures,
   UnitType,
@@ -11,7 +12,7 @@ import {
   GameUpdateViewData,
   HashUpdate,
 } from "@laukolaroser/engine-api/game/GameUpdates";
-import { ClientID, GameID } from "@laukolaroser/engine-api/Schemas";
+import { ClientID, GameConfig, GameID } from "@laukolaroser/engine-api/Schemas";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import { findClosestBy } from "@laukolaroser/engine-lib/Util";
@@ -895,6 +896,7 @@ function mirrorOverlaysTo3D(view: MapRenderer, world3d: World3DView): void {
  */
 async function createWorld3DView(
   terrainMap: TerrainMapData,
+  gameConfig: GameConfig,
 ): Promise<World3DView | null> {
   if (!isWorld3DEnabled()) return null;
   try {
@@ -906,10 +908,21 @@ async function createWorld3DView(
     const terrain = new Uint8Array(w * h);
     for (let i = 0; i < terrain.length; i++)
       terrain[i] = gameMap.terrainByte(i);
+    // A custom map's own height levels (0 ground - 100 mountain tops);
+    // other maps get theirs derived from the terrain.
+    let levels: Uint8Array | null = null;
+    if (gameConfig.customMap) {
+      levels =
+        (await terrainMapFileLoader
+          .getCustomMapData(gameConfig.customMap)
+          .levelsBin?.(gameConfig.gameMapSize === GameMapSize.Compact)) ?? null;
+      if (levels && levels.length !== w * h) levels = null;
+    }
     const view = new World3DView({
       mapWidth: w,
       mapHeight: h,
       terrain,
+      levels,
       paletteSize: PALETTE_SIZE,
     });
     console.log(
@@ -1118,7 +1131,10 @@ async function createClientGame(
       mapLayerController,
     );
 
-    const world3d = await createWorld3DView(gameMap);
+    const world3d = await createWorld3DView(
+      gameMap,
+      lobbyConfig.gameStartInfo.config,
+    );
     if (world3d !== null) {
       glCanvas.style.visibility = "hidden";
       gameRenderer.transformHandler.setProjector(world3d);

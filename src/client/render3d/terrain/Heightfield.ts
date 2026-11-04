@@ -11,6 +11,10 @@
  * peak memory is one Float32 per tile plus O(max(w, h)).
  */
 
+import {
+  MAX_LEVEL,
+  MAX_MAGNITUDE,
+} from "@laukolaroser/shared/maps/TerrainLevels";
 import { IMPASSABLE_MAGNITUDE, isLandByte, magnitudeOf } from "./TerrainCodec";
 
 export interface HeightfieldOptions {
@@ -38,19 +42,33 @@ export const MIN_LAND_HEIGHT = 0.12;
 /** Maximum water height after smoothing, so water stays below the surface. */
 export const MAX_WATER_HEIGHT = -0.08;
 
-/** Raw (unsmoothed) elevation of one terrain byte, in tiles. */
-export function rawHeight(terrainByte: number): number {
+/**
+ * Land height (tiles) for a magnitude on the continuous 0-30 scale.
+ * Exaggerated relief: on a map thousands of tiles wide, true-to-scale
+ * mountains would be invisible bumps.
+ */
+export function landHeight(m: number): number {
+  if (m < 10) return 0.3 + m * 0.1; // plains: 0.3 … 1.3
+  if (m < 20) return 1.3 + (m - 10) * 0.47; // highland: 1.3 … 6.0
+  return 6.0 + (m - 20) * 2.3; // mountains: 6.0 … 29
+}
+
+/**
+ * Raw (unsmoothed) elevation of one terrain byte, in tiles. `level`
+ * (0 ground - 100 mountain tops, see TerrainLevels) gives land 101 height
+ * steps instead of the byte's 31.
+ */
+export function rawHeight(terrainByte: number, level?: number): number {
   const m = magnitudeOf(terrainByte);
   if (!isLandByte(terrainByte)) {
     // Water magnitude is distance-to-land; deepen gently and cap.
     return -(0.35 + Math.min(m, 24) * 0.14);
   }
-  // Exaggerated relief: on a map thousands of tiles wide, true-to-scale
-  // mountains would be invisible bumps.
   if (m >= IMPASSABLE_MAGNITUDE) return 34;
-  if (m < 10) return 0.3 + m * 0.1; // plains: 0.3 … 1.2
-  if (m < 20) return 1.3 + (m - 10) * 0.45; // highland: 1.3 … 5.35
-  return 6.0 + (m - 20) * 2.3; // mountains: 6.0 … 31.3
+  if (level !== undefined) {
+    return landHeight((level * MAX_MAGNITUDE) / MAX_LEVEL);
+  }
+  return landHeight(m);
 }
 
 export class Heightfield {
@@ -69,14 +87,19 @@ export class Heightfield {
     width: number,
     height: number,
     options: HeightfieldOptions = DEFAULT_HEIGHTFIELD_OPTIONS,
+    /** Height levels (0-100) per tile; missing: from the bytes. */
+    levels?: Uint8Array | null,
   ): Heightfield {
+    const lv = levels && levels.length === width * height ? levels : null;
     if (terrain.length !== width * height) {
       throw new Error(
         `Heightfield: terrain has ${terrain.length} bytes, expected ${width * height}`,
       );
     }
     const h = new Float32Array(width * height);
-    for (let i = 0; i < h.length; i++) h[i] = rawHeight(terrain[i]);
+    for (let i = 0; i < h.length; i++) {
+      h[i] = rawHeight(terrain[i], lv ? lv[i] : undefined);
+    }
 
     if (options.blurRadius > 0) {
       const scratch = new Float32Array(Math.max(width, height));
@@ -92,7 +115,7 @@ export class Heightfield {
     // summits while the slopes below stay smooth.
     const s = options.verticalScale;
     for (let i = 0; i < h.length; i++) {
-      const raw = rawHeight(terrain[i]);
+      const raw = rawHeight(terrain[i], lv ? lv[i] : undefined);
       if (raw > MOUNTAIN_PEAK_FROM && raw > h[i]) {
         h[i] += (raw - h[i]) * PEAK_RESTORE;
       }

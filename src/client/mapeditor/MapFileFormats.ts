@@ -361,7 +361,7 @@ export function decodeTiff(bytes: Uint8Array): HeightGrid {
  * Heights → terrain at `width` × `height` (bilinear resampling). Water is
  * at or below the sea level: the file's own (metres) or, without one, the
  * `seaSlider` (0-255) share of the height range. Land heights are spread
- * over elevations 0-30 with a gentle curve, so plains stay plains and
+ * over heights 0 (ground) - 100 (mountain tops) with a gentle curve, so plains stay plains and
  * only the highest ground becomes mountains.
  */
 export function heightsToMap(
@@ -428,7 +428,7 @@ export function heightsToMap(
       if (v <= sea) continue;
       m.kind[i] = TERRAIN_LAND;
       const t = Math.min(1, (v - sea) / span);
-      m.elevation[i] = Math.min(30, Math.round(Math.pow(t, 0.85) * 30));
+      m.elevation[i] = Math.min(100, Math.round(Math.pow(t, 0.85) * 100));
     }
   }
   return m;
