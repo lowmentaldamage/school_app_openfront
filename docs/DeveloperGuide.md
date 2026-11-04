@@ -183,8 +183,10 @@ Every push to `main` rebuilds the **windows-latest** zip (and, when
 
 1. Set `resources/version.txt` (e.g. `v1.2.0`) and the top of
    `resources/changelog.md` (shown in the game's News).
-2. Push to `main`, wait for the builds, then tag it:
-   `git tag v1.2.0 && git push origin v1.2.0`.
+2. Push to `main`, wait for the builds, then either tag it
+   (`git tag v1.2.0 && git push origin v1.2.0`) or open **Actions → 🪟
+   Windows test build → Run workflow** on `main` and type `v1.2.0` as the
+   version (GitHub then makes the tag itself).
 3. The Windows workflow publishes a **Laukolaroser v1.2.0** release with
    the zip, the latest APK and the changelog as notes.
 
