@@ -910,10 +910,10 @@
     "medium": "Medium"
   },
   "disaster_frequency": {
-    "frequent": "Frequent (about every 2 min)",
+    "frequent": "Often · 2 min",
     "label": "How often",
-    "normal": "Normal (about every 5 min)",
-    "rare": "Rare (about every 10 min)"
+    "normal": "Normal · 5 min",
+    "rare": "Rare · 10 min"
   },
   "discord_user_header": {
     "avatar_alt": "Avatar"

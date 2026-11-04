@@ -323,7 +323,7 @@ nations buy tiers too once they are rich.
 ## 8b. Natural disasters
 
 A lobby option (**Natural disasters**, on by default; Rare / Normal /
-Frequent — about every 10, 5 or 2 minutes, never in the first 3 minutes or
+Often — about every 10, 5 or 2 minutes, never in the first 3 minutes or
 in the tutorial). Every client sees the same disasters at the same time.
 
 Each one is announced **10 seconds ahead**: a message with the place and a

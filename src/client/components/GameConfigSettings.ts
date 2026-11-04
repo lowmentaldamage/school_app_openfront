@@ -435,6 +435,7 @@ export class GameConfigSettings extends LitElement {
                 <select
                   class="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-white text-xs"
                   aria-label=${translateText("disaster_frequency.label")}
+                  style="max-width: 100%"
                   @click=${(e: Event) => e.stopPropagation()}
                   @change=${this.handleDisasterFrequencyChange}
                 >
