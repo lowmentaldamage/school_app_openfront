@@ -28,6 +28,9 @@ const BY_TYPE: Record<string, ModelKind> = {
   "Oil Rig": "oilRig",
   Airbase: "airbase",
   "Radar Station": "radarStation",
+  Fort: "fort",
+  "Coastal Battery": "coastalBattery",
+  "Sea Mine": "seaMine",
   Bomber: "bomber",
   Fighter: "fighter",
   Transport: "transport",
@@ -54,6 +57,9 @@ export const STRUCTURE_KINDS: ReadonlySet<ModelKind> = new Set<ModelKind>([
   "oilRig",
   "airbase",
   "radarStation",
+  "fort",
+  "coastalBattery",
+  "seaMine",
   "city",
   "port",
   "factory",
@@ -217,7 +223,7 @@ export function hiddenSubmarines(
         const r = radarRange(u.level ?? 1);
         spotters.push({ x, y, r2: r * r });
       }
-    } else if (u.unitType === "Submarine") {
+    } else if (u.unitType === "Submarine" || u.unitType === "Sea Mine") {
       subs.push({ id: u.id, x, y });
     }
   }

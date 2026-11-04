@@ -34,6 +34,7 @@ import {
 } from "@laukolaroser/engine-api/game/GameUpdates";
 import { ReadonlyTileSet } from "@laukolaroser/engine-api/game/ReadViews";
 import { ClientID } from "@laukolaroser/engine-api/Schemas";
+import { SEA_MINE } from "@laukolaroser/engine-lib/defense/Defenses";
 import { OIL_RIG_RANGE } from "@laukolaroser/engine-lib/economy/Economy";
 import {
   andFN,
@@ -1685,7 +1686,12 @@ export class PlayerImpl implements Player {
       case UnitType.Market:
       case UnitType.Airbase:
       case UnitType.RadarStation:
+      case UnitType.Fort:
         return this.landBasedStructureSpawn(targetTile, validTiles);
+      case UnitType.CoastalBattery:
+        return this.coastalBatterySpawn(targetTile, validTiles);
+      case UnitType.SeaMine:
+        return this.seaMineSpawn(targetTile);
       case UnitType.GoldMine:
         return this.goldMineSpawn(targetTile, validTiles);
       case UnitType.OilRig:
@@ -1807,6 +1813,37 @@ export class PlayerImpl implements Player {
   }
 
   /** Gold mines need highland or mountain land. */
+  /** Coastal battery: a shore tile of the player's land. */
+  coastalBatterySpawn(
+    tile: TileRef,
+    validTiles: TileRef[] | null = null,
+  ): TileRef | false {
+    const tiles = (validTiles ?? this.validStructureSpawnTiles(tile)).filter(
+      (t) => this.mg.isShore(t),
+    );
+    return tiles.length === 0 ? false : tiles[0];
+  }
+
+  /** Sea mine: open water near the player's land, not on top of another. */
+  seaMineSpawn(tile: TileRef): TileRef | false {
+    const mg = this.mg;
+    if (!mg.isWater(tile)) return false;
+    if (!this.ownsLandNear(tile, SEA_MINE.layRange)) return false;
+    if (
+      mg.anyUnitNearby(
+        tile,
+        SEA_MINE.spacing,
+        [UnitType.SeaMine, UnitType.OilRig],
+        () => true,
+        undefined,
+        true,
+      )
+    ) {
+      return false;
+    }
+    return tile;
+  }
+
   goldMineSpawn(
     tile: TileRef,
     validTiles: TileRef[] | null = null,

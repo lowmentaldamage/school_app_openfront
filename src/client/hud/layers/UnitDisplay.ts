@@ -20,6 +20,9 @@ import { buildHelp, stackingTip } from "../BuildHelp";
 import {
   airbaseIcon,
   radarIcon,
+  fortIcon,
+  coastalBatteryIcon,
+  seaMineIcon,
   armoredTrainIcon,
   atomBombIcon,
   battleshipIcon,
@@ -67,6 +70,9 @@ export class UnitDisplay extends LitElement implements Controller {
   private _oilRigs = 0;
   private _airbases = 0;
   private _radars = 0;
+  private _forts = 0;
+  private _batteries = 0;
+  private _mines = 0;
   private _factories = 0;
   private _missileSilo = 0;
   private _port = 0;
@@ -174,6 +180,9 @@ export class UnitDisplay extends LitElement implements Controller {
     this._oilRigs = player.totalUnitLevels(UnitType.OilRig);
     this._airbases = player.totalUnitLevels(UnitType.Airbase);
     this._radars = player.totalUnitLevels(UnitType.RadarStation);
+    this._forts = player.totalUnitLevels(UnitType.Fort);
+    this._batteries = player.totalUnitLevels(UnitType.CoastalBattery);
+    this._mines = player.units(UnitType.SeaMine).length;
     this.requestUpdate();
   }
 
@@ -290,6 +299,21 @@ export class UnitDisplay extends LitElement implements Controller {
             this._radars,
             UnitType.RadarStation,
             "radar_station",
+            "",
+          )}
+          ${this.renderUnitItem(fortIcon, this._forts, UnitType.Fort, "fort", "")}
+          ${this.renderUnitItem(
+            coastalBatteryIcon,
+            this._batteries,
+            UnitType.CoastalBattery,
+            "coastal_battery",
+            "",
+          )}
+          ${this.renderUnitItem(
+            seaMineIcon,
+            this._mines,
+            UnitType.SeaMine,
+            "sea_mine",
             "",
           )}
         </div>

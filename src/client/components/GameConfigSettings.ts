@@ -127,6 +127,12 @@ const unitOptions: { type: UnitType; translationKey: string }[] = [
     type: UnitType.RadarStation,
     translationKey: "unit_type.radar_station",
   },
+  { type: UnitType.Fort, translationKey: "unit_type.fort" },
+  {
+    type: UnitType.CoastalBattery,
+    translationKey: "unit_type.coastal_battery",
+  },
+  { type: UnitType.SeaMine, translationKey: "unit_type.sea_mine" },
   { type: UnitType.TransportShip, translationKey: "unit_type.boat" },
   { type: UnitType.MissileSilo, translationKey: "unit_type.missile_silo" },
   { type: UnitType.SAMLauncher, translationKey: "unit_type.sam_launcher" },

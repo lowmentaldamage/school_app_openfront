@@ -9,6 +9,7 @@ import {
 import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import { BOMBER } from "../air/Air";
+import { COASTAL_BATTERY } from "../defense/Defenses";
 import { pow } from "../DetMath";
 import { DoomsdayClockSpeed } from "../game/DoomsdayClock";
 import { NAVAL_CLASSES } from "../naval/NavalClasses";
@@ -244,6 +245,7 @@ export class Config {
       case UnitType.Market:
       case UnitType.Airbase:
       case UnitType.RadarStation:
+      case UnitType.Fort:
         info = {
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
           upgradable: true,
@@ -254,6 +256,16 @@ export class Config {
           constructionDuration: this.instantBuild() ? 0 : 8 * 10,
           upgradable: true,
         };
+        break;
+      case UnitType.CoastalBattery:
+        info = {
+          constructionDuration: this.instantBuild() ? 0 : 6 * 10,
+          upgradable: true,
+          maxHealth: COASTAL_BATTERY.maxHealth,
+        };
+        break;
+      case UnitType.SeaMine:
+        info = { constructionDuration: this.instantBuild() ? 0 : 2 * 10 };
         break;
       case UnitType.Bomber:
         info = { maxHealth: BOMBER.maxHealth };

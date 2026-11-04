@@ -12,6 +12,7 @@
 - Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
 - Build previews, range rings and nuke flight paths shown in 3D
 - Classic flat map still available with `?renderer=2d`
+- Defense extras: Fort (attackers near it lose 3× more and move half as fast), Coastal Battery (shore gun that shells enemy ships), Sea Mines (hidden; blow up enemy ships, destroyers sweep them)
 - Tech tree (lobby option, on by default): 12 techs in Army, Navy, Air & missiles and Economy — pay gold, research takes 30–90 s, one at a time (🔬 button or key I); AI nations research too
 - Fog of war (lobby option, on by default): enemy units and buildings only show near your land, ships, planes and radar; buildings stay on the map once seen; incoming nukes are always shown
 - Radar Station: reveals a wide circle and lets your warships hunt submarines inside it

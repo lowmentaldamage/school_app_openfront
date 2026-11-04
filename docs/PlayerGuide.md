@@ -196,6 +196,14 @@ Enemy buildings stay on your map once you have seen them. Incoming nukes
 and missiles are always shown. A Radar Station also lets **every** warship
 of yours (and your allies') hunt enemy submarines inside its circle.
 
+## 7d-2. Defense extras
+
+| Building            | Where                              | What it does                                                                                                                                                              |
+| ------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fort**            | Your land, behind the front        | Enemy land attacks within 10 tiles lose 3× more troops and move half as fast (stacks with a defense post)                                                                 |
+| **Coastal Battery** | A shore tile of your land          | Shells enemy warships, spotted submarines and transports within 45 tiles; upgrades reload faster                                                                          |
+| **Sea Mine**        | Water within 25 tiles of your land | Hidden from enemies (spotted only near their ships); blows up the first enemy ship that comes within 2 tiles (700 damage, transports sink). Destroyers sweep mines safely |
+
 ## 7e. Research (tech tree)
 
 Press **I** or the **🔬** button (bottom-left). Pay gold to research one

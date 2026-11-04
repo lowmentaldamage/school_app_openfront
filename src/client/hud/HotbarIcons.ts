@@ -11,6 +11,11 @@ export const marketIcon = assetUrl("images/MarketIconWhite.svg");
 export const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
 export const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
 export const radarIcon = assetUrl("images/RadarIconWhite.svg");
+export const fortIcon = assetUrl("images/FortIconWhite.svg");
+export const coastalBatteryIcon = assetUrl(
+  "images/CoastalBatteryIconWhite.svg",
+);
+export const seaMineIcon = assetUrl("images/SeaMineIconWhite.svg");
 export const submarineIcon = assetUrl("images/SubmarineIconWhite.svg");
 export const carrierIcon = assetUrl("images/CarrierIconWhite.svg");
 export const cityIcon = assetUrl("images/CityIconWhite.svg");

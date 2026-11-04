@@ -236,6 +236,9 @@ export enum UnitType {
   Fighter = "Fighter",
   // Defense (see engine-lib/defense/Radar.ts).
   RadarStation = "Radar Station",
+  Fort = "Fort",
+  CoastalBattery = "Coastal Battery",
+  SeaMine = "Sea Mine",
 }
 
 /** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
@@ -289,6 +292,7 @@ export const BuildableAttacks = unitTypeGroup([
   UnitType.ArmoredTrain,
   UnitType.TroopTrain,
   UnitType.RailSAM,
+  UnitType.SeaMine,
 ] as const);
 
 /** Buildable military trains: they patrol their owner's rail network. */
@@ -322,6 +326,8 @@ export const Structures = unitTypeGroup([
   UnitType.Market,
   UnitType.Airbase,
   UnitType.RadarStation,
+  UnitType.Fort,
+  UnitType.CoastalBattery,
 ] as const);
 
 /** Income buildings (engine-lib/economy/Economy.ts). */

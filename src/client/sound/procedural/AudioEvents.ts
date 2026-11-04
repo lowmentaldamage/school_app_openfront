@@ -112,6 +112,8 @@ const STRUCTURE_TYPES = new Set([
   "Oil Rig",
   "Airbase",
   "Radar Station",
+  "Fort",
+  "Coastal Battery",
 ]);
 
 function isStructure(type: string): boolean {

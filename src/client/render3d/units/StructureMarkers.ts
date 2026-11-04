@@ -36,6 +36,8 @@ const ICONS: Partial<Record<ModelKind, string>> = {
   oilRig: "images/OilRigIconWhite.svg",
   airbase: "images/AirbaseIconWhite.svg",
   radarStation: "images/RadarIconWhite.svg",
+  fort: "images/FortIconWhite.svg",
+  coastalBattery: "images/CoastalBatteryIconWhite.svg",
 };
 
 export const MARKER_KINDS = Object.keys(ICONS) as ModelKind[];

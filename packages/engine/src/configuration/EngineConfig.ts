@@ -14,6 +14,12 @@ import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import { NukeType } from "@laukolaroser/engine-api/StatsSchemas";
 import { AIRBASE } from "@laukolaroser/engine-lib/air/Air";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
+import {
+  COASTAL_BATTERY,
+  FORT,
+  scaledCost,
+  SEA_MINE,
+} from "@laukolaroser/engine-lib/defense/Defenses";
 import { radarCost } from "@laukolaroser/engine-lib/defense/Radar";
 import { exp, log, pow2 } from "@laukolaroser/engine-lib/DetMath";
 import {
@@ -52,6 +58,8 @@ export interface AttackLogicInput {
   } | null;
   /** A defense post owned by the defender is in range of the tile. */
   defenderHasDefensePost: boolean;
+  /** A Fort of the defender within FORT.range (optional: tests). */
+  defenderHasFort?: boolean;
   /**
    * Highest terrain the attacker already holds next to the tile (where the
    * assault comes from), for the high-ground rule; undefined when unknown
@@ -438,6 +446,21 @@ export class EngineConfig extends Config {
             Math.min(AIRBASE.maxCost, AIRBASE.baseCost * (numUnits + 1)),
           UnitType.Airbase,
         );
+      case UnitType.Fort:
+        return this.costWrapper(
+          (n: number) => scaledCost(FORT, n),
+          UnitType.Fort,
+        );
+      case UnitType.CoastalBattery:
+        return this.costWrapper(
+          (n: number) => scaledCost(COASTAL_BATTERY, n),
+          UnitType.CoastalBattery,
+        );
+      case UnitType.SeaMine:
+        return this.costWrapper(
+          (n: number) => scaledCost(SEA_MINE, n),
+          UnitType.SeaMine,
+        );
       case UnitType.RadarStation:
         return this.costWrapper(
           (numUnits: number) => radarCost(numUnits),
@@ -644,6 +667,10 @@ export class EngineConfig extends Config {
     if (defender !== null && input.defenderHasDefensePost) {
       mag *= this.defensePostDefenseBonus();
       tileCost *= this.defensePostSpeedBonus();
+    }
+    if (defender !== null && input.defenderHasFort) {
+      mag *= FORT.lossFactor;
+      tileCost *= FORT.speedFactor;
     }
     if (input.falloutRatio !== null) {
       const fallout = this.falloutDefenseModifier(input.falloutRatio);

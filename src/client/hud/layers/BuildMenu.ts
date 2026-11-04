@@ -37,6 +37,9 @@ const marketIcon = assetUrl("images/MarketIconWhite.svg");
 const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
 const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
 const radarIcon = assetUrl("images/RadarIconWhite.svg");
+const fortIcon = assetUrl("images/FortIconWhite.svg");
+const coastalBatteryIcon = assetUrl("images/CoastalBatteryIconWhite.svg");
+const seaMineIcon = assetUrl("images/SeaMineIconWhite.svg");
 const submarineIcon = assetUrl("images/SubmarineIconWhite.svg");
 const carrierIcon = assetUrl("images/CarrierIconWhite.svg");
 const cityIcon = assetUrl("images/CityIconWhite.svg");
@@ -149,6 +152,27 @@ const buildTable: BuildItemDisplay[][] = [
       icon: radarIcon,
       description: "build_menu.desc.radar_station",
       key: "unit_type.radar_station",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Fort,
+      icon: fortIcon,
+      description: "build_menu.desc.fort",
+      key: "unit_type.fort",
+      countable: true,
+    },
+    {
+      unitType: UnitType.CoastalBattery,
+      icon: coastalBatteryIcon,
+      description: "build_menu.desc.coastal_battery",
+      key: "unit_type.coastal_battery",
+      countable: true,
+    },
+    {
+      unitType: UnitType.SeaMine,
+      icon: seaMineIcon,
+      description: "build_menu.desc.sea_mine",
+      key: "unit_type.sea_mine",
       countable: true,
     },
     {

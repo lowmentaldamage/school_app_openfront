@@ -9,6 +9,7 @@ import {
   TerraNullius,
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
+import { FORT } from "@laukolaroser/engine-lib/defense/Defenses";
 import { renderTroops } from "@laukolaroser/engine-lib/Format";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
@@ -416,6 +417,9 @@ export class AttackExecution implements Execution {
                 defender.isDisconnected() && this._owner.isOnSameTeam(defender),
             },
       defenderHasDefensePost,
+      defenderHasFort:
+        defender !== null &&
+        this.mg.hasUnitNearby(tile, FORT.range, UnitType.Fort, defender.id()),
       falloutRatio: this.mg.hasFallout(tile)
         ? this.mg.numTilesWithFallout() / this.mg.numLandTiles()
         : null,

@@ -16,6 +16,7 @@ import type {
 } from "../snapshot/SnapshotContext";
 import { AirbaseExecution } from "./AirExecutions";
 import { CityExecution } from "./CityExecution";
+import { CoastalBatteryExecution, SeaMineExecution } from "./DefenseExecutions";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { FactoryExecution } from "./FactoryExecution";
 import { IncomeBuildingExecution } from "./IncomeBuildingExecution";
@@ -195,7 +196,14 @@ export class ConstructionExecution implements Execution {
         this.mg.addExecution(new AirbaseExecution(this.structure!));
         break;
       case UnitType.RadarStation:
-        // Passive: warships and the fog of war read radars directly.
+      case UnitType.Fort:
+        // Passive: warships, attacks and the fog of war read them directly.
+        break;
+      case UnitType.CoastalBattery:
+        this.mg.addExecution(new CoastalBatteryExecution(this.structure!));
+        break;
+      case UnitType.SeaMine:
+        this.mg.addExecution(new SeaMineExecution(this.structure!));
         break;
       default:
         console.warn(
@@ -218,6 +226,9 @@ export class ConstructionExecution implements Execution {
       case UnitType.OilRig:
       case UnitType.Airbase:
       case UnitType.RadarStation:
+      case UnitType.Fort:
+      case UnitType.CoastalBattery:
+      case UnitType.SeaMine:
         return true;
       default:
         return false;

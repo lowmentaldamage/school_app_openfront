@@ -9,6 +9,11 @@
 
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { AIRBASE, BOMBER, FIGHTER } from "@laukolaroser/engine-lib/air/Air";
+import {
+  COASTAL_BATTERY,
+  FORT,
+  SEA_MINE,
+} from "@laukolaroser/engine-lib/defense/Defenses";
 import { RADAR, radarRange } from "@laukolaroser/engine-lib/defense/Radar";
 import {
   ECONOMY_BUILDINGS,
@@ -176,6 +181,36 @@ export function buildHelp(
             "range",
             `${radarRange(1)} ${t("tiles")} (+${RADAR.rangePerLevel} / ${t("level")})`,
           ),
+        ],
+      };
+    case UnitType.Fort:
+      return {
+        use: t("use_fort"),
+        stats: [
+          line("range", `${FORT.range} ${t("tiles")}`),
+          line("attacker_losses", `×${FORT.lossFactor}`),
+          line("attacker_speed", `÷${FORT.speedFactor}`),
+          line("cost_from", renderNumber(FORT.baseCost)),
+        ],
+      };
+    case UnitType.CoastalBattery:
+      return {
+        use: t("use_battery"),
+        stats: [
+          line("range", `${COASTAL_BATTERY.range} ${t("tiles")}`),
+          line("reload", `${COASTAL_BATTERY.reloadTicks / 10} s`),
+          line("health", COASTAL_BATTERY.maxHealth),
+          line("cost_from", renderNumber(COASTAL_BATTERY.baseCost)),
+        ],
+      };
+    case UnitType.SeaMine:
+      return {
+        use: t("use_mine_sea"),
+        stats: [
+          line("damage", SEA_MINE.damage),
+          line("trigger", `${SEA_MINE.triggerRange} ${t("tiles")}`),
+          line("lay_range", `${SEA_MINE.layRange} ${t("tiles")}`),
+          line("cost_from", renderNumber(SEA_MINE.baseCost)),
         ],
       };
     case UnitType.Warship:

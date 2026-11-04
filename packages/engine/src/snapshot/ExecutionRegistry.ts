@@ -12,6 +12,10 @@ import { AttackExecutionSnapshot } from "../execution/AttackExecution";
 import { BoatRetreatExecutionSnapshot } from "../execution/BoatRetreatExecution";
 import { CityExecutionSnapshot } from "../execution/CityExecution";
 import { ConstructionExecutionSnapshot } from "../execution/ConstructionExecution";
+import {
+  CoastalBatterySnapshot,
+  SeaMineSnapshot,
+} from "../execution/DefenseExecutions";
 import { DefensePostExecutionSnapshot } from "../execution/DefensePostExecution";
 import { DeleteUnitExecutionSnapshot } from "../execution/DeleteUnitExecution";
 import { DonateGoldExecutionSnapshot } from "../execution/DonateGoldExecution";
@@ -97,6 +101,8 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   FighterSnapshot,
   IncomeBuildingSnapshot,
   ResearchExecutionSnapshot,
+  CoastalBatterySnapshot,
+  SeaMineSnapshot,
   QuickChatExecutionSnapshot,
   RecomputeRailClusterExecutionSnapshot,
   RetreatExecutionSnapshot,

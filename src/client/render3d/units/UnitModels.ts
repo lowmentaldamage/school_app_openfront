@@ -24,6 +24,9 @@ export type ModelKind =
   | "oilRig"
   | "airbase"
   | "radarStation"
+  | "fort"
+  | "coastalBattery"
+  | "seaMine"
   | "bomber"
   | "fighter"
   | "expressEngine"
@@ -640,6 +643,91 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       })
       .sphere(0.06, { team: true, pos: [0.3, 1.5, -0.25] })
       .build(),
+
+  // Star fort: low thick stone walls with corner bastions, a keep with a
+  // team-coloured roof and a flag.
+  fort: () => {
+    const b = new ModelBuilder()
+      .box(2.0, 0.08, 2.0, { color: 0x8a8577 })
+      .box(1.7, 0.5, 0.22, {
+        color: 0x9a9384,
+        pattern: "brick",
+        pos: [0, 0.08, -0.75],
+      })
+      .box(1.7, 0.5, 0.22, {
+        color: 0x9a9384,
+        pattern: "brick",
+        pos: [0, 0.08, 0.75],
+      })
+      .box(0.22, 0.5, 1.7, {
+        color: 0x9a9384,
+        pattern: "brick",
+        pos: [-0.75, 0.08, 0],
+      })
+      .box(0.22, 0.5, 1.7, {
+        color: 0x9a9384,
+        pattern: "brick",
+        pos: [0.75, 0.08, 0],
+      });
+    for (const [x, z] of [
+      [-0.8, -0.8],
+      [0.8, -0.8],
+      [-0.8, 0.8],
+      [0.8, 0.8],
+    ] as const) {
+      b.cylinder(0.3, 0.34, 0.62, 6, {
+        color: 0x8f8879,
+        pattern: "brick",
+        pos: [x, 0.08, z],
+      }).cylinder(0.32, 0.32, 0.06, 6, { team: true, pos: [x, 0.7, z] });
+    }
+    return b
+      .box(0.6, 0.75, 0.6, {
+        color: 0x857e70,
+        pattern: "brick",
+        pos: [0, 0.08, 0],
+      })
+      .cone(0.48, 0.35, 4, {
+        team: true,
+        pos: [0, 0.83, 0],
+        rot: [0, PI / 4, 0],
+      })
+      .cylinder(0.02, 0.02, 0.6, 4, { color: DARK_STEEL, pos: [0, 1.15, 0] })
+      .box(0.3, 0.18, 0.02, { team: true, pos: [0.15, 1.57, 0] })
+      .build();
+  },
+
+  // Shore gun: concrete emplacement, a long barrel on a turret ring.
+  coastalBattery: () =>
+    new ModelBuilder()
+      .box(1.6, 0.3, 1.3, { color: CONCRETE, pattern: "panels" })
+      .box(1.64, 0.06, 1.34, { team: true, pos: [0, 0.3, 0] })
+      .cylinder(0.45, 0.5, 0.24, 10, { color: DARK_STEEL, pos: [0, 0.36, 0] })
+      .box(0.5, 0.26, 0.42, { color: STEEL, pos: [0, 0.6, 0] })
+      .cylinder(0.07, 0.09, 1.5, 8, {
+        color: BLACK,
+        pos: [0.95, 0.72, 0],
+        rot: [0, 0, -PI / 2 + 0.12],
+      })
+      .build(),
+
+  // Naval mine: a spiked sphere riding low in the water.
+  seaMine: () => {
+    const b = new ModelBuilder().sphere(0.28, {
+      color: 0x2f3439,
+      pos: [0, 0.05, 0],
+    });
+    for (const [x, y, z] of [
+      [0.3, 0.05, 0],
+      [-0.3, 0.05, 0],
+      [0, 0.05, 0.3],
+      [0, 0.05, -0.3],
+      [0, 0.33, 0],
+    ] as const) {
+      b.box(0.06, 0.06, 0.06, { color: BRASS, pos: [x, y, z] });
+    }
+    return b.box(0.12, 0.05, 0.12, { team: true, pos: [0, 0.3, 0] }).build();
+  },
 
   // Twin-engine bomber (nose along +x).
   bomber: () =>

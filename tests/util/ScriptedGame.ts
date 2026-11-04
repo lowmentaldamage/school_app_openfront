@@ -278,6 +278,7 @@ const STRUCTURES = [
   UnitType.MissileSilo,
   UnitType.Market,
   UnitType.Airbase,
+  UnitType.Fort,
 ] as const;
 
 function nearbyWater(
@@ -341,6 +342,30 @@ function buildStructureIntent(
     rand.chance(2)
   ) {
     unit = UnitType.SAMLauncher;
+  } else if (
+    shores.length > 0 &&
+    p.units(UnitType.Port).length > 0 &&
+    rand.chance(4)
+  ) {
+    // Coast defenses: a battery on the shore, or a mine just offshore.
+    const shore = pick(rand, shores);
+    if (shore === null) return null;
+    if (
+      p.units(UnitType.CoastalBattery).length === 0 &&
+      canAfford(game, p, UnitType.CoastalBattery)
+    ) {
+      if (p.canBuild(UnitType.CoastalBattery, shore) === false) return null;
+      return { type: "build_unit", unit: UnitType.CoastalBattery, tile: shore };
+    }
+    const water = nearbyWater(game, shore, rand);
+    if (
+      water === null ||
+      !canAfford(game, p, UnitType.SeaMine) ||
+      p.canBuild(UnitType.SeaMine, water) === false
+    ) {
+      return null;
+    }
+    return { type: "build_unit", unit: UnitType.SeaMine, tile: water };
   } else {
     const affordable = STRUCTURES.filter((t) => canAfford(game, p, t));
     const picked = pick(rand, affordable);

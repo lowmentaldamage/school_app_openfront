@@ -144,6 +144,7 @@ export class HelpModal extends BaseModal {
                 "weapons",
                 "air",
                 "fog",
+                "defense",
                 "research",
                 "economy",
                 "terrain",

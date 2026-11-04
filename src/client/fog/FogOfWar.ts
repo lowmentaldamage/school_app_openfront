@@ -68,6 +68,8 @@ const STRUCTURES = new Set<string>([
   "Oil Rig",
   "Airbase",
   "Radar Station",
+  "Fort",
+  "Coastal Battery",
 ]);
 
 export interface FogUnit {
