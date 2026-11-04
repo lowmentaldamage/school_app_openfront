@@ -37,6 +37,7 @@ import {
   importSize,
   autoNationSpots,
   autoRelief,
+  detectImageMode,
   isFlat,
   MapDocument,
   randomIslands,
@@ -142,6 +143,7 @@ export class MapEditor extends LitElement {
   @state() private tribes = 100;
   @state() private reliefStrength = 60;
   private orbitDrag: { x: number; y: number } | null = null;
+  private detectedMode: ImageMode = "auto";
   /** Phones: the side panel (auto, nations) opens over the map. */
   @state() private showPanel = false;
   @state() private uploadMode: ImageMode = "auto";
@@ -338,17 +340,23 @@ export class MapEditor extends LitElement {
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(up.bitmap, 0, 0, width, height);
       const data = ctx.getImageData(0, 0, width, height);
+      this.detectedMode = detectImageMode({
+        width,
+        height,
+        data: data.data,
+      });
       map = imageToMap(
         { width, height, data: data.data },
         { mode: this.uploadMode, seaLevel: this.seaLevel },
       );
     }
-    // Automatic 3D: a flat picture (or any picture, when asked) gets
-    // coasts, hills and mountain ranges.
-    if (
-      this.autoTerrain &&
-      (isFlat(map) || (!up.grid && this.uploadMode !== "game"))
-    ) {
+    // Automatic 3D: map pictures and anything flat get coasts, hills and
+    // mountain ranges; real height data keeps its own relief.
+    const picture =
+      !up.grid &&
+      (this.uploadMode === "picture" ||
+        (this.uploadMode === "auto" && this.detectedMode === "picture"));
+    if (this.autoTerrain && (isFlat(map) || picture)) {
       map.elevation.set(autoRelief(map, this.seed, this.reliefStrength / 100));
     }
     const doc = new MapDocument(map);

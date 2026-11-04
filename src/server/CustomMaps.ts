@@ -29,6 +29,7 @@ import express, { type Request, type Response } from "express";
 import fs from "fs";
 import fsp from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
 import zlib from "zlib";
 import { z } from "zod";
 import { selfHostDataDir, selfHostEnabled } from "./selfhost/SelfHost";
@@ -143,7 +144,12 @@ export function decodeUpload(body: Buffer): {
 }
 
 function apiName(name: string): string {
-  const cleaned = name.replace(/[^a-zA-Z0-9\s().-]/g, "").trim();
+  // Accents become plain letters (Črna → Crna) before anything is dropped.
+  const cleaned = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s().-]/g, "")
+    .trim();
   return (cleaned || "Custom map").slice(0, 29);
 }
 
@@ -260,10 +266,56 @@ export async function deleteCustomMap(id: string): Promise<boolean> {
   const dir = mapDir(id);
   if (!fs.existsSync(dir)) return false;
   await fsp.rm(dir, { recursive: true, force: true });
+  // A bundled map an admin deleted stays deleted.
+  if (fs.existsSync(path.join(bundledMapsDir(), id))) {
+    await fsp.writeFile(deletedMarker(id), "");
+  }
   return true;
 }
 
+/** Maps that ship with the game (resources/custom-maps/<id>/). */
+export function bundledMapsDir(): string {
+  return path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../resources/custom-maps",
+  );
+}
+
+function deletedMarker(id: string): string {
+  return path.join(customMapsDir(), `.deleted-${id}`);
+}
+
+/**
+ * Copy the bundled maps into this server's map store, once: maps already
+ * there, and bundled maps an admin deleted, are left alone.
+ */
+export function seedBundledMaps(from = bundledMapsDir()): string[] {
+  let ids: string[];
+  try {
+    ids = fs.readdirSync(from).filter((id) => CUSTOM_MAP_ID_RE.test(id));
+  } catch {
+    return [];
+  }
+  const seeded: string[] = [];
+  for (const id of ids) {
+    const dest = mapDir(id);
+    if (fs.existsSync(dest) || fs.existsSync(deletedMarker(id))) continue;
+    try {
+      fs.mkdirSync(dest, { recursive: true });
+      for (const file of CUSTOM_MAP_FILES) {
+        const src = path.join(from, id, file);
+        if (fs.existsSync(src)) fs.copyFileSync(src, path.join(dest, file));
+      }
+      seeded.push(id);
+    } catch (e) {
+      console.error(`could not install bundled map ${id}`, e);
+    }
+  }
+  return seeded;
+}
+
 export function createCustomMapRouter(): express.Router {
+  seedBundledMaps();
   const router = express.Router();
   const fail = (res: Response, status: number, error: string) =>
     res.status(status).json({ error });

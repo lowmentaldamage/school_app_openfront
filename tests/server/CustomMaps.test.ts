@@ -9,10 +9,12 @@ import {
   TERRAIN_LAND,
 } from "../../packages/shared/src/maps/MapBuilder";
 import {
+  bundledMapsDir,
   createCustomMapRouter,
   decodeUpload,
   encodeUpload,
   type CustomMapUpload,
+  seedBundledMaps,
 } from "../../src/server/CustomMaps";
 
 function island(): Uint8Array {
@@ -87,8 +89,11 @@ describe("custom maps", () => {
     const list = (await (await fetch(base)).json()) as {
       maps: { id: string; name: string; nations: number }[];
     };
-    expect(list.maps).toHaveLength(1);
-    expect(list.maps[0]).toMatchObject({
+    // The bundled map (Črna na Koroškem) is installed too.
+    expect(list.maps.map((m) => m.id)).toContain("crnakoroskem");
+    const mine = list.maps.filter((m) => m.id === id);
+    expect(mine).toHaveLength(1);
+    expect(mine[0]).toMatchObject({
       id,
       name: "Test Isle!",
       nations: 1,
@@ -115,8 +120,10 @@ describe("custom maps", () => {
 
     const del = await fetch(`${base}/${id}`, { method: "DELETE" });
     expect(del.status).toBe(200);
-    const after = (await (await fetch(base)).json()) as { maps: unknown[] };
-    expect(after.maps).toHaveLength(0);
+    const after = (await (await fetch(base)).json()) as {
+      maps: { id: string }[];
+    };
+    expect(after.maps.map((m) => m.id)).not.toContain(id);
   });
 
   test("private server: saving needs a login, deleting needs an admin", async () => {
@@ -133,6 +140,52 @@ describe("custom maps", () => {
     } finally {
       delete process.env.SELF_HOSTED;
     }
+  });
+
+  test("bundled maps are installed once; an admin delete sticks", async () => {
+    const bundle = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-"));
+    const id = "bundledtest1";
+    fs.mkdirSync(path.join(bundle, id));
+    fs.writeFileSync(
+      path.join(bundle, id, "manifest.json"),
+      JSON.stringify({
+        name: "Bundled",
+        display_name: "Bundled",
+        map: { width: 128, height: 96, num_land_tiles: 1 },
+        nations: [],
+        custom: { createdAt: 1 },
+      }),
+    );
+    fs.writeFileSync(path.join(bundle, id, "map.bin"), island());
+    expect(seedBundledMaps(bundle)).toEqual([id]);
+    expect(seedBundledMaps(bundle)).toEqual([]);
+    const list = (await (await fetch(base)).json()) as {
+      maps: { id: string }[];
+    };
+    expect(list.maps.map((m) => m.id)).toContain(id);
+    expect((await fetch(`${base}/${id}/map.bin`)).status).toBe(200);
+    // Deleting writes a marker only for maps that are really bundled; mimic
+    // that here by pointing the marker check at this bundle.
+    await fetch(`${base}/${id}`, { method: "DELETE" });
+    fs.writeFileSync(path.join(dir, "maps", `.deleted-${id}`), "");
+    expect(seedBundledMaps(bundle)).toEqual([]);
+    fs.rmSync(bundle, { recursive: true, force: true });
+  });
+
+  test("Črna na Koroškem ships with the game", () => {
+    const m = JSON.parse(
+      fs.readFileSync(
+        path.join(bundledMapsDir(), "crnakoroskem", "manifest.json"),
+        "utf8",
+      ),
+    );
+    expect(m.display_name).toBe("Črna na Koroškem");
+    expect(m.name).toBe("Crna na Koroskem");
+    expect(m.nations.length).toBeGreaterThanOrEqual(6);
+    const bin = fs.readFileSync(
+      path.join(bundledMapsDir(), "crnakoroskem", "map.bin"),
+    );
+    expect(bin.length).toBe(m.map.width * m.map.height);
   });
 
   test("a map with no land is refused", async () => {

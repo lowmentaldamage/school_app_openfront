@@ -634,6 +634,9 @@ export function imageToMap(
   const m = blankMap(w, h);
   const sea = opts.seaLevel ?? 60;
   const { data } = img;
+  // Heightmaps: grey levels with salt-and-pepper specks removed (a 3×3
+  // median), so stray pixels don't become one-tile lakes or peaks.
+  const grey = mode === "heightmap" ? despeckledGrey(img) : null;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const p = (y * img.width + x) * 4;
@@ -652,7 +655,7 @@ export function imageToMap(
           elev = Math.floor((Math.min(200, Math.max(140, b)) - 140) / 2);
         }
       } else if (mode === "heightmap") {
-        const v = (r + g + b) / 3;
+        const v = grey![y * img.width + x];
         if (a < 20 || v < sea) kind = TERRAIN_WATER;
         else {
           kind = TERRAIN_LAND;
@@ -668,6 +671,28 @@ export function imageToMap(
   // Pictures give noisy heights (labels, outlines, shading): smooth them.
   if (mode === "picture") smoothElevation(m, 2);
   return m;
+}
+
+/** Grey level per pixel, 3×3 median filtered. */
+export function despeckledGrey(img: RgbaImage): Uint8Array {
+  const { width: w, height: h, data } = img;
+  const grey = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    grey[i] = Math.round((data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2]) / 3);
+  }
+  const out = new Uint8Array(grey);
+  const win = new Uint8Array(9);
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      let k = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) win[k++] = grey[(y + dy) * w + x + dx];
+      }
+      win.sort();
+      out[y * w + x] = win[4];
+    }
+  }
+  return out;
 }
 
 /** Box-blur land elevation (radius r), water and borders untouched. */
@@ -842,10 +867,17 @@ export function autoNationSpots(
     s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
     return s / 4294967296;
   };
+  const margin = Math.max(4, Math.round(Math.min(w, h) * 0.05));
   const candidates: number[] = [];
   for (let tries = 0; tries < 200000 && candidates.length < 6000; tries++) {
     const i = Math.floor(rnd() * w * h);
-    // Land, a few tiles from the coast, on a landmass worth spawning on.
+    // Land, a few tiles from the coast and away from the map's border, on a
+    // landmass worth spawning on.
+    const x = i % w;
+    const y = (i - x) / w;
+    if (x < margin || y < margin || x >= w - margin || y >= h - margin) {
+      continue;
+    }
     if (kind[i] === TERRAIN_LAND && sizes[comp[i]] >= minSize && dist[i] >= 3) {
       candidates.push(i);
     }

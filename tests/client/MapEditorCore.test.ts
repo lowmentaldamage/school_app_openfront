@@ -138,6 +138,26 @@ describe("image import", () => {
     expect(m.elevation[63]).toBeGreaterThan(m.elevation[30]);
   });
 
+  test("heightmap specks don't become one-tile lakes or peaks", () => {
+    const hm = img(64, 64, (x, y) =>
+      (x * 7 + y * 13) % 29 === 0
+        ? [255, 255, 255, 255]
+        : (x * 3 + y * 5) % 31 === 0
+          ? [0, 0, 0, 255]
+          : [150, 150, 150, 255],
+    );
+    const m = imageToMap(hm, { mode: "heightmap", seaLevel: 60 });
+    let water = 0;
+    const elev = new Set<number>();
+    for (let y = 1; y < 63; y++)
+      for (let x = 1; x < 63; x++) {
+        if (m.kind[y * 64 + x] === TERRAIN_WATER) water++;
+        else elev.add(m.elevation[y * 64 + x]);
+      }
+    expect(water).toBe(0);
+    expect(elev.size).toBe(1);
+  });
+
   test("the map generator's own format is read exactly", () => {
     const g = img(64, 64, (x) =>
       x < 16 ? [0, 0, 106, 255] : x < 32 ? [0, 0, 0, 0] : [10, 10, 180, 255],
@@ -207,5 +227,14 @@ describe("automatic terrain and nations", () => {
         );
     expect(minPair).toBeGreaterThan(20);
     expect(autoNationSpots(doc.map, 8, 3)).toEqual(spots);
+    // A map that is all land: nobody spawns on the border.
+    const land = MapDocument.blank(200, 160);
+    land.paint(100, 80, 200, "plains");
+    for (const p of autoNationSpots(land.map, 10, 1)) {
+      expect(p.x).toBeGreaterThanOrEqual(8);
+      expect(p.y).toBeGreaterThanOrEqual(8);
+      expect(p.x).toBeLessThan(192);
+      expect(p.y).toBeLessThan(152);
+    }
   });
 });
