@@ -49,8 +49,8 @@ export const MAX_WATER_HEIGHT = -0.08;
  */
 export function landHeight(m: number): number {
   if (m < 10) return 0.3 + m * 0.1; // plains: 0.3 … 1.3
-  if (m < 20) return 1.3 + (m - 10) * 0.47; // highland: 1.3 … 6.0
-  return 6.0 + (m - 20) * 2.3; // mountains: 6.0 … 29
+  if (m < 20) return 1.3 + (m - 10) * 0.65; // highland: 1.3 … 7.8
+  return 7.8 + (m - 20) * 2.8; // mountains: 7.8 … 35.8
 }
 
 /**
@@ -64,7 +64,7 @@ export function rawHeight(terrainByte: number, level?: number): number {
     // Water magnitude is distance-to-land; deepen gently and cap.
     return -(0.35 + Math.min(m, 24) * 0.14);
   }
-  if (m >= IMPASSABLE_MAGNITUDE) return 34;
+  if (m >= IMPASSABLE_MAGNITUDE) return 40;
   if (level !== undefined) {
     return landHeight((level * MAX_MAGNITUDE) / MAX_LEVEL);
   }

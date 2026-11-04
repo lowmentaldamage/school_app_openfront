@@ -72,18 +72,19 @@ vec3 terrainDetailNormal(vec3 wp) {
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
   vec3 n = vec3((hl - hr) * 1.5, 2.0 * uDetailStep, (hd - hu) * 1.5);
-  // Micro relief on land (rocks, field furrows), fading out with distance.
+  // Gentle micro relief on land (rocky ground, folds), mostly in the
+  // hills and mountains; flat ground stays smooth (no tile-sized grain).
   float land = terrainDetailAt(wp.xz).g;
   float foot = length(fwidth(wp.xz));
   float micro = land * (1.0 - smoothstep(0.05, 0.25, foot));
   if (micro > 0.0) {
-    vec2 q = wp.xz * 2.3;
-    float e = 0.15;
-    float c0 = tNoise(q);
-    float gx = tNoise(q + vec2(e, 0.0)) - c0;
-    float gz = tNoise(q + vec2(0.0, e)) - c0;
-    float steep = 0.35 + 0.65 * smoothstep(0.6, 3.0, terrainDetailAt(wp.xz).r);
-    n.xz -= vec2(gx, gz) / e * 0.2 * steep * micro;
+    vec2 q = wp.xz * 0.9;
+    float e = 0.2;
+    float c0 = tFbm(q);
+    float gx = tFbm(q + vec2(e, 0.0)) - c0;
+    float gz = tFbm(q + vec2(0.0, e)) - c0;
+    float steep = 0.08 + 0.92 * smoothstep(1.5, 8.0, terrainDetailAt(wp.xz).r);
+    n.xz -= vec2(gx, gz) / e * 0.08 * steep * micro;
   }
   return normalize(n);
 }
@@ -93,12 +94,13 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   float land = td.g;
   float n = tFbm(wp.xz * 0.08);
   float n2 = tFbm(wp.xz * 0.55 + 17.0);
-  float grain = tNoise(wp.xz * 3.1);
+  float grain = tNoise(wp.xz * 1.3);
   vec3 seabed = vec3(0.30, 0.31, 0.24);
   vec3 sand = mix(vec3(0.78, 0.72, 0.52), vec3(0.70, 0.64, 0.46), n2);
   vec3 grass = mix(vec3(0.22, 0.40, 0.14), vec3(0.38, 0.52, 0.21), n);
   grass = mix(grass, vec3(0.30, 0.44, 0.17), n2 * 0.5);
-  vec3 dry = mix(vec3(0.46, 0.45, 0.26), vec3(0.55, 0.46, 0.31), n);
+  // Highland meadow: olive green, browner where the noise is high.
+  vec3 dry = mix(vec3(0.34, 0.42, 0.20), vec3(0.50, 0.46, 0.30), n);
   vec3 rock = mix(vec3(0.36, 0.34, 0.31), vec3(0.52, 0.49, 0.45), n2);
   vec3 snow = vec3(0.93, 0.94, 0.97);
 
@@ -106,10 +108,14 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   c = mix(c, sand, smoothstep(-0.6, -0.05, h));
   c = mix(c, grass, smoothstep(0.24, 0.42, h + (n - 0.5) * 0.15));
   c = mix(c, dry, smoothstep(1.4, 2.8, h + (n - 0.5) * 0.6));
-  c = mix(c, rock, smoothstep(4.2, 6.2, h + (n - 0.5) * 1.2));
+  c = mix(c, rock, smoothstep(6.0, 9.0, h + (n - 0.5) * 1.6));
   // Steep faces are rock regardless of altitude.
   c = mix(c, rock, smoothstep(0.86, 0.70, up) * step(0.2, h));
-  c = mix(c, snow, smoothstep(13.0, 15.5, h + (n - 0.5) * 2.5) * smoothstep(0.45, 0.75, up));
+  // Snow: patchy on the high peaks and ridges, never a flat white sheet;
+  // steep faces stay rock.
+  float patches = smoothstep(0.38, 0.62, tFbm(wp.xz * 0.22 + 31.0));
+  float snowLine = smoothstep(19.0, 26.0, h + (n - 0.5) * 5.0);
+  c = mix(c, snow, snowLine * mix(0.35, 1.0, patches) * smoothstep(0.5, 0.8, up));
   // Beach: a thin sand rim exactly along the tile coastline.
   float beach = smoothstep(0.5, 0.56, land) * (1.0 - smoothstep(0.62, 0.8, land));
   c = mix(c, sand, beach * (1.0 - smoothstep(0.8, 1.6, h)));
@@ -120,7 +126,7 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   // Authored in sRGB; convert to linear for lighting.
   // Fine grain only where it is larger than a pixel (no distant sparkle).
   float grainAmt = 1.0 - smoothstep(0.15, 0.6, length(fwidth(wp.xz)));
-  return pow(c * (1.0 + (grain - 0.5) * 0.14 * grainAmt), vec3(2.2));
+  return pow(c * (1.0 + (grain - 0.5) * 0.05 * grainAmt), vec3(2.2));
 }
 `;
 
@@ -207,7 +213,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v7";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v8";
   return { material, uniforms };
 }
 

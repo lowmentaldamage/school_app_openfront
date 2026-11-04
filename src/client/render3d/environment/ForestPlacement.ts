@@ -75,20 +75,20 @@ export function placeTrees(
       const ref = Math.floor(y) * width + Math.floor(x);
       const biome = biomeOf(terrain[ref]);
       let base: number;
-      if (biome === Biome.Plains) base = 0.55;
-      else if (biome === Biome.Highland) base = 0.85;
-      else if (biome === Biome.Mountain) base = 0.3;
+      // Forests in clusters with open land between (not a carpet).
+      if (biome === Biome.Plains) base = 0.4;
+      else if (biome === Biome.Highland) base = 0.6;
+      else if (biome === Biome.Mountain) base = 0.22;
       else continue;
       const h = hf.sample(x, y);
       // No trees on beaches or above the snow line.
-      if (h < 0.42 || h > 12.5) continue;
+      if (h < 0.42 || h > 18) continue;
       const slope =
         Math.abs(hf.sample(x + 1, y) - hf.sample(x - 1, y)) +
         Math.abs(hf.sample(x, y + 1) - hf.sample(x, y - 1));
       if (slope > 3.2) continue;
       const cover = forestCover(x, y);
-      const p =
-        base * options.density * Math.max(0, (cover - 0.42) / 0.58) * 2.2;
+      const p = base * options.density * Math.max(0, (cover - 0.5) / 0.5) * 2.2;
       if (hash2(gx, gy, 37) >= p) continue;
       const r = hash2(gx, gy, 41);
       out.push({
