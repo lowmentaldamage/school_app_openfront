@@ -772,6 +772,7 @@ function mountWebGLFrameLoop(
         },
         skySeed,
       );
+      world3d.setFlatBuildingIcons(skySettings.flatBuildingIcons());
       const me = gv.myPlayer();
       if (fog !== null && me) {
         fog.setFriendly([me.smallID(), ...me.allies().map((a) => a.smallID())]);

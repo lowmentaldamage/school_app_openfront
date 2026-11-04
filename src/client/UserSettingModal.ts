@@ -439,6 +439,10 @@ export class UserSettingModal extends BaseModal {
     this.userSettings.toggleWeatherEffects();
   }
 
+  private toggleFlatIcons() {
+    this.userSettings.toggleFlatBuildingIcons();
+  }
+
   private toggleAlertFrame() {
     this.userSettings.toggleAlertFrame();
 
@@ -1947,6 +1951,14 @@ export class UserSettingModal extends BaseModal {
         id="weather-toggle"
         .checked=${this.userSettings.weatherEffects()}
         @change=${this.toggleWeather}
+      ></setting-toggle>
+
+      <setting-toggle
+        label="${translateText("user_setting.flat_icons_label")}"
+        description="${translateText("user_setting.flat_icons_desc")}"
+        id="flat-icons-toggle"
+        .checked=${this.userSettings.flatBuildingIcons()}
+        @change=${this.toggleFlatIcons}
       ></setting-toggle>
 
       ${

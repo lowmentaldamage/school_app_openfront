@@ -236,6 +236,19 @@ export function lobbyCard({
       aria-disabled=${blocked}
       class="group @container relative block w-full ${heightClass} overflow-hidden rounded-2xl bg-surface text-left uppercase text-white transition-shadow duration-200 hover:shadow-[var(--shadow-lobby-card-hover)] ${state}"
     >
+      ${
+        // Very wide or tall maps are shown whole; a blurred, filled copy
+        // behind them keeps the card from looking empty.
+        fitsByContain(mapType)
+          ? html`<img
+              src=${terrainMapFileLoader.getMapData(mapType).webpPath}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              class="pointer-events-none absolute inset-0 size-full scale-125 select-none object-cover opacity-60 blur-xl"
+            />`
+          : nothing
+      }
       <img
         src=${mapImageSrc(terrainMapFileLoader.getMapData(mapType))}
         @error=${fallbackToThumbnail(

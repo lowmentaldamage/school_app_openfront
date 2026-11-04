@@ -149,6 +149,8 @@ export class HelpModal extends BaseModal {
                 "economy",
                 "terrain",
                 "borders",
+                "editor",
+                "icons",
               ] as const
             ).map(
               (k) =>

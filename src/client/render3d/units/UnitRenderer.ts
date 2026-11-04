@@ -427,7 +427,8 @@ export class UnitRenderer {
     this.lastAnimMs = nowMs;
     // Zoomed out: buildings are flat 2D icons (easy to see and stack);
     // zoomed in: 3D models with small badges.
-    this.iconMode = nextIconMode(this.iconMode, cameraDistance);
+    this.iconMode =
+      this.iconModeAllowed && nextIconMode(this.iconMode, cameraDistance);
     for (const kind of STRUCTURE_KINDS) {
       const pool = this.pools.get(kind);
       if (pool) pool.mesh.visible = !this.iconMode;
@@ -598,6 +599,12 @@ export class UnitRenderer {
   private showMarkers = true;
   /** Buildings drawn as 2D icons (camera far out). */
   private iconMode = false;
+  /** Player setting: 2D icons when zoomed out (else always 3D). */
+  private iconModeAllowed = true;
+
+  setIconModeAllowed(allowed: boolean): void {
+    this.iconModeAllowed = allowed;
+  }
 
   /** True while buildings are shown as flat 2D icons. */
   isIconMode(): boolean {

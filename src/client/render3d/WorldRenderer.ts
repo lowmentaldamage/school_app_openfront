@@ -290,6 +290,11 @@ export class WorldRenderer {
   }
 
   /** Brighten the borders of one player (e.g. hover); -1 clears. */
+  /** Buildings as flat 2D icons when zoomed out (player setting). */
+  setFlatBuildingIcons(on: boolean): void {
+    this.units.setIconModeAllowed(on);
+  }
+
   setHighlightOwner(smallID: number): void {
     this.terrainUniforms.uHighlightOwner.value = smallID;
   }

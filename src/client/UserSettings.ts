@@ -547,6 +547,18 @@ export class UserSettings {
     this.setBool("settings.buildBarHelp", !this.buildBarHelp());
   }
 
+  /**
+   * 3D view: buildings become flat 2D icons when zoomed out (easy to see
+   * and stack); off = always 3D models.
+   */
+  flatBuildingIcons() {
+    return this.getBool("settings.flatBuildingIcons", true);
+  }
+
+  toggleFlatBuildingIcons() {
+    this.setBool("settings.flatBuildingIcons", !this.flatBuildingIcons());
+  }
+
   /** 3D view: sun moves through a day/night cycle (visual only). */
   dayNightCycle() {
     return this.getBool("settings.dayNightCycle", true);

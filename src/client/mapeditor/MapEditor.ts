@@ -1310,7 +1310,7 @@ export class MapEditor extends LitElement {
       `;
     }
     return html`<div
-      class="absolute left-1/2 top-16 z-20 w-[min(92vw,26rem)] -translate-x-1/2 rounded-xl border border-white/15 bg-slate-900/95 p-4 shadow-2xl flex flex-col gap-3"
+      class="absolute left-1/2 top-16 z-20 w-[min(calc(100%-1rem),26rem)] max-h-[calc(100%-5rem)] overflow-y-auto -translate-x-1/2 rounded-xl border border-white/15 bg-slate-900/95 p-4 shadow-2xl flex flex-col gap-3"
     >
       <div class="flex items-center justify-between">
         <h3 class="font-bold uppercase tracking-wider">
@@ -1541,25 +1541,25 @@ export class MapEditor extends LitElement {
             class="lkr-ed-btn bg-slate-700"
             @click=${() => (this.menu = "new")}
           >
-            📄 ${t("new")}
+            📄<span class="sr-only sm:not-sr-only"> ${t("new")}</span>
           </button>
           <button
             class="lkr-ed-btn bg-slate-700"
             @click=${() => (this.menu = "random")}
           >
-            🏝️ ${t("random")}
+            🏝️<span class="sr-only sm:not-sr-only"> ${t("random")}</span>
           </button>
           <button
             class="lkr-ed-btn bg-slate-700"
             @click=${() => (this.menu = "open")}
           >
-            📂 ${t("open")}
+            📂<span class="sr-only sm:not-sr-only"> ${t("open")}</span>
           </button>
           <button
             class="lkr-ed-btn bg-sky-700"
             @click=${() => (this.menu = "upload")}
           >
-            📤 ${t("upload")}
+            📤<span class="sr-only sm:not-sr-only"> ${t("upload")}</span>
           </button>
           <span class="mx-1 h-6 w-px bg-white/15"></span>
           <button
@@ -1568,7 +1568,7 @@ export class MapEditor extends LitElement {
             title="Ctrl+Z"
             @click=${() => this.undo()}
           >
-            ↶ ${t("undo")}
+            ↶<span class="sr-only sm:not-sr-only"> ${t("undo")}</span>
           </button>
           <button
             class="lkr-ed-btn bg-slate-700"
@@ -1576,7 +1576,7 @@ export class MapEditor extends LitElement {
             title="Ctrl+Y"
             @click=${() => this.redo()}
           >
-            ↷ ${t("redo")}
+            ↷<span class="sr-only sm:not-sr-only"> ${t("redo")}</span>
           </button>
           <span class="mx-1 h-6 w-px bg-white/15"></span>
           <div class="flex overflow-hidden rounded-lg border border-white/15">
@@ -1604,7 +1604,7 @@ export class MapEditor extends LitElement {
                   title=${t("spin_hint")}
                   @click=${() => (this.spin = !this.spin)}
                 >
-                  🔄 ${t("spin")}
+                  🔄<span class="sr-only sm:not-sr-only"> ${t("spin")}</span>
                 </button>`
               : nothing
           }
@@ -1615,7 +1615,9 @@ export class MapEditor extends LitElement {
                     class="lkr-ed-btn bg-emerald-600"
                     @click=${() => void this.playSolo()}
                   >
-                    ▶ ${t("play_solo")}
+                    ▶<span class="sr-only sm:not-sr-only">
+                      ${t("play_solo")}</span
+                    >
                   </button>`
                 : nothing
             }
@@ -1625,13 +1627,13 @@ export class MapEditor extends LitElement {
               title=${this.savedId ? t("saved_already") : ""}
               @click=${() => void this.save()}
             >
-              💾 ${t("save")}
+              💾<span class="sr-only sm:not-sr-only"> ${t("save")}</span>
             </button>
             <button
               class="lkr-ed-btn bg-slate-700"
               @click=${() => this.close()}
             >
-              ✕ ${t("close")}
+              ✕<span class="sr-only sm:not-sr-only"> ${t("close")}</span>
             </button>
             <button
               class="lkr-ed-btn bg-slate-700 md:hidden"

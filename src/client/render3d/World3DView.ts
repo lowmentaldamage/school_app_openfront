@@ -85,6 +85,11 @@ export class World3DView implements ScreenProjector {
     this.world.overlays.setTrajectory(data);
   }
 
+  /** Buildings as flat 2D icons when zoomed out (player setting). */
+  setFlatBuildingIcons(on: boolean): void {
+    this.world.setFlatBuildingIcons(on);
+  }
+
   /** Hovered player's borders glow (mirrors MapRenderer.setHighlightOwner). */
   setHighlightOwner(smallID: number): void {
     this.world.setHighlightOwner(smallID);
