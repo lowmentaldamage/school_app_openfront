@@ -51,6 +51,7 @@ import {
   STRUCTURE_KINDS,
   tileHash,
   TRAIN_KINDS,
+  nextIconMode,
   zoomScale,
 } from "./UnitKinds";
 import { ALL_MODEL_KINDS, modelGeometry, type ModelKind } from "./UnitModels";
@@ -424,7 +425,18 @@ export class UnitRenderer {
         ? Math.min(0.1, Math.max(0, (nowMs - this.lastAnimMs) / 1000))
         : 0;
     this.lastAnimMs = nowMs;
-    this.markers.setView(cameraDistance, this.showMarkers);
+    // Zoomed out: buildings are flat 2D icons (easy to see and stack);
+    // zoomed in: 3D models with small badges.
+    this.iconMode = nextIconMode(this.iconMode, cameraDistance);
+    for (const kind of STRUCTURE_KINDS) {
+      const pool = this.pools.get(kind);
+      if (pool) pool.mesh.visible = !this.iconMode;
+    }
+    this.markers.setView(
+      cameraDistance,
+      this.showMarkers || this.iconMode,
+      this.iconMode,
+    );
     this.animateRising(nowMs);
     if (this.movers.length === 0) return;
     const alpha = Math.min(1, (nowMs - this.tickAt) / this.tickIntervalMs);
@@ -584,6 +596,13 @@ export class UnitRenderer {
   }
 
   private showMarkers = true;
+  /** Buildings drawn as 2D icons (camera far out). */
+  private iconMode = false;
+
+  /** True while buildings are shown as flat 2D icons. */
+  isIconMode(): boolean {
+    return this.iconMode;
+  }
 
   /** Show or hide the icon badges above buildings. */
   setMarkersVisible(visible: boolean): void {

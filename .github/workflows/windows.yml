@@ -71,9 +71,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete windows-latest --yes --cleanup-tag || true
-          gh release create windows-latest laukolaroser-windows.zip \
-            --prerelease \
-            --target "$GITHUB_SHA" \
-            --title "Laukolaroser for Windows (test build)" \
-            --notes "Download laukolaroser-windows.zip, unzip it, double-click 'Start Laukolaroser.bat'. First start asks for an admin username and password; the game opens at http://localhost:3000 and phones on the same Wi-Fi use the address shown in the window. Built from ${GITHUB_SHA::7}."
+          # GitHub sometimes answers a release call with HTTP 500 and the
+          # step half-applies; retry the whole replace a few times.
+          for attempt in 1 2 3 4; do
+            gh release delete windows-latest --yes --cleanup-tag || true
+            sleep 5
+            if gh release create windows-latest laukolaroser-windows.zip \
+              --prerelease \
+              --target "$GITHUB_SHA" \
+              --title "Laukolaroser for Windows (test build)" \
+              --notes "Download laukolaroser-windows.zip, unzip it, double-click 'Start Laukolaroser.bat'. First start asks for an admin username and password; the game opens at http://localhost:3000 and phones on the same Wi-Fi use the address shown in the window. Built from ${GITHUB_SHA::7}."; then
+              exit 0
+            fi
+            echo "release attempt $attempt failed, retrying"
+            sleep $((attempt * 10))
+          done
+          exit 1

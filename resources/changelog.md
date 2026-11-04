@@ -8,6 +8,7 @@
 - Explosions, shockwaves and mushroom clouds; railroads and fallout on the map
 - Territory colours, animated borders and player names live on the terrain
 - Clicks and taps land on the exact tile under the pointer, even on mountains
+- Zoomed out, buildings turn into flat 2D icons (owner colour + white symbol, like the classic 2D map), so stacked buildings stay easy to see and click; zoom in to see the 3D models
 - Forests, a living sky and cinematic lighting
 - Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
 - Build previews, range rings and nuke flight paths shown in 3D

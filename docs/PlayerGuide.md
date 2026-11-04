@@ -100,6 +100,11 @@ Chrome: menu → _Install app_.
 
 ## 5. Buildings
 
+Zoomed out, every building is a flat 2D icon (a square in its owner's
+colour with a white symbol), like the classic 2D map: stacked buildings
+stay readable and easy to click. Zoom in and the icons turn back into 3D
+models with a small badge above each.
+
 | Building     | Use                                                         |
 | ------------ | ----------------------------------------------------------- |
 | City         | More maximum troops and gold                                |

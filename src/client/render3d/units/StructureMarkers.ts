@@ -49,6 +49,7 @@ const VERT = /* glsl */ `
 attribute float aCell;
 uniform float uSize;
 uniform float uLift;
+uniform float uFlat;
 varying vec2 vUv;
 varying float vCell;
 varying vec3 vColor;
@@ -56,7 +57,8 @@ void main() {
   vec4 center = modelViewMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
   // Float above the building, then a camera-facing quad of constant
   // on-screen size (uSize grows with the camera distance).
-  center.y += uLift;
+  // 2D icon mode: the icon sits on the building's spot (no lift).
+  center.y += uLift * (1.0 - uFlat);
   center.xy += position.xy * uSize;
   gl_Position = projectionMatrix * center;
   vUv = uv;
@@ -73,15 +75,21 @@ const FRAG = /* glsl */ `
 uniform sampler2D uAtlas;
 uniform float uOpacity;
 uniform float uRows;
+uniform float uFlat;
 varying vec2 vUv;
 varying float vCell;
 varying vec3 vColor;
 void main() {
   vec2 c = vUv - 0.5;
-  float r = length(c) * 2.0;
+  // Badge: a disc. 2D icon mode: a rounded square (like the 2D map's
+  // structure icons), which packs side by side when buildings stack.
+  vec2 q = abs(c) * 2.0;
+  float sq = length(max(q - 0.62, 0.0)) / 0.38;
+  float r = mix(length(c) * 2.0, sq, uFlat);
   float disc = 1.0 - smoothstep(0.9, 1.0, r);
   if (disc <= 0.0) discard;
-  float ring = smoothstep(0.78, 0.86, r);
+  float edge = mix(r, max(q.x, q.y), uFlat);
+  float ring = smoothstep(0.78, 0.86, edge);
   // Icon inset in the disc; atlas cell (canvas rows run top-down, the
   // texture is flipped so v = 1 is the top).
   vec2 iuv = (vUv - 0.5) * 1.4 + 0.5;
@@ -141,6 +149,7 @@ export class StructureMarkers {
         uLift: { value: 2 },
         uOpacity: { value: 0.95 },
         uRows: { value: rows },
+        uFlat: { value: 0 },
       },
       vertexShader: VERT,
       fragmentShader: FRAG,
@@ -190,10 +199,13 @@ export class StructureMarkers {
    * Per frame: badge size from the camera distance (constant on screen),
    * and how high above the ground it floats.
    */
-  setView(cameraDistance: number, visible: boolean): void {
+  setView(cameraDistance: number, visible: boolean, flat = false): void {
     const u = this.material.uniforms;
-    u.uSize.value = Math.max(0.9, cameraDistance * 0.028);
+    // 2D icons are a little bigger (they replace the models) but still a
+    // constant size on screen.
+    u.uSize.value = Math.max(0.9, cameraDistance * (flat ? 0.034 : 0.028));
     u.uLift.value = Math.max(1.6, cameraDistance * 0.012);
+    u.uFlat.value = flat ? 1 : 0;
     this.mesh.visible = visible;
   }
 

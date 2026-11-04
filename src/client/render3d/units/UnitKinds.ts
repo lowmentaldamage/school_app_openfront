@@ -163,6 +163,23 @@ export function flightProgress(
   };
 }
 
+/**
+ * Buildings switch to flat 2D icons (like the classic 2D map) when the
+ * camera is farther than ICON_MODE_ON, and back to 3D models when it comes
+ * closer than ICON_MODE_OFF. The gap stops flicker at the threshold.
+ */
+export const ICON_MODE_ON = 220;
+export const ICON_MODE_OFF = 180;
+
+/** Whether buildings are drawn as 2D icons at this camera distance. */
+export function nextIconMode(
+  current: boolean,
+  cameraDistance: number,
+): boolean {
+  if (current) return cameraDistance > ICON_MODE_OFF;
+  return cameraDistance > ICON_MODE_ON;
+}
+
 /** Screen-readability multiplier: models grow as the camera pulls back. */
 export function zoomScale(
   cameraDistance: number,

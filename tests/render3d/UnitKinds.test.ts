@@ -7,6 +7,9 @@ import {
   modelKindFor,
   STRUCTURE_KINDS,
   zoomScale,
+  ICON_MODE_OFF,
+  ICON_MODE_ON,
+  nextIconMode,
 } from "../../src/client/render3d/units/UnitKinds";
 import {
   ALL_MODEL_KINDS,
@@ -103,5 +106,21 @@ describe("UnitModels", () => {
         kind,
       ).toBeLessThan(3000);
     }
+  });
+});
+
+describe("2D building icons when zoomed out", () => {
+  it("switches to icons far out, back to 3D close in, without flicker", () => {
+    let icons = false;
+    icons = nextIconMode(icons, 100);
+    expect(icons).toBe(false);
+    icons = nextIconMode(icons, ICON_MODE_ON + 1);
+    expect(icons).toBe(true);
+    // Between the two thresholds the current mode is kept.
+    const mid = (ICON_MODE_ON + ICON_MODE_OFF) / 2;
+    expect(nextIconMode(true, mid)).toBe(true);
+    expect(nextIconMode(false, mid)).toBe(false);
+    icons = nextIconMode(icons, ICON_MODE_OFF - 1);
+    expect(icons).toBe(false);
   });
 });
