@@ -390,7 +390,11 @@ export class ReplayViewer extends LitElement {
     const header = playback.header;
     const gsi = header.gameStartInfo as GameStartInfo;
     const [terrain] = await Promise.all([
-      loadCachedTerrainMap(gsi.config.gameMap, gsi.config.gameMapSize),
+      loadCachedTerrainMap(
+        gsi.config.gameMap,
+        gsi.config.gameMapSize,
+        gsi.config.customMap,
+      ),
       preloadAtlasData(),
     ]);
     if (this.abort.signal.aborted) return;

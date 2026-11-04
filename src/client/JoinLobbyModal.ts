@@ -39,10 +39,11 @@ import { gamePortal } from "./GamePortal";
 import { SendSpectateEvent } from "./LobbyEvents";
 import { PublicLobbySocket } from "./LobbySocket";
 import { JoinLobbyEvent } from "./Main";
-import { openReplayViewer } from "./replay/ReplayEntry";
+import { customMapThumbnail, listCustomMaps } from "./maps/CustomMapsApi";
 import "./components/CopyButton";
-import { ensureServerList, redirectToGameVersion } from "./ServerList";
+import { openReplayViewer } from "./replay/ReplayEntry";
 import "./components/LobbyPlayerView";
+import { ensureServerList, redirectToGameVersion } from "./ServerList";
 import { terrainMapFileLoader } from "./TerrainMapFileLoader";
 import { nationsConfigToSlider } from "./utilities/GameConfigHelpers";
 import {
@@ -67,6 +68,8 @@ export class JoinLobbyModal extends BaseModal {
   @state() private currentLobbyId: string = "";
   @state() private currentClientID: string = "";
   @state() private nationCount: number = 0;
+  /** Names of the server's editor maps, for lobbies playing one. */
+  @state() private customMapNames = new Map<string, string>();
   @state() private lobbyStartAt: number | null = null;
   @state() private serverTimeOffset: number = 0;
   @state() private isConnecting: boolean = true;
@@ -407,11 +410,17 @@ export class JoinLobbyModal extends BaseModal {
 
   private renderHostedLobbyRow(lobby: PublicGameInfo) {
     const c = lobby.gameConfig;
-    const mapName = c ? (getMapName(c.gameMap) ?? c.gameMap) : "";
+    const mapName = c
+      ? c.customMap
+        ? this.customMapName(c.customMap)
+        : (getMapName(c.gameMap) ?? c.gameMap)
+      : "";
     const thumbnailUrl = c
-      ? assetUrl(
-          `maps/${encodeURIComponent(normaliseMapKey(c.gameMap))}/thumbnail.webp`,
-        )
+      ? c.customMap
+        ? customMapThumbnail(c.customMap)
+        : assetUrl(
+            `maps/${encodeURIComponent(normaliseMapKey(c.gameMap))}/thumbnail.webp`,
+          )
       : "";
     // Nation count for this map isn't loaded pre-join, so the numeric-nations
     // default comparison is skipped in the row chips.
@@ -716,17 +725,20 @@ export class JoinLobbyModal extends BaseModal {
     if (!this.gameConfig) return html``;
 
     const c = this.gameConfig;
-    const mapName = getMapName(c.gameMap);
+    const custom = c.customMap ?? null;
+    const mapName = custom ? this.customMapName(custom) : getMapName(c.gameMap);
     const normalizedMap = normaliseMapKey(c.gameMap);
-    const thumbnailUrl = assetUrl(
-      `maps/${encodeURIComponent(normalizedMap)}/thumbnail.webp`,
-    );
-    const previewUrl = mapImageSrc({
-      webpPath: thumbnailUrl,
-      preview3dPath: assetUrl(
-        `maps/${encodeURIComponent(normalizedMap)}/preview3d.webp`,
-      ),
-    });
+    const thumbnailUrl = custom
+      ? customMapThumbnail(custom)
+      : assetUrl(`maps/${encodeURIComponent(normalizedMap)}/thumbnail.webp`);
+    const previewUrl = custom
+      ? thumbnailUrl
+      : mapImageSrc({
+          webpPath: thumbnailUrl,
+          preview3dPath: assetUrl(
+            `maps/${encodeURIComponent(normalizedMap)}/preview3d.webp`,
+          ),
+        });
     const modeSubtitle = getGameModeLabel(c);
 
     const tags = notableLobbySettings(c, this.nationCount).map(
@@ -735,7 +747,7 @@ export class JoinLobbyModal extends BaseModal {
           >${lobbySettingTagText(s)}</span
         >`,
     );
-    const mapInfo = maps.find((m) => m.type === c.gameMap);
+    const mapInfo = custom ? undefined : maps.find((m) => m.type === c.gameMap);
     const showDetails = hasMapDetails(mapInfo);
 
     // object-contain, not object-cover: the preview is here to be studied
@@ -814,7 +826,10 @@ export class JoinLobbyModal extends BaseModal {
     this.lobbyStartAt = lobby.startsAt ?? null;
     this.syncCountdownTimer();
     if (lobby.gameConfig) {
-      const mapChanged = this.gameConfig?.gameMap !== lobby.gameConfig.gameMap;
+      const mapChanged =
+        this.gameConfig?.gameMap !== lobby.gameConfig.gameMap ||
+        (this.gameConfig?.customMap ?? null) !==
+          (lobby.gameConfig.customMap ?? null);
       this.gameConfig = lobby.gameConfig;
       if (mapChanged) {
         void this.loadNationCount();
@@ -893,6 +908,18 @@ export class JoinLobbyModal extends BaseModal {
 
   // --- Nation count ---
 
+  /** A custom map's name (fetched once; "Custom map" until then). */
+  private customMapName(id: string): string {
+    const name = this.customMapNames.get(id);
+    if (name !== undefined) return name;
+    void listCustomMaps().then((list) => {
+      if (list.some((m) => m.id === id)) {
+        this.customMapNames = new Map(list.map((m) => [m.id, m.name]));
+      }
+    });
+    return translateText("custom_maps.default_name");
+  }
+
   private async loadNationCount() {
     if (!this.gameConfig) {
       this.nationCount = 0;
@@ -900,7 +927,10 @@ export class JoinLobbyModal extends BaseModal {
     }
     const currentMap = this.gameConfig.gameMap;
     try {
-      const mapData = terrainMapFileLoader.getMapData(currentMap);
+      const custom = this.gameConfig.customMap;
+      const mapData = custom
+        ? terrainMapFileLoader.getCustomMapData(custom)
+        : terrainMapFileLoader.getMapData(currentMap);
       const manifest = await mapData.manifest();
       if (this.gameConfig?.gameMap === currentMap) {
         this.nationCount = manifest.nations.length;

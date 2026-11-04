@@ -3,9 +3,12 @@ import { GameMapLoader, MapData } from "./GameMapLoader";
 
 export class FetchGameMapLoader implements GameMapLoader {
   private maps: Map<GameMapType, MapData>;
+  private customMaps = new Map<string, MapData>();
 
   public constructor(
     private readonly pathResolver: string | ((path: string) => string),
+    /** Where saved editor maps live (served by the game server). */
+    private readonly customMapBase = "/api/maps",
   ) {
     this.maps = new Map<GameMapType, MapData>();
   }
@@ -40,6 +43,24 @@ export class FetchGameMapLoader implements GameMapLoader {
 
     this.maps.set(map, mapData);
     return mapData;
+  }
+
+  public getCustomMapData(id: string): MapData {
+    const cached = this.customMaps.get(id);
+    if (cached) return cached;
+    const url = (file: string) =>
+      `${this.customMapBase}/${encodeURIComponent(id)}/${file}`;
+    const data = {
+      mapBin: () => this.loadBinaryFromUrl(url("map.bin")),
+      map4xBin: () => this.loadBinaryFromUrl(url("map4x.bin")),
+      map16xBin: () => this.loadBinaryFromUrl(url("map16x.bin")),
+      manifest: () => this.loadJsonFromUrl(url("manifest.json")),
+      webpPath: url("thumbnail.webp"),
+      layerImage: () =>
+        Promise.reject(new Error("custom maps have no layer images")),
+    } satisfies MapData;
+    this.customMaps.set(id, data);
+    return data;
   }
 
   private resolveUrl(path: string): string {

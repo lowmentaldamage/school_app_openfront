@@ -9,6 +9,7 @@ import {
   MapData,
 } from "@laukolaroser/shared/GameMapLoader";
 import fs from "fs";
+import { readCustomMapFile } from "./CustomMaps";
 import { readMapFile } from "./MapFiles";
 import type { ReplayRequest, ReplayResponse } from "./WinnerReplay";
 
@@ -23,6 +24,24 @@ class ServerGameMapLoader implements GameMapLoader {
       manifest: async () =>
         JSON.parse(
           (await readMapFile(map, "manifest.json")).toString("utf8"),
+        ) as MapManifest,
+      webpPath: "",
+      layerImage: async () => {
+        throw new Error("the server never renders map layers");
+      },
+    };
+  }
+
+  getCustomMapData(id: string): MapData {
+    const bin = (name: string) => async () =>
+      new Uint8Array(await readCustomMapFile(id, name));
+    return {
+      mapBin: bin("map.bin"),
+      map4xBin: bin("map4x.bin"),
+      map16xBin: bin("map16x.bin"),
+      manifest: async () =>
+        JSON.parse(
+          (await readCustomMapFile(id, "manifest.json")).toString("utf8"),
         ) as MapManifest,
       webpPath: "",
       layerImage: async () => {
@@ -49,11 +68,12 @@ try {
 
 // The engine reads nothing itself: the map files are read here and passed in.
 async function replay(req: ReplayRequest) {
-  const { gameMap, gameMapSize } = req.gameStart.config;
+  const { gameMap, gameMapSize, customMap } = req.gameStart.config;
   const map = await loadMapFiles(
     new ServerGameMapLoader(),
     gameMap,
     gameMapSize,
+    customMap,
   );
   return replayWinner(req.gameStart, req.turns, map);
 }

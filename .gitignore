@@ -36,3 +36,6 @@ map-generator/map-generator.exe
 .tick-records/
 .tick-baseline/
 map-3d-report.json
+
+# Local server data (accounts, stats, custom maps) from npm run play / dev
+/data/

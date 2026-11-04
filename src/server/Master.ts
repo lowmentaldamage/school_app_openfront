@@ -14,6 +14,7 @@ import {
   registeredSite,
   sendCheckin,
 } from "./ClusterCheckin";
+import { createCustomMapRouter } from "./CustomMaps";
 import { getDescriptor } from "./DesktopRelease";
 import {
   coordinatorUrl,
@@ -156,6 +157,9 @@ app.use("/api", (_req, res, next) => {
   setNoStoreHeaders(res);
   next();
 });
+
+// Maps made in the in-game editor (see CustomMaps.ts).
+app.use("/api/maps", createCustomMapRouter());
 
 // Self-hosted private accounts (see selfhost/SelfHost.ts).
 if (selfHostEnabled()) {

@@ -261,6 +261,9 @@ export const PoolConfigSchema = z
   });
 export type PoolConfig = z.infer<typeof PoolConfigSchema>;
 
+/** Ids of maps saved from the map editor. */
+export const CUSTOM_MAP_ID_RE = /^[a-z0-9]{6,32}$/;
+
 export const GameConfigSchema = z.object({
   gameMap: z.enum(GameMapType),
   difficulty: z.enum(Difficulty),
@@ -319,6 +322,9 @@ export const GameConfigSchema = z.object({
   fogOfWar: z.boolean().nullable().optional(),
   // Tech tree: on unless set to true (classic games without research).
   disableTechTree: z.boolean().nullable().optional(),
+  // A map made in the map editor (its id on the server). gameMap is then
+  // only a placeholder; the loaders fetch the custom map's files instead.
+  customMap: z.string().regex(CUSTOM_MAP_ID_RE).nullable().optional(),
   randomSpawn: z.boolean(),
   // The onboarding tutorial (docs/OnboardingTutorial.md): nations and tribes
   // only grow into free land, and the game ends once the human is alone.

@@ -49,6 +49,7 @@ const NULLABLE_KEYS = [
   "waterNukes",
   "fogOfWar",
   "disableTechTree",
+  "customMap",
 ] as const satisfies readonly (keyof GameConfig)[];
 
 type NullableKey = (typeof NULLABLE_KEYS)[number];

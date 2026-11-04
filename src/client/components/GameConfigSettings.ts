@@ -26,6 +26,7 @@ import { translateText } from "../Utils";
 import "./Difficulties";
 import "./DifficultyInfo";
 import "./FluentSlider";
+import "./CustomMapList";
 import "./map/MapPicker";
 
 const ACTIVE_CARD =
@@ -218,6 +219,8 @@ export interface GameConfigSettingsData {
     randomMapDivider?: boolean;
     showMedals?: boolean;
     mapWins?: Map<GameMapType, Set<Difficulty>>;
+    /** A map from the editor, when one is picked (its id). */
+    customMap?: string | null;
   };
   difficulty: {
     selected: Difficulty;
@@ -289,6 +292,12 @@ export class GameConfigSettings extends LitElement {
 
   private handleSelectMap = (map: GameMapType) => {
     this.emit("map-selected", { map });
+  };
+
+  private handleSelectCustom = (map: { id: string; name: string } | null) => {
+    this.emit("custom-map-selected", {
+      map: map ? { id: map.id, name: map.name } : null,
+    });
   };
 
   private handleSelectRandom = () => {
@@ -464,16 +473,25 @@ export class GameConfigSettings extends LitElement {
           "text-aquarius",
           "bg-malibu-blue/20",
           "map.map",
-          html`<map-picker
-            .selectedMap=${settings.map.selected}
-            .useRandomMap=${settings.map.useRandom}
-            .randomMapDivider=${settings.map.randomMapDivider ?? false}
-            .showMedals=${settings.map.showMedals ?? false}
-            .mapWins=${settings.map.mapWins ?? new Map()}
-            .onSelectMap=${this.handleSelectMap}
-            .onSelectRandom=${this.handleSelectRandom}
-            .searchQuery=${this.mapSearchQuery}
-          ></map-picker>`,
+          html`<custom-map-list
+              .selectedId=${settings.map.customMap ?? null}
+              .onSelect=${this.handleSelectCustom}
+            ></custom-map-list>
+            <map-picker
+              .selectedMap=${
+                // A custom map is playing: no built-in card is selected.
+                settings.map.customMap
+                  ? ("" as GameMapType)
+                  : settings.map.selected
+              }
+              .useRandomMap=${settings.map.useRandom}
+              .randomMapDivider=${settings.map.randomMapDivider ?? false}
+              .showMedals=${settings.map.showMedals ?? false}
+              .mapWins=${settings.map.mapWins ?? new Map()}
+              .onSelectMap=${this.handleSelectMap}
+              .onSelectRandom=${this.handleSelectRandom}
+              .searchQuery=${this.mapSearchQuery}
+            ></map-picker>`,
           undefined,
           this.renderMapSearchInput(),
         )}

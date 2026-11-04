@@ -982,6 +982,9 @@ export class GameServer {
       type: "prestart",
       gameMap: this.gameConfig.gameMap,
       gameMapSize: this.gameConfig.gameMapSize,
+      ...(this.gameConfig.customMap
+        ? { customMap: this.gameConfig.customMap }
+        : {}),
     });
 
     if (!prestartMsg.success) {

@@ -22,6 +22,7 @@ import {
   ClanTagSchema,
   ClientID,
   GameConfigSchema,
+  CUSTOM_MAP_ID_RE,
   GameStartInfoSchema,
   ID,
   IntentSchema,
@@ -499,6 +500,7 @@ export const ServerPrestartMessageSchema = z.object({
   type: z.literal("prestart"),
   gameMap: z.enum(GameMapType),
   gameMapSize: z.enum(GameMapSize),
+  customMap: z.string().regex(CUSTOM_MAP_ID_RE).nullable().optional(),
 });
 
 // An opaque, server-minted, per-game token. It identifies "everyone in this

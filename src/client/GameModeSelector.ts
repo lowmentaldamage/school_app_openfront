@@ -691,6 +691,13 @@ export class GameModeSelector extends LitElement {
               PRIMARY_ACTION,
             )}
           </div>
+          <div class="flex-1">
+            ${this.renderSmallActionCard(
+              translateText("main.map_editor"),
+              this.openMapEditor,
+              SECONDARY_ACTION,
+            )}
+          </div>
           ${
             getGamesPlayed() < TUTORIAL_CARD_MAX_GAMES
               ? html`<div class="flex-1">
@@ -857,6 +864,14 @@ export class GameModeSelector extends LitElement {
       (
         document.querySelector("single-player-modal") as SinglePlayerModal
       )?.open(),
+    );
+  };
+
+  // Its own chunk (with the 3D renderer), loaded on click.
+  private openMapEditor = () => {
+    void import("./mapeditor/MapEditor").then(
+      (m) => m.openMapEditor(),
+      (err) => console.error("map editor failed to load:", err),
     );
   };
 

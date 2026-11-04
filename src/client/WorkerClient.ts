@@ -138,11 +138,16 @@ export class WorkerClient {
 
   async initialize(): Promise<void> {
     // The engine fetches nothing: it gets the map in the init message.
-    const { gameMap, gameMapSize } = this.gameStartInfo.config;
+    const { gameMap, gameMapSize, customMap } = this.gameStartInfo.config;
     const created = createGameWorker();
     let map: MapFiles;
     try {
-      map = await loadMapFiles(terrainMapFileLoader, gameMap, gameMapSize);
+      map = await loadMapFiles(
+        terrainMapFileLoader,
+        gameMap,
+        gameMapSize,
+        customMap,
+      );
     } catch (err) {
       // Nothing will use the worker; don't leave it running.
       created.then(

@@ -7,6 +7,8 @@ import { MapFiles, MapManifest } from "@laukolaroser/engine-api/game/MapFiles";
 /** Where a host gets a map's files, its thumbnail and its layer images. */
 export interface GameMapLoader {
   getMapData(map: GameMapType): MapData;
+  /** A map saved from the map editor (GameConfig.customMap). */
+  getCustomMapData?(id: string): MapData;
 }
 
 export interface MapData {
@@ -33,8 +35,17 @@ export async function loadMapFiles(
   loader: GameMapLoader,
   map: GameMapType,
   mapSize: GameMapSize,
+  customMap?: string | null,
 ): Promise<MapFiles> {
-  const data = loader.getMapData(map);
+  let data: MapData;
+  if (customMap) {
+    if (!loader.getCustomMapData) {
+      throw new Error("this host cannot load custom maps");
+    }
+    data = loader.getCustomMapData(customMap);
+  } else {
+    data = loader.getMapData(map);
+  }
   if (mapSize === GameMapSize.Normal) {
     const [manifest, mapBin, map4xBin] = await Promise.all([
       data.manifest(),

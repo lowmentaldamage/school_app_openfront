@@ -161,6 +161,7 @@ export async function processGameRecord(
     opts.mapLoader,
     gameStart.config.gameMap,
     gameStart.config.gameMapSize,
+    gameStart.config.customMap,
   );
   // The map as the game starts, built from copies of the files, so the
   // engine can take the files over.

@@ -218,6 +218,28 @@ can switch the tech tree off in the lobby.
 | Air & missiles | SAM Radar: SAM range +25%           | Heavy Bombers: +2 bombs per raid           | Interceptors: fighters and anti-air +50% |
 | Economy        | Trade Routes: trade/train gold +15% | Industrialization: mines/markets/rigs +25% | Prefab Construction: buildings −15% cost |
 
+## 7f. Map editor
+
+Press **Map Editor** on the home screen.
+
+- **Start:** 📄 New (blank), 🏝️ Random (islands from a seed, choose land %
+  and number of islands) or 📂 Open (any game map or a saved custom map).
+- **Paint:** pick Water, Plains, Highland or Mountain and drag on the map.
+  Raise / Lower lift or sink the ground. The slider (or `[` `]`) sets the
+  brush size. **Ctrl+Z / Ctrl+Y** undo and redo.
+- **View:** 2D for fast painting, 3D to see the real terrain (arrow keys or
+  the compass turn and tilt it; it updates when you let go of the mouse).
+  Right-drag or the ✋ tool moves, the wheel or two fingers zoom.
+- **Nations:** the 🚩 tool places an AI nation on land; drag it to move.
+  Rename it and pick a flag in the list on the right.
+- **Save:** give the map a name and press 💾 Save. It is stored on the
+  server and appears under **Custom maps** in Solo and Create Lobby for
+  everyone. ▶ Play solo starts a game on it at once.
+
+On a private server you must be logged in to save; only admins can delete
+maps (✕ on the map card). Opening a saved map and saving again makes a new
+copy.
+
 ## 8. Weapons
 
 Use the buttons on the left. Pick a weapon, point at the target — the circle

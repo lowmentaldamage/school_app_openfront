@@ -114,6 +114,13 @@ docker compose exec game npx tsx scripts/selfhost-admin.ts unlock <user>    # af
 The last admin cannot be removed, disabled or demoted, so you cannot lock
 yourself out from the menu.
 
+### Custom maps
+
+Maps made in the in-game map editor are saved in `data/maps/<id>/` (the
+same data folder as the accounts). Every logged-in player can save maps;
+only admins can delete them (✕ on the map card under Custom maps). At most
+200 maps are kept. Back them up with the rest of `data/`.
+
 ## 4. Play from anywhere
 
 ### Option A — Cloudflare Tunnel (recommended, no router changes, free HTTPS)

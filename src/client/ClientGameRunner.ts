@@ -198,14 +198,15 @@ export function joinLobby(
   const requestTerrainLoad = (
     map: Parameters<typeof loadCachedTerrainMap>[0],
     mapSize: Parameters<typeof loadCachedTerrainMap>[1],
+    customMap?: string | null,
   ): Promise<TerrainMapData> => {
-    const key = `${map}:${mapSize}`;
+    const key = `${customMap ? `custom/${customMap}` : map}:${mapSize}`;
     const existing = terrainLoads.get(key);
     if (existing !== undefined) {
       terrainLoad = existing;
       return existing;
     }
-    const load = loadCachedTerrainMap(map, mapSize);
+    const load = loadCachedTerrainMap(map, mapSize, customMap);
     terrainLoads.set(key, load);
     terrainLoad = load;
     void load.catch((e) => {
@@ -263,7 +264,7 @@ export function joinLobby(
         pendingPreloadKey = null;
         pendingPreloadStreak = 0;
       } else {
-        const key = `${gameConfig.gameMap}:${gameConfig.gameMapSize}`;
+        const key = `${gameConfig.customMap ?? gameConfig.gameMap}:${gameConfig.gameMapSize}`;
         if (pendingPreloadKey === key) {
           pendingPreloadStreak++;
         } else {
@@ -271,7 +272,11 @@ export function joinLobby(
           pendingPreloadStreak = 1;
         }
         if (pendingPreloadStreak >= MAP_PRELOAD_DEBOUNCE_STREAK) {
-          void requestTerrainLoad(gameConfig.gameMap, gameConfig.gameMapSize);
+          void requestTerrainLoad(
+            gameConfig.gameMap,
+            gameConfig.gameMapSize,
+            gameConfig.customMap,
+          );
         }
       }
       return;
@@ -280,7 +285,11 @@ export function joinLobby(
       console.log(
         `lobby: game prestarting: ${JSON.stringify(message, replacer)}`,
       );
-      void requestTerrainLoad(message.gameMap, message.gameMapSize);
+      void requestTerrainLoad(
+        message.gameMap,
+        message.gameMapSize,
+        message.customMap,
+      );
       resolvePrestart();
     }
     if (message.type === "start") {
@@ -940,6 +949,7 @@ async function createClientGame(
     gameMap = await loadCachedTerrainMap(
       lobbyConfig.gameStartInfo.config.gameMap,
       lobbyConfig.gameStartInfo.config.gameMapSize,
+      lobbyConfig.gameStartInfo.config.customMap,
     );
   }
   // Kick off the font-atlas fetch so it overlaps with worker init; the

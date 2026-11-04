@@ -33,12 +33,13 @@ export function loadCachedManifest(map: GameMapType): Promise<MapManifest> {
 export async function loadCachedTerrainMap(
   map: GameMapType,
   mapSize: GameMapSize,
+  customMap?: string | null,
 ): Promise<TerrainMapData> {
-  const key = `${map}:${mapSize}`;
+  const key = `${customMap ? `custom/${customMap}` : map}:${mapSize}`;
   const cached = terrainMaps.get(key);
   if (cached !== undefined) return cached;
   const terrain = await loadTerrainMap(
-    await loadMapFiles(terrainMapFileLoader, map, mapSize),
+    await loadMapFiles(terrainMapFileLoader, map, mapSize, customMap),
   );
   terrainMaps.set(key, terrain);
   return terrain;

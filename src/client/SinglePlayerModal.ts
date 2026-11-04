@@ -196,6 +196,8 @@ export class SinglePlayerModal extends BaseModal {
   protected routerName = "single-player";
 
   @state() private selectedMap: GameMapType = DEFAULT_OPTIONS.selectedMap;
+  /** A map from the editor; selectedMap is then only a placeholder. */
+  @state() private customMap: { id: string; name: string } | null = null;
   @state() private selectedDifficulty: Difficulty =
     DEFAULT_OPTIONS.selectedDifficulty;
   @state() private nations: number = 0;
@@ -543,6 +545,7 @@ export class SinglePlayerModal extends BaseModal {
                 useRandom: this.useRandomMap,
                 showMedals: this.showAchievements,
                 mapWins: this.mapWins,
+                customMap: this.customMap?.id ?? null,
               },
               difficulty: {
                 selected: this.selectedDifficulty,
@@ -615,6 +618,7 @@ export class SinglePlayerModal extends BaseModal {
             }}
             @map-selected=${this.handleConfigMapSelected}
             @random-map-selected=${this.handleConfigRandomMapSelected}
+            @custom-map-selected=${this.handleConfigCustomMapSelected}
             @difficulty-selected=${this.handleConfigDifficultySelected}
             @doomsday-clock-speed-selected=${
               this.handleConfigDoomsdayClockSpeedSelected
@@ -782,6 +786,7 @@ export class SinglePlayerModal extends BaseModal {
     // left the previous attempt in flight.
     this.starting = false;
     this.selectedMap = DEFAULT_OPTIONS.selectedMap;
+    this.customMap = null;
     this.selectedDifficulty = DEFAULT_OPTIONS.selectedDifficulty;
     this.gameMode = DEFAULT_OPTIONS.gameMode;
     this.useRandomMap = DEFAULT_OPTIONS.useRandomMap;
@@ -828,6 +833,7 @@ export class SinglePlayerModal extends BaseModal {
   }
 
   private handleSelectRandomMap() {
+    this.customMap = null;
     this.useRandomMap = true;
     this.selectedMap = getRandomMapType();
     void this.loadNationCount();
@@ -838,10 +844,27 @@ export class SinglePlayerModal extends BaseModal {
   };
 
   private handleMapSelection(value: GameMapType) {
+    this.customMap = null;
     this.selectedMap = value;
     this.useRandomMap = false;
     void this.loadNationCount();
   }
+
+  /** Pick a map made in the map editor (null: back to the built-in map). */
+  public async selectCustomMap(
+    map: { id: string; name: string } | null,
+  ): Promise<void> {
+    this.customMap = map;
+    this.useRandomMap = false;
+    await this.loadNationCount();
+  }
+
+  private handleConfigCustomMapSelected = (e: Event) => {
+    const { map } = (
+      e as CustomEvent<{ map: { id: string; name: string } | null }>
+    ).detail;
+    void this.selectCustomMap(map);
+  };
 
   private handleConfigMapSelected = (e: Event) => {
     const customEvent = e as CustomEvent<{ map: GameMapType }>;
@@ -1211,6 +1234,7 @@ export class SinglePlayerModal extends BaseModal {
           ],
           config: {
             gameMap: this.selectedMap,
+            ...(this.customMap ? { customMap: this.customMap.id } : {}),
             gameMapSize: this.compactMap
               ? GameMapSize.Compact
               : GameMapSize.Normal,
@@ -1446,11 +1470,17 @@ export class SinglePlayerModal extends BaseModal {
 
   private async loadNationCount() {
     const currentMap = this.selectedMap;
+    const currentCustom = this.customMap?.id ?? null;
     try {
-      const mapData = this.mapLoader.getMapData(currentMap);
+      const mapData = currentCustom
+        ? this.mapLoader.getCustomMapData(currentCustom)
+        : this.mapLoader.getMapData(currentMap);
       const manifest = await mapData.manifest();
       // Only update if the map hasn't changed
-      if (this.selectedMap === currentMap) {
+      if (
+        this.selectedMap === currentMap &&
+        (this.customMap?.id ?? null) === currentCustom
+      ) {
         this.defaultNationCount = manifest.nations.length;
         this.nations = this.compactMap
           ? Math.max(0, Math.floor(manifest.nations.length * 0.25))
