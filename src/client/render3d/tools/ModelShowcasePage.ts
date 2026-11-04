@@ -7,7 +7,8 @@
  * `window.__showcaseResult` ({ ok, dataUrl } or { ok: false, error }).
  *
  * Options: { night?: boolean; captureAtMs?: number (ms after a conquest
- * wave, omit for none); zoom?: number; yaw?: number }.
+ * wave, omit for none); zoom?: number; cx?: number; cy?: number (tile to
+ * centre on) }.
  */
 
 import { profileFor } from "../DeviceProfile";
@@ -20,6 +21,9 @@ declare global {
       night?: boolean;
       captureAtMs?: number;
       zoom?: number;
+      /** Tile to centre on (default: the middle of the stage). */
+      cx?: number;
+      cy?: number;
     };
     __showcaseResult?:
       | { ok: true; dataUrl: string }
@@ -159,8 +163,8 @@ async function run(): Promise<void> {
     // Let the building icon atlas load.
     await new Promise((r) => setTimeout(r, 2500));
     const cam = {
-      centerX: W / 2,
-      centerY: H * 0.52,
+      centerX: opts.cx ?? W / 2,
+      centerY: opts.cy ?? H * 0.52,
       scale: (Math.min(OUT_W / W, OUT_H / H) * 0.95 * (opts.zoom ?? 1)) | 0,
       viewWidth: OUT_W,
       viewHeight: OUT_H,

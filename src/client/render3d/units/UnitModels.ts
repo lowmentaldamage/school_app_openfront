@@ -58,6 +58,10 @@ const CONCRETE = 0xa8a49b;
 const GLASS = 0x2c4a63;
 const BLACK = 0x1c1f22;
 const BRASS = 0xd8b04a;
+const ASPHALT = 0x3a3d40;
+const HAZARD = 0xe0b02a;
+const WOOD = 0x7d5a3c;
+const OLIVE = 0x5d6650;
 
 const PI = Math.PI;
 
@@ -402,98 +406,190 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
   rocket: () => missile(1.3, 0.12, 0xc9ced3),
 
   // Structures: origin at ground level, centred on their tile.
-  // Downtown block: glass tower, offices and brick houses on a plaza.
-  // Facades get windows (lit at night); roofs take the owner colour.
-  city: () =>
-    new ModelBuilder()
-      .box(2.4, 0.08, 2.4, { color: 0x9a978f })
-      .box(0.62, 2.4, 0.62, {
+  // Downtown: a glass tower, a stepped office block, an apartment slab and
+  // brick houses around a street cross. Facades get windows (lit at
+  // night); roofs take the owner colour.
+  city: () => {
+    const b = new ModelBuilder()
+      .box(2.4, 0.06, 2.4, { color: 0x8f8c84 })
+      .box(2.4, 0.07, 0.22, { color: ASPHALT, pos: [0, 0, 0.05] })
+      .box(0.22, 0.07, 2.4, { color: ASPHALT, pos: [0.05, 0, 0] })
+      // Glass tower on a podium, antenna on top.
+      .box(0.72, 0.3, 0.72, {
+        color: 0xb9b3a6,
+        pattern: "windows",
+        pos: [-0.6, 0.06, -0.6],
+      })
+      .box(0.52, 2.5, 0.52, {
         color: 0x8fa4b4,
         pattern: "windows",
-        pos: [-0.45, 0.08, -0.45],
+        pos: [-0.6, 0.36, -0.6],
       })
-      .box(0.66, 0.1, 0.66, { team: true, pos: [-0.45, 2.48, -0.45] })
-      .box(0.2, 0.18, 0.2, { color: DARK_STEEL, pos: [-0.45, 2.58, -0.45] })
-      .box(0.75, 1.5, 0.7, {
+      .box(0.56, 0.08, 0.56, { team: true, pos: [-0.6, 2.86, -0.6] })
+      .cylinder(0.015, 0.02, 0.45, 4, {
+        color: DARK_STEEL,
+        pos: [-0.6, 2.94, -0.6],
+      })
+      // Stepped office block.
+      .box(0.72, 1.3, 0.66, {
         color: 0xd6cfc0,
         pattern: "windows",
-        pos: [0.5, 0.08, -0.5],
+        pos: [0.62, 0.06, -0.6],
       })
-      .box(0.79, 0.1, 0.74, { team: true, pos: [0.5, 1.58, -0.5] })
-      .box(0.9, 0.9, 0.62, {
+      .box(0.76, 0.06, 0.7, { team: true, pos: [0.62, 1.36, -0.6] })
+      .box(0.48, 0.42, 0.44, {
+        color: 0xcfc7b6,
+        pattern: "windows",
+        pos: [0.62, 1.42, -0.6],
+      })
+      .box(0.52, 0.07, 0.48, { team: true, pos: [0.62, 1.84, -0.6] })
+      // Apartment slab and a low annex.
+      .box(0.8, 0.85, 0.4, {
         color: 0xc8bfae,
         pattern: "windows",
-        pos: [0.42, 0.08, 0.55],
+        pos: [0.62, 0.06, 0.42],
       })
-      .box(0.94, 0.1, 0.66, { team: true, pos: [0.42, 0.98, 0.55] })
-      .box(0.42, 0.36, 0.42, {
+      .box(0.84, 0.07, 0.44, { team: true, pos: [0.62, 0.91, 0.42] })
+      .box(0.42, 0.5, 0.3, {
+        color: 0xbfb6a4,
+        pattern: "windows",
+        pos: [0.78, 0.06, 0.9],
+      })
+      .box(0.46, 0.06, 0.34, { team: true, pos: [0.78, 0.56, 0.9] });
+    // Brick houses with pitched roofs.
+    for (const [x, z] of [
+      [-0.88, 0.42],
+      [-0.4, 0.42],
+      [-0.88, 0.92],
+    ] as const) {
+      b.box(0.34, 0.3, 0.34, {
         color: 0xb5654a,
         pattern: "brick",
-        pos: [-0.55, 0.08, 0.35],
-      })
-      .cone(0.34, 0.3, 4, {
+        pos: [x, 0.06, z],
+      }).cone(0.28, 0.24, 4, {
         team: true,
-        pos: [-0.55, 0.44, 0.35],
+        pos: [x, 0.36, z],
         rot: [0, PI / 4, 0],
-      })
-      .box(0.42, 0.36, 0.42, {
-        color: 0xa9705a,
-        pattern: "brick",
-        pos: [-0.55, 0.08, 0.88],
-      })
-      .cone(0.34, 0.3, 4, {
-        team: true,
-        pos: [-0.55, 0.44, 0.88],
-        rot: [0, PI / 4, 0],
-      })
-      .sphere(0.17, { color: 0x3f6b35, pos: [0.05, 0.25, 0.05] })
-      .sphere(0.14, { color: 0x4a7a3c, pos: [-0.05, 0.22, 1.0] })
-      .build(),
+      });
+    }
+    return b
+      .sphere(0.15, { color: 0x3f6b35, pos: [-0.4, 0.22, 0.92] })
+      .sphere(0.11, { color: 0x4a7a3c, pos: [-0.25, 0.18, 1.05] })
+      .sphere(0.12, { color: 0x3f6b35, pos: [0.2, 0.18, 0.95] })
+      .build();
+  },
 
-  port: () =>
-    new ModelBuilder()
-      .box(2.6, 0.18, 1.0, { color: CONCRETE, pos: [0, 0, -0.5] })
-      .box(0.5, 0.14, 1.6, { color: 0x7d6b55, pos: [0.6, 0, 0.6] })
-      .box(0.5, 0.14, 1.6, { color: 0x7d6b55, pos: [-0.6, 0, 0.6] })
-      .box(0.9, 0.6, 0.7, {
+  // Harbour: quay with a warehouse, container stacks, a gantry crane over
+  // the water, two piers and a lighthouse.
+  port: () => {
+    const b = new ModelBuilder()
+      .box(2.6, 0.2, 1.0, { color: CONCRETE, pos: [0, 0, -0.5] })
+      .box(2.6, 0.03, 0.06, { color: HAZARD, pos: [0, 0.2, -0.03] })
+      .box(0.4, 0.14, 1.4, { color: WOOD, pos: [-0.75, 0, 0.7] })
+      .box(0.4, 0.14, 1.4, { color: WOOD, pos: [0.75, 0, 0.7] })
+      // Warehouse with a curved team roof.
+      .box(1.0, 0.5, 0.6, {
         color: 0x8d8579,
         pattern: "panels",
-        pos: [-0.6, 0.18, -0.55],
+        pos: [-0.65, 0.2, -0.6],
       })
-      .box(0.94, 0.08, 0.74, { team: true, pos: [-0.6, 0.78, -0.55] })
-      // crane
-      .box(0.16, 1.6, 0.16, { color: BRASS, pos: [0.6, 0.18, -0.5] })
-      .box(1.3, 0.12, 0.12, { color: BRASS, pos: [0.85, 1.7, -0.5] })
-      .box(0.04, 0.6, 0.04, { color: BLACK, pos: [1.35, 1.1, -0.5] })
-      .build(),
+      .arch(0.3, 1.04, 8, {
+        team: true,
+        pos: [-0.65, 0.7, -0.6],
+        scale: [1, 0.55, 1],
+      });
+    // Container stacks.
+    const boxes: [number, number, number, number][] = [
+      [0.12, 0.2, -0.75, 0xb03a2e],
+      [0.12, 0.34, -0.75, 0x2e6fb0],
+      [0.12, 0.2, -0.55, 0x2f8f4e],
+      [0.44, 0.2, -0.75, 0xd08a2c],
+      [0.44, 0.2, -0.55, 0xb03a2e],
+      [0.44, 0.34, -0.55, 0x6f7a80],
+    ];
+    for (const [x, y, z, c] of boxes) {
+      b.box(0.3, 0.14, 0.17, { color: c, pattern: "panels", pos: [x, y, z] });
+    }
+    // Gantry crane reaching over the water.
+    for (const z of [-0.85, -0.3]) {
+      b.box(0.07, 1.3, 0.07, { color: BRASS, pos: [0.95, 0.2, z] });
+    }
+    for (const bollard of [-0.95, -0.55, 0.55, 0.95]) {
+      b.cylinder(0.03, 0.035, 0.07, 6, {
+        color: BLACK,
+        pos: [bollard, 0.14, 1.35],
+      });
+    }
+    return (
+      b
+        .box(0.12, 0.1, 1.5, { color: BRASS, pos: [0.95, 1.5, -0.2] })
+        .box(0.18, 0.14, 0.18, { team: true, pos: [0.95, 1.36, 0.25] })
+        .box(0.02, 0.6, 0.02, { color: BLACK, pos: [0.95, 0.76, 0.4] })
+        // Lighthouse at the end of the west pier.
+        .cylinder(0.08, 0.11, 0.6, 8, { color: WHITE, pos: [-0.75, 0.14, 1.3] })
+        .cylinder(0.088, 0.095, 0.12, 8, {
+          team: true,
+          pos: [-0.75, 0.38, 1.3],
+        })
+        .cylinder(0.07, 0.07, 0.1, 8, {
+          color: 0xffe9a0,
+          pos: [-0.75, 0.74, 1.3],
+        })
+        .cone(0.1, 0.12, 8, { color: RUST, pos: [-0.75, 0.84, 1.3] })
+        .build()
+    );
+  },
 
-  factory: () =>
-    new ModelBuilder()
-      .box(2.0, 0.08, 1.8, { color: CONCRETE })
-      .box(1.6, 0.8, 1.2, {
+  // Works: brick hall under a row of team-coloured ridge roofs, two
+  // chimneys, storage tanks and an office annex.
+  factory: () => {
+    const b = new ModelBuilder()
+      .box(2.0, 0.06, 1.8, { color: CONCRETE })
+      .box(1.5, 0.6, 1.0, {
         color: 0x8c5a4a,
         pattern: "brick",
-        pos: [0, 0.08, 0],
-      })
-      .box(1.62, 0.12, 1.22, {
+        pos: [-0.15, 0.06, 0.1],
+      });
+    for (let i = 0; i < 3; i++) {
+      b.cylinder(0.29, 0.29, 1.0, 3, {
         team: true,
         pattern: "panels",
-        pos: [0, 0.88, 0],
-      })
-      .cylinder(0.14, 0.18, 1.6, 8, {
-        color: 0x6e4a3d,
-        pos: [0.55, 0.08, -0.35],
-      })
-      .cylinder(0.14, 0.18, 1.3, 8, {
-        color: 0x6e4a3d,
-        pos: [0.15, 0.08, -0.35],
-      })
-      .box(0.6, 0.5, 0.5, {
+        pos: [-0.65 + i * 0.5, 0.66 + 0.145, 0.6],
+        rot: [-PI / 2, 0, 0],
+        scale: [1, 1, 0.75],
+      });
+    }
+    for (const [x, h] of [
+      [-0.6, 1.8],
+      [-0.2, 1.5],
+    ] as const) {
+      b.cylinder(0.1, 0.13, h, 8, { color: 0x6e4a3d, pos: [x, 0.06, -0.62] })
+        .cylinder(0.105, 0.105, 0.1, 8, {
+          team: true,
+          pos: [x, 0.06 + h - 0.25, -0.62],
+        })
+        .cylinder(0.11, 0.11, 0.05, 8, {
+          color: BLACK,
+          pos: [x, 0.06 + h, -0.62],
+        });
+    }
+    for (const z of [0.6, 0.15]) {
+      b.cylinder(0.19, 0.19, 0.5, 10, {
+        color: STEEL,
+        pattern: "panels",
+        pos: [0.78, 0.06, z],
+      }).cone(0.19, 0.08, 10, { color: STEEL, pos: [0.78, 0.56, z] });
+    }
+    return b
+      .box(0.5, 0.42, 0.42, {
         color: 0xb9b2a3,
         pattern: "windows",
-        pos: [-0.7, 0.08, 0.5],
+        pos: [0.7, 0.06, -0.55],
       })
-      .build(),
+      .box(0.54, 0.06, 0.46, { team: true, pos: [0.7, 0.48, -0.55] })
+      .box(0.5, 0.2, 0.3, { color: WOOD, pos: [0.15, 0.06, -0.72] })
+      .build();
+  },
 
   // Mine shaft: a tall steel headframe with the hoist wheel on top, the
   // winding-engine house, an ore heap and a cart on its track. Reads as a
@@ -560,65 +656,178 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
     return b.build();
   },
 
-  // Market hall with team-coloured awning and stalls.
-  market: () =>
-    new ModelBuilder()
-      .box(1.8, 0.08, 1.4, { color: CONCRETE })
-      .box(1.4, 0.55, 0.9, {
+  // Market square: hall with an arched team roof, a clock tower, striped
+  // stalls, crates and a fountain.
+  market: () => {
+    const b = new ModelBuilder()
+      .box(1.8, 0.06, 1.4, { color: 0xb7ae9c })
+      .box(1.3, 0.4, 0.7, {
         color: 0xc9b48a,
         pattern: "brick",
-        pos: [0, 0.08, -0.1],
+        pos: [0, 0.06, -0.25],
       })
-      .box(1.5, 0.1, 1.0, { team: true, pos: [0, 0.63, -0.1] })
-      .box(0.36, 0.25, 0.3, { color: 0xc0392b, pos: [-0.5, 0.08, 0.5] })
-      .box(0.36, 0.25, 0.3, { color: 0x27ae60, pos: [0, 0.08, 0.5] })
-      .box(0.36, 0.25, 0.3, { color: 0xd4ac0d, pos: [0.5, 0.08, 0.5] })
-      .build(),
+      .arch(0.36, 1.36, 10, {
+        team: true,
+        pos: [0, 0.46, -0.25],
+        scale: [1, 0.6, 1],
+      })
+      .box(0.22, 0.95, 0.22, {
+        color: 0xbfa77a,
+        pattern: "brick",
+        pos: [-0.78, 0.06, -0.48],
+      })
+      .box(0.24, 0.1, 0.24, { color: WHITE, pos: [-0.78, 0.8, -0.48] })
+      .cone(0.18, 0.28, 4, {
+        team: true,
+        pos: [-0.78, 1.01, -0.48],
+        rot: [0, PI / 4, 0],
+      });
+    const awnings = [0xc0392b, 0x27ae60, 0xd4ac0d, 0x2e6fb0];
+    for (let i = 0; i < 4; i++) {
+      const x = -0.6 + i * 0.36;
+      b.box(0.28, 0.14, 0.18, { color: WOOD, pos: [x, 0.06, 0.42] })
+        .box(0.02, 0.3, 0.02, {
+          color: DARK_STEEL,
+          pos: [x - 0.13, 0.06, 0.52],
+        })
+        .box(0.02, 0.3, 0.02, {
+          color: DARK_STEEL,
+          pos: [x + 0.13, 0.06, 0.52],
+        })
+        .box(0.32, 0.03, 0.3, {
+          color: awnings[i],
+          pos: [x, 0.34, 0.42],
+          rot: [0.28, 0, 0],
+        });
+    }
+    return b
+      .box(0.12, 0.1, 0.12, { color: WOOD, pos: [0.66, 0.06, 0.15] })
+      .box(0.1, 0.08, 0.1, { color: 0x9c7a4c, pos: [0.66, 0.16, 0.15] })
+      .cylinder(0.14, 0.16, 0.08, 10, {
+        color: CONCRETE,
+        pos: [0.7, 0.06, 0.5],
+      })
+      .cylinder(0.11, 0.11, 0.02, 10, {
+        color: 0x4f8fb8,
+        pos: [0.7, 0.13, 0.5],
+      })
+      .cylinder(0.02, 0.03, 0.16, 6, { color: CONCRETE, pos: [0.7, 0.13, 0.5] })
+      .build();
+  },
 
-  // Offshore platform on legs with a derrick.
-  oilRig: () =>
-    new ModelBuilder()
-      .cylinder(0.08, 0.08, 0.9, 5, {
-        color: DARK_STEEL,
-        pos: [0.55, -0.4, 0.55],
-      })
-      .cylinder(0.08, 0.08, 0.9, 5, {
-        color: DARK_STEEL,
-        pos: [-0.55, -0.4, 0.55],
-      })
-      .cylinder(0.08, 0.08, 0.9, 5, {
-        color: DARK_STEEL,
-        pos: [0.55, -0.4, -0.55],
-      })
-      .cylinder(0.08, 0.08, 0.9, 5, {
-        color: DARK_STEEL,
-        pos: [-0.55, -0.4, -0.55],
-      })
-      .box(1.5, 0.15, 1.5, { color: STEEL, pos: [0, 0.5, 0] })
-      .box(1.52, 0.06, 1.52, { team: true, pos: [0, 0.65, 0] })
-      .cone(0.32, 1.4, 4, { color: 0xb8b2a2, pos: [0.3, 0.7, 0.2] })
-      .box(0.5, 0.35, 0.4, {
-        color: WHITE,
-        pattern: "windows",
-        pos: [-0.4, 0.7, -0.35],
-      })
-      .cylinder(0.05, 0.05, 0.5, 5, { color: RUST, pos: [-0.55, 1.05, 0.5] })
-      .build(),
+  // Offshore platform: four legs, a two-level deck, a drilling derrick, a
+  // team-coloured helipad, a crane and a flare boom.
+  oilRig: () => {
+    const b = new ModelBuilder();
+    for (const [x, z] of [
+      [0.55, 0.55],
+      [-0.55, 0.55],
+      [0.55, -0.55],
+      [-0.55, -0.55],
+    ] as const) {
+      b.cylinder(0.08, 0.09, 0.95, 6, { color: HAZARD, pos: [x, -0.45, z] });
+    }
+    return (
+      b
+        .box(1.5, 0.15, 1.5, {
+          color: STEEL,
+          pattern: "panels",
+          pos: [0, 0.5, 0],
+        })
+        .box(0.7, 0.25, 0.6, {
+          color: WHITE,
+          pattern: "windows",
+          pos: [-0.38, 0.65, -0.38],
+        })
+        .box(0.74, 0.05, 0.64, { color: DARK_STEEL, pos: [-0.38, 0.9, -0.38] })
+        .cylinder(0.27, 0.27, 0.03, 12, {
+          team: true,
+          pos: [-0.38, 0.95, -0.38],
+        })
+        .cylinder(0.12, 0.12, 0.035, 12, {
+          color: WHITE,
+          pos: [-0.38, 0.955, -0.38],
+        })
+        // Lattice derrick (four legs and braces) with a team band.
+        .cylinder(0.05, 0.3, 1.5, 4, {
+          color: 0xc9c2b0,
+          pos: [0.35, 0.65, 0.3],
+          rot: [0, PI / 4, 0],
+        })
+        .cylinder(0.2, 0.22, 0.1, 4, {
+          team: true,
+          pos: [0.35, 1.05, 0.3],
+          rot: [0, PI / 4, 0],
+        })
+        .box(0.12, 0.12, 0.12, { color: DARK_STEEL, pos: [0.35, 2.12, 0.3] })
+        // Crane.
+        .cylinder(0.06, 0.07, 0.4, 6, { color: HAZARD, pos: [0.5, 0.65, -0.5] })
+        .box(0.7, 0.05, 0.05, {
+          color: HAZARD,
+          pos: [0.5, 1.05, -0.5],
+          rot: [0, 0.6, 0.35],
+        })
+        // Flare boom with the flame.
+        .box(0.75, 0.04, 0.04, {
+          color: STEEL,
+          pos: [-0.75, 0.6, 0.5],
+          rot: [0, 0, 2.7],
+        })
+        .sphere(0.09, { color: 0xff8a2a, pos: [-1.43, 0.93, 0.5] })
+        .build()
+    );
+  },
 
-  // Runway, hangar and control tower.
-  airbase: () =>
-    new ModelBuilder()
-      .box(2.6, 0.06, 0.55, { color: 0x3d3f33 })
-      .box(2.4, 0.07, 0.06, { color: WHITE, pos: [0, 0.0, 0] })
-      .box(0.9, 0.45, 0.7, {
+  // Airfield: runway with markings, taxiway and apron, two arched
+  // hangars with team bands, a control tower and a parked jet.
+  airbase: () => {
+    const b = new ModelBuilder()
+      .box(2.8, 0.05, 0.5, { color: 0x3d3f33 })
+      .box(0.15, 0.05, 0.45, { color: 0x4a4c40, pos: [-0.2, 0, 0.45] })
+      .box(1.7, 0.05, 0.7, { color: 0x55574b, pos: [-0.25, 0, 0.98] });
+    for (let i = 0; i < 6; i++) {
+      b.box(0.22, 0.055, 0.035, { color: WHITE, pos: [-1.0 + i * 0.4, 0, 0] });
+    }
+    for (const x of [-1.3, 1.3]) {
+      for (const z of [-0.15, -0.05, 0.05, 0.15]) {
+        b.box(0.18, 0.056, 0.04, { color: WHITE, pos: [x, 0, z] });
+      }
+    }
+    for (const x of [-0.85, -0.25]) {
+      b.arch(0.3, 0.62, 10, {
         color: 0x6f7a5a,
         pattern: "panels",
-        pos: [-0.6, 0.06, 0.75],
-      })
-      .box(0.92, 0.08, 0.72, { team: true, pos: [-0.6, 0.51, 0.75] })
-      .cylinder(0.12, 0.14, 0.8, 6, { color: CONCRETE, pos: [0.8, 0.06, 0.75] })
-      .box(0.3, 0.2, 0.3, { color: GLASS, pos: [0.8, 0.86, 0.75] })
-      .build(),
+        pos: [x, 0.05, 1.05],
+        rot: [0, PI / 2, 0],
+      }).arch(0.31, 0.1, 10, {
+        team: true,
+        pos: [x, 0.05, 1.05],
+        rot: [0, PI / 2, 0],
+      });
+    }
+    return (
+      b
+        .cylinder(0.09, 0.12, 0.75, 8, {
+          color: CONCRETE,
+          pos: [0.6, 0.05, 0.95],
+        })
+        .cylinder(0.17, 0.13, 0.16, 8, { color: GLASS, pos: [0.6, 0.8, 0.95] })
+        .cylinder(0.19, 0.19, 0.04, 8, { team: true, pos: [0.6, 0.96, 0.95] })
+        .cylinder(0.01, 0.01, 0.25, 4, {
+          color: DARK_STEEL,
+          pos: [0.6, 1.0, 0.95],
+        })
+        // Parked jet on the apron.
+        .cylinder(0.04, 0.03, 0.42, 6, {
+          color: 0x8a8f86,
+          pos: [0.25, 0.1, 0.75],
+          rot: [0, 0, -PI / 2],
+        })
+        .box(0.14, 0.015, 0.4, { color: 0x8a8f86, pos: [0.42, 0.09, 0.75] })
+        .box(0.08, 0.1, 0.015, { team: true, pos: [0.29, 0.1, 0.75] })
+        .build()
+    );
+  },
 
   // Radar: equipment hut, lattice mast and a tilted dish.
   radarStation: () =>
@@ -759,48 +968,121 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .box(0.12, 0.06, 0.08, { color: GLASS, pos: [0.1, 0.06, 0] })
       .build(),
 
-  defensePost: () =>
-    new ModelBuilder()
-      .cylinder(0.85, 1.0, 0.5, 8, { color: 0x7f7a6b })
-      .cylinder(0.87, 0.87, 0.12, 8, { team: true, pos: [0, 0.5, 0] })
-      .box(0.6, 0.1, 0.12, { color: BLACK, pos: [0.85, 0.32, 0] })
-      .box(0.6, 0.1, 0.12, { color: BLACK, pos: [-0.85, 0.32, 0] })
-      .box(0.12, 0.1, 0.6, { color: BLACK, pos: [0, 0.32, 0.85] })
-      .build(),
+  // Bunker: earth mound and sandbag ring, a concrete casemate with firing
+  // slits, a turret gun and a flag.
+  defensePost: () => {
+    const b = new ModelBuilder()
+      .cylinder(0.95, 1.05, 0.15, 10, { color: 0x7a7462 })
+      .cylinder(0.82, 0.86, 0.2, 12, { color: 0xb5a57a, pos: [0, 0.15, 0] })
+      .cylinder(0.6, 0.62, 0.06, 12, { color: 0x6b6452, pos: [0, 0.3, 0] })
+      .cylinder(0.5, 0.58, 0.4, 8, {
+        color: 0x8a8577,
+        pattern: "panels",
+        pos: [0, 0.15, 0],
+      })
+      .cylinder(0.56, 0.52, 0.08, 8, { team: true, pos: [0, 0.55, 0] });
+    for (let i = 0; i < 4; i++) {
+      const a = (i * PI) / 2 + PI / 8;
+      b.box(0.24, 0.06, 0.06, {
+        color: BLACK,
+        pos: [Math.cos(a) * 0.53, 0.38, Math.sin(a) * 0.53],
+        rot: [0, -a, 0],
+      });
+    }
+    return b
+      .cylinder(0.2, 0.24, 0.15, 8, { color: DARK_STEEL, pos: [0, 0.63, 0] })
+      .cylinder(0.035, 0.045, 0.6, 6, {
+        color: BLACK,
+        pos: [0.12, 0.72, 0],
+        rot: [0, 0, -PI / 2 + 0.08],
+      })
+      .cylinder(0.012, 0.012, 0.6, 4, {
+        color: DARK_STEEL,
+        pos: [-0.35, 0.63, -0.25],
+      })
+      .box(0.24, 0.14, 0.015, { team: true, pos: [-0.23, 1.08, -0.25] })
+      .build();
+  },
 
-  samLauncher: () =>
-    new ModelBuilder()
-      .cylinder(0.9, 1.0, 0.2, 10, { color: CONCRETE })
-      .cylinder(0.45, 0.5, 0.3, 8, { team: true, pos: [0, 0.2, 0] })
-      .cylinder(0.09, 0.09, 1.1, 6, {
-        color: WHITE,
-        pos: [0.15, 0.5, 0.15],
-        rot: [0.5, 0, -0.5],
+  // Air defence: a launcher with four elevated missile tubes on a
+  // turntable, a radar dish and a generator on a concrete pad.
+  samLauncher: () => {
+    const b = new ModelBuilder()
+      .cylinder(0.9, 1.0, 0.12, 12, { color: CONCRETE })
+      .cylinder(0.84, 0.86, 0.025, 12, { color: HAZARD, pos: [0, 0.12, 0] })
+      .cylinder(0.76, 0.76, 0.03, 12, { color: CONCRETE, pos: [0, 0.12, 0] })
+      .box(0.72, 0.18, 0.52, {
+        color: OLIVE,
+        pattern: "panels",
+        pos: [0, 0.12, 0],
       })
-      .cylinder(0.09, 0.09, 1.1, 6, {
+      .cylinder(0.24, 0.27, 0.1, 10, { color: DARK_STEEL, pos: [0, 0.3, 0] })
+      .box(0.16, 0.3, 0.42, { team: true, pos: [-0.08, 0.38, 0] });
+    for (const y of [0.42, 0.58]) {
+      for (const z of [-0.1, 0.1]) {
+        b.cylinder(0.075, 0.075, 0.85, 8, {
+          color: WHITE,
+          pos: [-0.12, y, z],
+          rot: [0, 0, -PI / 2 + 0.6],
+        });
+      }
+    }
+    return b
+      .cylinder(0.025, 0.035, 0.6, 6, { color: STEEL, pos: [-0.55, 0.12, 0.5] })
+      .cylinder(0.22, 0.05, 0.06, 10, {
         color: WHITE,
-        pos: [0.15, 0.5, -0.15],
-        rot: [-0.5, 0, -0.5],
+        pos: [-0.55, 0.72, 0.5],
+        rot: [0.45, 0, 0.7],
       })
-      .cylinder(0.09, 0.09, 1.1, 6, {
-        color: WHITE,
-        pos: [-0.15, 0.5, 0.15],
-        rot: [0.5, 0, 0.5],
-      })
-      .cylinder(0.09, 0.09, 1.1, 6, {
-        color: WHITE,
-        pos: [-0.15, 0.5, -0.15],
-        rot: [-0.5, 0, 0.5],
-      })
-      .build(),
+      .box(0.3, 0.2, 0.22, { color: OLIVE, pos: [0.5, 0.12, -0.5] })
+      .box(0.32, 0.03, 0.24, { team: true, pos: [0.5, 0.32, -0.5] })
+      .build();
+  },
 
-  missileSilo: () =>
-    new ModelBuilder()
-      .cylinder(1.0, 1.1, 0.25, 12, { color: CONCRETE })
-      .cylinder(0.75, 0.75, 0.06, 12, { team: true, pos: [0, 0.25, 0] })
-      .cylinder(0.55, 0.6, 0.12, 12, { color: DARK_STEEL, pos: [0, 0.3, 0] })
-      .box(0.08, 0.04, 1.1, { color: 0xe0b02a, pos: [0, 0.42, 0] })
-      .build(),
+  // Nuclear silo: a round pad with hazard and team rings, split blast
+  // doors, a control bunker, an antenna and a fence.
+  missileSilo: () => {
+    const b = new ModelBuilder()
+      .cylinder(1.0, 1.1, 0.22, 14, { color: CONCRETE, pattern: "panels" })
+      .cylinder(0.8, 0.8, 0.03, 14, { color: HAZARD, pos: [0, 0.22, 0] })
+      .cylinder(0.72, 0.72, 0.04, 14, { team: true, pos: [0, 0.23, 0] })
+      .box(0.6, 0.08, 1.1, {
+        color: DARK_STEEL,
+        pattern: "panels",
+        pos: [-0.31, 0.25, 0],
+      })
+      .box(0.6, 0.08, 1.1, {
+        color: DARK_STEEL,
+        pattern: "panels",
+        pos: [0.31, 0.25, 0],
+      })
+      .box(0.08, 0.12, 1.12, { color: BLACK, pos: [-0.64, 0.22, 0] })
+      .box(0.08, 0.12, 1.12, { color: BLACK, pos: [0.64, 0.22, 0] })
+      .box(0.42, 0.24, 0.32, {
+        color: 0x9a968c,
+        pattern: "panels",
+        pos: [0.72, 0.0, 0.72],
+        rot: [0, PI / 4, 0],
+      })
+      .box(0.44, 0.04, 0.34, {
+        team: true,
+        pos: [0.72, 0.24, 0.72],
+        rot: [0, PI / 4, 0],
+      })
+      .cylinder(0.015, 0.025, 0.8, 4, {
+        color: STEEL,
+        pos: [-0.75, 0.2, -0.65],
+      })
+      .sphere(0.04, { color: 0xd23a2a, pos: [-0.75, 1.0, -0.65] });
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * PI * 2;
+      b.box(0.03, 0.16, 0.03, {
+        color: DARK_STEEL,
+        pos: [Math.cos(a) * 1.08, 0.0, Math.sin(a) * 1.08],
+      });
+    }
+    return b.build();
+  },
 };
 
 function missile(length: number, radius: number, body: number): BufferGeometry {

@@ -17,7 +17,8 @@ late game where building icons pile up and grow huge near the camera.
 3. **Territory display:** light country tint + clear outline so the
    terrain stays visible; hovering a country shows it in full colour; a
    Settings slider sets the tint. _(chosen: light tint + outline)_
-4. **Structures:** better 3D models for every building.
+4. **Structures:** better 3D models for every building. _(done: city,
+   port, factory, market, oil rig, airbase, bunker, SAM, silo)_
 5. **Bug fixes** found along the way; verify everything.
 
 ## Phase 2 — weapons and power

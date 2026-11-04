@@ -155,7 +155,14 @@ diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9), clamp(foam, 0.0, 1.0) * 0.55
   float cap = sin(dot(p, vec2(0.9, 0.4)) - uTime * 1.8)
             * sin(dot(p, vec2(-0.3, 0.8)) - uTime * 1.3)
             * sin(dot(p, vec2(0.21, -0.17)) + uTime * 0.7);
-  cap = smoothstep(0.55, 0.9, cap) * smoothstep(0.35, 1.0, wDepth);
+  // Break the regular lattice with an irregular envelope, and drop the
+  // caps once they are only a few pixels (they read as a dotted grid).
+  float capField = sin(dot(p, vec2(0.037, 0.023)) + uTime * 0.11)
+                 + sin(dot(p, vec2(-0.019, 0.041)) - uTime * 0.07)
+                 + sin(dot(p, vec2(0.053, -0.031)) + 1.7);
+  float capFade = 1.0 - smoothstep(0.12, 0.45, length(fwidth(p)));
+  cap = smoothstep(0.55, 0.9, cap) * smoothstep(0.35, 1.0, wDepth)
+      * smoothstep(0.4, 1.6, capField) * capFade;
   diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.93), cap * 0.4);
 }
 diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
@@ -177,7 +184,7 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v3";
+    material.customProgramCacheKey = () => "laukolaroser-water-v4";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

@@ -50,6 +50,8 @@ const PATTERN_IDS: Record<Pattern, number> = {
 };
 
 const tmpColor = new Color();
+const PI_ = Math.PI;
+const PI_2 = Math.PI / 2;
 
 export class ModelBuilder {
   private readonly parts: BufferGeometry[] = [];
@@ -76,6 +78,25 @@ export class ModelBuilder {
   cone(r: number, h: number, segments: number, o: PartOptions = {}): this {
     const g = new ConeGeometry(r, h, segments);
     g.translate(0, h / 2, 0);
+    return this.add(g, o);
+  }
+
+  /**
+   * Half cylinder lying along X with its round side up (hangar and market
+   * hall roofs). pos.y is the base of the arch.
+   */
+  arch(r: number, length: number, segments: number, o: PartOptions = {}): this {
+    const g = new CylinderGeometry(
+      r,
+      r,
+      length,
+      segments,
+      1,
+      false,
+      -PI_2,
+      PI_,
+    );
+    g.rotateZ(PI_2);
     return this.add(g, o);
   }
 

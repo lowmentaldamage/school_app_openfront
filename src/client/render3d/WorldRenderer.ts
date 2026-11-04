@@ -212,9 +212,13 @@ export class WorldRenderer {
     );
     this.scene.add(this.forests.group);
 
+    // About one boat per 8000 tiles, so small maps aren't swamped.
     this.seaLife = new SeaLife(
       this.heightfield,
-      this.profile.mobile ? 60 : 160,
+      Math.min(
+        this.profile.mobile ? 60 : 160,
+        Math.max(4, Math.round((init.mapWidth * init.mapHeight) / 8000)),
+      ),
     );
     this.scene.add(this.seaLife.group);
 

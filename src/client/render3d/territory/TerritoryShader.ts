@@ -70,15 +70,22 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
 
   // Light tint so the terrain stays visible; the hovered country shows in
   // full colour (uHighlightOwner).
-  vec4 f00 = territoryFill(o00) * territoryStrength(o00) * w00;
-  vec4 f10 = territoryFill(o10) * territoryStrength(o10) * w10;
-  vec4 f01 = territoryFill(o01) * territoryStrength(o01) * w01;
-  vec4 f11 = territoryFill(o11) * territoryStrength(o11) * w11;
-  // Weight colours by their own tint so a lightly tinted neighbour doesn't
-  // wash out a highlighted one.
-  vec3 rgbSum = f00.rgb * f00.a + f10.rgb * f10.a + f01.rgb * f01.a + f11.rgb * f11.a;
-  float aSum = f00.a + f10.a + f01.a + f11.a;
-  vec3 fillRgb = aSum > 0.0 ? rgbSum / aSum : albedo;
+  vec4 c00 = territoryFill(o00);
+  vec4 c10 = territoryFill(o10);
+  vec4 c01 = territoryFill(o01);
+  vec4 c11 = territoryFill(o11);
+  float k00 = c00.a * territoryStrength(o00) * w00;
+  float k10 = c10.a * territoryStrength(o10) * w10;
+  float k01 = c01.a * territoryStrength(o01) * w01;
+  float k11 = c11.a * territoryStrength(o11) * w11;
+  // Weight colours by their own tint (squared) so a lightly tinted
+  // neighbour doesn't wash out a highlighted one; normalise by the same
+  // weights so a uniform area has a uniform colour (no per-tile dots).
+  float kk = k00 * k00 + k10 * k10 + k01 * k01 + k11 * k11;
+  vec3 rgbSum = c00.rgb * k00 * k00 + c10.rgb * k10 * k10
+              + c01.rgb * k01 * k01 + c11.rgb * k11 * k11;
+  float aSum = k00 + k10 + k01 + k11;
+  vec3 fillRgb = kk > 0.0 ? rgbSum / kk : albedo;
   // Colourise rather than paint over: the country's hue at the terrain's
   // own brightness, so grass, rock and snow keep their detail and the
   // tint reads clearly even when light. Full strength paints the colour.

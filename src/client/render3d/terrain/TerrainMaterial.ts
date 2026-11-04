@@ -40,10 +40,18 @@ float tNoise(vec2 p) {
   return mix(mix(tHash(i), tHash(i + vec2(1, 0)), u.x),
              mix(tHash(i + vec2(0, 1)), tHash(i + vec2(1, 1)), u.x), u.y);
 }
+// Each octave is rotated and offset so the value-noise lattice never
+// lines up with the tile grid (no regular dots or cross-hatching).
+const mat2 T_ROT = mat2(0.80, -0.60, 0.60, 0.80);
 float tFbm(vec2 p) {
   float v = 0.0;
   float a = 0.5;
-  for (int i = 0; i < 4; i++) { v += a * tNoise(p); p *= 2.03; a *= 0.5; }
+  p = T_ROT * p + vec2(3.7, 1.3);
+  for (int i = 0; i < 4; i++) {
+    v += a * tNoise(p);
+    p = T_ROT * p * 2.03 + vec2(1.7, 9.2);
+    a *= 0.5;
+  }
   return v;
 }
 uniform sampler2D uTerrainDetail;
@@ -78,7 +86,7 @@ vec3 terrainDetailNormal(vec3 wp) {
   float foot = length(fwidth(wp.xz));
   float micro = land * (1.0 - smoothstep(0.05, 0.25, foot));
   if (micro > 0.0) {
-    vec2 q = wp.xz * 0.9;
+    vec2 q = wp.xz * 0.43;
     float e = 0.2;
     float c0 = tFbm(q);
     float gx = tFbm(q + vec2(e, 0.0)) - c0;
@@ -94,7 +102,7 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   float land = td.g;
   float n = tFbm(wp.xz * 0.08);
   float n2 = tFbm(wp.xz * 0.55 + 17.0);
-  float grain = tNoise(wp.xz * 1.3);
+  float grain = tNoise(T_ROT * wp.xz * 1.3 + 5.1);
   vec3 seabed = vec3(0.30, 0.31, 0.24);
   vec3 sand = mix(vec3(0.78, 0.72, 0.52), vec3(0.70, 0.64, 0.46), n2);
   vec3 grass = mix(vec3(0.22, 0.40, 0.14), vec3(0.38, 0.52, 0.21), n);
@@ -213,7 +221,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v8";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v10";
   return { material, uniforms };
 }
 
