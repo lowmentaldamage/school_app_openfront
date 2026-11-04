@@ -50,6 +50,12 @@ export class CustomMapList extends LitElement {
     }
   }
 
+  private uploadImage = () => {
+    void import("../mapeditor/MapEditor").then((m) =>
+      m.openMapEditor({ upload: true }),
+    );
+  };
+
   private openEditor = () => {
     void import("../mapeditor/MapEditor").then((m) => m.openMapEditor());
   };
@@ -61,12 +67,20 @@ export class CustomMapList extends LitElement {
         <h4 class="text-sm font-bold uppercase tracking-wider text-white/70">
           ${translateText("custom_maps.title")}
         </h4>
-        <button
-          class="rounded-lg bg-sky-700 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-sky-600"
-          @click=${this.openEditor}
-        >
-          ✏️ ${translateText("custom_maps.open_editor")}
-        </button>
+        <div class="flex gap-2">
+          <button
+            class="rounded-lg bg-sky-700 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-sky-600"
+            @click=${this.uploadImage}
+          >
+            📤 ${translateText("custom_maps.upload")}
+          </button>
+          <button
+            class="rounded-lg bg-sky-700 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-sky-600"
+            @click=${this.openEditor}
+          >
+            ✏️ ${translateText("custom_maps.open_editor")}
+          </button>
+        </div>
       </div>
       ${
         this.error

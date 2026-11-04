@@ -496,3 +496,180 @@ export function tileColor(
   }
   return out;
 }
+
+// ------------------------------------------------------------ image import
+
+export type ImageMode = "auto" | "picture" | "heightmap" | "game";
+
+export interface ImageImportOptions {
+  mode?: ImageMode;
+  /** Heightmap only: grey level (0-255) below which is sea. */
+  seaLevel?: number;
+}
+
+export interface RgbaImage {
+  width: number;
+  height: number;
+  /** RGBA bytes, row-major (ImageData.data). */
+  data: Uint8ClampedArray | Uint8Array;
+}
+
+/**
+ * Map size for an image: longest side `maxSide` (small pictures are
+ * scaled up, big ones down), multiples of 4.
+ */
+export function importSize(
+  width: number,
+  height: number,
+  maxSide: number,
+): { width: number; height: number } {
+  const k = maxSide / Math.max(width, height);
+  const fit = (v: number) =>
+    Math.max(MIN_IMPORT_SIDE, Math.floor((v * k) / 4) * 4);
+  return { width: fit(width), height: fit(height) };
+}
+
+const MIN_IMPORT_SIDE = 64;
+
+/** Guess how an image encodes terrain. */
+export function detectImageMode(img: RgbaImage): Exclude<ImageMode, "auto"> {
+  const { data } = img;
+  const n = img.width * img.height;
+  const step = Math.max(1, Math.floor(n / 20000));
+  let samples = 0;
+  let grey = 0;
+  let gameWater = 0;
+  let gameLand = 0;
+  for (let i = 0; i < n; i += step) {
+    const r = data[i * 4];
+    const g = data[i * 4 + 1];
+    const b = data[i * 4 + 2];
+    const a = data[i * 4 + 3];
+    samples++;
+    if (a < 20 || b === 106) gameWater++;
+    else if (b >= 140 && b <= 200) gameLand++;
+    if (Math.max(r, g, b) - Math.min(r, g, b) < 12) grey++;
+  }
+  if (grey / samples > 0.95) return "heightmap";
+  // The map generator's own source images: water is exactly blue 106 (or
+  // transparent) and land blue sits in 140-200.
+  if (gameWater / samples > 0.15 && (gameWater + gameLand) / samples > 0.97) {
+    return "game";
+  }
+  return "picture";
+}
+
+/** One pixel of an ordinary map picture → [kind, elevation]. */
+function pictureTile(
+  r: number,
+  g: number,
+  b: number,
+  a: number,
+): [number, number] {
+  if (a < 20) return [TERRAIN_WATER, 0];
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const sat = max === 0 ? 0 : (max - min) / max;
+  // Water: blue (or cyan) dominates.
+  if (b > r + 15 && b >= g - 10 && sat > 0.18) return [TERRAIN_WATER, 0];
+  const light = (r + g + b) / 3;
+  // Snow / rock: bright or grey, unsaturated.
+  if (sat < 0.15) {
+    if (light > 200) return [TERRAIN_LAND, 28];
+    if (light > 120) return [TERRAIN_LAND, 22];
+    return [TERRAIN_LAND, 14];
+  }
+  // Greens are lowland (darker green = lower), yellows/browns hills.
+  if (g >= r && g >= b) {
+    return [TERRAIN_LAND, Math.round(1 + (light / 255) * 7)];
+  }
+  if (r >= g && g > b) {
+    // Tan / brown: highland, darker brown higher.
+    return [TERRAIN_LAND, Math.round(18 - (light / 255) * 7)];
+  }
+  return [TERRAIN_LAND, 5];
+}
+
+/**
+ * Turn an image into an editable map at the image's size (scale it first
+ * with importSize). Modes:
+ *  - picture: any map picture: blue is water, greens plains, browns hills,
+ *    grey/white mountains;
+ *  - heightmap: greyscale, dark is low, below `seaLevel` is sea;
+ *  - game: the map generator's own format (blue 106 / transparent water,
+ *    land height from blue 140-200, black impassable).
+ */
+export function imageToMap(
+  img: RgbaImage,
+  opts: ImageImportOptions = {},
+): EditableMap {
+  const mode =
+    !opts.mode || opts.mode === "auto" ? detectImageMode(img) : opts.mode;
+  const w = img.width - (img.width % 4);
+  const h = img.height - (img.height % 4);
+  const m = blankMap(w, h);
+  const sea = opts.seaLevel ?? 60;
+  const { data } = img;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const p = (y * img.width + x) * 4;
+      const r = data[p];
+      const g = data[p + 1];
+      const b = data[p + 2];
+      const a = data[p + 3];
+      const i = y * w + x;
+      let kind: number;
+      let elev = 0;
+      if (mode === "game") {
+        if (a < 20 || b === 106) kind = TERRAIN_WATER;
+        else if (r === 0 && g === 0 && b === 0) kind = TERRAIN_IMPASSABLE;
+        else {
+          kind = TERRAIN_LAND;
+          elev = Math.floor((Math.min(200, Math.max(140, b)) - 140) / 2);
+        }
+      } else if (mode === "heightmap") {
+        const v = (r + g + b) / 3;
+        if (a < 20 || v < sea) kind = TERRAIN_WATER;
+        else {
+          kind = TERRAIN_LAND;
+          elev = Math.round(((v - sea) / Math.max(1, 255 - sea)) * 30);
+        }
+      } else {
+        [kind, elev] = pictureTile(r, g, b, a);
+      }
+      m.kind[i] = kind;
+      m.elevation[i] = Math.min(30, elev);
+    }
+  }
+  // Pictures give noisy heights (labels, outlines, shading): smooth them.
+  if (mode === "picture") smoothElevation(m, 2);
+  return m;
+}
+
+/** Box-blur land elevation (radius r), water and borders untouched. */
+function smoothElevation(m: EditableMap, r: number): void {
+  const { width: w, height: h, kind, elevation } = m;
+  const out = new Uint8Array(elevation);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      if (kind[i] !== TERRAIN_LAND) continue;
+      let sum = 0;
+      let n = 0;
+      for (let dy = -r; dy <= r; dy++) {
+        const yy = y + dy;
+        if (yy < 0 || yy >= h) continue;
+        for (let dx = -r; dx <= r; dx++) {
+          const xx = x + dx;
+          if (xx < 0 || xx >= w) continue;
+          const j = yy * w + xx;
+          if (kind[j] !== TERRAIN_LAND) continue;
+          sum += elevation[j];
+          n++;
+        }
+      }
+      out[i] = Math.round(sum / n);
+    }
+  }
+  m.elevation.set(out);
+}

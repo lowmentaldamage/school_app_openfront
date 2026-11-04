@@ -4,6 +4,9 @@ import {
   TERRAIN_WATER,
 } from "@laukolaroser/shared/maps/MapBuilder";
 import {
+  detectImageMode,
+  imageToMap,
+  importSize,
   MapDocument,
   randomIslands,
 } from "../../src/client/mapeditor/EditorCore";
@@ -86,5 +89,68 @@ describe("map editor document", () => {
     expect(d.x0).toBeLessThanOrEqual(28);
     expect(d.x1).toBeGreaterThanOrEqual(32);
     expect(doc.takeDirty()).toBeNull();
+  });
+});
+
+describe("image import", () => {
+  const img = (
+    w: number,
+    h: number,
+    px: (x: number, y: number) => number[],
+  ) => {
+    const data = new Uint8ClampedArray(w * h * 4);
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) data.set(px(x, y), (y * w + x) * 4);
+    return { width: w, height: h, data };
+  };
+
+  test("a map picture: blue sea, green plains, white peaks", () => {
+    const m = imageToMap(
+      img(64, 64, (x) =>
+        x < 20
+          ? [30, 90, 200, 255]
+          : x < 40
+            ? [60, 160, 60, 255]
+            : [240, 240, 240, 255],
+      ),
+    );
+    expect(detectImageMode(img(4, 4, () => [30, 90, 200, 255]))).toBe(
+      "picture",
+    );
+    expect(m.kind[10]).toBe(TERRAIN_WATER);
+    expect(m.kind[30]).toBe(TERRAIN_LAND);
+    expect(m.elevation[30]).toBeLessThan(10);
+    expect(m.elevation[50]).toBeGreaterThanOrEqual(20);
+  });
+
+  test("a greyscale heightmap with a sea level", () => {
+    const hm = img(64, 64, (x) => {
+      const v = x * 4;
+      return [v, v, v, 255];
+    });
+    expect(detectImageMode(hm)).toBe("heightmap");
+    const m = imageToMap(hm, { seaLevel: 100 });
+    expect(m.kind[10]).toBe(TERRAIN_WATER); // 40
+    expect(m.kind[30]).toBe(TERRAIN_LAND); // 120
+    expect(m.elevation[63]).toBeGreaterThan(m.elevation[30]);
+  });
+
+  test("the map generator's own format is read exactly", () => {
+    const g = img(64, 64, (x) =>
+      x < 16 ? [0, 0, 106, 255] : x < 32 ? [0, 0, 0, 0] : [10, 10, 180, 255],
+    );
+    expect(detectImageMode(g)).toBe("game");
+    const m = imageToMap(g);
+    expect(m.kind[5]).toBe(TERRAIN_WATER);
+    expect(m.kind[20]).toBe(TERRAIN_WATER);
+    expect(m.kind[40]).toBe(TERRAIN_LAND);
+    expect(m.elevation[40]).toBe(20);
+  });
+
+  test("import size keeps the aspect, multiples of 4", () => {
+    expect(importSize(4000, 2000, 1600)).toEqual({ width: 1600, height: 800 });
+    // Small pictures are scaled up to the chosen size.
+    expect(importSize(400, 200, 1600)).toEqual({ width: 1600, height: 800 });
+    expect(importSize(301, 203, 300)).toEqual({ width: 300, height: 200 });
   });
 });

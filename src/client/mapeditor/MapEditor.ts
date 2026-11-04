@@ -32,6 +32,9 @@ import { translateText } from "../Utils";
 import {
   BRUSH_TOOLS,
   type BrushTool,
+  type ImageMode,
+  imageToMap,
+  importSize,
   MapDocument,
   randomIslands,
   tileColor,
@@ -107,7 +110,16 @@ export class MapEditor extends LitElement {
       : null;
   }
   @state() private busy = false;
-  @state() private menu: "none" | "new" | "open" | "random" = "none";
+  @state() private menu: "none" | "new" | "open" | "random" | "upload" = "none";
+  /** The last uploaded picture, kept to convert again with other options. */
+  private uploaded: { bitmap: ImageBitmap; name: string } | null = null;
+  @state() private uploadMode: ImageMode = "auto";
+  @state() private seaLevel = 60;
+  @state() private uploadSide = 1600;
+  @state() private dragOver = false;
+  /** Slow 360° turn of the 3D view (after an upload); stops on input. */
+  @state() private spin = false;
+  private lastSpinMs = 0;
   @state() private customMaps: CustomMapInfo[] = [];
   @state() private selectedNation = -1;
   @state() private savedId: string | null = null;
@@ -151,6 +163,14 @@ export class MapEditor extends LitElement {
     globalThis.addEventListener("keydown", (e) => this.onKey(e), {
       signal: this.abort.signal,
     });
+    // Capture phase: the 3D compass handles arrows before bubbling.
+    globalThis.addEventListener(
+      "keydown",
+      (e) => {
+        if ((e as KeyboardEvent).code.startsWith("Arrow")) this.spin = false;
+      },
+      { signal: this.abort.signal, capture: true },
+    );
     globalThis.addEventListener("resize", () => this.fit(false), {
       signal: this.abort.signal,
     });
@@ -208,6 +228,88 @@ export class MapEditor extends LitElement {
     this.menu = "none";
     this.status = t("status_random", { seed: this.seed });
   }
+
+  // ---------------------------------------------------------------- upload
+
+  /** Read an image file, convert it and show it in 3D, turning. */
+  async uploadFile(file: File): Promise<void> {
+    if (!file.type.startsWith("image/")) {
+      this.status = t("upload_not_image");
+      return;
+    }
+    this.busy = true;
+    this.status = t("loading");
+    try {
+      this.uploaded?.bitmap.close();
+      this.uploaded = {
+        bitmap: await createImageBitmap(file),
+        name: file.name.replace(/\.[^.]+$/, "").slice(0, 40),
+      };
+      this.convertUpload();
+    } catch (e) {
+      this.status = t("load_failed", { error: String(e) });
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  private convertUpload(): void {
+    const up = this.uploaded;
+    if (!up) return;
+    const { width, height } = importSize(
+      up.bitmap.width,
+      up.bitmap.height,
+      this.uploadSide,
+    );
+    const c = document.createElement("canvas");
+    c.width = width;
+    c.height = height;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(up.bitmap, 0, 0, width, height);
+    const data = ctx.getImageData(0, 0, width, height);
+    const map = imageToMap(
+      { width, height, data: data.data },
+      { mode: this.uploadMode, seaLevel: this.seaLevel },
+    );
+    this.startDocument(new MapDocument(map), up.name);
+    this.menu = "none";
+    this.setView("3d");
+    this.spin = true;
+    this.status = t("upload_done", { w: width, h: height });
+  }
+
+  /** Open the upload panel and the file picker. */
+  showUpload(): void {
+    this.menu = "upload";
+    this.pickFile();
+  }
+
+  private pickFile(): void {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = () => {
+      const f = input.files?.[0];
+      if (f) void this.uploadFile(f);
+    };
+    input.click();
+  }
+
+  private onDrop = (e: DragEvent) => {
+    e.preventDefault();
+    this.dragOver = false;
+    const f = e.dataTransfer?.files?.[0];
+    if (f) void this.uploadFile(f);
+  };
+
+  private onDragOver = (e: DragEvent) => {
+    if (!e.dataTransfer?.types.includes("Files")) return;
+    e.preventDefault();
+    this.dragOver = true;
+  };
 
   private async openBuiltIn(map: GameMapType): Promise<void> {
     await this.openFrom(() => terrainMapFileLoader.getMapData(map), map);
@@ -429,6 +531,14 @@ export class MapEditor extends LitElement {
       }
     }
     if (!this.world) return;
+    const now = performance.now();
+    if (this.spin && this.lastSpinMs > 0) {
+      // A full turn about every 40 seconds.
+      this.world.cameraController.rotateBy(
+        (Math.min(100, now - this.lastSpinMs) / 1000) * 9,
+      );
+    }
+    this.lastSpinMs = now;
     this.orbit?.update();
     this.world.render(this.camera3d(), performance.now());
     this.drawOverlay3d();
@@ -583,6 +693,7 @@ export class MapEditor extends LitElement {
   // ---------------------------------------------------------------- input
 
   private onPointerDown = (e: PointerEvent) => {
+    this.spin = false;
     const target = e.currentTarget as HTMLElement;
     target.setPointerCapture(e.pointerId);
     this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -862,7 +973,75 @@ export class MapEditor extends LitElement {
       </select>
     </label>`;
     let body;
-    if (this.menu === "new") {
+    if (this.menu === "upload") {
+      const sideSelect = html`<label class="flex flex-col gap-1 text-sm">
+        ${t("upload_size")}
+        <select
+          class="rounded bg-slate-800 px-2 py-1"
+          @change=${(e: Event) =>
+            (this.uploadSide = Number((e.target as HTMLSelectElement).value))}
+        >
+          ${[800, 1200, 1600, 2000].map(
+            (v) =>
+              html`<option value=${v} ?selected=${v === this.uploadSide}>
+                ${t("upload_max", { n: v })}
+              </option>`,
+          )}
+        </select>
+      </label>`;
+      body = html`<p class="text-xs text-white/70">${t("upload_hint")}</p>
+        <button
+          class="lkr-ed-btn bg-sky-600 py-3 font-bold"
+          ?disabled=${this.busy}
+          @click=${() => this.pickFile()}
+        >
+          📤 ${t("upload_choose")}
+        </button>
+        <label class="flex flex-col gap-1 text-sm">
+          ${t("upload_mode")}
+          <select
+            class="rounded bg-slate-800 px-2 py-1"
+            @change=${(e: Event) =>
+              (this.uploadMode = (e.target as HTMLSelectElement)
+                .value as ImageMode)}
+          >
+            ${(["auto", "picture", "heightmap", "game"] as const).map(
+              (m) =>
+                html`<option value=${m} ?selected=${m === this.uploadMode}>
+                  ${t(`mode_${m}`)}
+                </option>`,
+            )}
+          </select>
+        </label>
+        ${
+          this.uploadMode === "heightmap" || this.uploadMode === "auto"
+            ? html`<label class="flex flex-col gap-1 text-sm">
+                ${t("sea_level", { n: this.seaLevel })}
+                <input
+                  type="range"
+                  min="0"
+                  max="200"
+                  .value=${String(this.seaLevel)}
+                  @input=${(e: Event) =>
+                    (this.seaLevel = Number(
+                      (e.target as HTMLInputElement).value,
+                    ))}
+                />
+              </label>`
+            : nothing
+        }
+        ${sideSelect}
+        ${
+          this.uploaded
+            ? html`<button
+                class="lkr-ed-btn bg-slate-700"
+                @click=${() => this.convertUpload()}
+              >
+                🔁 ${t("upload_again", { name: this.uploaded.name })}
+              </button>`
+            : nothing
+        }`;
+    } else if (this.menu === "new") {
       body = html`${sizeSelect}
         <button class="lkr-ed-btn bg-sky-600" @click=${() => this.newBlank()}>
           ${t("create_blank")}
@@ -1087,7 +1266,21 @@ export class MapEditor extends LitElement {
       <div
         class="fixed inset-0 z-[200] flex flex-col bg-slate-950 text-white select-none"
         @contextmenu=${(e: Event) => e.preventDefault()}
+        @dragover=${this.onDragOver}
+        @dragleave=${(e: DragEvent) => {
+          if (e.relatedTarget === null) this.dragOver = false;
+        }}
+        @drop=${this.onDrop}
       >
+        ${
+          this.dragOver
+            ? html`<div
+                class="pointer-events-none fixed inset-0 z-[210] flex items-center justify-center border-4 border-dashed border-sky-400 bg-sky-900/60 text-2xl font-bold"
+              >
+                📤 ${t("drop_here")}
+              </div>`
+            : nothing
+        }
         <header
           class="flex flex-wrap items-center gap-2 border-b border-white/10 bg-slate-900 px-3 py-2"
         >
@@ -1121,6 +1314,12 @@ export class MapEditor extends LitElement {
             @click=${() => (this.menu = "open")}
           >
             📂 ${t("open")}
+          </button>
+          <button
+            class="lkr-ed-btn bg-sky-700"
+            @click=${() => (this.menu = "upload")}
+          >
+            📤 ${t("upload")}
           </button>
           <span class="mx-1 h-6 w-px bg-white/15"></span>
           <button
@@ -1158,6 +1357,17 @@ export class MapEditor extends LitElement {
               3D
             </button>
           </div>
+          ${
+            this.view === "3d"
+              ? html`<button
+                  class="lkr-ed-btn ${this.spin ? "bg-sky-600" : "bg-slate-700"}"
+                  title=${t("spin_hint")}
+                  @click=${() => (this.spin = !this.spin)}
+                >
+                  🔄 ${t("spin")}
+                </button>`
+              : nothing
+          }
           <div class="ml-auto flex items-center gap-2">
             ${
               this.savedId
@@ -1301,7 +1511,11 @@ export class MapEditor extends LitElement {
 }
 
 /** Opens the editor over the homepage. */
-export function openMapEditor(): void {
-  if (document.querySelector("map-editor")) return;
-  document.body.appendChild(document.createElement("map-editor"));
+export function openMapEditor(opts: { upload?: boolean } = {}): void {
+  let editor = document.querySelector<MapEditor>("map-editor");
+  if (!editor) {
+    editor = document.createElement("map-editor") as MapEditor;
+    document.body.appendChild(editor);
+  }
+  if (opts.upload) editor.showUpload();
 }

@@ -224,6 +224,13 @@ Press **Map Editor** on the home screen.
 
 - **Start:** 📄 New (blank), 🏝️ Random (islands from a seed, choose land %
   and number of islands) or 📂 Open (any game map or a saved custom map).
+- **Upload:** 📤 Upload (or **Upload map** under Custom maps in Solo and
+  Create Lobby, or drop an image on the editor). Any map picture works
+  (blue sea, green land, brown hills, white mountains), as do greyscale
+  heightmaps (set the sea level) and map-generator PNGs. It turns into a
+  3D map that spins all the way round; drag or press an arrow key to
+  stop, 🔄 Spin to start again. Choose the map size (longest side 800–2000
+  tiles), then edit and save it like any other map.
 - **Paint:** pick Water, Plains, Highland or Mountain and drag on the map.
   Raise / Lower lift or sink the ground. The slider (or `[` `]`) sets the
   brush size. **Ctrl+Z / Ctrl+Y** undo and redo.

@@ -40,6 +40,7 @@ const DYNAMIC_KEY_PATTERNS: RegExp[] = [
   // Map editor tool labels and menu titles (mapeditor/MapEditor.ts).
   /^map_editor\.tool_[a-z]+(_hint)?$/,
   /^map_editor\.menu_[a-z]+$/,
+  /^map_editor\.mode_[a-z]+$/,
   /^news_box\.(tournament|tutorial|news|warning|firefox_warning)$/,
   // Built-in graphics preset names/descriptions are referenced from
   // src/client/render/gl/graphics-presets.json, not translateText literals.
