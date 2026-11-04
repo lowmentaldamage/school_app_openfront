@@ -42,15 +42,32 @@ export const MIN_LAND_HEIGHT = 0.12;
 /** Maximum water height after smoothing, so water stays below the surface. */
 export const MAX_WATER_HEIGHT = -0.08;
 
+/** Height of the highest layer (level 100), in tiles. */
+export const TOP_HEIGHT = 60;
+/** Height of the impassable peaks, above every layer. */
+export const IMPASSABLE_HEIGHT = 66;
+
 /**
- * Land height (tiles) for a magnitude on the continuous 0-30 scale.
+ * Land height (tiles) for a layer, 0 ground to 100 mountain tops.
+ * Three bands with growing steps, so plains stay low and flat, hills rise
+ * and mountain tops are huge:
+ *   plains   0-33   0.3 … 1.5  (0.036 per layer)
+ *   highland 33-67  1.5 … 9    (0.225 per layer)
+ *   mountain 67-100 9 … 60     (1.53 per layer)
  * Exaggerated relief: on a map thousands of tiles wide, true-to-scale
- * mountains would be invisible bumps.
+ * mountains would be invisible bumps. TerrainMaterial's terrainLevel()
+ * is the inverse; keep them in step.
  */
+export function levelHeight(level: number): number {
+  const L = level < 0 ? 0 : level > MAX_LEVEL ? MAX_LEVEL : level;
+  if (L < 100 / 3) return 0.3 + L * 0.036;
+  if (L < 200 / 3) return 1.5 + (L - 100 / 3) * 0.225;
+  return 9 + (L - 200 / 3) * ((TOP_HEIGHT - 9) / (100 / 3));
+}
+
+/** Land height (tiles) for a magnitude on the continuous 0-30 scale. */
 export function landHeight(m: number): number {
-  if (m < 10) return 0.3 + m * 0.1; // plains: 0.3 … 1.3
-  if (m < 20) return 1.3 + (m - 10) * 0.65; // highland: 1.3 … 7.8
-  return 7.8 + (m - 20) * 2.8; // mountains: 7.8 … 35.8
+  return levelHeight((m * MAX_LEVEL) / MAX_MAGNITUDE);
 }
 
 /**
@@ -64,10 +81,8 @@ export function rawHeight(terrainByte: number, level?: number): number {
     // Water magnitude is distance-to-land; deepen gently and cap.
     return -(0.35 + Math.min(m, 24) * 0.14);
   }
-  if (m >= IMPASSABLE_MAGNITUDE) return 40;
-  if (level !== undefined) {
-    return landHeight((level * MAX_MAGNITUDE) / MAX_LEVEL);
-  }
+  if (m >= IMPASSABLE_MAGNITUDE) return IMPASSABLE_HEIGHT;
+  if (level !== undefined) return levelHeight(level);
   return landHeight(m);
 }
 

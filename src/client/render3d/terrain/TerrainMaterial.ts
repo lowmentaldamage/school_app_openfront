@@ -61,6 +61,27 @@ uniform float uDetailStep;
 vec2 terrainDetailAt(vec2 p) {
   return texture2D(uTerrainDetail, p / uMapSize).rg;
 }
+// Layer (0 ground - 100 mountain tops) of a land height: the inverse of
+// Heightfield.levelHeight(). Keep the two in step.
+float terrainLevel(float h) {
+  if (h < 1.5) return max(0.0, (h - 0.3) / 0.036);
+  if (h < 9.0) return 33.3333 + (h - 1.5) / 0.225;
+  return 66.6667 + (h - 9.0) / 1.53;
+}
+float terrainLevelHeight(float L) {
+  if (L < 33.3333) return 0.3 + L * 0.036;
+  if (L < 66.6667) return 1.5 + (L - 33.3333) * 0.225;
+  return 9.0 + (L - 66.6667) * 1.53;
+}
+// Height snapped to its layer: flat treads with a short riser between
+// layers, so the land reads as clean stacked layers. Water is unchanged.
+float terrainTerraced(vec2 p) {
+  float h = terrainDetailAt(p).r;
+  if (h <= 0.3) return h;
+  float L = terrainLevel(h);
+  float f = fract(L);
+  return terrainLevelHeight(floor(L) + smoothstep(0.35, 0.65, f));
+}
 // Per-pixel normal from the tile heights (central differences, 1 tile),
 // so relief is lit at tile resolution whatever the mesh density. The caller
 // fades it to the mesh normal once a tile is smaller than a pixel.
@@ -73,10 +94,10 @@ float terrainSlopeUp(vec3 wp) {
   return normalize(vec3(hl - hr, 2.0 * uDetailStep, hd - hu)).y;
 }
 vec3 terrainDetailNormal(vec3 wp) {
-  float hl = terrainDetailAt(wp.xz - vec2(uDetailStep, 0.0)).r;
-  float hr = terrainDetailAt(wp.xz + vec2(uDetailStep, 0.0)).r;
-  float hd = terrainDetailAt(wp.xz - vec2(0.0, uDetailStep)).r;
-  float hu = terrainDetailAt(wp.xz + vec2(0.0, uDetailStep)).r;
+  float hl = terrainTerraced(wp.xz - vec2(uDetailStep, 0.0));
+  float hr = terrainTerraced(wp.xz + vec2(uDetailStep, 0.0));
+  float hd = terrainTerraced(wp.xz - vec2(0.0, uDetailStep));
+  float hu = terrainTerraced(wp.xz + vec2(0.0, uDetailStep));
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
   vec3 n = vec3((hl - hr) * 1.5, 2.0 * uDetailStep, (hd - hu) * 1.5);
@@ -91,7 +112,7 @@ vec3 terrainDetailNormal(vec3 wp) {
     float c0 = tFbm(q);
     float gx = tFbm(q + vec2(e, 0.0)) - c0;
     float gz = tFbm(q + vec2(0.0, e)) - c0;
-    float steep = 0.08 + 0.92 * smoothstep(1.5, 8.0, terrainDetailAt(wp.xz).r);
+    float steep = 0.08 + 0.92 * smoothstep(40.0, 75.0, terrainLevel(terrainDetailAt(wp.xz).r));
     n.xz -= vec2(gx, gz) / e * 0.08 * steep * micro;
   }
   return normalize(n);
@@ -115,18 +136,31 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   vec3 c = seabed;
   c = mix(c, sand, smoothstep(-0.6, -0.05, h));
   c = mix(c, grass, smoothstep(0.24, 0.42, h + (n - 0.5) * 0.15));
-  c = mix(c, dry, smoothstep(1.4, 2.8, h + (n - 0.5) * 0.6));
-  c = mix(c, rock, smoothstep(6.0, 9.0, h + (n - 0.5) * 1.6));
+  // Colour bands follow the layers: grass below 33, meadow to 66, rock
+  // above, snow on the top layers.
+  float L = terrainLevel(max(h, 0.3));
+  c = mix(c, dry, smoothstep(30.0, 40.0, L + (n - 0.5) * 8.0));
+  c = mix(c, rock, smoothstep(64.0, 72.0, L + (n - 0.5) * 8.0));
   // Steep faces are rock regardless of altitude.
   c = mix(c, rock, smoothstep(0.86, 0.70, up) * step(0.2, h));
   // Snow: patchy on the high peaks and ridges, never a flat white sheet;
   // steep faces stay rock.
   float patches = smoothstep(0.38, 0.62, tFbm(wp.xz * 0.22 + 31.0));
-  float snowLine = smoothstep(19.0, 26.0, h + (n - 0.5) * 5.0);
+  float snowLine = smoothstep(86.0, 93.0, L + (n - 0.5) * 6.0);
   c = mix(c, snow, snowLine * mix(0.35, 1.0, patches) * smoothstep(0.5, 0.8, up));
   // Beach: a thin sand rim exactly along the tile coastline.
   float beach = smoothstep(0.5, 0.56, land) * (1.0 - smoothstep(0.62, 0.8, land));
   c = mix(c, sand, beach * (1.0 - smoothstep(0.8, 1.6, h)));
+  // Contour lines every 10 layers (stronger every 50) on hills and
+  // mountains (plains stay plain), a pixel or so wide
+  // at any zoom; dropped where they would crowd together.
+  float fw = max(fwidth(L), 1e-4);
+  float d10 = abs(L - floor(L / 10.0 + 0.5) * 10.0) / fw;
+  float d50 = abs(L - floor(L / 50.0 + 0.5) * 50.0) / fw;
+  float crowd = 1.0 - smoothstep(1.2, 3.0, fw);
+  float contour = (1.0 - smoothstep(0.4, 1.3, d10)) * 0.16
+                + (1.0 - smoothstep(0.6, 1.8, d50)) * 0.14;
+  c *= 1.0 - contour * crowd * step(0.3, h) * smoothstep(28.0, 34.0, L);
   // Water tiles (by the tile mask, not the mesh height) read as shallow
   // water even where the coarse mesh pokes above the water plane.
   vec3 shallowWater = mix(vec3(0.22, 0.52, 0.55), seabed, 0.25);
@@ -221,7 +255,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v10";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v12";
   return { material, uniforms };
 }
 

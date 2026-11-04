@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   Heightfield,
+  IMPASSABLE_HEIGHT,
+  levelHeight,
   MAX_WATER_HEIGHT,
   MIN_LAND_HEIGHT,
   rawHeight,
+  TOP_HEIGHT,
 } from "../../src/client/render3d/terrain/Heightfield";
 import {
   Biome,
@@ -91,5 +94,35 @@ describe("Heightfield", () => {
 
   it("rejects terrain of the wrong size", () => {
     expect(() => Heightfield.fromTerrain(new Uint8Array(3), 2, 2)).toThrow();
+  });
+});
+
+describe("levelHeight", () => {
+  it("rises through every layer from ground to huge mountain tops", () => {
+    expect(levelHeight(0)).toBeCloseTo(0.3);
+    expect(levelHeight(100)).toBeCloseTo(TOP_HEIGHT);
+    for (let L = 1; L <= 100; L++) {
+      expect(levelHeight(L)).toBeGreaterThan(levelHeight(L - 1));
+    }
+    expect(IMPASSABLE_HEIGHT).toBeGreaterThan(TOP_HEIGHT);
+  });
+
+  it("keeps plains low and makes mountain layers much taller", () => {
+    expect(levelHeight(33)).toBeLessThan(1.6);
+    const plainStep = levelHeight(11) - levelHeight(10);
+    const mountainStep = levelHeight(91) - levelHeight(90);
+    expect(mountainStep).toBeGreaterThan(plainStep * 20);
+  });
+
+  it("is continuous at the band edges", () => {
+    for (const edge of [100 / 3, 200 / 3]) {
+      expect(levelHeight(edge + 1e-6) - levelHeight(edge - 1e-6)).toBeLessThan(
+        1e-3,
+      );
+    }
+  });
+
+  it("is what custom-map levels give for land", () => {
+    expect(rawHeight(LAND_BIT | 5, 70)).toBeCloseTo(levelHeight(70));
   });
 });

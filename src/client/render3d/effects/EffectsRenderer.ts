@@ -39,6 +39,11 @@ export interface EffectsBudget {
   lights: boolean;
 }
 
+/** Battle spots spawned per tick along the front (scaled by density). */
+const BATTLE_SPOTS_PER_TICK = 10;
+/** Camera distance beyond which the front shows no battle effects. */
+const BATTLE_MAX_DISTANCE = 260;
+
 export class EffectsRenderer {
   readonly group = new Group();
   private readonly fire: ParticleSystem;
@@ -79,6 +84,116 @@ export class EffectsRenderer {
       const x = (d.pos % this.mapWidth) + 0.5;
       const z = Math.floor(d.pos / this.mapWidth) + 0.5;
       this.explode(spec, x, z);
+    }
+  }
+
+  /**
+   * Per tick: a small, clean battle along the front. Freshly captured land
+   * tiles near the camera get rifle flashes, tracers, now and then a shell
+   * burst, and a puff of smoke that drifts off. At most
+   * BATTLE_SPOTS_PER_TICK spots (spread over the captured tiles), and
+   * nothing when zoomed far out, where the tile flash in the terrain
+   * shader already shows the capture.
+   */
+  battle(
+    captured: readonly number[],
+    /** Whether a changed tile was taken (now owned), not lost to nobody. */
+    taken: (tile: number) => boolean,
+    focusX: number,
+    focusZ: number,
+    viewRadius: number,
+    cameraDistance: number,
+  ): void {
+    if (captured.length === 0 || cameraDistance > BATTLE_MAX_DISTANCE) return;
+    const r2 = viewRadius * viewRadius;
+    const spots = Math.max(
+      1,
+      Math.round(BATTLE_SPOTS_PER_TICK * Math.min(1, this.density)),
+    );
+    const stride = Math.max(1, Math.floor(captured.length / spots));
+    const offset = Math.floor(Math.random() * stride);
+    // Effects grow a little with distance so they stay visible, but stay
+    // small next to buildings when zoomed in.
+    const k = Math.min(2.2, Math.max(0.6, cameraDistance / 90));
+    const now = this.time;
+    let made = 0;
+    for (let i = offset; i < captured.length && made < spots; i += stride) {
+      const t = captured[i];
+      if (!taken(t)) continue;
+      const x = (t % this.mapWidth) + Math.random();
+      const z = Math.floor(t / this.mapWidth) + Math.random();
+      const dx = x - focusX;
+      const dz = z - focusZ;
+      if (dx * dx + dz * dz > r2) continue;
+      const y = this.hf.sample(x, z);
+      if (y <= 0) continue;
+      made++;
+      // Rifle flashes, a few staggered over half a second.
+      for (let j = 0; j < 3; j++) {
+        this.fire.spawn(
+          x + (Math.random() - 0.5) * 0.8,
+          y + 0.12,
+          z + (Math.random() - 0.5) * 0.8,
+          0,
+          0,
+          0,
+          now + Math.random() * 0.5,
+          0.09,
+          0.45 * k,
+          P_FLASH,
+        );
+      }
+      // Tracers flying flat across the front.
+      const a = Math.random() * Math.PI * 2;
+      for (let j = 0; j < 2; j++) {
+        const sp = 6 + Math.random() * 4;
+        this.fire.spawn(
+          x,
+          y + 0.18,
+          z,
+          Math.cos(a) * sp,
+          1.2,
+          Math.sin(a) * sp,
+          now + j * 0.15 + Math.random() * 0.2,
+          0.3,
+          0.16 * k,
+          P_SPARK,
+        );
+      }
+      // Now and then a shell lands: a small fireball and a dust ring.
+      if (Math.random() < 0.22) {
+        const bt = now + Math.random() * 0.6;
+        this.fire.spawn(x, y + 0.2, z, 0, 0, 0, bt, 0.18, 1.6 * k, P_FLASH);
+        this.fire.spawn(x, y + 0.2, z, 0, 1.5, 0, bt, 0.45, 0.9 * k, P_FIRE);
+        for (let j = 0; j < 4; j++) {
+          const da = (j / 4) * Math.PI * 2 + a;
+          this.smoke.spawn(
+            x,
+            y + 0.05,
+            z,
+            Math.cos(da) * 1.4,
+            0,
+            Math.sin(da) * 1.4,
+            bt,
+            1.1,
+            0.7 * k,
+            P_DUST,
+          );
+        }
+      }
+      // Gun smoke drifting off.
+      this.smoke.spawn(
+        x,
+        y + 0.25,
+        z,
+        (Math.random() - 0.5) * 0.4,
+        0.2,
+        (Math.random() - 0.5) * 0.4,
+        now + Math.random() * 0.4,
+        2.2,
+        1.3 * k,
+        P_SMOKE,
+      );
     }
   }
 

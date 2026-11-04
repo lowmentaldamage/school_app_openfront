@@ -22,6 +22,7 @@ import {
   SRGBColorSpace,
   WebGLRenderer,
 } from "three";
+import { OWNER_MASK } from "../render/gl/utils/TileCodec";
 import { AdaptiveQuality } from "./AdaptiveQuality";
 import {
   CameraController,
@@ -260,6 +261,18 @@ export class WorldRenderer {
       frame.changedTiles,
       this.firstFrame ? null : nowMs,
     );
+    if (!this.firstFrame && frame.changedTiles !== null) {
+      const cc = this.cameraController;
+      const state = frame.tileState;
+      this.effects.battle(
+        frame.changedTiles,
+        (t) => (state[t] & OWNER_MASK) !== 0,
+        cc.focus.x,
+        cc.focus.z,
+        cc.viewRadius(),
+        cc.distance,
+      );
+    }
     if (frame.railroadDirty || this.firstFrame) {
       this.territory.updateRails(frame.railroadState);
     }

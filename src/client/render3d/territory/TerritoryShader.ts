@@ -109,12 +109,14 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
     float age = mod(uCaptureNow - float(capStamp), 16383.0) * 0.05;
     if (age < 0.9) {
       float k = smoothstep(0.0, 0.9, age);
-      color = mix(albedo, color, 0.2 + 0.8 * k);
+      // Fought-over ground: scorched for a moment, then the new colour
+      // settles in.
+      color = mix(albedo, color, 0.2 + 0.8 * k) * mix(0.62, 1.0, k);
       int capOwner = territoryOwnerAt(tile);
       vec3 glow = capOwner != 0
         ? territoryBorderColor(capOwner) * 1.6 + vec3(0.25)
         : vec3(0.02);
-      color = mix(color, glow, (1.0 - k) * (1.0 - k) * 0.75);
+      color = mix(color, glow, (1.0 - k) * (1.0 - k) * 0.45);
     }
   }
 
