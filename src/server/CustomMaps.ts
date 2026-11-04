@@ -55,6 +55,8 @@ export interface CustomMapInfo {
   width: number;
   height: number;
   nations: number;
+  /** Tribes (bots) a game on this map starts with. */
+  tribes?: number;
   createdAt: number;
 }
 
@@ -74,6 +76,7 @@ const UploadHeaderSchema = z.object({
       }),
     )
     .max(400),
+  tribes: z.int().min(0).max(400).optional(),
   /** Base64 webp thumbnail (optional). */
   thumbnail: z
     .string()
@@ -195,7 +198,7 @@ export async function saveCustomMap(
     },
     name: apiName(header.name),
     nations,
-    custom: { author, createdAt: now },
+    custom: { author, createdAt: now, tribes: header.tribes },
   };
   const dir = mapDir(id);
   const tmp = `${dir}.tmp`;
@@ -243,6 +246,7 @@ export async function listCustomMaps(): Promise<CustomMapInfo[]> {
         width: m.map.width,
         height: m.map.height,
         nations: m.nations.length,
+        tribes: m.custom?.tribes,
         createdAt: m.custom?.createdAt ?? 0,
       });
     } catch {

@@ -852,16 +852,20 @@ export class SinglePlayerModal extends BaseModal {
 
   /** Pick a map made in the map editor (null: back to the built-in map). */
   public async selectCustomMap(
-    map: { id: string; name: string } | null,
+    map: { id: string; name: string; tribes?: number } | null,
   ): Promise<void> {
     this.customMap = map;
+    // The map's own tribe count (set in the map editor).
+    if (map?.tribes !== undefined) this.bots = map.tribes;
     this.useRandomMap = false;
     await this.loadNationCount();
   }
 
   private handleConfigCustomMapSelected = (e: Event) => {
     const { map } = (
-      e as CustomEvent<{ map: { id: string; name: string } | null }>
+      e as CustomEvent<{
+        map: { id: string; name: string; tribes?: number } | null;
+      }>
     ).detail;
     void this.selectCustomMap(map);
   };

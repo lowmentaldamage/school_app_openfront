@@ -1158,9 +1158,12 @@ export class HostLobbyModal extends BaseModal {
 
   private handleConfigCustomMapSelected = (e: Event) => {
     const { map } = (
-      e as CustomEvent<{ map: { id: string; name: string } | null }>
+      e as CustomEvent<{
+        map: { id: string; name: string; tribes?: number } | null;
+      }>
     ).detail;
     this.customMap = map;
+    if (map?.tribes !== undefined) this.bots = map.tribes;
     this.useRandomMap = false;
     void this.loadNationCount().then(() => this.putGameConfig());
   };

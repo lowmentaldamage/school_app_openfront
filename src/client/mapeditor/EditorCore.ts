@@ -382,6 +382,30 @@ export class MapDocument {
     return true;
   }
 
+  /** Replace all land heights in one undoable step. */
+  setElevation(next: Uint8Array): void {
+    this.beginStroke();
+    for (let i = 0; i < next.length; i++) {
+      if (
+        this.map.kind[i] === TERRAIN_LAND &&
+        next[i] !== this.map.elevation[i]
+      ) {
+        this.set(i, TERRAIN_LAND, next[i]);
+      }
+    }
+    this.endStroke();
+    this.markAll();
+    this.version++;
+  }
+
+  /** Add nations in one undoable step (replacing them when `replace`). */
+  addNations(list: EditorNation[], replace: boolean): void {
+    this.beginStroke();
+    this.nations = replace ? [...list] : [...this.nations, ...list];
+    this.endStroke();
+    this.version++;
+  }
+
   /** Index of the nation nearest (x, y) within `within` tiles, or -1. */
   nationAt(x: number, y: number, within: number): number {
     let best = -1;
@@ -672,4 +696,184 @@ function smoothElevation(m: EditableMap, r: number): void {
     }
   }
   m.elevation.set(out);
+}
+
+// ---------------------------------------------------- automatic terrain
+
+/** Land distance (tiles) to the nearest water, by BFS from the coast. */
+export function distanceToCoast(m: EditableMap): Int32Array {
+  const { width: w, height: h, kind } = m;
+  const dist = new Int32Array(w * h).fill(-1);
+  const queue = new Int32Array(w * h);
+  let tail = 0;
+  for (let i = 0; i < w * h; i++) {
+    if (kind[i] !== TERRAIN_LAND) {
+      dist[i] = 0;
+      continue;
+    }
+    const x = i % w;
+    const y = (i - x) / w;
+    if (
+      x === 0 ||
+      y === 0 ||
+      x === w - 1 ||
+      y === h - 1 ||
+      kind[i - 1] !== TERRAIN_LAND ||
+      kind[i + 1] !== TERRAIN_LAND ||
+      kind[i - w] !== TERRAIN_LAND ||
+      kind[i + w] !== TERRAIN_LAND
+    ) {
+      dist[i] = 1;
+      queue[tail++] = i;
+    }
+  }
+  let head = 0;
+  while (head < tail) {
+    const c = queue[head++];
+    const x = c % w;
+    const nbs = [x > 0 ? c - 1 : -1, x < w - 1 ? c + 1 : -1, c - w, c + w];
+    for (const t of nbs) {
+      if (t < 0 || t >= w * h || dist[t] !== -1) continue;
+      dist[t] = dist[c] + 1;
+      queue[tail++] = t;
+    }
+  }
+  return dist;
+}
+
+/**
+ * Automatic relief: realistic heights for land that has none (or to
+ * enrich it). Lowlands along the coasts, hills further in, and ridged
+ * mountain ranges in the interior, with the existing heights blended in.
+ * `strength` 0-1 scales how mountainous the result is.
+ */
+export function autoRelief(
+  m: EditableMap,
+  seed: number,
+  strength = 0.6,
+): Uint8Array {
+  const { width: w, height: h, kind, elevation } = m;
+  const dist = distanceToCoast(m);
+  let maxDist = 1;
+  for (let i = 0; i < w * h; i++) if (dist[i] > maxDist) maxDist = dist[i];
+  const scale = 5 / Math.max(w, h);
+  const out = new Uint8Array(elevation);
+  for (let i = 0; i < w * h; i++) {
+    if (kind[i] !== TERRAIN_LAND) continue;
+    const x = i % w;
+    const y = (i - x) / w;
+    // 0 at the coast → 1 deep inland (soft, so big continents get plains).
+    const inland = Math.min(1, dist[i] / Math.max(6, maxDist * 0.6));
+    const base = fbm(x * scale, y * scale, seed);
+    // Ridged noise: sharp mountain chains.
+    const r =
+      1 - Math.abs(fbm(x * scale * 2.2, y * scale * 2.2, seed + 77) * 2 - 1);
+    const ridge = r * r * r;
+    const hills = base * 10 * inland;
+    const peaks = ridge * 24 * Math.pow(inland, 0.8) * (0.4 + strength);
+    const auto = Math.min(
+      30,
+      1 + hills * (0.5 + strength) + peaks * (base > 0.45 ? 1 : 0.55),
+    );
+    // Keep any relief the source already had.
+    out[i] = Math.round(
+      Math.min(30, Math.max(elevation[i], auto * 0.75 + elevation[i] * 0.5)),
+    );
+  }
+  return out;
+}
+
+/** True when nearly all land is at one height (a flat picture). */
+export function isFlat(m: EditableMap): boolean {
+  let land = 0;
+  let varied = 0;
+  for (let i = 0; i < m.kind.length; i++) {
+    if (m.kind[i] !== TERRAIN_LAND) continue;
+    land++;
+    if (m.elevation[i] >= 10) varied++;
+  }
+  return land > 0 && varied / land < 0.05;
+}
+
+// ---------------------------------------------------- automatic nations
+
+/**
+ * Pick `count` spawn points spread over the land: farthest-point sampling
+ * over random land tiles, skipping islands too small to grow on.
+ */
+export function autoNationSpots(
+  m: EditableMap,
+  count: number,
+  seed: number,
+  avoid: { x: number; y: number }[] = [],
+): { x: number; y: number }[] {
+  const { width: w, height: h, kind } = m;
+  // Landmass sizes.
+  const comp = new Int32Array(w * h).fill(-1);
+  const sizes: number[] = [];
+  const queue = new Int32Array(w * h);
+  let landTotal = 0;
+  for (let i = 0; i < w * h; i++) {
+    if (kind[i] !== TERRAIN_LAND || comp[i] !== -1) continue;
+    const id = sizes.length;
+    let head = 0;
+    let tail = 0;
+    queue[tail++] = i;
+    comp[i] = id;
+    while (head < tail) {
+      const c = queue[head++];
+      const x = c % w;
+      const nbs = [x > 0 ? c - 1 : -1, x < w - 1 ? c + 1 : -1, c - w, c + w];
+      for (const t of nbs) {
+        if (t >= 0 && t < w * h && kind[t] === TERRAIN_LAND && comp[t] === -1) {
+          comp[t] = id;
+          queue[tail++] = t;
+        }
+      }
+    }
+    sizes.push(tail);
+    landTotal += tail;
+  }
+  if (landTotal === 0 || count <= 0) return [];
+  const minSize = Math.max(30, landTotal * 0.004);
+  const dist = distanceToCoast(m);
+  let s = seed >>> 0 || 1;
+  const rnd = () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+  const candidates: number[] = [];
+  for (let tries = 0; tries < 200000 && candidates.length < 6000; tries++) {
+    const i = Math.floor(rnd() * w * h);
+    // Land, a few tiles from the coast, on a landmass worth spawning on.
+    if (kind[i] === TERRAIN_LAND && sizes[comp[i]] >= minSize && dist[i] >= 3) {
+      candidates.push(i);
+    }
+  }
+  const chosen: { x: number; y: number }[] = [];
+  const minD = new Float64Array(candidates.length).fill(Infinity);
+  const update = (px: number, py: number) => {
+    candidates.forEach((c, k) => {
+      const dx = (c % w) - px;
+      const dy = Math.floor(c / w) - py;
+      minD[k] = Math.min(minD[k], dx * dx + dy * dy);
+    });
+  };
+  for (const a of avoid) update(a.x, a.y);
+  for (let n = 0; n < count && candidates.length > 0; n++) {
+    let best = 0;
+    if (chosen.length === 0 && avoid.length === 0) {
+      best = Math.floor(rnd() * candidates.length);
+    } else {
+      for (let k = 1; k < candidates.length; k++) {
+        if (minD[k] > minD[best]) best = k;
+      }
+      if (minD[best] === 0) break;
+    }
+    const c = candidates[best];
+    const p = { x: c % w, y: Math.floor(c / w) };
+    chosen.push(p);
+    update(p.x, p.y);
+  }
+  return chosen;
 }

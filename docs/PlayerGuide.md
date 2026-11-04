@@ -225,12 +225,21 @@ Press **Map Editor** on the home screen.
 - **Start:** 📄 New (blank), 🏝️ Random (islands from a seed, choose land %
   and number of islands) or 📂 Open (any game map or a saved custom map).
 - **Upload:** 📤 Upload (or **Upload map** under Custom maps in Solo and
-  Create Lobby, or drop an image on the editor). Any map picture works
-  (blue sea, green land, brown hills, white mountains), as do greyscale
-  heightmaps (set the sea level) and map-generator PNGs. It turns into a
+  Create Lobby, or drop a file on the editor). Accepted:
+  - pictures: PNG, JPG, WebP, GIF, BMP, AVIF, SVG (blue sea, green land,
+    brown hills, white mountains) and map-generator PNGs;
+  - heightmaps: greyscale images, 16-bit PNG, TIFF (uncompressed),
+    RAW / R16, PGM / PPM (set the sea level);
+  - real elevation data (metres, sea at 0): GeoTIFF, SRTM `.hgt`, ESRI
+    `.asc`, or a CSV grid of numbers.
+
+  With **Automatic 3D terrain** on, flat pictures get coasts, hills and
+  mountain ranges, and the number of **Nations** you ask for are placed
+  spread over the land with real country names and flags. It turns into a
   3D map that spins all the way round; drag or press an arrow key to
   stop, 🔄 Spin to start again. Choose the map size (longest side 800–2000
   tiles), then edit and save it like any other map.
+
 - **Paint:** pick Water, Plains, Highland or Mountain and drag on the map.
   Raise / Lower lift or sink the ground. The slider (or `[` `]`) sets the
   brush size. **Ctrl+Z / Ctrl+Y** undo and redo.
@@ -239,6 +248,12 @@ Press **Map Editor** on the home screen.
   Right-drag or the ✋ tool moves, the wheel or two fingers zoom.
 - **Nations:** the 🚩 tool places an AI nation on land; drag it to move.
   Rename it and pick a flag in the list on the right.
+- **✨ Automatic** (right panel, ☰ on phones): **Auto 3D terrain** adds hills
+  and mountain ranges (slider = how mountainous; Ctrl+Z undoes it),
+  **Place N nations** spreads that many nations over the land, and
+  **Tribes** sets how many tribes (bots) a game on this map starts with.
+- **Rotate:** the 🔄 tool turns and tilts the 3D view by dragging (also
+  arrow keys and the compass).
 - **Save:** give the map a name and press 💾 Save. It is stored on the
   server and appears under **Custom maps** in Solo and Create Lobby for
   everyone. ▶ Play solo starts a game on it at once.

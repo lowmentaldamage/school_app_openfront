@@ -27,6 +27,7 @@ function island(): Uint8Array {
 
 const header = (over: Partial<CustomMapUpload> = {}): CustomMapUpload => ({
   name: "Test Isle!",
+  tribes: 42,
   width: 128,
   height: 96,
   nations: [
@@ -87,7 +88,12 @@ describe("custom maps", () => {
       maps: { id: string; name: string; nations: number }[];
     };
     expect(list.maps).toHaveLength(1);
-    expect(list.maps[0]).toMatchObject({ id, name: "Test Isle!", nations: 1 });
+    expect(list.maps[0]).toMatchObject({
+      id,
+      name: "Test Isle!",
+      nations: 1,
+      tribes: 42,
+    });
 
     const manifest = (await (
       await fetch(`${base}/${id}/manifest.json`)

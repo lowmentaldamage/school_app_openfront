@@ -4,7 +4,10 @@ import {
   TERRAIN_WATER,
 } from "@laukolaroser/shared/maps/MapBuilder";
 import {
+  autoNationSpots,
+  autoRelief,
   detectImageMode,
+  isFlat,
   imageToMap,
   importSize,
   MapDocument,
@@ -152,5 +155,57 @@ describe("image import", () => {
     // Small pictures are scaled up to the chosen size.
     expect(importSize(400, 200, 1600)).toEqual({ width: 1600, height: 800 });
     expect(importSize(301, 203, 300)).toEqual({ width: 300, height: 200 });
+  });
+});
+
+describe("automatic terrain and nations", () => {
+  const continent = () => {
+    const doc = MapDocument.blank(256, 192);
+    doc.paint(128, 96, 70, "plains");
+    for (let i = 0; i < doc.map.elevation.length; i++) {
+      if (doc.map.kind[i] === TERRAIN_LAND) doc.map.elevation[i] = 2;
+    }
+    return doc;
+  };
+
+  test("auto relief: low coasts, mountains inland, deterministic, undoable", () => {
+    const doc = continent();
+    expect(isFlat(doc.map)).toBe(true);
+    const relief = autoRelief(doc.map, 5);
+    expect(autoRelief(doc.map, 5)).toEqual(relief);
+    const at = (x: number, y: number) => relief[y * 256 + x];
+    expect(at(128 - 69, 96)).toBeLessThan(8); // coast
+    let maxInland = 0;
+    for (let y = 80; y < 112; y++)
+      for (let x = 112; x < 144; x++) maxInland = Math.max(maxInland, at(x, y));
+    expect(maxInland).toBeGreaterThan(at(128 - 69, 96));
+    let high = 0;
+    for (let i = 0; i < relief.length; i++) if (relief[i] >= 20) high++;
+    expect(high).toBeGreaterThan(0);
+    expect(relief[0]).toBe(0); // water untouched
+    doc.setElevation(relief);
+    expect(isFlat(doc.map)).toBe(false);
+    doc.undo();
+    expect(isFlat(doc.map)).toBe(true);
+  });
+
+  test("auto nations: on land, spread out, avoid tiny islands", () => {
+    const doc = continent();
+    doc.paint(10, 10, 1, "plains"); // tiny island
+    const spots = autoNationSpots(doc.map, 8, 3);
+    expect(spots).toHaveLength(8);
+    for (const p of spots) {
+      expect(doc.isLand(p.x, p.y)).toBe(true);
+      expect(Math.hypot(p.x - 10, p.y - 10)).toBeGreaterThan(5);
+    }
+    let minPair = Infinity;
+    for (let a = 0; a < spots.length; a++)
+      for (let b = a + 1; b < spots.length; b++)
+        minPair = Math.min(
+          minPair,
+          Math.hypot(spots[a].x - spots[b].x, spots[a].y - spots[b].y),
+        );
+    expect(minPair).toBeGreaterThan(20);
+    expect(autoNationSpots(doc.map, 8, 3)).toEqual(spots);
   });
 });

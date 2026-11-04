@@ -294,9 +294,11 @@ export class GameConfigSettings extends LitElement {
     this.emit("map-selected", { map });
   };
 
-  private handleSelectCustom = (map: { id: string; name: string } | null) => {
+  private handleSelectCustom = (
+    map: { id: string; name: string; tribes?: number } | null,
+  ) => {
     this.emit("custom-map-selected", {
-      map: map ? { id: map.id, name: map.name } : null,
+      map: map ? { id: map.id, name: map.name, tribes: map.tribes } : null,
     });
   };
 

@@ -35,12 +35,22 @@ import {
   type ImageMode,
   imageToMap,
   importSize,
+  autoNationSpots,
+  autoRelief,
+  isFlat,
   MapDocument,
   randomIslands,
   tileColor,
 } from "./EditorCore";
+import {
+  decodeHeightFile,
+  extensionOf,
+  type HeightGrid,
+  heightsToMap,
+  UPLOAD_ACCEPT,
+} from "./MapFileFormats";
 
-type Tool = BrushTool | "nation" | "pan";
+type Tool = BrushTool | "nation" | "pan" | "orbit";
 
 const TOOL_ICON: Record<Tool, string> = {
   water: "🌊",
@@ -51,6 +61,7 @@ const TOOL_ICON: Record<Tool, string> = {
   lower: "⬇️",
   nation: "🚩",
   pan: "✋",
+  orbit: "🔄",
 };
 
 const SIZES: [number, number][] = [
@@ -67,6 +78,13 @@ const PREVIEW_FULL_TILES = 1_600_000;
 const FLAG_CODES = (Countries as { code: string; name: string }[])
   .filter((c) => c.code !== "xx")
   .map((c) => c.code);
+/** Two-letter country flags (real countries) for auto-placed nations. */
+const COUNTRY_CODES = FLAG_CODES.filter(
+  (c) => /^[a-z]{2}$/.test(c) && !["un", "eu", "aq"].includes(c),
+);
+const COUNTRY_NAMES = new Map(
+  (Countries as { code: string; name: string }[]).map((c) => [c.code, c.name]),
+);
 
 function t(key: string, params?: Record<string, string | number>): string {
   return translateText(`map_editor.${key}`, params);
@@ -112,7 +130,20 @@ export class MapEditor extends LitElement {
   @state() private busy = false;
   @state() private menu: "none" | "new" | "open" | "random" | "upload" = "none";
   /** The last uploaded picture, kept to convert again with other options. */
-  private uploaded: { bitmap: ImageBitmap; name: string } | null = null;
+  private uploaded: {
+    bitmap: ImageBitmap | null;
+    grid: HeightGrid | null;
+    name: string;
+  } | null = null;
+  /** Upload: add mountains and hills automatically (flat pictures). */
+  @state() private autoTerrain = true;
+  /** Upload / auto panel: nations to place, tribes (bots) the map wants. */
+  @state() private nationCount = 8;
+  @state() private tribes = 100;
+  @state() private reliefStrength = 60;
+  private orbitDrag: { x: number; y: number } | null = null;
+  /** Phones: the side panel (auto, nations) opens over the map. */
+  @state() private showPanel = false;
   @state() private uploadMode: ImageMode = "auto";
   @state() private seaLevel = 60;
   @state() private uploadSide = 1600;
@@ -233,52 +264,133 @@ export class MapEditor extends LitElement {
 
   /** Read an image file, convert it and show it in 3D, turning. */
   async uploadFile(file: File): Promise<void> {
-    if (!file.type.startsWith("image/")) {
-      this.status = t("upload_not_image");
-      return;
-    }
     this.busy = true;
     this.status = t("loading");
     try {
-      this.uploaded?.bitmap.close();
+      const name = file.name.replace(/\.[^.]+$/, "").slice(0, 40);
+      const grid = decodeHeightFile(
+        file.name,
+        new Uint8Array(await file.arrayBuffer()),
+      );
+      this.uploaded?.bitmap?.close();
       this.uploaded = {
-        bitmap: await createImageBitmap(file),
-        name: file.name.replace(/\.[^.]+$/, "").slice(0, 40),
+        bitmap: grid ? null : await this.decodeImage(file),
+        grid,
+        name,
       };
       this.convertUpload();
     } catch (e) {
-      this.status = t("load_failed", { error: String(e) });
+      this.status = t("load_failed", {
+        error: e instanceof Error ? e.message : String(e),
+      });
     } finally {
       this.busy = false;
+    }
+  }
+
+  /** Any image the browser can show (SVG and friends via <img>). */
+  private async decodeImage(file: File): Promise<ImageBitmap> {
+    try {
+      return await createImageBitmap(file);
+    } catch {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = new Image();
+        img.src = url;
+        await img.decode();
+        const w = img.naturalWidth || 1024;
+        const h = img.naturalHeight || 1024;
+        const c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        c.getContext("2d")?.drawImage(img, 0, 0, w, h);
+        return await createImageBitmap(c);
+      } catch {
+        throw new Error(
+          t("upload_unreadable", { ext: extensionOf(file.name) }),
+        );
+      } finally {
+        URL.revokeObjectURL(url);
+      }
     }
   }
 
   private convertUpload(): void {
     const up = this.uploaded;
     if (!up) return;
+    const src = up.grid ?? up.bitmap;
+    if (!src) return;
     const { width, height } = importSize(
-      up.bitmap.width,
-      up.bitmap.height,
+      src.width,
+      src.height,
       this.uploadSide,
     );
-    const c = document.createElement("canvas");
-    c.width = width;
-    c.height = height;
-    const ctx = c.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(up.bitmap, 0, 0, width, height);
-    const data = ctx.getImageData(0, 0, width, height);
-    const map = imageToMap(
-      { width, height, data: data.data },
-      { mode: this.uploadMode, seaLevel: this.seaLevel },
-    );
-    this.startDocument(new MapDocument(map), up.name);
+    let map;
+    if (up.grid) {
+      map = heightsToMap(up.grid, width, height, this.seaLevel);
+    } else {
+      const c = document.createElement("canvas");
+      c.width = width;
+      c.height = height;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      if (!ctx || !up.bitmap) return;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(up.bitmap, 0, 0, width, height);
+      const data = ctx.getImageData(0, 0, width, height);
+      map = imageToMap(
+        { width, height, data: data.data },
+        { mode: this.uploadMode, seaLevel: this.seaLevel },
+      );
+    }
+    // Automatic 3D: a flat picture (or any picture, when asked) gets
+    // coasts, hills and mountain ranges.
+    if (
+      this.autoTerrain &&
+      (isFlat(map) || (!up.grid && this.uploadMode !== "game"))
+    ) {
+      map.elevation.set(autoRelief(map, this.seed, this.reliefStrength / 100));
+    }
+    const doc = new MapDocument(map);
+    autoNationSpots(map, this.nationCount, this.seed).forEach((p, i) => {
+      const n = this.nationName(i);
+      doc.nations.push({ ...n, x: p.x, y: p.y });
+    });
+    this.startDocument(doc, up.name);
     this.menu = "none";
     this.setView("3d");
     this.spin = true;
     this.status = t("upload_done", { w: width, h: height });
+  }
+
+  /** A name and flag for the i-th auto-placed nation. */
+  private nationName(i: number): { name: string; flag: string } {
+    const k = (this.seed * 31 + i * 97) % COUNTRY_CODES.length;
+    const code =
+      COUNTRY_CODES[(k + COUNTRY_CODES.length) % COUNTRY_CODES.length] ?? "";
+    const country = COUNTRY_NAMES.get(code);
+    return { name: country ?? t("nation_default", { n: i + 1 }), flag: code };
+  }
+
+  private placeNations(): void {
+    const spots = autoNationSpots(this.doc.map, this.nationCount, this.seed);
+    this.doc.addNations(
+      spots.map((p, i) => ({ ...this.nationName(i), x: p.x, y: p.y })),
+      true,
+    );
+    this.selectedNation = -1;
+    this.savedId = null;
+    this.status = t("nations_placed", { n: spots.length });
+    this.rev++;
+  }
+
+  private applyAutoTerrain(): void {
+    this.doc.setElevation(
+      autoRelief(this.doc.map, this.seed, this.reliefStrength / 100),
+    );
+    this.savedId = null;
+    this.status = t("terrain_done");
+    this.rev++;
   }
 
   /** Open the upload panel and the file picker. */
@@ -290,7 +402,7 @@ export class MapEditor extends LitElement {
   private pickFile(): void {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = UPLOAD_ACCEPT;
     input.onchange = () => {
       const f = input.files?.[0];
       if (f) void this.uploadFile(f);
@@ -444,7 +556,7 @@ export class MapEditor extends LitElement {
       ctx.fillText(n.name, sx, sy - 10);
     });
     // Brush outline.
-    if (this.hover && this.tool !== "pan" && this.tool !== "nation") {
+    if (this.hover && (BRUSH_TOOLS as readonly string[]).includes(this.tool)) {
       ctx.beginPath();
       ctx.arc(
         ox + (this.hover.x + 0.5) * this.scale,
@@ -579,7 +691,7 @@ export class MapEditor extends LitElement {
       ctx.fillStyle = "#fff";
       ctx.fillText(n.name, p.x, p.y - 10);
     });
-    if (this.hover && this.tool !== "pan" && this.tool !== "nation") {
+    if (this.hover && (BRUSH_TOOLS as readonly string[]).includes(this.tool)) {
       // Brush ring: project points around the circle.
       ctx.beginPath();
       for (let a = 0; a <= 32; a++) {
@@ -709,6 +821,11 @@ export class MapEditor extends LitElement {
       this.panning = { x: e.clientX, y: e.clientY };
       return;
     }
+    if (this.tool === "orbit") {
+      if (this.view === "2d") this.setView("3d");
+      this.orbitDrag = { x: e.clientX, y: e.clientY };
+      return;
+    }
     const tile = this.screenToTile(e.clientX, e.clientY);
     if (!tile) return;
     if (this.tool === "nation") {
@@ -743,6 +860,15 @@ export class MapEditor extends LitElement {
       this.panning = { x: e.clientX, y: e.clientY };
       return;
     }
+    if (this.orbitDrag) {
+      const cam = this.world?.cameraController;
+      if (cam) {
+        cam.rotateBy(-(e.clientX - this.orbitDrag.x) * 0.4);
+        cam.tiltBy((e.clientY - this.orbitDrag.y) * 0.25);
+      }
+      this.orbitDrag = { x: e.clientX, y: e.clientY };
+      return;
+    }
     const tile = this.screenToTile(e.clientX, e.clientY);
     this.hover = tile;
     this.needs2d = true;
@@ -751,7 +877,12 @@ export class MapEditor extends LitElement {
       this.doc.moveNation(this.draggingNation, tile.x, tile.y);
       return;
     }
-    if (this.painting && this.tool !== "nation" && this.tool !== "pan") {
+    if (
+      this.painting &&
+      this.tool !== "nation" &&
+      this.tool !== "pan" &&
+      this.tool !== "orbit"
+    ) {
       this.doc.paintLine(
         this.painting.x,
         this.painting.y,
@@ -769,6 +900,7 @@ export class MapEditor extends LitElement {
     if (this.pointers.size < 2) this.pinch = null;
     if (this.pointers.size === 0) {
       this.panning = null;
+      this.orbitDrag = null;
       if (this.draggingNation >= 0) {
         this.draggingNation = -1;
         this.doc.endStroke();
@@ -917,6 +1049,7 @@ export class MapEditor extends LitElement {
             flag: n.flag,
             coordinates: [n.x, n.y],
           })),
+          tribes: this.tribes,
           thumbnail: await this.thumbnail(),
         },
         this.doc.packed(),
@@ -944,7 +1077,7 @@ export class MapEditor extends LitElement {
     this.close();
     if (modal) {
       modal.open();
-      await modal.selectCustomMap({ id, name });
+      await modal.selectCustomMap({ id, name, tribes: this.tribes });
     }
   }
 
@@ -1031,6 +1164,30 @@ export class MapEditor extends LitElement {
             : nothing
         }
         ${sideSelect}
+        <label class="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            .checked=${this.autoTerrain}
+            @change=${(e: Event) =>
+              (this.autoTerrain = (e.target as HTMLInputElement).checked)}
+          />
+          ✨ ${t("upload_auto_terrain")}
+        </label>
+        <label class="flex items-center justify-between gap-2 text-sm">
+          ${t("nation_count")}
+          <input
+            type="number"
+            min="0"
+            max="200"
+            class="w-20 rounded bg-slate-800 px-1 py-0.5 text-right"
+            .value=${String(this.nationCount)}
+            @change=${(e: Event) =>
+              (this.nationCount = Math.max(
+                0,
+                Math.min(200, Number((e.target as HTMLInputElement).value) | 0),
+              ))}
+          />
+        </label>
         ${
           this.uploaded
             ? html`<button
@@ -1153,6 +1310,66 @@ export class MapEditor extends LitElement {
     </div>`;
   }
 
+  private renderAuto() {
+    const num = (
+      label: string,
+      value: number,
+      max: number,
+      set: (v: number) => void,
+    ) =>
+      html`<label class="flex items-center justify-between gap-2 text-xs">
+        ${label}
+        <input
+          type="number"
+          min="0"
+          max=${max}
+          class="w-20 rounded bg-slate-800 px-1 py-0.5 text-right"
+          .value=${String(value)}
+          @change=${(e: Event) =>
+            set(
+              Math.max(
+                0,
+                Math.min(max, Number((e.target as HTMLInputElement).value) | 0),
+              ),
+            )}
+        />
+      </label>`;
+    return html`<div class="flex flex-col gap-2 rounded-lg bg-white/5 p-2">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-white/70">
+        ✨ ${t("auto_title")}
+      </h3>
+      <button
+        class="lkr-ed-btn bg-violet-700"
+        title=${t("auto_terrain_hint")}
+        @click=${() => this.applyAutoTerrain()}
+      >
+        ⛰️ ${t("auto_terrain")}
+      </button>
+      <label class="flex flex-col gap-1 text-xs">
+        ${t("relief_strength", { n: this.reliefStrength })}
+        <input
+          type="range"
+          min="0"
+          max="100"
+          .value=${String(this.reliefStrength)}
+          @input=${(e: Event) =>
+            (this.reliefStrength = Number(
+              (e.target as HTMLInputElement).value,
+            ))}
+        />
+      </label>
+      ${num(t("nation_count"), this.nationCount, 200, (v) => (this.nationCount = v))}
+      <button
+        class="lkr-ed-btn bg-violet-700"
+        @click=${() => this.placeNations()}
+      >
+        🚩 ${t("place_nations", { n: this.nationCount })}
+      </button>
+      ${num(t("tribe_count"), this.tribes, 400, (v) => (this.tribes = v))}
+      <p class="text-[11px] leading-snug text-white/50">${t("tribes_hint")}</p>
+    </div>`;
+  }
+
   private renderNations() {
     const nations = this.doc.nations;
     return html`<div class="flex flex-col gap-2 min-h-0">
@@ -1245,7 +1462,7 @@ export class MapEditor extends LitElement {
     void this.rev;
     const land = this.doc.landTiles();
     const pct = Math.round((land / (this.doc.width * this.doc.height)) * 100);
-    const tools: Tool[] = [...BRUSH_TOOLS, "nation", "pan"];
+    const tools: Tool[] = [...BRUSH_TOOLS, "nation", "pan", "orbit"];
     return html`
       <style>
         .lkr-ed-btn {
@@ -1392,6 +1609,12 @@ export class MapEditor extends LitElement {
             >
               ✕ ${t("close")}
             </button>
+            <button
+              class="lkr-ed-btn bg-slate-700 md:hidden"
+              @click=${() => (this.showPanel = !this.showPanel)}
+            >
+              ☰
+            </button>
           </div>
         </header>
         <div class="relative flex min-h-0 flex-1">
@@ -1480,9 +1703,11 @@ export class MapEditor extends LitElement {
             ${this.renderMenu()}
           </main>
           <aside
-            class="hidden w-72 flex-col gap-3 border-l border-white/10 bg-slate-900 p-3 md:flex"
+            class="${
+              this.showPanel ? "absolute inset-y-0 right-0 z-30 flex" : "hidden"
+            } w-72 flex-col gap-3 overflow-y-auto border-l border-white/10 bg-slate-900 p-3 md:static md:flex"
           >
-            ${this.renderNations()}
+            ${this.renderAuto()} ${this.renderNations()}
             <p class="mt-auto text-[11px] leading-snug text-white/50">
               ${t("help")}
             </p>

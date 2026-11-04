@@ -17,6 +17,7 @@ export interface CustomMapInfo {
   width: number;
   height: number;
   nations: number;
+  tribes?: number;
   createdAt: number;
 }
 
@@ -25,6 +26,7 @@ export interface CustomMapSave {
   width: number;
   height: number;
   nations: { name: string; flag?: string; coordinates: [number, number] }[];
+  tribes?: number;
   /** Base64 webp. */
   thumbnail?: string;
 }
