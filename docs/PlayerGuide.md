@@ -288,6 +288,17 @@ shows the blast and turns **green** when a launcher is in range — and click.
 
 Weapon strikes never capture land; only attacks do.
 
+### Terrain and line of fire
+
+- **Mountains block shots.** Artillery, naval fire and rockets cannot pass
+  through a mountain range that stands clearly higher than both the gun and
+  the target. The aiming circle turns **amber** when every launcher in
+  range is blocked. Fire from another launcher, aim elsewhere, or send
+  **bombers** — they fly over mountains.
+- A lone peak does not block; a range (two or more high tiles on the line)
+  does. A gun standing on the mountain itself fires over it.
+- **High ground:** launchers on highland get +10% range, on mountains +20%.
+
 ### Power tiers (Mk I → Mk II → Mk III)
 
 Every weapon can be upgraded twice with gold: press the small yellow **▲**

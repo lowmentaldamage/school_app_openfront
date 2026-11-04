@@ -11,4 +11,6 @@ export interface UIState {
   upgradeMultiplier: number;
   /** Weapon being aimed (next map click fires it), or null. */
   weaponTargeting?: WeaponId | null;
+  /** The aim point is in range but mountains block every shot. */
+  weaponAimBlocked?: boolean;
 }

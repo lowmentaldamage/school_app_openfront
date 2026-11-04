@@ -34,5 +34,8 @@ late game where building icons pile up and grow huge near the camera.
 
 ## Phase 3 — nature
 
-10. Natural disasters and volcanoes. _(how they work: decide later, ask
-    again when phases 1-2 are done)_
+10. Natural disasters and volcanoes. _(chosen: volcanoes, earthquakes,
+    tsunamis/floods, storms and wildfires; random but identical on every
+    client, with an On/Off + frequency lobby option, off in the tutorial;
+    medium strength (hurts a region, never wipes out a player); a ~10 s
+    warning with a map marker and message before each one hits)_

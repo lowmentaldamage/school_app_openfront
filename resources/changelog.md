@@ -2,6 +2,7 @@
 
 🆕 **Since v1.1.0**
 
+- Realistic warfare: mountain ranges block artillery, naval fire and rockets (bombers fly over; amber aiming circle when blocked); guns on high ground shoot 10-20% further
 - Weapon power tiers: upgrade artillery, naval fire, air raids and rockets to Mk II and Mk III (yellow ▲ next to each weapon): more shots, bigger blasts, longer range; Mk III wrecks buildings
 - Bigger destruction: heavy hits blow up bigger and leave fires and smoke; guns flash when they fire
 - Real planes: four-engine bombers and fighters with propellers, contrails, flying over the mountains and dropping their bombs from the air

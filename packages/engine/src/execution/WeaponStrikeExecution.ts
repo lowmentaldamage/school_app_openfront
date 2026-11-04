@@ -24,6 +24,8 @@ import {
   zPlayerRef,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import {
+  launcherRange,
+  lineOfFireBlocked,
   WEAPONS,
   weaponAtTier,
   weaponTier,
@@ -45,6 +47,7 @@ export type StrikeRejection =
   | "invalid_tile"
   | "friendly_target"
   | "no_launcher"
+  | "blocked_by_terrain"
   | "not_enough_gold";
 
 /**
@@ -62,23 +65,34 @@ export function launcherReady(mg: Game, unit: Unit, spec: WeaponSpec): boolean {
   return !unit.isInCooldown();
 }
 
-/** The nearest ready launcher of `player` within range of `tile`, if any. */
+/**
+ * The nearest ready launcher of `player` that can hit `tile`: in range
+ * (more on high ground) with no mountain range in the way. `blocked` is
+ * set when a launcher was in range but every such shot was blocked.
+ */
 export function findLauncher(
   mg: Game,
   player: Player,
   spec: WeaponSpec,
   tile: TileRef,
+  out: { blocked: boolean } = { blocked: false },
 ): Unit | null {
-  const range2 = spec.range * spec.range;
   let best: Unit | null = null;
   let bestD = Infinity;
+  out.blocked = false;
   for (const u of player.units(spec.launchers)) {
+    const range = launcherRange(mg, spec, u.tile());
     const d = mg.euclideanDistSquared(u.tile(), tile);
-    if (d > range2 || d >= bestD) continue;
+    if (d > range * range || d >= bestD) continue;
     if (!launcherReady(mg, u, spec)) continue;
+    if (lineOfFireBlocked(mg, u.tile(), tile, spec.id)) {
+      out.blocked = true;
+      continue;
+    }
     best = u;
     bestD = d;
   }
+  if (best !== null) out.blocked = false;
   return best;
 }
 
@@ -109,9 +123,10 @@ export class WeaponStrikeExecution implements Execution {
       this.rejection = "friendly_target";
       return;
     }
-    const launcher = findLauncher(mg, this.player, spec, this.tile);
+    const why = { blocked: false };
+    const launcher = findLauncher(mg, this.player, spec, this.tile, why);
     if (launcher === null) {
-      this.rejection = "no_launcher";
+      this.rejection = why.blocked ? "blocked_by_terrain" : "no_launcher";
       return;
     }
     const cost = mg.config().strikeCost(spec.cost, this.player);

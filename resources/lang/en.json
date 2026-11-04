@@ -3252,6 +3252,7 @@
     "aim_hint": "Tap a target for {weapon}. Esc to cancel.",
     "airstrike": "Air raid",
     "artillery": "Artillery barrage",
+    "blocked_hint": "Mountains block this shot. Aim elsewhere, fire from another launcher, or send bombers (they fly over).",
     "naval": "Naval bombardment",
     "need_gold": "Not enough gold",
     "needs_airstrike": "Build an Airbase for air raids",

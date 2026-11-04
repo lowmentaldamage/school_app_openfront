@@ -245,9 +245,13 @@ export class WeaponsPanel extends LitElement implements Controller {
             ? html`<div
                 class="mt-1 max-w-36 rounded-lg bg-black/70 px-2 py-1 text-[11px] text-white"
               >
-                ${translateText("weapons.aim_hint", {
-                  weapon: translateText(NAME_KEYS[aiming]),
-                })}
+                ${
+                  this.uiState.weaponAimBlocked
+                    ? translateText("weapons.blocked_hint")
+                    : translateText("weapons.aim_hint", {
+                        weapon: translateText(NAME_KEYS[aiming]),
+                      })
+                }
               </div>`
             : ""
         }

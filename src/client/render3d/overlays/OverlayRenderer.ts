@@ -37,6 +37,7 @@ import { modelGeometry } from "../units/UnitModels";
 
 const OK = new Color(0x4ade80);
 const BAD = new Color(0xf87171);
+const BLOCKED = new Color(0xfbbf24);
 const SAFE = new Color(0xf5f5f5);
 const OUT_OF_REACH = new Color(0xfbbf24);
 const INTERCEPT = new Color(0xef4444);
@@ -49,6 +50,8 @@ export interface WeaponAim {
   radius: number;
   /** A ready launcher can reach this point. */
   inRange: boolean;
+  /** In range, but mountains block every shot (amber reticle). */
+  blocked?: boolean;
 }
 
 export class OverlayRenderer {
@@ -122,7 +125,9 @@ export class OverlayRenderer {
     const on = aim !== null;
     this.aim.visible = on;
     this.aimInner.visible = on;
-    if (aim) this.aimMat.color.copy(aim.inRange ? OK : BAD);
+    if (aim) {
+      this.aimMat.color.copy(aim.inRange ? OK : aim.blocked ? BLOCKED : BAD);
+    }
   }
 
   setGhost(data: GhostPreviewData | null): void {

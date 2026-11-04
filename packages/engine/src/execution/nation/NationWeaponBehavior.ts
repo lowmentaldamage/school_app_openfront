@@ -18,6 +18,8 @@ import {
 } from "@laukolaroser/engine-api/game/GameTypes";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
+  launcherRange,
+  lineOfFireBlocked,
   playerWeapon,
   WEAPONS,
   weaponUpgradeCost,
@@ -80,7 +82,13 @@ export class NationWeaponBehavior {
         const target =
           weapon === "airstrike"
             ? this.raidTarget(launcher.tile(), spec.range, enemies, rand)
-            : this.findTarget(launcher.tile(), spec.range, enemies, rand);
+            : this.findTarget(
+                launcher.tile(),
+                launcherRange(this.mg, spec, launcher.tile()),
+                enemies,
+                rand,
+                weapon,
+              );
         if (target !== null) {
           this.mg.addExecution(
             new WeaponStrikeExecution(this.player, weapon, target),
@@ -137,6 +145,7 @@ export class NationWeaponBehavior {
     range: number,
     enemies: Set<Player>,
     rand: PseudoRandom,
+    weapon: WeaponId = "airstrike",
   ): TileRef | null {
     const fx = this.mg.x(from);
     const fy = this.mg.y(from);
@@ -149,7 +158,10 @@ export class NationWeaponBehavior {
       if (!this.mg.isValidCoord(x, y)) continue;
       const tile = this.mg.ref(x, y);
       const owner = this.mg.owner(tile);
-      if (owner.isPlayer() && enemies.has(owner)) return tile;
+      if (!owner.isPlayer() || !enemies.has(owner)) continue;
+      // No shots into a mountain wall.
+      if (lineOfFireBlocked(this.mg, from, tile, weapon)) continue;
+      return tile;
     }
     return null;
   }

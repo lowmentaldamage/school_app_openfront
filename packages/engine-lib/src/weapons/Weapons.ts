@@ -256,3 +256,95 @@ export function playerWeapon(
 ): WeaponSpec {
   return weaponAtTier(WEAPONS[id], weaponTier(player.weaponTiers?.() ?? 0, id));
 }
+
+// ---------------------------------------------------------------------------
+// Terrain and line of fire. Shells and rockets cannot pass through a
+// mountain range that stands higher than both ends of the shot; bombers fly
+// over everything. Guns on high ground see and shoot further.
+// ---------------------------------------------------------------------------
+
+/** The map queries the terrain rules need (GameMap has them all). */
+export interface FireTerrain {
+  x(ref: number): number;
+  y(ref: number): number;
+  ref(x: number, y: number): number;
+  isLand(ref: number): boolean;
+  /** Terrain magnitude 0-30 (mountains from 20). */
+  magnitude(ref: number): number;
+}
+
+/** Terrain magnitude from which land is mountain. */
+export const MOUNTAIN_MAGNITUDE = 20;
+/** Magnitude from which land is highland. */
+export const HIGHLAND_MAGNITUDE = 10;
+/** A ridge must stand this much higher than both ends to block. */
+export const RIDGE_MARGIN = 4;
+/** Ridge tiles on the line needed to block (a lone peak does not). */
+export const RIDGE_TILES_TO_BLOCK = 2;
+/** Tiles at each end that never block (the launcher's and target's hill). */
+const END_SKIP = 2;
+
+function elevation(map: FireTerrain, t: number): number {
+  return map.isLand(t) ? map.magnitude(t) : 0;
+}
+
+/**
+ * True when a mountain range between `from` and `to` blocks the shot.
+ * Air raids are never blocked. Integer grid walk; deterministic.
+ */
+export function lineOfFireBlocked(
+  map: FireTerrain,
+  from: number,
+  to: number,
+  weapon: WeaponId,
+): boolean {
+  if (weapon === "airstrike") return false;
+  const ends = Math.max(elevation(map, from), elevation(map, to));
+  const threshold = Math.max(MOUNTAIN_MAGNITUDE, ends + RIDGE_MARGIN);
+  let x = map.x(from);
+  let y = map.y(from);
+  const x1 = map.x(to);
+  const y1 = map.y(to);
+  const dx = Math.abs(x1 - x);
+  const dy = -Math.abs(y1 - y);
+  const sx = x < x1 ? 1 : -1;
+  const sy = y < y1 ? 1 : -1;
+  const total = Math.max(dx, -dy);
+  let err = dx + dy;
+  let ridge = 0;
+  for (let step = 0; ; step++) {
+    if (step > END_SKIP && step < total - END_SKIP) {
+      if (elevation(map, map.ref(x, y)) >= threshold) {
+        ridge++;
+        if (ridge >= RIDGE_TILES_TO_BLOCK) return true;
+      }
+    }
+    if (x === x1 && y === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) {
+      err += dy;
+      x += sx;
+    }
+    if (e2 <= dx) {
+      err += dx;
+      y += sy;
+    }
+  }
+  return false;
+}
+
+/**
+ * Range of a launcher standing on `tile`: +20% on mountains, +10% on
+ * highland (high ground). Ships and planes: unchanged.
+ */
+export function launcherRange(
+  map: FireTerrain,
+  spec: WeaponSpec,
+  tile: number,
+): number {
+  if (spec.id === "airstrike" || !map.isLand(tile)) return spec.range;
+  const m = map.magnitude(tile);
+  if (m >= MOUNTAIN_MAGNITUDE) return Math.floor((spec.range * 120) / 100);
+  if (m >= HIGHLAND_MAGNITUDE) return Math.floor((spec.range * 110) / 100);
+  return spec.range;
+}

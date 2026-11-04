@@ -16,7 +16,11 @@ import { ClientID, GameConfig, GameID } from "@laukolaroser/engine-api/Schemas";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import { findClosestBy } from "@laukolaroser/engine-lib/Util";
-import { playerWeapon } from "@laukolaroser/engine-lib/weapons/Weapons";
+import {
+  launcherRange,
+  lineOfFireBlocked,
+  playerWeapon,
+} from "@laukolaroser/engine-lib/weapons/Weapons";
 import { EventBus } from "@laukolaroser/shared/EventBus";
 import { GameMapLoader } from "@laukolaroser/shared/GameMapLoader";
 import { replacer } from "@laukolaroser/shared/SharedUtil";
@@ -842,14 +846,37 @@ function wireWeaponAim(
     const spec = playerWeapon(me, weapon);
     const p = transformHandler.screenToWorldCoordinatesFloat(sx, sy);
     const tick = gameView.ticks();
-    const r2 = spec.range * spec.range;
-    const inRange = me.units(...spec.launchers).some((u) => {
-      if (!isLauncherReady(u, spec, tick)) return false;
+    const tx = Math.floor(p.x);
+    const ty = Math.floor(p.y);
+    const target = gameView.isValidCoord(tx, ty) ? gameView.ref(tx, ty) : null;
+    // Same rules as the engine: range (more on high ground) and no
+    // mountain range in the way.
+    let inRange = false;
+    let blocked = false;
+    for (const u of me.units(...spec.launchers)) {
+      if (!isLauncherReady(u, spec, tick)) continue;
+      const r = launcherRange(gameView, spec, u.tile());
       const dx = gameView.x(u.tile()) - p.x;
       const dy = gameView.y(u.tile()) - p.y;
-      return dx * dx + dy * dy <= r2;
+      if (dx * dx + dy * dy > r * r) continue;
+      if (
+        target !== null &&
+        lineOfFireBlocked(gameView, u.tile(), target, spec.id)
+      ) {
+        blocked = true;
+        continue;
+      }
+      inRange = true;
+      break;
+    }
+    uiState.weaponAimBlocked = !inRange && blocked;
+    world3d.setWeaponAim({
+      x: p.x,
+      y: p.y,
+      radius: spec.radius,
+      inRange,
+      blocked: !inRange && blocked,
     });
-    world3d.setWeaponAim({ x: p.x, y: p.y, radius: spec.radius, inRange });
   };
   let last = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   eventBus.on(MouseMoveEvent, (e) => {
