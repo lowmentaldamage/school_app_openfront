@@ -335,6 +335,7 @@ export class WorldRenderer {
     this.seaLife.update(t, cc.distance);
     this.overlays.update(cc.distance, t);
     this.units.animate(nowMs, cc.distance);
+    this.units.layoutMarkers(cc.camera, this.cssWidth, this.cssHeight);
     this.effects.wake(this.units.wakes);
     const sky = this.environment.state;
     this.units.setNight(sky === null ? 0 : 1 - sky.daylight);

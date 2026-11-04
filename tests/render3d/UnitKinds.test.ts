@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ALL_UNIT_TYPES } from "../../src/client/render/types";
+import { groupMarkers } from "../../src/client/render3d/units/StructureMarkers";
 import {
   arcAt,
   arcPeak,
@@ -122,5 +123,26 @@ describe("2D building icons when zoomed out", () => {
     expect(nextIconMode(false, mid)).toBe(false);
     icons = nextIconMode(icons, ICON_MODE_OFF - 1);
     expect(icons).toBe(false);
+  });
+});
+
+describe("building icon grouping", () => {
+  it("merges icons that overlap on screen and keeps separate ones apart", () => {
+    const pts: [number, number][] = [
+      [100, 100],
+      [105, 103], // overlaps the first
+      [110, 96], // overlaps the first
+      [300, 300], // alone
+      [-500, 50], // off screen
+    ];
+    const groups = groupMarkers(pts.length, (i) => pts[i], 800, 600, 18);
+    expect(groups).toEqual([
+      { first: 0, count: 3, x: 100, y: 100 },
+      { first: 3, count: 1, x: 300, y: 300 },
+    ]);
+  });
+
+  it("drops markers behind the camera", () => {
+    expect(groupMarkers(2, () => null, 800, 600, 18)).toEqual([]);
   });
 });

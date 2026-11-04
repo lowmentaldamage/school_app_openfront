@@ -16,6 +16,7 @@
  */
 
 import {
+  type Camera,
   Color,
   Euler,
   Group,
@@ -604,6 +605,11 @@ export class UnitRenderer {
 
   setIconModeAllowed(allowed: boolean): void {
     this.iconModeAllowed = allowed;
+  }
+
+  /** Per frame, after the camera moved: place and group the icons. */
+  layoutMarkers(camera: Camera, width: number, height: number): void {
+    this.markers.layout(camera, width, height);
   }
 
   /** True while buildings are shown as flat 2D icons. */
