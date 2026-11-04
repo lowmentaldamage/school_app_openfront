@@ -8,6 +8,7 @@
  */
 
 import "./SelfHostAccount";
+import type { SelfHostAdmin } from "./SelfHostAdmin";
 import "./SelfHostAdmin";
 import "./SelfHostLogin";
 import {
@@ -25,11 +26,18 @@ export async function startSelfHostSession(): Promise<boolean> {
   }
   // Settings follow the account across devices.
   await startSettingsSync();
-  document.body.append(
-    document.createElement("selfhost-account"),
-    document.createElement("selfhost-admin"),
-  );
+  const admin = document.createElement("selfhost-admin") as SelfHostAdmin;
+  document.body.append(document.createElement("selfhost-account"), admin);
   hideOnlineAccountFeatures();
+  // Admin dashboard link: <server>/#admin opens Manage players right away
+  // (handy as a home-screen shortcut on the admin's phone and PC).
+  const openIfAsked = () => {
+    if (location.hash === "#admin" && session.role === "admin") {
+      void admin.show();
+    }
+  };
+  openIfAsked();
+  window.addEventListener("hashchange", openIfAsked);
   return true;
 }
 

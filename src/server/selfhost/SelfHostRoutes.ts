@@ -50,6 +50,7 @@ import {
   sessionFromAuthHeader,
 } from "./SelfHostAuth";
 import { issueSessionToken } from "./SessionToken";
+import { telegramAdmin } from "./TelegramAdmin";
 
 const LoginSchema = z.object({
   username: z.string().max(64),
@@ -181,7 +182,8 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 400, "Username and password required");
         return;
       }
-      store.request(body.data.username, body.data.password);
+      const requested = store.request(body.data.username, body.data.password);
+      void telegramAdmin()?.notifyRequest(requested.username);
       res.status(201).json({ pending: true });
     }),
   );
@@ -199,10 +201,15 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 400, "Username and password required");
         return;
       }
+      const wasLocked = store.find(body.data.username)?.locked === true;
       const result = store.login(body.data.username, body.data.password);
       if (!result.ok) {
         limiter.recordFailure(ip);
         if (result.reason === "locked") {
+          // Tell the admin once, when the account locks.
+          const who = store.find(body.data.username);
+          if (!wasLocked && who)
+            void telegramAdmin()?.notifyLocked(who.username);
           fail(
             res,
             423,

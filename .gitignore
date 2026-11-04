@@ -8,6 +8,8 @@ TODO.txt
 resources/images/.DS_Store
 resources/.DS_Store
 .env*
+# …but the self-host template is part of the setup steps.
+!deploy/selfhost/.env.example
 .DS_Store
 .clinic/
 NOTES.md

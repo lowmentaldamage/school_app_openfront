@@ -88,6 +88,32 @@ In the game menu tap your name (bottom-left) → **Manage players**:
 - **Reset password**, **Disable / Enable**, **Make admin / player**,
   **Remove**.
 
+**Admin dashboard link:** open `http://<server>/#admin` (logged in as an
+admin) to jump straight to Manage players. Add it to your phone's home
+screen (Chrome: ⋮ → _Add to Home screen_; Safari: Share → _Add to Home
+Screen_) and to your Windows taskbar / bookmarks; only admin accounts see
+the panel.
+
+### Approve from Telegram (optional)
+
+A Telegram bot can message you about every access request with
+**✅ Approve** / **❌ Reject** buttons, and about accounts that lock after
+10 wrong passwords with an **🔓 Unlock** button. It polls Telegram itself,
+so it works on a home server with no open ports.
+
+1. In Telegram open **@BotFather** → `/newbot` → pick a name → copy the
+   token.
+2. In `deploy/selfhost/.env` set `TELEGRAM_BOT_TOKEN=<token>` and run
+   `docker compose up -d`.
+3. Send `/start` to your new bot. It answers with your chat id.
+4. Set `TELEGRAM_ADMIN_CHAT_ID=<that number>` (several admins: comma
+   separated) and run `docker compose up -d` again.
+
+Commands: `/pending` (requests waiting, with buttons), `/players`,
+`/approve <name>`, `/reject <name>`, `/unlock <name>`, `/devices <name>`
+(free their device slots), `/help`. Only the chat ids you list can use
+them; anyone else only gets told their own chat id.
+
 **Switching players on a shared device:** tap your name (bottom-left) →
 **Switch player** lists everyone signed in on this device (one tap, no
 password), **+ Add another player** signs in someone else. The login

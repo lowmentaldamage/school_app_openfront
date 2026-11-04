@@ -28,10 +28,12 @@ import { setNoStoreHeaders } from "./NoStoreHeaders";
 import { startPolling } from "./PollingLoop";
 import { renderAppShell } from "./RenderHtml";
 import { selfHostEnabled, sessionSecret } from "./selfhost/SelfHost";
+import { accountStore } from "./selfhost/SelfHostAuth";
 import {
   bootstrapAdmin,
   createSelfHostRouter,
 } from "./selfhost/SelfHostRoutes";
+import { startTelegramAdmin } from "./selfhost/TelegramAdmin";
 import { ServerEnv } from "./ServerEnv";
 import { applyStaticAssetCacheControl } from "./StaticAssetCache";
 
@@ -200,6 +202,10 @@ export async function startMaster() {
     // Create the session secret before workers fork so they share it.
     sessionSecret();
     log.info(bootstrapAdmin());
+    // Optional: approve players and unlock accounts from Telegram.
+    if (startTelegramAdmin(accountStore(), (m) => log.info(m))) {
+      log.info("Telegram admin bot started");
+    }
   }
 
   // Join the site's shared public-lobby roster (LobbyCoordinatorClient.ts)

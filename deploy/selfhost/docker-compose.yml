@@ -34,6 +34,10 @@ services:
       SELFHOST_MAX_DEVICES: ${MAX_DEVICES:-2}
       SELFHOST_REGISTRATION: ${REGISTRATION:-on}
       SELFHOST_MAX_FAILED_LOGINS: ${MAX_FAILED_LOGINS:-10}
+      # Optional Telegram admin bot (docs/SelfHosting.md §3): approve
+      # access requests and unlock accounts from your phone.
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_ADMIN_CHAT_ID: ${TELEGRAM_ADMIN_CHAT_ID:-}
       DOMAIN: ${DOMAIN:-localhost}
       # 2 game workers: plenty for 2 games x 15 players (players' devices run
       # the simulation; the server only relays their moves).

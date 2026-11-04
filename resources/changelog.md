@@ -16,6 +16,7 @@
 - Fog of war (lobby option, on by default) and the Radar Station
 - Day and night, weather, a generated soundtrack and sounds for every unit (Settings → Graphics / Audio)
 - Build bar help: hover any building or unit for how to use it and its exact numbers ("?" toggles it)
+- Approve players from Telegram (bot with Approve / Reject / Unlock buttons) or from the admin dashboard link `/#admin` on phone and PC
 - Private server: up to 100 approved accounts, 2 devices per login, lockout after 10 wrong passwords (admin unlocks), synced stats and settings, quick account switching
 - Windows: one-click zip (no install); Android: APK
 

@@ -1,0 +1,54 @@
+name: 🐳 Home server (Docker)
+
+# Builds the self-host image exactly as docs/SelfHosting.md does
+# (deploy/selfhost: cp .env.example .env, docker compose up -d --build)
+# and checks the running server: private mode on, the admin can log in,
+# the bundled maps are installed, access requests work.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  docker:
+    name: Build and smoke-test the home server
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure like a fresh install
+        working-directory: deploy/selfhost
+        run: |
+          cp .env.example .env
+          sed -i 's/^ADMIN_USER=.*/ADMIN_USER=boss/; s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=ci-pass-123/' .env
+      - name: docker compose up -d --build
+        working-directory: deploy/selfhost
+        run: docker compose up -d --build
+      - name: Wait for the server
+        run: |
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8080/api/selfhost/status && exit 0
+            sleep 5
+          done
+          exit 1
+      - name: Smoke test
+        run: |
+          set -e
+          S=http://localhost:8080/api/selfhost
+          curl -fsS $S/status | tee status.json
+          grep -q '"enabled":true' status.json
+          curl -fsS -X POST $S/login -H 'content-type: application/json' \
+            -d '{"username":"boss","password":"ci-pass-123","deviceId":"ci-device-0001","deviceName":"CI"}' \
+            | tee login.json
+          grep -q '"token"' login.json
+          curl -fsS -X POST $S/register -H 'content-type: application/json' \
+            -d '{"username":"tester","password":"tester-pass-1"}' | grep -q pending
+          curl -fsS http://localhost:8080/api/maps | tee maps.json
+          grep -q '"slovenija"' maps.json
+          grep -q '"crnakoroskem"' maps.json
+          curl -fsS -o /dev/null http://localhost:8080/api/maps/slovenija/height.bin
+          curl -fsS http://localhost:8080/ | grep -qi laukolaroser
+      - name: Logs
+        if: always()
+        working-directory: deploy/selfhost
+        run: docker compose logs --tail=200
