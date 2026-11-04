@@ -24,6 +24,10 @@ declare global {
       /** Tile to centre on (default: the middle of the stage). */
       cx?: number;
       cy?: number;
+      /** Play a natural disaster at the centre (warning, then strike). */
+      disaster?: string;
+      /** ms after the strike to capture (default 1500; < 0: the warning). */
+      disasterAtMs?: number;
     };
     __showcaseResult?:
       | { ok: true; dataUrl: string }
@@ -172,6 +176,23 @@ async function run(): Promise<void> {
     for (let i = 0; i < 50; i++) {
       now += 16;
       world.render(cam, now);
+    }
+    if (opts.disaster !== undefined) {
+      const tile = Math.round(cam.centerY) * W + Math.round(cam.centerX);
+      const base = { id: 1, kind: opts.disaster, tile, radius: 12 };
+      world.onDisasters([{ ...base, phase: "warning" }]);
+      for (let i = 0; i < 60; i++) {
+        now += 16;
+        world.render(cam, now);
+      }
+      // A negative time captures the warning (no strike).
+      const after = opts.disasterAtMs ?? 1500;
+      if (after >= 0) world.onDisasters([{ ...base, phase: "strike" }]);
+      const end = now + Math.max(0, after);
+      while (now < end) {
+        now = Math.min(end, now + 16);
+        world.render(cam, now);
+      }
     }
     if (opts.captureAtMs !== undefined) {
       // Nation 1 takes a band of nation 2's land.

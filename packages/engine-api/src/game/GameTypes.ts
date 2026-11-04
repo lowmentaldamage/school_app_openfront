@@ -250,6 +250,25 @@ export const WEAPON_IDS = [
 ] as const;
 export type WeaponId = (typeof WEAPON_IDS)[number];
 
+/** Natural disasters; rules live in engine-lib/disasters/Disasters.ts. */
+export const DISASTER_KINDS = [
+  "volcano",
+  "earthquake",
+  "tsunami",
+  "storm",
+  "wildfire",
+] as const;
+export type DisasterKind = (typeof DISASTER_KINDS)[number];
+
+/** How often disasters strike (game option; "off" or unset: never). */
+export const DISASTER_FREQUENCIES = [
+  "off",
+  "rare",
+  "normal",
+  "frequent",
+] as const;
+export type DisasterFrequency = (typeof DISASTER_FREQUENCIES)[number];
+
 /** Tech tree ids; rules live in engine-lib/tech/Tech.ts. Only append. */
 export const TECH_IDS = [
   "drill",
@@ -572,6 +591,7 @@ export enum MessageType {
   CHAT,
   RENEW_ALLIANCE,
   RESEARCH_COMPLETE,
+  DISASTER,
 }
 
 // Message categories used for filtering events in the EventsDisplay
@@ -607,6 +627,7 @@ export const MESSAGE_TYPE_CATEGORIES: Record<MessageType, MessageCategory> = {
   [MessageType.DONATION_SENT]: MessageCategory.TRADE,
   [MessageType.DONATION_RECEIVED]: MessageCategory.TRADE,
   [MessageType.RESEARCH_COMPLETE]: MessageCategory.TRADE,
+  [MessageType.DISASTER]: MessageCategory.NUKE,
   [MessageType.CHAT]: MessageCategory.CHAT,
 } as const;
 

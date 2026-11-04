@@ -782,6 +782,7 @@ function mountWebGLFrameLoop(
       if (fog !== null && me) {
         fog.setFriendly([me.smallID(), ...me.allies().map((a) => a.smallID())]);
       }
+      world3d.onDisasters(gv.disasterEvents());
       world3d.onTick(
         gv.frameData(),
         palette,

@@ -18,6 +18,7 @@ import {
 } from "../execution/DefenseExecutions";
 import { DefensePostExecutionSnapshot } from "../execution/DefensePostExecution";
 import { DeleteUnitExecutionSnapshot } from "../execution/DeleteUnitExecution";
+import { DisasterSnapshot } from "../execution/DisasterExecution";
 import { DonateGoldExecutionSnapshot } from "../execution/DonateGoldExecution";
 import { DonateTroopsExecutionSnapshot } from "../execution/DonateTroopExecution";
 import { DoomsdayClockExecutionSnapshot } from "../execution/DoomsdayClockExecution";
@@ -103,6 +104,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   IncomeBuildingSnapshot,
   ResearchExecutionSnapshot,
   UpgradeWeaponSnapshot,
+  DisasterSnapshot,
   CoastalBatterySnapshot,
   SeaMineSnapshot,
   QuickChatExecutionSnapshot,

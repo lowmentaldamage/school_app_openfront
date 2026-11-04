@@ -21,7 +21,11 @@ import { OrbitControls } from "./camera/OrbitControls";
 import type { StrikeTiers } from "./effects/EffectsRenderer";
 import { LabelOverlay, type LabelEntry, type LabelText } from "./LabelOverlay";
 import type { WeaponAim } from "./overlays/OverlayRenderer";
-import { WorldRenderer, type WorldFrame } from "./WorldRenderer";
+import {
+  type DisasterEvent3D,
+  WorldRenderer,
+  type WorldFrame,
+} from "./WorldRenderer";
 
 /** The player fields labels need (implemented by the client's PlayerView). */
 export interface LabelPlayer {
@@ -158,6 +162,11 @@ export class World3DView implements ScreenProjector {
       });
     }
     this.labels.setLabels([...frame.names.values()], texts);
+  }
+
+  /** Natural disaster events of the latest tick (markers and effects). */
+  onDisasters(events: readonly DisasterEvent3D[]): void {
+    if (events.length > 0) this.world.onDisasters(events);
   }
 
   /** Day/night and weather; call each tick with the game tick. */

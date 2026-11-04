@@ -33,6 +33,10 @@ import { loadTerrainMap } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import { simpleHash } from "@laukolaroser/engine-lib/Util";
 import { EngineConfig } from "./configuration/EngineConfig";
+import {
+  DisasterExecution,
+  disasterFrequency,
+} from "./execution/DisasterExecution";
 import { DoomsdayClockExecution } from "./execution/DoomsdayClockExecution";
 import { Executor } from "./execution/ExecutionManager";
 import { RecomputeRailClusterExecution } from "./execution/RecomputeRailClusterExecution";
@@ -200,6 +204,9 @@ export class GameRunner {
       );
     }
     this.game.addExecution(new WinCheckExecution());
+    if (disasterFrequency(this.game) !== "off") {
+      this.game.addExecution(new DisasterExecution());
+    }
     if (this.game.config().doomsdayClockConfig().enabled) {
       this.game.addExecution(new DoomsdayClockExecution());
     }

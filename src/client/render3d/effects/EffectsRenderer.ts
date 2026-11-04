@@ -326,6 +326,271 @@ export class EffectsRenderer {
     }
   }
 
+  /**
+   * Natural disasters (cosmetic; the losses come from the simulation).
+   * "warning": signs during the 10 s warning (smoke rising from the
+   * volcano, dust, gathering clouds, receding sea); "strike": the event
+   * itself. Particles are born over time (future birth), so one call
+   * plays the whole sequence. Counts are bounded so the shared buffers
+   * never flood.
+   */
+  disaster(
+    kind: string,
+    phase: "warning" | "strike",
+    x: number,
+    z: number,
+    r: number,
+  ): void {
+    const now = this.time;
+    const g = Math.max(0, this.hf.sample(x, z));
+    const rnd = (s: number) => (Math.random() - 0.5) * 2 * s;
+    const k = Math.max(0.5, this.density);
+    if (phase === "warning") {
+      const n = Math.round(24 * k);
+      for (let i = 0; i < n; i++) {
+        const at = now + (i / n) * 9;
+        if (kind === "volcano") {
+          this.smoke.spawn(
+            x + rnd(0.6),
+            g + 0.5,
+            z + rnd(0.6),
+            rnd(0.2),
+            1.6,
+            rnd(0.2),
+            at,
+            4,
+            2.4,
+            P_SMOKE,
+          );
+        } else if (kind === "storm") {
+          this.smoke.spawn(
+            x + rnd(r),
+            g + 14,
+            z + rnd(r),
+            rnd(0.5),
+            0,
+            rnd(0.5),
+            at,
+            6,
+            r * 0.35,
+            P_SMOKE,
+          );
+        } else if (kind === "tsunami") {
+          this.smoke.spawn(
+            x + rnd(r * 0.6),
+            0.1,
+            z + rnd(r * 0.6),
+            rnd(1),
+            0,
+            rnd(1),
+            at,
+            2.5,
+            1.4,
+            P_FOAM,
+          );
+        } else {
+          const px = x + rnd(r * 0.7);
+          const pz = z + rnd(r * 0.7);
+          const pg = Math.max(0, this.hf.sample(px, pz));
+          this.smoke.spawn(
+            px,
+            pg + 0.2,
+            pz,
+            rnd(0.6),
+            0.2,
+            rnd(0.6),
+            at,
+            2.2,
+            1.6,
+            kind === "wildfire" ? P_SMOKE : P_DUST,
+          );
+        }
+      }
+      return;
+    }
+
+    switch (kind) {
+      case "volcano": {
+        this.explode(
+          { kind: "building", radius: r * 0.45, altitude: 0, intensity: 2.5 },
+          x,
+          z,
+        );
+        // Lava fountains and bombs for ~15 s, an ash column for ~30 s.
+        for (let i = 0; i < Math.round(70 * k); i++) {
+          const at = now + Math.random() * 15;
+          this.fire.spawn(
+            x + rnd(0.8),
+            g + 1,
+            z + rnd(0.8),
+            rnd(3),
+            6 + Math.random() * 8,
+            rnd(3),
+            at,
+            1.4,
+            1.2 + Math.random(),
+            P_FIRE,
+          );
+          if (i % 3 === 0) {
+            this.fire.spawn(
+              x,
+              g + 1.5,
+              z,
+              rnd(5),
+              7 + Math.random() * 6,
+              rnd(5),
+              at,
+              2.2,
+              0.5,
+              P_SPARK,
+            );
+          }
+        }
+        for (let i = 0; i < Math.round(40 * k); i++) {
+          const at = now + Math.random() * 30;
+          this.smoke.spawn(
+            x + rnd(1),
+            g + 3,
+            z + rnd(1),
+            rnd(0.6),
+            2.2 + Math.random(),
+            rnd(0.6),
+            at,
+            8,
+            4 + Math.random() * 3,
+            P_SMOKE,
+          );
+        }
+        // Lava flows burn the slopes.
+        for (let i = 0; i < 6; i++) {
+          this.burn(x + rnd(r * 0.4), z + rnd(r * 0.4), r * 0.35, 3);
+        }
+        this.shake(1.2, 3500);
+        break;
+      }
+      case "earthquake": {
+        for (let w = 0; w < 3; w++) {
+          this.rings.spawn(x, g, z, r * (0.6 + w * 0.25), 1.6, now + w * 0.6);
+        }
+        for (let i = 0; i < Math.round(60 * k); i++) {
+          const px = x + rnd(r);
+          const pz = z + rnd(r);
+          const pg = Math.max(0, this.hf.sample(px, pz));
+          this.smoke.spawn(
+            px,
+            pg + 0.1,
+            pz,
+            rnd(1.5),
+            0.3,
+            rnd(1.5),
+            now + Math.random() * 3,
+            3,
+            1.8,
+            P_DUST,
+          );
+        }
+        this.shake(0.9, 4000);
+        break;
+      }
+      case "tsunami": {
+        for (let w = 0; w < 3; w++) {
+          this.rings.spawn(x, 0.2, z, r * (0.8 + w * 0.2), 2.4, now + w * 0.8);
+        }
+        for (let i = 0; i < Math.round(90 * k); i++) {
+          const a = Math.random() * Math.PI * 2;
+          const d = Math.random() * r;
+          const px = x + Math.cos(a) * d;
+          const pz = z + Math.sin(a) * d;
+          const pg = Math.max(0, this.hf.sample(px, pz));
+          this.smoke.spawn(
+            px,
+            pg + 0.3,
+            pz,
+            Math.cos(a) * 2.5,
+            1.5 + Math.random() * 2,
+            Math.sin(a) * 2.5,
+            now + (d / r) * 2.5,
+            2.4,
+            2,
+            P_FOAM,
+          );
+        }
+        this.shake(0.4, 2000);
+        break;
+      }
+      case "storm": {
+        // Black clouds, lightning and white water for ~12 s.
+        for (let i = 0; i < Math.round(30 * k); i++) {
+          this.smoke.spawn(
+            x + rnd(r),
+            g + 14 + rnd(2),
+            z + rnd(r),
+            rnd(0.8),
+            0,
+            rnd(0.8),
+            now + Math.random() * 10,
+            7,
+            r * 0.4,
+            P_SMOKE,
+          );
+        }
+        for (let i = 0; i < Math.round(14 * k); i++) {
+          const at = now + Math.random() * 12;
+          const px = x + rnd(r * 0.8);
+          const pz = z + rnd(r * 0.8);
+          this.fire.spawn(px, 13, pz, 0, 0, 0, at, 0.12, 9, P_FLASH);
+          this.fire.spawn(px, 0.5, pz, 0, 0, 0, at, 0.1, 4, P_FLASH);
+        }
+        for (let i = 0; i < Math.round(60 * k); i++) {
+          this.smoke.spawn(
+            x + rnd(r),
+            0.1,
+            z + rnd(r),
+            rnd(2),
+            0.4,
+            rnd(2),
+            now + Math.random() * 12,
+            1.8,
+            1.5,
+            P_FOAM,
+          );
+        }
+        break;
+      }
+      case "wildfire": {
+        // A front that spreads out from the centre over ~12 s.
+        for (let i = 0; i < Math.round(80 * k); i++) {
+          const a = Math.random() * Math.PI * 2;
+          const d = Math.random() * r;
+          const px = x + Math.cos(a) * d;
+          const pz = z + Math.sin(a) * d;
+          const pg = Math.max(0, this.hf.sample(px, pz));
+          if (this.hf.sample(px, pz) < 0) continue;
+          const at = now + (d / r) * 10 + Math.random();
+          this.fire.spawn(px, pg + 0.2, pz, 0, 0.8, 0, at, 1.6, 1.4, P_FIRE);
+          if (i % 2 === 0) {
+            this.smoke.spawn(
+              px,
+              pg + 0.8,
+              pz,
+              rnd(0.4),
+              1.2,
+              rnd(0.4),
+              at + 0.3,
+              5,
+              2.4,
+              P_SMOKE,
+            );
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  /** Set by WorldRenderer: shakes the camera (earthquakes, eruptions). */
+  shake: (amount: number, ms: number) => void = () => {};
+
   /** Spawn an explosion at a tile position (x, z = tile x, y). */
   explode(spec: ExplosionSpec, x: number, z: number): void {
     const ground = Math.max(0, this.hf.sample(x, z));

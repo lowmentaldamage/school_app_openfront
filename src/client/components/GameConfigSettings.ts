@@ -8,6 +8,7 @@ import {
   Trios,
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
+import type { DisasterFrequency } from "@laukolaroser/engine-api/game/GameTypes";
 import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   DOOMSDAY_CLOCK_SPEEDS,
@@ -210,6 +211,8 @@ export interface ToggleOptionConfig {
   hidden?: boolean;
   // When set, this toggle's card expands to a pace dropdown while it is checked.
   doomsdayClockSpeed?: DoomsdayClockSpeed;
+  // When set, this toggle's card expands to a frequency dropdown while on.
+  disasterFrequency?: DisasterFrequency;
 }
 
 export interface GameConfigSettingsData {
@@ -357,6 +360,9 @@ export class GameConfigSettings extends LitElement {
     if (toggle.doomsdayClockSpeed !== undefined) {
       return this.renderDoomsdayClockToggle(toggle);
     }
+    if (toggle.disasterFrequency !== undefined) {
+      return this.renderDisasterToggle(toggle);
+    }
 
     return renderTextCardButton(
       translateText(toggle.labelKey),
@@ -408,6 +414,50 @@ export class GameConfigSettings extends LitElement {
       </div>
     `;
   }
+
+  // Natural disasters: the toggle card, with a frequency dropdown when on.
+  private renderDisasterToggle(toggle: ToggleOptionConfig): TemplateResult {
+    const selected = toggle.disasterFrequency;
+    return html`
+      <div
+        class="${cardClass(
+          toggle.checked,
+          "p-4 flex flex-col items-center justify-center gap-2 text-center",
+        )}"
+        @click=${() => this.handleOptionToggle(toggle)}
+      >
+        <span class="${CARD_LABEL_CLASS} ${stateTextClass(toggle.checked)}">
+          ${translateText(toggle.labelKey)}
+        </span>
+        ${
+          toggle.checked
+            ? html`
+                <select
+                  class="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-white text-xs"
+                  aria-label=${translateText("disaster_frequency.label")}
+                  @click=${(e: Event) => e.stopPropagation()}
+                  @change=${this.handleDisasterFrequencyChange}
+                >
+                  ${(["rare", "normal", "frequent"] as const).map(
+                    (f) => html`
+                      <option value=${f} ?selected=${selected === f}>
+                        ${translateText(`disaster_frequency.${f}`)}
+                      </option>
+                    `,
+                  )}
+                </select>
+              `
+            : nothing
+        }
+      </div>
+    `;
+  }
+
+  private handleDisasterFrequencyChange = (e: Event) => {
+    const frequency = (e.target as HTMLSelectElement)
+      .value as DisasterFrequency;
+    this.emit("disaster-frequency-selected", { frequency });
+  };
 
   private renderUnitTypeOptions(disabledUnits: UnitType[]): TemplateResult[] {
     return unitOptions.map(({ type, translationKey }) => {

@@ -5,6 +5,7 @@ import {
   GameMode,
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
+import type { DisasterFrequency } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   GameConfigPatch,
   isValidGameID,
@@ -111,6 +112,9 @@ export class HostLobbyModal extends BaseModal {
   @state() private waterNukes: boolean = false;
   @state() private fogOfWar: boolean = true;
   @state() private techTree: boolean = true;
+  @state() private disasters: DisasterFrequency = "normal";
+  /** Last frequency picked, restored when disasters are switched back on. */
+  private disasterPick: DisasterFrequency = "normal";
   @state() private lobbyId = "";
   @state() private lobbyUrlSuffix = "";
   @state() private clients: ClientInfo[] = [];
@@ -758,6 +762,14 @@ export class HostLobbyModal extends BaseModal {
                     checked: this.techTree,
                   },
                   {
+                    labelKey: "game_settings.disasters",
+                    checked: this.disasters !== "off",
+                    disasterFrequency:
+                      this.disasters === "off"
+                        ? this.disasterPick
+                        : this.disasters,
+                  },
+                  {
                     labelKey: "game_settings.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -800,6 +812,9 @@ export class HostLobbyModal extends BaseModal {
             @random-map-selected=${this.handleConfigRandomMapSelected}
             @custom-map-selected=${this.handleConfigCustomMapSelected}
             @difficulty-selected=${this.handleConfigDifficultySelected}
+            @disaster-frequency-selected=${
+              this.handleConfigDisasterFrequencySelected
+            }
             @doomsday-clock-speed-selected=${
               this.handleConfigDoomsdayClockSpeedSelected
             }
@@ -1119,6 +1134,8 @@ export class HostLobbyModal extends BaseModal {
     this.waterNukes = false;
     this.fogOfWar = true;
     this.techTree = true;
+    this.disasters = "normal";
+    this.disasterPick = "normal";
     this.hostCheatsEnabled = false;
     this.hostCheatInfiniteGold = false;
     this.hostCheatInfiniteTroops = false;
@@ -1183,6 +1200,14 @@ export class HostLobbyModal extends BaseModal {
     void this.handleDifficultySelection(customEvent.detail.difficulty);
   };
 
+  private handleConfigDisasterFrequencySelected = (e: Event) => {
+    const f = (e as CustomEvent<{ frequency: DisasterFrequency }>).detail
+      .frequency;
+    this.disasters = f;
+    this.disasterPick = f;
+    void this.putGameConfig();
+  };
+
   private handleConfigDoomsdayClockSpeedSelected = (e: Event) => {
     const customEvent = e as CustomEvent<{ speed: DoomsdayClockSpeed }>;
     this.doomsdayClockSpeed = customEvent.detail.speed;
@@ -1242,6 +1267,10 @@ export class HostLobbyModal extends BaseModal {
         break;
       case "game_settings.tech_tree":
         this.techTree = checked;
+        void this.putGameConfig();
+        break;
+      case "game_settings.disasters":
+        this.disasters = checked ? this.disasterPick : "off";
         void this.putGameConfig();
         break;
       case "game_settings.doomsday_clock":
@@ -1833,6 +1862,7 @@ export class HostLobbyModal extends BaseModal {
             waterNukes: this.waterNukes ? true : null,
             fogOfWar: this.fogOfWar ? true : null,
             disableTechTree: this.techTree ? null : true,
+            disasters: this.disasters,
             hostCheats: this.hostCheatsEnabled
               ? {
                   infiniteGold: this.hostCheatInfiniteGold || undefined,

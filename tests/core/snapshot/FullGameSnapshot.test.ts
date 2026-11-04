@@ -199,7 +199,14 @@ describe.each(VARIANTS)("full game snapshots: %s", (_, overrides) => {
       // WeaponStrike also completes in init (it launches Projectile
       // executions); WeaponStrike.test.ts covers it directly. UpgradeWeapon
       // also finishes in init; WeaponTiers.test.ts covers it.
-      const neverStored = new Set(["Pause", "WeaponStrike", "UpgradeWeapon"]);
+      // Disaster only runs with the disasters option, which the reference
+      // game leaves off; Disasters.test.ts covers it (snapshots included).
+      const neverStored = new Set([
+        "Pause",
+        "WeaponStrike",
+        "UpgradeWeapon",
+        "Disaster",
+      ]);
       const missing = EXECUTION_SNAPSHOT_TYPES.map((t) => t.name).filter(
         (name) => !reference.execTypes.has(name) && !neverStored.has(name),
       );

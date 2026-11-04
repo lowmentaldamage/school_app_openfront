@@ -7,6 +7,7 @@ import {
   listedMaps,
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
+import type { DisasterFrequency } from "@laukolaroser/engine-api/game/GameTypes";
 import { isOwnServer } from "./selfhost/SelfHostSession";
 
 import type { SnapshotHeader } from "@laukolaroser/engine-api/game/SnapshotHeader";
@@ -143,6 +144,7 @@ const DEFAULT_OPTIONS = {
   waterNukes: false,
   fogOfWar: true,
   techTree: true,
+  disasters: "normal" as DisasterFrequency,
   doomsdayClock: false,
   doomsdayClockSpeed: "normal" as DoomsdayClockSpeed,
   overtime: false,
@@ -236,6 +238,9 @@ export class SinglePlayerModal extends BaseModal {
   @state() private waterNukes: boolean = DEFAULT_OPTIONS.waterNukes;
   @state() private fogOfWar: boolean = DEFAULT_OPTIONS.fogOfWar;
   @state() private techTree: boolean = DEFAULT_OPTIONS.techTree;
+  @state() private disasters: DisasterFrequency = DEFAULT_OPTIONS.disasters;
+  /** Last frequency picked, restored when disasters are switched back on. */
+  private disasterPick: DisasterFrequency = DEFAULT_OPTIONS.disasters;
   @state() private doomsdayClock: boolean = DEFAULT_OPTIONS.doomsdayClock;
   @state() private doomsdayClockSpeed: DoomsdayClockSpeed =
     DEFAULT_OPTIONS.doomsdayClockSpeed;
@@ -604,6 +609,14 @@ export class SinglePlayerModal extends BaseModal {
                     checked: this.techTree,
                   },
                   {
+                    labelKey: "game_settings.disasters",
+                    checked: this.disasters !== "off",
+                    disasterFrequency:
+                      this.disasters === "off"
+                        ? this.disasterPick
+                        : this.disasters,
+                  },
+                  {
                     labelKey: "game_settings.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -620,6 +633,9 @@ export class SinglePlayerModal extends BaseModal {
             @random-map-selected=${this.handleConfigRandomMapSelected}
             @custom-map-selected=${this.handleConfigCustomMapSelected}
             @difficulty-selected=${this.handleConfigDifficultySelected}
+            @disaster-frequency-selected=${
+              this.handleConfigDisasterFrequencySelected
+            }
             @doomsday-clock-speed-selected=${
               this.handleConfigDoomsdayClockSpeedSelected
             }
@@ -678,6 +694,7 @@ export class SinglePlayerModal extends BaseModal {
       this.waterNukes !== DEFAULT_OPTIONS.waterNukes ||
       this.fogOfWar !== DEFAULT_OPTIONS.fogOfWar ||
       this.techTree !== DEFAULT_OPTIONS.techTree ||
+      this.disasters !== DEFAULT_OPTIONS.disasters ||
       this.doomsdayClock !== DEFAULT_OPTIONS.doomsdayClock ||
       // Pace only matters when the mode is on (startGame drops it when off).
       (this.doomsdayClock &&
@@ -811,6 +828,8 @@ export class SinglePlayerModal extends BaseModal {
     this.waterNukes = DEFAULT_OPTIONS.waterNukes;
     this.fogOfWar = DEFAULT_OPTIONS.fogOfWar;
     this.techTree = DEFAULT_OPTIONS.techTree;
+    this.disasters = DEFAULT_OPTIONS.disasters;
+    this.disasterPick = DEFAULT_OPTIONS.disasters;
     this.doomsdayClock = DEFAULT_OPTIONS.doomsdayClock;
     this.doomsdayClockSpeed = DEFAULT_OPTIONS.doomsdayClockSpeed;
     this.overtime = DEFAULT_OPTIONS.overtime;
@@ -884,6 +903,13 @@ export class SinglePlayerModal extends BaseModal {
     this.handleDifficultySelection(customEvent.detail.difficulty);
   };
 
+  private handleConfigDisasterFrequencySelected = (e: Event) => {
+    const f = (e as CustomEvent<{ frequency: DisasterFrequency }>).detail
+      .frequency;
+    this.disasters = f;
+    this.disasterPick = f;
+  };
+
   private handleConfigDoomsdayClockSpeedSelected = (e: Event) => {
     const customEvent = e as CustomEvent<{ speed: DoomsdayClockSpeed }>;
     this.doomsdayClockSpeed = customEvent.detail.speed;
@@ -940,6 +966,9 @@ export class SinglePlayerModal extends BaseModal {
         break;
       case "game_settings.tech_tree":
         this.techTree = checked;
+        break;
+      case "game_settings.disasters":
+        this.disasters = checked ? this.disasterPick : "off";
         break;
       case "game_settings.doomsday_clock":
         this.doomsdayClock = checked;
@@ -1275,6 +1304,7 @@ export class SinglePlayerModal extends BaseModal {
             ...(this.waterNukes ? { waterNukes: true } : {}),
             ...(this.fogOfWar ? { fogOfWar: true } : {}),
             ...(this.techTree ? {} : { disableTechTree: true }),
+            disasters: this.disasters,
             ...(this.doomsdayClock
               ? {
                   doomsdayClock: {

@@ -1,6 +1,7 @@
 import { AllPlayersStats, ClientID, Winner } from "../Schemas";
 import { TileRef } from "./GameMap";
 import {
+  DisasterKind,
   EmojiMessage,
   GameUpdates,
   Gold,
@@ -124,6 +125,7 @@ export enum GameUpdateType {
   SpawnPhaseEnd,
   GamePaused,
   DonateEvent,
+  DisasterEvent,
 }
 
 export type GameUpdate =
@@ -149,7 +151,8 @@ export type GameUpdate =
   | EmbargoUpdate
   | SpawnPhaseEndUpdate
   | GamePausedUpdate
-  | DonateEventUpdate;
+  | DonateEventUpdate
+  | DisasterUpdate;
 
 export interface BonusEventUpdate {
   type: GameUpdateType.BonusEvent;
@@ -184,6 +187,23 @@ export interface ConquestUpdate {
   conquerorId: PlayerID;
   conqueredId: PlayerID;
   gold: Gold;
+}
+
+/**
+ * A natural disaster (engine-lib/disasters/Disasters.ts): sent when it is
+ * announced ("warning", strikeAt in the future), when it hits ("strike")
+ * and, for long ones, when it is over ("end"). Cosmetic for the client;
+ * the effects on troops and units arrive as normal updates.
+ */
+export interface DisasterUpdate {
+  type: GameUpdateType.DisasterEvent;
+  id: number;
+  kind: DisasterKind;
+  tile: TileRef;
+  radius: number;
+  phase: "warning" | "strike" | "end";
+  /** Tick it hits (warning) or hit (strike/end). */
+  strikeAt: Tick;
 }
 
 export interface DonateEventUpdate {

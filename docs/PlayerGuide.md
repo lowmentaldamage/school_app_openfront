@@ -320,6 +320,28 @@ nations buy tiers too once they are rich.
 
 ---
 
+## 8b. Natural disasters
+
+A lobby option (**Natural disasters**, on by default; Rare / Normal /
+Frequent — about every 10, 5 or 2 minutes, never in the first 3 minutes or
+in the tutorial). Every client sees the same disasters at the same time.
+
+Each one is announced **10 seconds ahead**: a message with the place and a
+pulsing ring on the map in the disaster's colour, with signs on the ground
+(smoke from the volcano, dust, clouds gathering, the sea pulling back).
+
+| Disaster   | Where                    | What it does                                                  |
+| ---------- | ------------------------ | ------------------------------------------------------------- |
+| Volcano    | Mountains                | Eruption, lava and ash; kills troops, wrecks nearby buildings |
+| Earthquake | Anywhere people live     | Shakes the screen; troops lost, buildings lose a level        |
+| Tsunami    | A coast                  | A wave up to 4 tiles inland; sinks boats, damages warships    |
+| Storm      | At sea, where ships sail | Lightning for ~12 s; sinks boats, damages warships            |
+| Wildfire   | Plains and hills         | A fire front spreading for ~12 s; troops lost                 |
+
+Medium strength: a disaster never takes land and never costs a player more
+than 20% of their troops. Buildings above level 1 lose a level; only
+volcanoes destroy level-1 buildings.
+
 ## 9. Settings worth knowing
 
 - **Settings → Graphics**: the 3D view lowers its quality automatically to

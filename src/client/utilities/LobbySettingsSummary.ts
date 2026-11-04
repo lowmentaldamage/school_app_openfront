@@ -128,6 +128,11 @@ export function notableLobbySettings(
       label: translateText("game_settings.tech_tree"),
       value: translateText("common.disabled"),
     });
+  if (c.disasters && c.disasters !== "off")
+    items.push({
+      label: translateText("game_settings.disasters"),
+      value: translateText(`disaster_frequency.${c.disasters}`),
+    });
   if (c.fogOfWar)
     items.push({
       label: translateText("game_settings.fog_of_war"),

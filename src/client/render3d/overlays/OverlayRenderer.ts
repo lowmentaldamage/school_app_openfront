@@ -38,6 +38,14 @@ import { modelGeometry } from "../units/UnitModels";
 const OK = new Color(0x4ade80);
 const BAD = new Color(0xf87171);
 const BLOCKED = new Color(0xfbbf24);
+/** Warning ring colour per disaster kind. */
+const DISASTER_COLORS: Record<string, number> = {
+  volcano: 0xff5a1f,
+  earthquake: 0xd4a373,
+  tsunami: 0x38bdf8,
+  storm: 0xa5b4fc,
+  wildfire: 0xf97316,
+};
 const SAFE = new Color(0xf5f5f5);
 const OUT_OF_REACH = new Color(0xfbbf24);
 const INTERCEPT = new Color(0xef4444);
@@ -88,6 +96,16 @@ export class OverlayRenderer {
     depthWrite: false,
   });
   private aimData: WeaponAim | null = null;
+  /** Disaster warning rings by disaster id. */
+  private readonly disasters = new Map<
+    number,
+    { outer: Mesh; inner: Mesh; x: number; y: number; r: number; at: number }
+  >();
+  private readonly markerRing = (() => {
+    const g = new RingGeometry(0.97, 1, 128, 1);
+    g.rotateX(-Math.PI / 2);
+    return g;
+  })();
 
   constructor(private readonly hf: Heightfield) {
     this.group.name = "overlays";
@@ -226,8 +244,55 @@ export class OverlayRenderer {
     this.target.visible = true;
   }
 
+  /**
+   * Show a disaster's area (warning: a pulsing ring in the disaster's
+   * colour until it is over); hideDisaster removes it.
+   */
+  showDisaster(
+    id: number,
+    kind: string,
+    x: number,
+    y: number,
+    radius: number,
+    timeSeconds: number,
+  ): void {
+    if (this.disasters.has(id)) return;
+    const mat = new MeshBasicMaterial({
+      color: DISASTER_COLORS[kind] ?? 0xfbbf24,
+      transparent: true,
+      opacity: 0.8,
+      depthTest: false,
+      depthWrite: false,
+    });
+    const outer = new Mesh(this.markerRing, mat);
+    const inner = new Mesh(this.markerRing, mat);
+    outer.renderOrder = 12;
+    inner.renderOrder = 12;
+    this.group.add(outer, inner);
+    this.disasters.set(id, { outer, inner, x, y, r: radius, at: timeSeconds });
+  }
+
+  hideDisaster(id: number): void {
+    const d = this.disasters.get(id);
+    if (d === undefined) return;
+    this.group.remove(d.outer, d.inner);
+    (d.outer.material as MeshBasicMaterial).dispose();
+    this.disasters.delete(id);
+  }
+
   /** Per frame: place the ghost (it scales with zoom like real buildings). */
   update(cameraDistance: number, timeSeconds = 0): void {
+    for (const d of this.disasters.values()) {
+      const h = Math.max(0, this.hf.sample(d.x, d.y)) + 0.4;
+      const t = timeSeconds - d.at;
+      // A steady outer ring and a wave closing in on the centre.
+      d.outer.position.set(d.x, h, d.y);
+      d.outer.scale.setScalar(d.r);
+      d.inner.position.set(d.x, h, d.y);
+      d.inner.scale.setScalar(Math.max(0.5, d.r * (1 - ((t * 0.5) % 1))));
+      (d.outer.material as MeshBasicMaterial).opacity =
+        0.55 + 0.35 * Math.sin(t * 5);
+    }
     const a = this.aimData;
     if (a) {
       const h = Math.max(0, this.hf.sample(a.x, a.y)) + 0.3;

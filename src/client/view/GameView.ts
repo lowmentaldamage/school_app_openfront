@@ -13,6 +13,7 @@ import {
   UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
 import {
+  DisasterUpdate,
   GameUpdateType,
   GameUpdateViewData,
   SpawnPhaseEndUpdate,
@@ -660,6 +661,7 @@ export class GameView implements GameLike {
         gold: Number(c.gold),
       });
     }
+    this._disasterEvents = gu.updates[GameUpdateType.DisasterEvent] ?? [];
     for (const b of gu.updates[GameUpdateType.BonusEvent] ?? []) {
       const player = this._players.get(b.player);
       if (player === undefined) continue;
@@ -671,6 +673,13 @@ export class GameView implements GameLike {
         troops: b.troops,
       });
     }
+  }
+
+  private _disasterEvents: readonly DisasterUpdate[] = [];
+
+  /** Natural disaster events of the latest tick (warnings, hits, ends). */
+  disasterEvents(): readonly DisasterUpdate[] {
+    return this._disasterEvents;
   }
 
   /** Public accessor: the renderer reads this and uploads to the GPU. */

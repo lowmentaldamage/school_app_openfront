@@ -909,6 +909,12 @@
     "info_troops_same": "the same max troops as a human",
     "medium": "Medium"
   },
+  "disaster_frequency": {
+    "frequent": "Frequent (about every 2 min)",
+    "label": "How often",
+    "normal": "Normal (about every 5 min)",
+    "rare": "Rare (about every 10 min)"
+  },
   "discord_user_header": {
     "avatar_alt": "Avatar"
   },
@@ -1000,6 +1006,16 @@
     "betrayal_description": "You broke your alliance with {name}, making you a TRAITOR ({malusPercent}% defense debuff for {durationText})",
     "betrayed_you": "{name} broke their alliance with you",
     "conquered_no_gold": "Conquered {name} (didn't play, no gold awarded)",
+    "disaster_hit_earthquake": "🌍 The earthquake killed {troops} of your troops",
+    "disaster_hit_storm": "⛈️ The storm killed {troops} of your troops",
+    "disaster_hit_tsunami": "🌊 The tsunami killed {troops} of your troops",
+    "disaster_hit_volcano": "🌋 The eruption killed {troops} of your troops",
+    "disaster_hit_wildfire": "🔥 The wildfire killed {troops} of your troops",
+    "disaster_warning_earthquake": "⚠️ The ground is rumbling: earthquake near ({x}, {y})!",
+    "disaster_warning_storm": "⚠️ A storm is gathering at sea near ({x}, {y}): ships in danger!",
+    "disaster_warning_tsunami": "⚠️ The sea is pulling back: tsunami heading for the coast near ({x}, {y})!",
+    "disaster_warning_volcano": "⚠️ A volcano is about to erupt near ({x}, {y})!",
+    "disaster_warning_wildfire": "⚠️ Smoke on the horizon: wildfire near ({x}, {y})!",
     "duration_second": "1 second",
     "duration_seconds_plural": "{seconds} seconds",
     "focus": "Focus",
@@ -1137,6 +1153,7 @@
     "compact_map": "Compact Map",
     "custom_alliances": "Alliance Duration",
     "disable_units": "Disable Units",
+    "disasters": "Natural disasters",
     "doomsday_clock": "Doomsday Clock",
     "fog_of_war": "Fog of war",
     "gold_multiplier": "Gold multiplier",

@@ -17,6 +17,7 @@ import {
   UnitType,
   TECH_IDS,
   WEAPON_IDS,
+  DISASTER_FREQUENCIES,
 } from "./game/GameTypes";
 import { PlayerStatsSchema } from "./StatsSchemas";
 
@@ -324,6 +325,9 @@ export const GameConfigSchema = z.object({
   fogOfWar: z.boolean().nullable().optional(),
   // Tech tree: on unless set to true (classic games without research).
   disableTechTree: z.boolean().nullable().optional(),
+  // Natural disasters (volcanoes, earthquakes, tsunamis, storms, wildfires):
+  // how often; unset or "off" means never.
+  disasters: z.enum(DISASTER_FREQUENCIES).nullable().optional(),
   // A map made in the map editor (its id on the server). gameMap is then
   // only a placeholder; the loaders fetch the custom map's files instead.
   customMap: z.string().regex(CUSTOM_MAP_ID_RE).nullable().optional(),

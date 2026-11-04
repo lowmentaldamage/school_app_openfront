@@ -59,6 +59,15 @@ import {
 import { TerritoryTextures } from "./territory/TerritoryTextures";
 import { UnitRenderer, type UnitInput } from "./units/UnitRenderer";
 
+/** A natural disaster event (engine-api DisasterUpdate, the parts drawn). */
+export interface DisasterEvent3D {
+  id: number;
+  kind: string;
+  tile: number;
+  radius: number;
+  phase: "warning" | "strike" | "end";
+}
+
 /** On a still camera, redraw shadows every this many frames. */
 const SHADOW_EVERY_FRAMES = 2;
 
@@ -233,11 +242,14 @@ export class WorldRenderer {
 
     this.units = new UnitRenderer(this.heightfield, init.mapWidth);
     this.scene.add(this.units.group);
+    this.mapWidth = init.mapWidth;
     this.effects = new EffectsRenderer(this.heightfield, init.mapWidth, {
       particles: this.profile.mobile ? 2500 : 8000,
       smoke: this.profile.mobile ? 2000 : 6000,
       lights: !this.profile.mobile,
     });
+    this.effects.shake = (amount, ms) =>
+      this.cameraController.shake(amount, ms);
     this.scene.add(this.effects.group);
 
     this.environment = new EnvironmentRenderer(
@@ -314,6 +326,38 @@ export class WorldRenderer {
   }
 
   /** Brighten the borders of one player (e.g. hover); -1 clears. */
+  private lastTimeSec = 0;
+  private readonly mapWidth: number;
+  /** Disaster markers on the map: id → time (s) to drop it at the latest. */
+  private readonly disasterMarkers = new Map<number, number>();
+
+  /**
+   * Natural disaster events of a tick: a warning ring while it is coming,
+   * effects when it hits, the ring removed when it is over.
+   */
+  onDisasters(events: readonly DisasterEvent3D[]): void {
+    const t = this.lastTimeSec;
+    for (const e of events) {
+      const x = (e.tile % this.mapWidth) + 0.5;
+      const z = Math.floor(e.tile / this.mapWidth) + 0.5;
+      const long = e.kind === "storm" || e.kind === "wildfire";
+      if (e.phase === "warning") {
+        this.overlays.showDisaster(e.id, e.kind, x, z, e.radius, t);
+        this.disasterMarkers.set(e.id, t + 60);
+        this.effects.disaster(e.kind, "warning", x, z, e.radius);
+      } else if (e.phase === "strike") {
+        this.effects.disaster(e.kind, "strike", x, z, e.radius);
+        if (!long) {
+          this.overlays.hideDisaster(e.id);
+          this.disasterMarkers.delete(e.id);
+        }
+      } else {
+        this.overlays.hideDisaster(e.id);
+        this.disasterMarkers.delete(e.id);
+      }
+    }
+  }
+
   /** Players' weapon tiers by smallID (sizes strike explosions). */
   setStrikeTiers(tiers: ReadonlyMap<number, StrikeTiers>): void {
     this.strikeTiers = tiers;
@@ -370,6 +414,14 @@ export class WorldRenderer {
     cc.sync(camera);
     this.forests.update(t, cc.distance);
     this.seaLife.update(t, cc.distance);
+    this.lastTimeSec = t;
+    for (const [id, until] of this.disasterMarkers) {
+      // Safety net: never leave a marker if an "end" was missed.
+      if (t > until) {
+        this.overlays.hideDisaster(id);
+        this.disasterMarkers.delete(id);
+      }
+    }
     this.overlays.update(cc.distance, t);
     this.units.animate(nowMs, cc.distance);
     this.units.layoutMarkers(cc.camera, this.cssWidth, this.cssHeight);

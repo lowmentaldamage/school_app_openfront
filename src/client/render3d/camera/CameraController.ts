@@ -133,6 +133,17 @@ export class CameraController {
   }
 
   /** Apply a 2D camera state; call once per frame before rendering. */
+  private shakeUntil = 0;
+  private shakeMs = 1;
+  private shakeAmount = 0;
+
+  /** Shake the view for `ms` (cosmetic; amount in tiles at close zoom). */
+  shake(amount: number, ms: number): void {
+    this.shakeAmount = amount;
+    this.shakeMs = Math.max(1, ms);
+    this.shakeUntil = performance.now() + ms;
+  }
+
   sync(s: Camera2DState): void {
     this.viewWidth = Math.max(1, s.viewWidth);
     this.viewHeight = Math.max(1, s.viewHeight);
@@ -162,6 +173,18 @@ export class CameraController {
     const clearance = Math.max(1.5, this.distance * 0.04);
     if (this.camera.position.y < under + clearance) {
       this.camera.position.y = under + clearance;
+    }
+    // Earthquake / eruption shake: a decaying jitter of the eye only (the
+    // focus stays put, so picking is not thrown off).
+    const now = performance.now();
+    if (now < this.shakeUntil) {
+      const k =
+        this.shakeAmount *
+        ((this.shakeUntil - now) / this.shakeMs) *
+        Math.min(1, this.distance / 60);
+      this.camera.position.x += Math.sin(now * 0.071) * k;
+      this.camera.position.y += Math.sin(now * 0.093 + 1.3) * k * 0.6;
+      this.camera.position.z += Math.cos(now * 0.067) * k;
     }
     this.camera.aspect = this.viewWidth / this.viewHeight;
     this.camera.near = Math.max(0.2, this.distance * 0.02);
