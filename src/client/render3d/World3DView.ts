@@ -85,6 +85,11 @@ export class World3DView implements ScreenProjector {
     this.world.overlays.setTrajectory(data);
   }
 
+  /** Country tint 0-1 (player setting). */
+  setTerritoryTint(strength: number): void {
+    this.world.setTerritoryTint(strength);
+  }
+
   /** Buildings as flat 2D icons when zoomed out (player setting). */
   setFlatBuildingIcons(on: boolean): void {
     this.world.setFlatBuildingIcons(on);

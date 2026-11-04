@@ -19,6 +19,7 @@ uniform sampler2D uRailTex;
 uniform vec2 uMapSize;
 uniform float uTime;
 uniform float uFillStrength;
+uniform float uHoverStrength;
 uniform float uBorderWidth;
 uniform float uHighlightOwner;
 uniform float uCaptureNow;
@@ -36,6 +37,14 @@ vec4 territoryFill(int owner) {
   if (owner == 0) return vec4(0.0);
   vec4 c = texelFetch(uPaletteTex, ivec2(owner, 0), 0);
   return vec4(pow(c.rgb, vec3(2.2)), c.a);
+}
+
+// Fill strength: the player's tint setting, full colour when hovered.
+float territoryStrength(int owner) {
+  if (owner == 0) return 0.0;
+  return abs(float(owner) - uHighlightOwner) < 0.5
+    ? max(uFillStrength, uHoverStrength)
+    : uFillStrength;
 }
 
 vec3 territoryBorderColor(int owner) {
@@ -59,9 +68,27 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
   float w01 = (1.0 - f.x) * f.y;
   float w11 = f.x * f.y;
 
-  vec4 fill = territoryFill(o00) * w00 + territoryFill(o10) * w10
-            + territoryFill(o01) * w01 + territoryFill(o11) * w11;
-  vec3 color = mix(albedo, fill.rgb, clamp(fill.a * uFillStrength, 0.0, 1.0));
+  // Light tint so the terrain stays visible; the hovered country shows in
+  // full colour (uHighlightOwner).
+  vec4 f00 = territoryFill(o00) * territoryStrength(o00) * w00;
+  vec4 f10 = territoryFill(o10) * territoryStrength(o10) * w10;
+  vec4 f01 = territoryFill(o01) * territoryStrength(o01) * w01;
+  vec4 f11 = territoryFill(o11) * territoryStrength(o11) * w11;
+  // Weight colours by their own tint so a lightly tinted neighbour doesn't
+  // wash out a highlighted one.
+  vec3 rgbSum = f00.rgb * f00.a + f10.rgb * f10.a + f01.rgb * f01.a + f11.rgb * f11.a;
+  float aSum = f00.a + f10.a + f01.a + f11.a;
+  vec3 fillRgb = aSum > 0.0 ? rgbSum / aSum : albedo;
+  // Colourise rather than paint over: the country's hue at the terrain's
+  // own brightness, so grass, rock and snow keep their detail and the
+  // tint reads clearly even when light. Full strength paints the colour.
+  // Brightness follows the terrain gently (mountains darker, snow
+  // lighter) without amplifying ground grain.
+  float lum = dot(albedo, vec3(0.299, 0.587, 0.114));
+  float fillLum = max(dot(fillRgb, vec3(0.299, 0.587, 0.114)), 0.03);
+  vec3 tinted = clamp(fillRgb / fillLum * mix(0.2, lum, 0.55), 0.0, 1.0);
+  float a = clamp(aSum, 0.0, 1.0);
+  vec3 color = mix(albedo, mix(tinted, fillRgb, a * a), clamp(a * 2.2, 0.0, 1.0));
 
   ivec2 tile = ivec2(floor(tilePos));
   vec4 ownTexel = texelFetch(uOwnerTex, clamp(tile, ivec2(0), ivec2(uMapSize) - 1), 0);
@@ -118,7 +145,7 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
     // Tiles per screen pixel: borders keep a minimum on-screen width, so
     // they stay visible when zoomed out instead of thinning to nothing.
     float tpp = length(fwidth(tilePos));
-    float width = clamp(max(uBorderWidth, tpp * 2.2), 0.0, 0.5);
+    float width = clamp(max(uBorderWidth, tpp * 3.0), 0.0, 0.5);
     // same == 1 deep inside, ~0.5 on the boundary.
     float edge = 1.0 - smoothstep(0.5, 0.5 + width, same);
     // Zoomed far out a tile is smaller than a pixel: look further for a

@@ -3189,6 +3189,8 @@
     "tab_keybinds": "Keybinds",
     "target_player": "Target Player",
     "target_player_desc": "Mark the player whose tile is under your cursor as a target for you and your allies.",
+    "territory_tint_desc": "How strongly countries colour the land in 3D. Low keeps the terrain visible (borders always show); the country under your mouse shows in full colour.",
+    "territory_tint_label": "Country colour",
     "title": "Settings",
     "toggle_terrain": "Toggle Terrain",
     "toggle_view": "Toggle View",

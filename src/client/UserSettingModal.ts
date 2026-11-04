@@ -1953,6 +1953,21 @@ export class UserSettingModal extends BaseModal {
         @change=${this.toggleWeather}
       ></setting-toggle>
 
+      <setting-slider
+        label=${translateText("user_setting.territory_tint_label")}
+        description=${translateText("user_setting.territory_tint_desc")}
+        id="territory-tint-slider"
+        min="0"
+        max="100"
+        .value=${Math.round(this.userSettings.territoryTint() * 100)}
+        @change=${(e: CustomEvent<{ value: number }>) => {
+          const value = e.detail?.value;
+          if (typeof value === "number") {
+            this.userSettings.setTerritoryTint(value / 100);
+          }
+        }}
+      ></setting-slider>
+
       <setting-toggle
         label="${translateText("user_setting.flat_icons_label")}"
         description="${translateText("user_setting.flat_icons_desc")}"

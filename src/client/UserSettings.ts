@@ -548,6 +548,22 @@ export class UserSettings {
   }
 
   /**
+   * 3D view: how strongly countries colour the land, 0-1 (default 0.25:
+   * a light tint so the terrain stays visible; the hovered country shows
+   * in full colour).
+   */
+  territoryTint() {
+    return Math.max(
+      0,
+      Math.min(1, this.getFloat("settings.territoryTint", 0.25)),
+    );
+  }
+
+  setTerritoryTint(value: number) {
+    this.setFloat("settings.territoryTint", Math.max(0, Math.min(1, value)));
+  }
+
+  /**
    * 3D view: buildings become flat 2D icons when zoomed out (easy to see
    * and stack); off = always 3D models.
    */

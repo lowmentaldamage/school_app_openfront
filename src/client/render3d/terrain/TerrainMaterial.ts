@@ -133,6 +133,7 @@ export interface TerrainMaterialUniforms {
   uMapSize: { value: Vector2 };
   uTime: { value: number };
   uFillStrength: { value: number };
+  uHoverStrength: { value: number };
   uBorderWidth: { value: number };
   uHighlightOwner: { value: number };
   /** Current capture stamp (OwnerBuffer.captureStamp, fractional). */
@@ -156,8 +157,11 @@ export function createTerrainMaterial(
     uRailTex: { value: railTex },
     uMapSize: { value: new Vector2(mapWidth, mapHeight) },
     uTime: { value: 0 },
-    uFillStrength: { value: 0.88 },
-    uBorderWidth: { value: 0.3 },
+    // Light country tint (Settings → Graphics → Country colour); the
+    // hovered country shows at uHoverStrength.
+    uFillStrength: { value: 0.25 },
+    uHoverStrength: { value: 0.8 },
+    uBorderWidth: { value: 0.42 },
     uHighlightOwner: { value: -1 },
     uCaptureNow: { value: 0 },
   };

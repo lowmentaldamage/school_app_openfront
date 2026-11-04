@@ -295,6 +295,14 @@ export class WorldRenderer {
     this.units.setIconModeAllowed(on);
   }
 
+  /** Country tint 0-1 (0: outlines only, 1: solid colour). */
+  setTerritoryTint(strength: number): void {
+    this.terrainUniforms.uFillStrength.value = Math.max(
+      0,
+      Math.min(1, strength),
+    );
+  }
+
   setHighlightOwner(smallID: number): void {
     this.terrainUniforms.uHighlightOwner.value = smallID;
   }
