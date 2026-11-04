@@ -24,18 +24,64 @@ export interface HeightfieldOptions {
   blurPasses: number;
   /** Global vertical exaggeration. */
   verticalScale: number;
+  /** Steepest rise in height per tile (see limitSlope); unset: no limit. */
+  maxSlope?: number;
 }
 
 export const DEFAULT_HEIGHTFIELD_OPTIONS: HeightfieldOptions = {
   blurRadius: 2,
   blurPasses: 2,
   verticalScale: 1,
+  maxSlope: 1.6,
 };
 
 /** Raw heights above this keep sharp peaks after smoothing. */
 const MOUNTAIN_PEAK_FROM = 6;
 /** Share of the blurred-away peak height given back (0..1). */
 const PEAK_RESTORE = 0.6;
+
+/**
+ * Lowers every point so it is at most `slope` per tile above any other
+ * point (chamfer distance passes, diagonal = √2 tiles). Only lowers, so
+ * valleys and plains are untouched; peaks keep their height when the
+ * ground around them rises to meet them.
+ */
+export function limitSlope(
+  h: Float32Array,
+  width: number,
+  height: number,
+  slope: number,
+): void {
+  const d = slope * Math.SQRT2;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      let v = h[i];
+      if (x > 0 && h[i - 1] + slope < v) v = h[i - 1] + slope;
+      if (y > 0) {
+        const u = i - width;
+        if (h[u] + slope < v) v = h[u] + slope;
+        if (x > 0 && h[u - 1] + d < v) v = h[u - 1] + d;
+        if (x < width - 1 && h[u + 1] + d < v) v = h[u + 1] + d;
+      }
+      h[i] = v;
+    }
+  }
+  for (let y = height - 1; y >= 0; y--) {
+    for (let x = width - 1; x >= 0; x--) {
+      const i = y * width + x;
+      let v = h[i];
+      if (x < width - 1 && h[i + 1] + slope < v) v = h[i + 1] + slope;
+      if (y < height - 1) {
+        const b = i + width;
+        if (h[b] + slope < v) v = h[b] + slope;
+        if (x < width - 1 && h[b + 1] + d < v) v = h[b + 1] + d;
+        if (x > 0 && h[b - 1] + d < v) v = h[b - 1] + d;
+      }
+      h[i] = v;
+    }
+  }
+}
 
 /** Minimum land height after smoothing, so coasts stay above water. */
 export const MIN_LAND_HEIGHT = 0.12;
@@ -124,16 +170,24 @@ export class Heightfield {
       }
     }
 
-    // Blurring pulls coasts toward sea level from both sides; clamp so the
-    // land/water classification of every tile is preserved exactly.
     // Mountain peaks get most of their height back, so ranges keep sharp
     // summits while the slopes below stay smooth.
-    const s = options.verticalScale;
     for (let i = 0; i < h.length; i++) {
       const raw = rawHeight(terrain[i], lv ? lv[i] : undefined);
       if (raw > MOUNTAIN_PEAK_FROM && raw > h[i]) {
         h[i] += (raw - h[i]) * PEAK_RESTORE;
       }
+    }
+    // Huge mountain tops need a base to stand on: cap the slope (about
+    // 58 degrees at 1.6) so a single mountain tile (common on maps without real height data) is a
+    // massif, not a needle.
+    if (options.maxSlope !== undefined) {
+      limitSlope(h, width, height, options.maxSlope);
+    }
+    // Blurring pulls coasts toward sea level from both sides; clamp so the
+    // land/water classification of every tile is preserved exactly.
+    const s = options.verticalScale;
+    for (let i = 0; i < h.length; i++) {
       const v = h[i] * s;
       h[i] = isLandByte(terrain[i])
         ? Math.max(v, MIN_LAND_HEIGHT)

@@ -75,8 +75,13 @@ float terrainLevelHeight(float L) {
 }
 // Height snapped to its layer: flat treads with a short riser between
 // layers, so the land reads as clean stacked layers. Water is unchanged.
+// Layers follow a smoothed height (a coarser mip, ~2 tiles) so each step
+// is a clean band instead of tracing the fine relief noise.
+float terrainSmoothHeight(vec2 p) {
+  return textureLod(uTerrainDetail, p / uMapSize, 2.0).r;
+}
 float terrainTerraced(vec2 p) {
-  float h = terrainDetailAt(p).r;
+  float h = terrainSmoothHeight(p);
   if (h <= 0.3) return h;
   float L = terrainLevel(h);
   float f = fract(L);
@@ -94,13 +99,14 @@ float terrainSlopeUp(vec3 wp) {
   return normalize(vec3(hl - hr, 2.0 * uDetailStep, hd - hu)).y;
 }
 vec3 terrainDetailNormal(vec3 wp) {
-  float hl = terrainTerraced(wp.xz - vec2(uDetailStep, 0.0));
-  float hr = terrainTerraced(wp.xz + vec2(uDetailStep, 0.0));
-  float hd = terrainTerraced(wp.xz - vec2(0.0, uDetailStep));
-  float hu = terrainTerraced(wp.xz + vec2(0.0, uDetailStep));
+  // One-tile steps: the terraced field has no detail finer than that.
+  float hl = terrainTerraced(wp.xz - vec2(1.0, 0.0));
+  float hr = terrainTerraced(wp.xz + vec2(1.0, 0.0));
+  float hd = terrainTerraced(wp.xz - vec2(0.0, 1.0));
+  float hu = terrainTerraced(wp.xz + vec2(0.0, 1.0));
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
-  vec3 n = vec3((hl - hr) * 1.5, 2.0 * uDetailStep, (hd - hu) * 1.5);
+  vec3 n = vec3((hl - hr) * 1.5, 2.0, (hd - hu) * 1.5);
   // Gentle micro relief on land (rocky ground, folds), mostly in the
   // hills and mountains; flat ground stays smooth (no tile-sized grain).
   float land = terrainDetailAt(wp.xz).g;
@@ -139,6 +145,7 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   // Colour bands follow the layers: grass below 33, meadow to 66, rock
   // above, snow on the top layers.
   float L = terrainLevel(max(h, 0.3));
+  float Ls = terrainLevel(max(terrainSmoothHeight(wp.xz), 0.3));
   c = mix(c, dry, smoothstep(30.0, 40.0, L + (n - 0.5) * 8.0));
   c = mix(c, rock, smoothstep(64.0, 72.0, L + (n - 0.5) * 8.0));
   // Steep faces are rock regardless of altitude.
@@ -154,13 +161,13 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   // Contour lines every 10 layers (stronger every 50) on hills and
   // mountains (plains stay plain), a pixel or so wide
   // at any zoom; dropped where they would crowd together.
-  float fw = max(fwidth(L), 1e-4);
-  float d10 = abs(L - floor(L / 10.0 + 0.5) * 10.0) / fw;
-  float d50 = abs(L - floor(L / 50.0 + 0.5) * 50.0) / fw;
+  float fw = max(fwidth(Ls), 1e-4);
+  float d10 = abs(Ls - floor(Ls / 10.0 + 0.5) * 10.0) / fw;
+  float d50 = abs(Ls - floor(Ls / 50.0 + 0.5) * 50.0) / fw;
   float crowd = 1.0 - smoothstep(1.2, 3.0, fw);
   float contour = (1.0 - smoothstep(0.4, 1.3, d10)) * 0.16
                 + (1.0 - smoothstep(0.6, 1.8, d50)) * 0.14;
-  c *= 1.0 - contour * crowd * step(0.3, h) * smoothstep(28.0, 34.0, L);
+  c *= 1.0 - contour * crowd * step(0.3, h) * smoothstep(28.0, 34.0, Ls);
   // Water tiles (by the tile mask, not the mesh height) read as shallow
   // water even where the coarse mesh pokes above the water plane.
   vec3 shallowWater = mix(vec3(0.22, 0.52, 0.55), seabed, 0.25);
@@ -255,7 +262,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v12";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v13";
   return { material, uniforms };
 }
 

@@ -122,6 +122,19 @@ float waterDepth01() {
   if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 1.0;
   return texture2D(uDepthTex, uv).r;
 }
+const mat2 W_ROT = mat2(0.80, -0.60, 0.60, 0.80);
+float wHash(vec2 q) {
+  q = fract(q * vec2(123.34, 456.21));
+  q += dot(q, q + 45.32);
+  return fract(q.x * q.y);
+}
+float wNoise(vec2 q) {
+  vec2 i = floor(q);
+  vec2 f = fract(q);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(wHash(i), wHash(i + vec2(1, 0)), u.x),
+             mix(wHash(i + vec2(0, 1)), wHash(i + vec2(1, 1)), u.x), u.y);
+}
 vec2 waveGrad(vec2 p, float t) {
   // Four non-aligned octaves so the glints never form a visible lattice.
   vec2 g = vec2(0.0);
@@ -152,17 +165,12 @@ diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9), clamp(foam, 0.0, 1.0) * 0.55
   float swell = sin(dot(p, vec2(0.11, 0.07)) - uTime * 0.9)
               * sin(dot(p, vec2(-0.05, 0.13)) - uTime * 0.6);
   diffuseColor.rgb *= 1.0 + 0.14 * swell * smoothstep(0.1, 0.6, wDepth);
-  float cap = sin(dot(p, vec2(0.9, 0.4)) - uTime * 1.8)
-            * sin(dot(p, vec2(-0.3, 0.8)) - uTime * 1.3)
-            * sin(dot(p, vec2(0.21, -0.17)) + uTime * 0.7);
-  // Break the regular lattice with an irregular envelope, and drop the
-  // caps once they are only a few pixels (they read as a dotted grid).
-  float capField = sin(dot(p, vec2(0.037, 0.023)) + uTime * 0.11)
-                 + sin(dot(p, vec2(-0.019, 0.041)) - uTime * 0.07)
-                 + sin(dot(p, vec2(0.053, -0.031)) + 1.7);
+  // Whitecaps from drifting value noise (rotated off the grid), so they
+  // scatter like real foam instead of peaking on a regular lattice.
+  float capN = wNoise(W_ROT * p * 0.55 + vec2(uTime * 0.35, -uTime * 0.2)) * 0.6
+             + wNoise(W_ROT * W_ROT * p * 1.3 - vec2(uTime * 0.5, uTime * 0.15)) * 0.4;
   float capFade = 1.0 - smoothstep(0.12, 0.45, length(fwidth(p)));
-  cap = smoothstep(0.55, 0.9, cap) * smoothstep(0.35, 1.0, wDepth)
-      * smoothstep(0.4, 1.6, capField) * capFade;
+  float cap = smoothstep(0.72, 0.86, capN) * smoothstep(0.35, 1.0, wDepth) * capFade;
   diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.93), cap * 0.4);
 }
 diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
@@ -184,7 +192,7 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v4";
+    material.customProgramCacheKey = () => "laukolaroser-water-v5";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

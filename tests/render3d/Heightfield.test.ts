@@ -3,6 +3,7 @@ import {
   Heightfield,
   IMPASSABLE_HEIGHT,
   levelHeight,
+  limitSlope,
   MAX_WATER_HEIGHT,
   MIN_LAND_HEIGHT,
   rawHeight,
@@ -124,5 +125,32 @@ describe("levelHeight", () => {
 
   it("is what custom-map levels give for land", () => {
     expect(rawHeight(LAND_BIT | 5, 70)).toBeCloseTo(levelHeight(70));
+  });
+});
+
+describe("limitSlope", () => {
+  it("turns a lone spike into a massif and leaves gentle ground alone", () => {
+    const w = 21;
+    const h = new Float32Array(w * w).fill(1);
+    h[10 * w + 10] = 60;
+    h[0] = 1.5;
+    limitSlope(h, w, w, 1.6);
+    expect(h[10 * w + 10]).toBeCloseTo(2.6);
+    expect(h[0]).toBeCloseTo(1.5);
+    for (let y = 0; y < w; y++)
+      for (let x = 1; x < w; x++)
+        expect(Math.abs(h[y * w + x] - h[y * w + x - 1])).toBeLessThanOrEqual(
+          1.6 + 1e-5,
+        );
+  });
+
+  it("keeps big real mountains tall when the ground rises to them", () => {
+    const w = 81;
+    const h = new Float32Array(w * w);
+    for (let y = 0; y < w; y++)
+      for (let x = 0; x < w; x++)
+        h[y * w + x] = Math.max(0, 60 - 1.5 * Math.hypot(x - 40, y - 40));
+    limitSlope(h, w, w, 1.6);
+    expect(h[40 * w + 40]).toBeCloseTo(60);
   });
 });

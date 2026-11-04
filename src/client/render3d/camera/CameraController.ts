@@ -212,16 +212,33 @@ export class CameraController {
     const tEnd = (0 - tmpNear.y) / tmpDir.y;
     if (tEnd <= t0) t0 = 0;
     const horiz = Math.hypot(tmpDir.x, tmpDir.z);
-    // Steps of about half a tile along the ground.
-    const step = Math.max(0.05, 0.5 / Math.max(horiz, 0.05));
+    // Steps of a fifth of a tile along the ground: big mountains are steep,
+    // and coarser steps skip a slope the ray only grazes.
+    const step = Math.max(0.02, 0.2 / Math.max(horiz, 0.05));
     let lo = t0;
     let hi = tEnd;
+    let hit = false;
+    // Closest pass over the terrain, for rays that only touch a summit.
+    let nearT = t0;
+    let nearA = Infinity;
     for (let t = t0; t <= tEnd; t += step) {
-      if (above(t) <= 0) {
+      const a = above(t);
+      if (a <= 0) {
         hi = t;
+        hit = true;
         break;
       }
+      if (a < nearA) {
+        nearA = a;
+        nearT = t;
+      }
       lo = t;
+    }
+    if (!hit && nearA < 0.5 && nearT < tEnd - step * 2) {
+      return {
+        x: tmpNear.x + tmpDir.x * nearT,
+        y: tmpNear.z + tmpDir.z * nearT,
+      };
     }
     for (let i = 0; i < 18; i++) {
       const mid = (lo + hi) / 2;

@@ -29,7 +29,12 @@ export interface TerrainDetailData {
 }
 
 /** Light smoothing: keeps tile-scale relief, removes terrace steps. */
-export const DETAIL_BLUR = { blurRadius: 1, blurPasses: 1, verticalScale: 1 };
+export const DETAIL_BLUR = {
+  blurRadius: 1,
+  blurPasses: 1,
+  verticalScale: 1,
+  maxSlope: 1.6,
+};
 
 /** The lightly smoothed heightfield the detail texture is built from. */
 export function detailHeightfield(
