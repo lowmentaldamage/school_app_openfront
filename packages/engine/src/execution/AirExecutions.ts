@@ -19,7 +19,11 @@ import {
   zTile,
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { TECH_EFFECTS } from "@laukolaroser/engine-lib/tech/Tech";
-import { WEAPONS } from "@laukolaroser/engine-lib/weapons/Weapons";
+import {
+  WEAPONS,
+  weaponAtTier,
+  type WeaponTier,
+} from "@laukolaroser/engine-lib/weapons/Weapons";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
 import { execSnapshotType } from "../snapshot/ExecutionSnapshot";
@@ -63,6 +67,8 @@ export class BomberExecution implements Execution {
     private player: Player,
     private base: TileRef,
     private target: TileRef,
+    /** Power tier of the raid (Mk I-III). */
+    private tier: WeaponTier = 1,
   ) {}
 
   init(mg: Game, _ticks: number): void {
@@ -86,7 +92,7 @@ export class BomberExecution implements Execution {
     if (this.ticksFlown % ANTI_AIR.volleyTicks === 0 && this.antiAirFire()) {
       return;
     }
-    const spec = WEAPONS.airstrike;
+    const spec = weaponAtTier(WEAPONS.airstrike, this.tier);
     const dest = this.returning ? this.base : this.target;
     for (let i = 0; i < BOMBER.speed; i++) {
       const next = stepToward(mg, bomber.tile(), dest);
@@ -142,7 +148,7 @@ export class BomberExecution implements Execution {
 
   private dropBombs(ticks: number): void {
     const mg = this.mg!;
-    const spec = WEAPONS.airstrike;
+    const spec = weaponAtTier(WEAPONS.airstrike, this.tier);
     const rand = new PseudoRandom(ticks * 7_919 + this.target);
     const tx = mg.x(this.target);
     const ty = mg.y(this.target);
@@ -178,6 +184,7 @@ export class BomberExecution implements Execution {
           this.bomber!.tile(),
           dst,
           i * spec.shotInterval,
+          this.tier,
         ),
       );
     }
@@ -201,6 +208,7 @@ export class BomberExecution implements Execution {
       bomber: w.unitOrNull(this.bomber),
       returning: this.returning,
       ticksFlown: this.ticksFlown,
+      tier: this.tier,
     });
   }
 
@@ -213,6 +221,7 @@ export class BomberExecution implements Execution {
     this.bomber = r.unitOrNull(s.bomber);
     this.returning = s.returning;
     this.ticksFlown = s.ticksFlown;
+    this.tier = (s.tier ?? 1) as WeaponTier;
   }
 }
 
@@ -225,6 +234,8 @@ const BomberStateSchema = z.object({
   bomber: zRef().nullable(),
   returning: z.boolean(),
   ticksFlown: zInt(),
+  // Optional: older snapshots were all Mk I.
+  tier: zInt().optional(),
 });
 type BomberState = z.infer<typeof BomberStateSchema>;
 

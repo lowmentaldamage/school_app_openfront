@@ -18,10 +18,13 @@ import {
 } from "@laukolaroser/engine-api/game/GameTypes";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
+  playerWeapon,
   WEAPONS,
+  weaponUpgradeCost,
   type WeaponId,
 } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { Game, Player } from "../../game/Game";
+import { UpgradeWeaponExecution } from "../UpgradeWeaponExecution";
 import { launcherReady, WeaponStrikeExecution } from "../WeaponStrikeExecution";
 
 /** Order of preference, and how many strikes' worth of gold to keep. */
@@ -32,6 +35,8 @@ const PLAN: readonly { weapon: WeaponId; reserve: bigint }[] = [
   { weapon: "airstrike", reserve: 5n },
 ];
 
+/** Nations upgrade a weapon once they hold this many times its price. */
+const UPGRADE_RESERVE = 4n;
 const SAMPLES_PER_LAUNCHER = 12;
 const MAX_LAUNCHERS_TRIED = 3;
 
@@ -50,8 +55,19 @@ export class NationWeaponBehavior {
       this.mg.ticks() * 7_919 + this.player.smallID() * 104_729,
     );
 
+    // Rich nations buy power tiers for weapons they can fire.
+    for (const { weapon } of PLAN) {
+      const cost = weaponUpgradeCost(this.player.weaponTiers(), weapon);
+      if (cost === null || this.player.gold() < cost * UPGRADE_RESERVE) {
+        continue;
+      }
+      if (this.player.units(WEAPONS[weapon].launchers).length === 0) continue;
+      this.mg.addExecution(new UpgradeWeaponExecution(this.player, weapon));
+      return;
+    }
+
     for (const { weapon, reserve } of PLAN) {
-      const spec = WEAPONS[weapon];
+      const spec = playerWeapon(this.player, weapon);
       if (spec.launchers.every((t) => this.mg.config().isUnitDisabled(t))) {
         continue;
       }

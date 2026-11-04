@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { explosionFor } from "../../src/client/render3d/effects/ExplosionSpecs";
+import {
+  atPowerTier,
+  explosionFor,
+  strikeTierFor,
+} from "../../src/client/render3d/effects/ExplosionSpecs";
 
 describe("explosionFor", () => {
   it("nukes detonate on impact, hydrogen bigger than atom", () => {
@@ -28,5 +32,25 @@ describe("explosionFor", () => {
 
   it("ignores unknown types", () => {
     expect(explosionFor("Nonsense", false)).toBeNull();
+  });
+});
+
+describe("strike power tiers", () => {
+  it("Mk I is unchanged; higher tiers blow bigger", () => {
+    const shell = explosionFor("Artillery Shell", true)!;
+    expect(atPowerTier(shell, 1)).toEqual(shell);
+    const mk2 = atPowerTier(shell, 2);
+    const mk3 = atPowerTier(shell, 3);
+    expect(mk2.radius).toBeGreaterThan(shell.radius);
+    expect(mk3.radius).toBeGreaterThan(mk2.radius);
+    expect(mk3.intensity).toBeGreaterThan(mk2.intensity);
+    expect(mk3.kind).toBe(shell.kind);
+  });
+
+  it("reads the right weapon's tier", () => {
+    const tiers = { artillery: 1, naval: 3, airstrike: 2, rocket: 2 };
+    expect(strikeTierFor("Rocket", tiers)).toBe(2);
+    expect(strikeTierFor("Artillery Shell", tiers)).toBe(3);
+    expect(strikeTierFor("Atom Bomb", tiers)).toBe(1);
   });
 });

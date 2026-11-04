@@ -1,5 +1,16 @@
 📦 **Laukolaroser v1.1.0**
 
+🆕 **Since v1.1.0**
+
+- Weapon power tiers: upgrade artillery, naval fire, air raids and rockets to Mk II and Mk III (yellow ▲ next to each weapon): more shots, bigger blasts, longer range; Mk III wrecks buildings
+- Bigger destruction: heavy hits blow up bigger and leave fires and smoke; guns flash when they fire
+- Real planes: four-engine bombers and fighters with propellers, contrails, flying over the mountains and dropping their bombs from the air
+- Terrain in layers from 0 (ground) to 100 (huge mountain tops), clean contour lines; mountains on every map
+- Battle along the front: rifle flashes, tracers and shell bursts where land changes hands
+- Countries: light tint and outline (full colour on hover, Settings → Country colour); tribes in grey
+- Small building icons that keep their size and group into a number when they overlap
+- Better models for cities, ports, factories, markets, oil rigs, airbases, bunkers, SAMs and silos
+
 🆕 **New in v1.1.0**
 
 - Map editor (Map Editor on the home screen): paint water, plains, highland and mountains in 2D or live 3D, raise or lower ground, undo/redo; start blank, from any game map or from random islands

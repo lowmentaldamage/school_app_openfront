@@ -390,6 +390,7 @@ export const PLAYER_FIELDS: readonly FieldDef<PlayerFields>[] = [
   field(["techMask", maybe(U32, undefined)]),
   field(["researchTech", maybe(I32, undefined)]),
   field(["researchEndsAt", maybe(I32, undefined)]),
+  field(["weaponTiers", maybe(U32, undefined)]),
 ];
 
 export const UNIT_FIELDS: readonly FieldDef<UnitFields>[] = [

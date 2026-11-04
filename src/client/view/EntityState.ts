@@ -175,6 +175,7 @@ export function playerStateFromUpdate(pu: PlayerUpdate): PlayerState {
     markedDoomsdayClockTick: pu.markedDoomsdayClockTick ?? -1,
     betrayals: pu.betrayals!,
     techMask: pu.techMask ?? 0,
+    weaponTiers: pu.weaponTiers ?? 0,
     researchTech: pu.researchTech ?? -1,
     researchEndsAt: pu.researchEndsAt ?? -1,
     hasSpawned: pu.hasSpawned!,

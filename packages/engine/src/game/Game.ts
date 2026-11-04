@@ -490,6 +490,9 @@ export interface Player extends PlayerLike {
   startResearch(tech: TechId, endsAt: number): void;
   /** Completes the research in progress; returns its tech. */
   finishResearch(): TechId | null;
+  /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
+  weaponTiers(): number;
+  setWeaponTiers(packed: number): void;
 
   // Targeting
   canTarget(other: Player): boolean;

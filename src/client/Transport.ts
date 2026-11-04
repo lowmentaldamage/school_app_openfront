@@ -240,6 +240,10 @@ export class ResearchIntentEvent implements GameEvent {
   constructor(public readonly tech: TechId) {}
 }
 
+export class UpgradeWeaponIntentEvent implements GameEvent {
+  constructor(public readonly weapon: WeaponId) {}
+}
+
 export class FireWeaponIntentEvent implements GameEvent {
   constructor(
     public readonly weapon: WeaponId,
@@ -373,6 +377,9 @@ export class Transport {
 
     this.subscribe(ResearchIntentEvent, (e) => {
       this.sendIntent({ type: "research", tech: e.tech });
+    });
+    this.subscribe(UpgradeWeaponIntentEvent, (e) => {
+      this.sendIntent({ type: "upgrade_weapon", weapon: e.weapon });
     });
     this.subscribe(FireWeaponIntentEvent, (e) => {
       this.sendIntent({ type: "fire_weapon", weapon: e.weapon, tile: e.tile });

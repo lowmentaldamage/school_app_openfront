@@ -154,3 +154,31 @@ describe("limitSlope", () => {
     expect(h[40 * w + 40]).toBeCloseTo(60);
   });
 });
+
+describe("ceilingAt", () => {
+  it("rides above the highest nearby ground and is smooth", () => {
+    const w = 64;
+    const h = new Float32Array(w * w).fill(1);
+    for (let y = 28; y < 36; y++)
+      for (let x = 28; x < 36; x++) h[y * w + x] = 40;
+    const hf = Heightfield.fromHeights(h, w, w);
+    // Over and next to the mountain the ceiling is at its top.
+    expect(hf.ceilingAt(32, 32)).toBeCloseTo(40);
+    expect(hf.ceilingAt(24, 32)).toBeCloseTo(40);
+    // Far away it comes back down to the plain.
+    expect(hf.ceilingAt(4, 4)).toBeCloseTo(1);
+    // Never below the ground.
+    for (let x = 0.5; x < w; x += 1.7) {
+      expect(hf.ceilingAt(x, 32)).toBeGreaterThanOrEqual(
+        hf.sample(x, 32) - 1e-4,
+      );
+    }
+    // Smooth: no jumps between neighbouring points.
+    let prev = hf.ceilingAt(0, 20);
+    for (let x = 0.25; x < w; x += 0.25) {
+      const v = hf.ceilingAt(x, 20);
+      expect(Math.abs(v - prev)).toBeLessThan(2);
+      prev = v;
+    }
+  });
+});

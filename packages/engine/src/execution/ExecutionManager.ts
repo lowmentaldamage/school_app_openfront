@@ -33,6 +33,7 @@ import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { TribeSpawner } from "./TribeSpawner";
 import { UpgradeStructureExecution } from "./UpgradeStructureExecution";
+import { UpgradeWeaponExecution } from "./UpgradeWeaponExecution";
 import { PlayerSpawner } from "./utils/PlayerSpawner";
 import { WeaponStrikeExecution } from "./WeaponStrikeExecution";
 
@@ -84,6 +85,8 @@ export class Executor {
         return new WeaponStrikeExecution(player, intent.weapon, intent.tile);
       case "research":
         return new ResearchExecution(player, intent.tech);
+      case "upgrade_weapon":
+        return new UpgradeWeaponExecution(player, intent.weapon);
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

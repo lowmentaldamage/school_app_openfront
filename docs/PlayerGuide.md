@@ -278,14 +278,34 @@ copy.
 Use the buttons on the left. Pick a weapon, point at the target — the circle
 shows the blast and turns **green** when a launcher is in range — and click.
 
-| Weapon     | Needs        | Effect                                                  |
-| ---------- | ------------ | ------------------------------------------------------- |
-| Artillery  | Defense Post | Shells kill troops in the blast area                    |
-| Naval fire | Any warship  | Shells from the sea                                     |
-| Rocket     | Missile Silo | Long range; also knocks a building down a level         |
-| Nukes      | Missile Silo | Atom bomb, hydrogen bomb, MIRV — destroy land and units |
+| Weapon     | Needs              | Effect                                                  |
+| ---------- | ------------------ | ------------------------------------------------------- |
+| Artillery  | Defense Post       | Shells kill troops in the blast area                    |
+| Naval fire | Any warship        | Shells from the sea                                     |
+| Air raid   | Airbase or carrier | A bomber flies there and drops a stick of bombs         |
+| Rocket     | Missile Silo       | Long range; also knocks a building down a level         |
+| Nukes      | Missile Silo       | Atom bomb, hydrogen bomb, MIRV — destroy land and units |
 
 Weapon strikes never capture land; only attacks do.
+
+### Power tiers (Mk I → Mk II → Mk III)
+
+Every weapon can be upgraded twice with gold: press the small yellow **▲**
+next to its button (it appears once you own a launcher). Each tier gives one
+more shot (rockets: a bigger blast instead), a wider blast, 40% more troop
+losses, 50% more damage to ships and 20% more range. The price per strike
+stays the same.
+
+| Weapon     | Mk II   | Mk III    | Mk III extra                        |
+| ---------- | ------- | --------- | ----------------------------------- |
+| Artillery  | 250,000 | 700,000   | Shells also wreck buildings         |
+| Naval fire | 250,000 | 700,000   | Shells also wreck buildings         |
+| Air raid   | 400,000 | 1,000,000 | Bombs knock buildings down 2 levels |
+| Rocket     | 500,000 | 1,200,000 | Knocks buildings down 2 levels      |
+
+Heavier tiers blow up bigger on screen and leave the ground burning for a
+few seconds. Shots already flying keep the tier they were fired with. AI
+nations buy tiers too once they are rich.
 
 ---
 

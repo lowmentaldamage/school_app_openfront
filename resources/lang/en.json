@@ -1039,7 +1039,11 @@
     "trade_ship_captured": "Your trade ship was captured by {name}",
     "unit_destroyed": "Your {unit} was destroyed",
     "unit_voluntarily_deleted": "Unit voluntarily deleted",
-    "wants_to_renew_alliance": "{name} wants to renew your alliance"
+    "wants_to_renew_alliance": "{name} wants to renew your alliance",
+    "weapon_upgraded_airstrike": "Bombers upgraded to Mk {tier}",
+    "weapon_upgraded_artillery": "Artillery upgraded to Mk {tier}",
+    "weapon_upgraded_naval": "Naval guns upgraded to Mk {tier}",
+    "weapon_upgraded_rocket": "Rockets upgraded to Mk {tier}"
   },
   "featured_stream": {
     "expand": "Expand",
@@ -3257,7 +3261,8 @@
     "reloading": "Reloading",
     "rocket": "Rocket strike",
     "tap_target": "Ready: tap a target",
-    "title": "Weapons"
+    "title": "Weapons",
+    "upgrade_hint": "Upgrade {weapon} to Mk {tier} for {cost} gold: more shots, bigger blasts, longer range"
   },
   "win_modal": {
     "died": "You died",

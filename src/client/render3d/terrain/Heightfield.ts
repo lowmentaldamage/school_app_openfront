@@ -143,6 +143,18 @@ export class Heightfield {
     this.heights = heights;
   }
 
+  /** A field from ready-made heights (tools and tests). */
+  static fromHeights(
+    heights: Float32Array,
+    width: number,
+    height: number,
+  ): Heightfield {
+    if (heights.length !== width * height) {
+      throw new Error("Heightfield: heights do not match the size");
+    }
+    return new Heightfield(width, height, heights);
+  }
+
   static fromTerrain(
     terrain: Uint8Array,
     width: number,
@@ -237,7 +249,74 @@ export class Heightfield {
     const d = this.heights[y1 * w + x1];
     return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
   }
+
+  private ceil: Float32Array | null = null;
+  private ceilW = 0;
+  private ceilH = 0;
+
+  /**
+   * A smooth "flight ceiling": the highest ground within about a cell
+   * (CEILING_CELL tiles) around the point, blended between cells, so
+   * aircraft cruise over mountains instead of tracing every ridge.
+   * Never below the ground at the point's own cell. Built lazily once.
+   */
+  ceilingAt(x: number, y: number): number {
+    if (this.ceil === null) this.buildCeiling();
+    const c = this.ceil!;
+    const fx = x / CEILING_CELL - 0.5;
+    const fy = y / CEILING_CELL - 0.5;
+    const x0 = clampInt(Math.floor(fx), 0, this.ceilW - 1);
+    const y0 = clampInt(Math.floor(fy), 0, this.ceilH - 1);
+    const x1 = Math.min(x0 + 1, this.ceilW - 1);
+    const y1 = Math.min(y0 + 1, this.ceilH - 1);
+    const tx = clamp01(fx - x0);
+    const ty = clamp01(fy - y0);
+    const w = this.ceilW;
+    const a = c[y0 * w + x0];
+    const b = c[y0 * w + x1];
+    const d0 = c[y1 * w + x0];
+    const d1 = c[y1 * w + x1];
+    return (a * (1 - tx) + b * tx) * (1 - ty) + (d0 * (1 - tx) + d1 * tx) * ty;
+  }
+
+  private buildCeiling(): void {
+    const cw = Math.max(1, Math.ceil(this.width / CEILING_CELL));
+    const chh = Math.max(1, Math.ceil(this.height / CEILING_CELL));
+    const cellMax = new Float32Array(cw * chh);
+    for (let y = 0; y < this.height; y++) {
+      const cy = Math.floor(y / CEILING_CELL) * cw;
+      for (let x = 0; x < this.width; x++) {
+        const i = cy + Math.floor(x / CEILING_CELL);
+        const v = this.heights[y * this.width + x];
+        if (v > cellMax[i]) cellMax[i] = v;
+      }
+    }
+    // Each cell takes the max of its 3x3 neighbourhood.
+    const out = new Float32Array(cw * chh);
+    for (let y = 0; y < chh; y++) {
+      for (let x = 0; x < cw; x++) {
+        let m = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          const yy = y + dy;
+          if (yy < 0 || yy >= chh) continue;
+          for (let dx = -1; dx <= 1; dx++) {
+            const xx = x + dx;
+            if (xx < 0 || xx >= cw) continue;
+            const v = cellMax[yy * cw + xx];
+            if (v > m) m = v;
+          }
+        }
+        out[y * cw + x] = m;
+      }
+    }
+    this.ceil = out;
+    this.ceilW = cw;
+    this.ceilH = chh;
+  }
 }
+
+/** Cell size (tiles) of the flight ceiling grid. */
+export const CEILING_CELL = 8;
 
 function clampInt(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;

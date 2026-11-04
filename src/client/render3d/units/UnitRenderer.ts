@@ -233,6 +233,17 @@ export class UnitRenderer {
   private rising: Rising[] = [];
   /** Shells dropped by a bomber: they fall from its altitude. */
   private readonly bombs = new Set<number>();
+  /** Shots fired since the effects last took them (muzzle flashes). */
+  readonly launches: { x: number; z: number; big: boolean }[] = [];
+  /** Aircraft this frame (for contrails). */
+  readonly contrails: {
+    x: number;
+    y: number;
+    z: number;
+    yaw: number;
+    scale: number;
+    big: boolean;
+  }[] = [];
   /** Moving surface ships this frame (for wakes). */
   readonly wakes: { x: number; z: number; yaw: number; scale: number }[] = [];
   /** Icon badge above every building (always readable, any zoom). */
@@ -391,6 +402,17 @@ export class UnitRenderer {
               }
             }
           }
+          // Guns and launch pads flash when a shell or rocket leaves them.
+          if (
+            (kind === "artilleryShell" && !this.bombs.has(u.id)) ||
+            kind === "rocket"
+          ) {
+            this.launches.push({
+              x: o.x,
+              z: o.y,
+              big: kind === "rocket",
+            });
+          }
         }
         mover.ox = o.x;
         mover.oy = o.y;
@@ -455,6 +477,7 @@ export class UnitRenderer {
     this.airHeight.clear();
 
     this.wakes.length = 0;
+    this.contrails.length = 0;
     // Ballistic first, so SAM missiles can read their target's altitude.
     for (let pass = 0; pass < 2; pass++) {
       for (const mv of this.movers) {
@@ -520,14 +543,29 @@ export class UnitRenderer {
           const fromBase = Number.isFinite(mv.ox)
             ? Math.hypot(x - mv.ox, y - mv.oy)
             : 99;
-          h = Math.max(0, this.hf.sample(x, y)) + airAltitude(fromBase, cruise);
+          // Cruise above the flight ceiling (the highest ground nearby), so
+          // planes clear big mountains smoothly instead of hugging them.
+          const groundA = Math.max(0, this.hf.sample(x, y));
+          const clear = Math.max(0, this.hf.ceilingAt(x, y) - groundA);
+          h = groundA + airAltitude(fromBase, cruise + clear);
+          this.airHeight.set(mv.id, h);
+          if (scale > 0) {
+            this.contrails.push({
+              x,
+              y: h,
+              z: y,
+              yaw,
+              scale,
+              big: mv.kind === "bomber",
+            });
+          }
           // Outbound when moving away from base.
           const away =
             (mv.x1 - mv.ox) * (mv.x1 - mv.ox) +
               (mv.y1 - mv.oy) * (mv.y1 - mv.oy) >=
             (mv.x0 - mv.ox) * (mv.x0 - mv.ox) +
               (mv.y0 - mv.oy) * (mv.y0 - mv.oy);
-          pitch = airClimbPitch(fromBase, cruise, away);
+          pitch = airClimbPitch(fromBase, cruise + clear, away);
           roll += Math.sin(t * 0.9 + mv.id) * 0.03;
         } else if (TRAIN_KINDS.has(mv.kind)) {
           h = Math.max(0, this.hf.sample(x, y));
@@ -539,8 +577,9 @@ export class UnitRenderer {
             // speed, accelerates down, noses over.
             const f = flightProgress(mv.ox, mv.oy, x, y, mv.tx, mv.ty);
             const ground = Math.max(0, this.hf.sample(x, y));
+            const top = 9 + Math.max(0, this.hf.ceilingAt(x, y) - ground);
             const p = f.progress;
-            h = ground + 0.3 + (9 - 0.3) * (1 - p * p);
+            h = ground + 0.3 + (top - 0.3) * (1 - p * p);
             pitch = -Math.atan(2 * p * 1.5);
           } else if (Number.isFinite(mv.ox)) {
             const f = flightProgress(mv.ox, mv.oy, x, y, mv.tx, mv.ty);

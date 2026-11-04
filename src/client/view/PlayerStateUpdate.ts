@@ -34,6 +34,7 @@ export function applyStateUpdate(target: PlayerState, pu: PlayerUpdate): void {
   if (pu.isDecaying !== undefined) target.isDecaying = pu.isDecaying;
   if (pu.betrayals !== undefined) target.betrayals = pu.betrayals;
   if (pu.techMask !== undefined) target.techMask = pu.techMask;
+  if (pu.weaponTiers !== undefined) target.weaponTiers = pu.weaponTiers;
   if (pu.researchTech !== undefined) target.researchTech = pu.researchTech;
   if (pu.researchEndsAt !== undefined) {
     target.researchEndsAt = pu.researchEndsAt;

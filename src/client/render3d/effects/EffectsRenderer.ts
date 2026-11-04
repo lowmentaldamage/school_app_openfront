@@ -13,7 +13,12 @@
 
 import { Group, PointLight } from "three";
 import type { Heightfield } from "../terrain/Heightfield";
-import { explosionFor, type ExplosionSpec } from "./ExplosionSpecs";
+import {
+  atPowerTier,
+  explosionFor,
+  strikeTierFor,
+  type ExplosionSpec,
+} from "./ExplosionSpecs";
 import {
   P_DUST,
   P_FIRE,
@@ -31,6 +36,16 @@ export interface DeadUnitEvent {
   reachedTarget: boolean;
   /** Ticks since it happened; old events (seek/replay) are skipped. */
   tickAge?: number;
+  /** Firing player's smallID (strike power tiers). */
+  ownerSmallID?: number;
+}
+
+/** A player's weapon tiers (Mk 1-3) for sizing strike explosions. */
+export interface StrikeTiers {
+  artillery: number;
+  naval: number;
+  airstrike: number;
+  rocket: number;
 }
 
 export interface EffectsBudget {
@@ -76,14 +91,63 @@ export class EffectsRenderer {
   }
 
   /** Per tick: spawn effects for units that died this tick. */
-  onEvents(deadUnits: readonly DeadUnitEvent[]): void {
+  onEvents(
+    deadUnits: readonly DeadUnitEvent[],
+    tiersOf: (smallID: number) => StrikeTiers | undefined = () => undefined,
+  ): void {
     for (const d of deadUnits) {
       if ((d.tickAge ?? 0) > 2) continue;
-      const spec = explosionFor(d.unitType, d.reachedTarget);
+      let spec = explosionFor(d.unitType, d.reachedTarget);
       if (spec === null) continue;
       const x = (d.pos % this.mapWidth) + 0.5;
       const z = Math.floor(d.pos / this.mapWidth) + 0.5;
+      const tiers =
+        d.ownerSmallID === undefined ? undefined : tiersOf(d.ownerSmallID);
+      const tier = tiers === undefined ? 1 : strikeTierFor(d.unitType, tiers);
+      spec = atPowerTier(spec, tier);
       this.explode(spec, x, z);
+      if (tier >= 2) this.burn(x, z, spec.radius, tier);
+    }
+  }
+
+  /**
+   * Heavy (Mk II/III) hits leave the ground burning: flickering fire and a
+   * column of smoke that lingers for several seconds after the blast.
+   */
+  burn(x: number, z: number, r: number, tier: number): void {
+    const ground = Math.max(0, this.hf.sample(x, z));
+    if (this.hf.sample(x, z) < 0) return; // nothing burns at sea
+    const now = this.time;
+    const last = tier >= 3 ? 9 : 5;
+    const fires = Math.round((tier >= 3 ? 14 : 8) * this.density) + 2;
+    for (let i = 0; i < fires; i++) {
+      const fx = x + (Math.random() - 0.5) * r;
+      const fz = z + (Math.random() - 0.5) * r;
+      const at = now + 0.4 + Math.random() * last;
+      this.fire.spawn(
+        fx,
+        ground + 0.15,
+        fz,
+        0,
+        0.6,
+        0,
+        at,
+        0.7,
+        r * 0.35,
+        P_FIRE,
+      );
+      this.smoke.spawn(
+        fx,
+        ground + 0.4,
+        fz,
+        (Math.random() - 0.5) * 0.3,
+        0.8 + Math.random() * 0.6,
+        (Math.random() - 0.5) * 0.3,
+        at + 0.2,
+        3.5 + Math.random() * 2,
+        r * (0.5 + Math.random() * 0.4),
+        P_SMOKE,
+      );
     }
   }
 
@@ -193,6 +257,71 @@ export class EffectsRenderer {
         2.2,
         1.3 * k,
         P_SMOKE,
+      );
+    }
+  }
+
+  /**
+   * Muzzle flash and a puff of gun smoke where a shell or rocket was fired
+   * (rockets: a bigger blast-off cloud).
+   */
+  muzzle(shots: readonly { x: number; z: number; big: boolean }[]): void {
+    const now = this.time;
+    for (const s of shots.slice(0, 12)) {
+      const g = Math.max(0, this.hf.sample(s.x, s.z));
+      const k = s.big ? 2 : 1;
+      this.fire.spawn(s.x, g + 0.5, s.z, 0, 0, 0, now, 0.1, 1.6 * k, P_FLASH);
+      this.fire.spawn(s.x, g + 0.4, s.z, 0, 1.2, 0, now, 0.25, 0.7 * k, P_FIRE);
+      for (let i = 0; i < 2 * k; i++) {
+        this.smoke.spawn(
+          s.x,
+          g + 0.4,
+          s.z,
+          (Math.random() - 0.5) * 0.8 * k,
+          0.4 + Math.random() * 0.4,
+          (Math.random() - 0.5) * 0.8 * k,
+          now + Math.random() * 0.1,
+          1.6 + Math.random(),
+          0.9 * k,
+          s.big ? P_DUST : P_SMOKE,
+        );
+      }
+    }
+  }
+
+  /**
+   * White contrails behind aircraft: a short-lived puff every few frames
+   * at each plane's tail, capped so a big raid stays cheap.
+   */
+  contrail(
+    planes: readonly {
+      x: number;
+      y: number;
+      z: number;
+      yaw: number;
+      scale: number;
+      big: boolean;
+    }[],
+  ) {
+    if (planes.length === 0) return;
+    const now = this.time;
+    const chance = Math.min(0.6, 16 / planes.length) * this.density;
+    for (const p of planes) {
+      if (Math.random() > chance) continue;
+      // Behind the tail, from the wing engines (bombers) or the nose.
+      const back = (p.big ? 1.1 : 0.7) * p.scale;
+      const side = p.big ? 0.55 * p.scale * (Math.random() < 0.5 ? -1 : 1) : 0;
+      this.smoke.spawn(
+        p.x - Math.cos(p.yaw) * back + Math.sin(p.yaw) * side,
+        p.y,
+        p.z + Math.sin(p.yaw) * back + Math.cos(p.yaw) * side,
+        0,
+        0,
+        0,
+        now,
+        p.big ? 1.6 : 1.1,
+        (p.big ? 0.3 : 0.2) * p.scale,
+        P_FOAM,
       );
     }
   }

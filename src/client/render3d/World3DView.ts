@@ -12,11 +12,13 @@
  */
 
 import { renderTroops } from "@laukolaroser/engine-lib/Format";
+import { weaponTier } from "@laukolaroser/engine-lib/weapons/Weapons";
 import type { FogOfWar } from "../fog/FogOfWar";
 import type { GhostPreviewData, NukeTrajectoryData } from "../render/types";
 import type { ScreenProjector } from "../TransformHandler";
 import type { Camera2DState } from "./camera/CameraController";
 import { OrbitControls } from "./camera/OrbitControls";
+import type { StrikeTiers } from "./effects/EffectsRenderer";
 import { LabelOverlay, type LabelEntry, type LabelText } from "./LabelOverlay";
 import type { WeaponAim } from "./overlays/OverlayRenderer";
 import { WorldRenderer, type WorldFrame } from "./WorldRenderer";
@@ -26,6 +28,9 @@ export interface LabelPlayer {
   id(): string;
   displayName(): string;
   troops(): number;
+  smallID?(): number;
+  /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
+  weaponTiers?(): number;
 }
 
 export interface World3DViewInit {
@@ -117,6 +122,21 @@ export class World3DView implements ScreenProjector {
     mySmallID: number | null = null,
     fog: FogOfWar | null = null,
   ): void {
+    const all = Array.from(players);
+    const strikeTiers = new Map<number, StrikeTiers>();
+    for (const p of all) {
+      const packed = p.weaponTiers?.() ?? 0;
+      if (packed !== 0 && p.smallID !== undefined) {
+        strikeTiers.set(p.smallID(), {
+          artillery: weaponTier(packed, "artillery"),
+          naval: weaponTier(packed, "naval"),
+          airstrike: weaponTier(packed, "airstrike"),
+          rocket: weaponTier(packed, "rocket"),
+        });
+      }
+    }
+    // Before the frame, so this tick's impacts use the current tiers.
+    this.world.setStrikeTiers(strikeTiers);
     if (fog !== null) {
       fog.updateOwners(frame.tileState, frame.changedTiles);
       fog.computeVisibility(frame.units.values());
@@ -129,7 +149,7 @@ export class World3DView implements ScreenProjector {
       fog === null ? null : (u) => fog.isUnitVisible(u),
     );
     const texts = new Map<string, LabelText>();
-    for (const p of players) {
+    for (const p of all) {
       const id = p.id();
       texts.set(id, {
         name: p.displayName(),

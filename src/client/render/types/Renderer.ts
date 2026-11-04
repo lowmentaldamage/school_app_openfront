@@ -83,6 +83,8 @@ export interface PlayerState {
   betrayals: number;
   /** Researched techs, bitmask (engine-lib/tech/Tech.ts). */
   techMask?: number;
+  /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
+  weaponTiers?: number;
   /** Tech index being researched, -1 for none. */
   researchTech?: number;
   /** Tick the research completes, -1 for none. */

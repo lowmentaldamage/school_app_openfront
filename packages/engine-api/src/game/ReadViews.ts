@@ -29,6 +29,8 @@ export interface PlayerLike {
   units(type: UnitType): readonly UnitLike[];
   /** Researched techs (bitmask, engine-lib/tech/Tech.ts); absent = none. */
   techMask?(): number;
+  /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
+  weaponTiers?(): number;
 }
 
 export interface UnitLike {

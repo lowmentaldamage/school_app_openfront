@@ -171,6 +171,7 @@ export class PlayerImpl implements Player {
   private _betrayalCount: number = 0;
   /** Researched techs (bit = TECHS index, engine-lib/tech/Tech.ts). */
   private _techMask: number = 0;
+  private _weaponTiers: number = 0;
   /** Research in progress, if any. */
   private _research: { tech: TechId; endsAt: number } | null = null;
 
@@ -433,6 +434,7 @@ export class PlayerImpl implements Player {
       spawnTile: this._spawnTile,
       betrayals: this._betrayalCount,
       techMask: this._techMask,
+      weaponTiers: this._weaponTiers,
       researchTech:
         this._research === null ? -1 : techIndex(this._research.tech),
       researchEndsAt: this._research === null ? -1 : this._research.endsAt,
@@ -969,6 +971,14 @@ export class PlayerImpl implements Player {
     this._techMask = withTech(this._techMask, tech);
     this._research = null;
     return tech;
+  }
+
+  weaponTiers(): number {
+    return this._weaponTiers;
+  }
+
+  setWeaponTiers(packed: number): void {
+    this._weaponTiers = packed;
   }
 
   betrayals(): number {
@@ -2172,6 +2182,7 @@ export class PlayerImpl implements Player {
       rottedAtTick: this.rottedAtTick,
       betrayalCount: this._betrayalCount,
       techMask: this._techMask,
+      weaponTiers: this._weaponTiers,
       research: this._research === null ? null : { ...this._research },
       embargoes: [...this.embargoes.values()].map((e) => ({
         target: w.player(e.target),
@@ -2246,6 +2257,7 @@ export class PlayerImpl implements Player {
     this.rottedAtTick = s.rottedAtTick;
     this._betrayalCount = s.betrayalCount;
     this._techMask = s.techMask ?? 0;
+    this._weaponTiers = s.weaponTiers ?? 0;
     this._research = s.research ? { ...s.research } : null;
     this.embargoes = new Map();
     for (const e of s.embargoes) {
@@ -2370,6 +2382,8 @@ export const PlayerSnapshot = snapshotType({
     numUnitsConstructed: z.array(z.tuple([UnitTypeSchema, zInt()])),
     // Tech tree (optional: older snapshots have none).
     techMask: zInt().optional(),
+    // Weapon power tiers (optional: older snapshots have none).
+    weaponTiers: zInt().optional(),
     research: z
       .object({ tech: z.enum(TECH_IDS), endsAt: zInt() })
       .nullable()

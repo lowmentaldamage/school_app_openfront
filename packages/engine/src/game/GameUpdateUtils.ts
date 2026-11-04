@@ -64,6 +64,7 @@ export function diffPlayerUpdate(
     prev.techMask === next.techMask &&
     prev.researchTech === next.researchTech &&
     prev.researchEndsAt === next.researchEndsAt &&
+    prev.weaponTiers === next.weaponTiers &&
     prev.lastDeleteUnitTick === next.lastDeleteUnitTick &&
     prev.isLobbyCreator === next.isLobbyCreator &&
     numberArrayEqual(prev.allies, next.allies) &&
@@ -131,6 +132,7 @@ export function diffPlayerUpdate(
   setIfDifferent("techMask", prev.techMask === next.techMask);
   setIfDifferent("researchTech", prev.researchTech === next.researchTech);
   setIfDifferent("researchEndsAt", prev.researchEndsAt === next.researchEndsAt);
+  setIfDifferent("weaponTiers", prev.weaponTiers === next.weaponTiers);
   setIfDifferent(
     "lastDeleteUnitTick",
     prev.lastDeleteUnitTick === next.lastDeleteUnitTick,

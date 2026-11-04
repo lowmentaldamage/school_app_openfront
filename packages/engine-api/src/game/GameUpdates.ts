@@ -292,6 +292,8 @@ export interface PlayerUpdate {
   researchTech?: number;
   /** Tick the research completes, -1 for none. */
   researchEndsAt?: Tick;
+  /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
+  weaponTiers?: number;
   lastDeleteUnitTick?: Tick;
   isLobbyCreator?: boolean;
 }

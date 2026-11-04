@@ -611,6 +611,11 @@ export class PlayerView implements PlayerLike {
     return this.state.techMask ?? 0;
   }
 
+  /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
+  weaponTiers(): number {
+    return this.state.weaponTiers ?? 0;
+  }
+
   /** The tech being researched and when it completes, or null. */
   research(): { tech: TechId; endsAt: number } | null {
     const i = this.state.researchTech ?? -1;

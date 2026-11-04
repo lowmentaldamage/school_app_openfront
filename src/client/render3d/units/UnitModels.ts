@@ -938,38 +938,80 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
     return b.box(0.12, 0.05, 0.12, { team: true, pos: [0, 0.3, 0] }).build();
   },
 
-  // Twin-engine bomber (nose along +x).
-  bomber: () =>
-    new ModelBuilder()
-      .cylinder(0.11, 0.08, 1.4, 6, { color: 0x5f6b4a, rot: [0, 0, PI / 2] })
-      .box(0.35, 0.03, 1.8, { color: 0x5f6b4a })
-      .box(0.25, 0.03, 0.7, { color: 0x5f6b4a, pos: [-0.62, 0.05, 0] })
-      .box(0.22, 0.25, 0.03, { team: true, pos: [-0.65, 0.12, 0] })
-      .cylinder(0.07, 0.07, 0.3, 6, {
-        color: BLACK,
-        pos: [0.1, -0.05, 0.45],
-        rot: [0, 0, PI / 2],
+  // Four-engine heavy bomber (nose along +x): long fuselage, glazed nose,
+  // tapered wings with engines and propeller discs, twin tail fins in the
+  // owner's colour.
+  bomber: () => {
+    const body = 0x5f6b4a;
+    const b = new ModelBuilder()
+      .cylinder(0.12, 0.07, 1.5, 8, {
+        color: body,
+        pattern: "panels",
+        pos: [-0.8, 0, 0],
+        rot: [0, 0, -PI / 2],
       })
-      .cylinder(0.07, 0.07, 0.3, 6, {
-        color: BLACK,
-        pos: [0.1, -0.05, -0.45],
-        rot: [0, 0, PI / 2],
+      .sphere(0.12, {
+        color: GLASS,
+        pos: [0.7, 0.0, 0],
+        scale: [1.2, 0.9, 0.9],
       })
-      .box(0.16, 0.08, 0.1, { color: GLASS, pos: [0.6, 0.06, 0] })
-      .build(),
+      .box(0.32, 0.035, 2.1, {
+        color: body,
+        pattern: "panels",
+        pos: [0.1, -0.02, 0],
+      })
+      .box(0.2, 0.025, 0.75, { color: body, pos: [-0.72, 0.02, 0] })
+      .box(0.2, 0.26, 0.025, { team: true, pos: [-0.74, 0.03, 0.36] })
+      .box(0.2, 0.26, 0.025, { team: true, pos: [-0.74, 0.03, -0.36] })
+      .box(0.1, 0.04, 0.3, { team: true, pos: [0.0, 0.02, 0] });
+    for (const z of [-0.75, -0.38, 0.38, 0.75]) {
+      b.cylinder(0.055, 0.045, 0.32, 6, {
+        color: DARK_STEEL,
+        pos: [0.12, -0.04, z],
+        rot: [0, 0, -PI / 2],
+      }).cylinder(0.1, 0.1, 0.008, 10, {
+        color: 0x4a4f54,
+        pos: [0.46, -0.04, z],
+        rot: [0, 0, PI / 2],
+      });
+    }
+    return b.build();
+  },
 
-  // Small single-seat fighter.
+  // Single-seat fighter: slim fuselage, swept wings, bubble canopy,
+  // propeller and a team-coloured tail.
   fighter: () =>
     new ModelBuilder()
-      .cylinder(0.07, 0.05, 0.9, 6, { color: 0x8a8f86, rot: [0, 0, PI / 2] })
-      .box(0.22, 0.02, 1.0, { color: 0x8a8f86 })
-      .box(0.15, 0.02, 0.4, { color: 0x8a8f86, pos: [-0.38, 0.03, 0] })
-      .box(0.14, 0.14, 0.02, { team: true, pos: [-0.4, 0.08, 0] })
-      .box(0.12, 0.06, 0.08, { color: GLASS, pos: [0.1, 0.06, 0] })
+      .cylinder(0.075, 0.04, 0.95, 8, {
+        color: 0x8a8f86,
+        pattern: "panels",
+        pos: [-0.5, 0, 0],
+        rot: [0, 0, -PI / 2],
+      })
+      .cone(0.075, 0.12, 8, {
+        color: DARK_STEEL,
+        pos: [0.42, 0, 0],
+        rot: [0, 0, -PI / 2],
+      })
+      .box(0.28, 0.02, 1.05, {
+        color: 0x8a8f86,
+        pos: [0.02, -0.02, 0],
+        rot: [0, 0.18, 0],
+      })
+      .box(0.14, 0.02, 0.42, { color: 0x8a8f86, pos: [-0.42, 0.02, 0] })
+      .box(0.16, 0.16, 0.02, { team: true, pos: [-0.44, 0.06, 0] })
+      .sphere(0.06, {
+        color: GLASS,
+        pos: [0.12, 0.06, 0],
+        scale: [1.6, 0.8, 0.9],
+      })
+      .cylinder(0.09, 0.09, 0.006, 10, {
+        color: 0x4a4f54,
+        pos: [0.57, 0, 0],
+        rot: [0, 0, PI / 2],
+      })
       .build(),
 
-  // Bunker: earth mound and sandbag ring, a concrete casemate with firing
-  // slits, a turret gun and a flag.
   defensePost: () => {
     const b = new ModelBuilder()
       .cylinder(0.95, 1.05, 0.15, 10, { color: 0x7a7462 })

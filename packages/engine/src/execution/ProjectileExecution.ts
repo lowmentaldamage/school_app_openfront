@@ -7,7 +7,9 @@
  *     the blast covers (strikeTroopLoss),
  *   - enemy transports, trade ships and trains in the blast are destroyed,
  *     enemy warships take damage,
- *   - rockets knock the nearest enemy building down a level.
+ *   - rockets, bombs and Mk III shells knock the nearest enemy building
+ *     down a level (Mk III bombs and rockets: two).
+ * Power tiers (Mk I-III) scale every number; see weaponAtTier.
  * Territory never changes hands. Friendly units and land are never hurt.
  */
 
@@ -27,8 +29,11 @@ import {
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import {
   strikeTroopLoss,
+  structureLevelsLost,
   WEAPONS,
+  weaponAtTier,
   type WeaponSpec,
+  type WeaponTier,
 } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { z } from "zod";
 import { Execution, Game, Player, Unit } from "../game/Game";
@@ -83,10 +88,12 @@ export class ProjectileExecution implements Execution {
     private src: TileRef,
     private dst: TileRef,
     private waitTicks: number,
+    /** Power tier the shot was fired with (Mk I-III). */
+    private tier: WeaponTier = 1,
   ) {}
 
   private get spec(): WeaponSpec {
-    return WEAPONS[this.weapon];
+    return weaponAtTier(WEAPONS[this.weapon], this.tier);
   }
 
   init(mg: Game, _ticks: number): void {
@@ -171,8 +178,10 @@ export class ProjectileExecution implements Execution {
       res.warshipsHit++;
     }
 
-    // Rockets: the nearest enemy building loses a level (level 1 → destroyed).
-    if (spec.damagesStructures) {
+    // Rockets, bombs and Mk III shells: the nearest enemy building loses a
+    // level, or two for Mk III bombs and rockets (level 1 → destroyed).
+    const levels = structureLevelsLost(WEAPONS[this.weapon], this.tier);
+    if (levels > 0) {
       let nearest: Unit | null = null;
       let best = Infinity;
       for (const { unit, distSquared } of mg.nearbyUnits(
@@ -187,7 +196,9 @@ export class ProjectileExecution implements Execution {
         }
       }
       if (nearest !== null) {
-        nearest.decreaseLevel(this.player);
+        for (let i = 0; i < levels && nearest.isActive(); i++) {
+          nearest.decreaseLevel(this.player);
+        }
         res.structuresHit++;
       }
     }
@@ -222,6 +233,7 @@ export class ProjectileExecution implements Execution {
       src: this.src,
       dst: this.dst,
       waitTicks: this.waitTicks,
+      tier: this.tier,
     });
   }
 
@@ -239,6 +251,7 @@ export class ProjectileExecution implements Execution {
     this.src = s.src;
     this.dst = s.dst;
     this.waitTicks = s.waitTicks;
+    this.tier = (s.tier ?? 1) as WeaponTier;
   }
 }
 
@@ -251,6 +264,8 @@ const ProjectileStateSchema = z.object({
   src: zTile(),
   dst: zTile(),
   waitTicks: zInt(),
+  // Optional: older snapshots were all Mk I.
+  tier: zInt().optional(),
 });
 type ProjectileState = z.infer<typeof ProjectileStateSchema>;
 

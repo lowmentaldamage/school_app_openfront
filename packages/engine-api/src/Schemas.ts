@@ -50,11 +50,13 @@ export type Intent =
   | UpdateGameConfigIntent
   | ToggleGameStartTimer
   | FireWeaponIntent
-  | ResearchIntent;
+  | ResearchIntent
+  | UpgradeWeaponIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type FireWeaponIntent = z.infer<typeof FireWeaponIntentSchema>;
 export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
+export type UpgradeWeaponIntent = z.infer<typeof UpgradeWeaponIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>;
 export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>;
@@ -551,6 +553,12 @@ export const ResearchIntentSchema = z.object({
   tech: z.enum(TECH_IDS),
 });
 
+/** Buy the next power tier (Mk II, Mk III) of a weapon. */
+export const UpgradeWeaponIntentSchema = z.object({
+  type: z.literal("upgrade_weapon"),
+  weapon: z.enum(WEAPON_IDS),
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -625,6 +633,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   ToggleGameStartTimerIntentSchema,
   FireWeaponIntentSchema,
   ResearchIntentSchema,
+  UpgradeWeaponIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

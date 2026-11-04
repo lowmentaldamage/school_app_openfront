@@ -16,7 +16,7 @@ import { ClientID, GameConfig, GameID } from "@laukolaroser/engine-api/Schemas";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import { findClosestBy } from "@laukolaroser/engine-lib/Util";
-import { WEAPONS } from "@laukolaroser/engine-lib/weapons/Weapons";
+import { playerWeapon } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { EventBus } from "@laukolaroser/shared/EventBus";
 import { GameMapLoader } from "@laukolaroser/shared/GameMapLoader";
 import { replacer } from "@laukolaroser/shared/SharedUtil";
@@ -839,7 +839,7 @@ function wireWeaponAim(
       world3d.setWeaponAim(null);
       return;
     }
-    const spec = WEAPONS[weapon];
+    const spec = playerWeapon(me, weapon);
     const p = transformHandler.screenToWorldCoordinatesFloat(sx, sy);
     const tick = gameView.ticks();
     const r2 = spec.range * spec.range;

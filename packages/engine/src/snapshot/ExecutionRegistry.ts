@@ -54,6 +54,7 @@ import { TrainStationExecutionSnapshot } from "../execution/TrainStationExecutio
 import { TransportShipExecutionSnapshot } from "../execution/TransportShipExecution";
 import { TribeExecutionSnapshot } from "../execution/TribeExecution";
 import { UpgradeStructureExecutionSnapshot } from "../execution/UpgradeStructureExecution";
+import { UpgradeWeaponSnapshot } from "../execution/UpgradeWeaponExecution";
 import { WarshipExecutionSnapshot } from "../execution/WarshipExecution";
 import { WeaponStrikeExecutionSnapshot } from "../execution/WeaponStrikeExecution";
 import { WinCheckExecutionSnapshot } from "../execution/WinCheckExecution";
@@ -101,6 +102,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   FighterSnapshot,
   IncomeBuildingSnapshot,
   ResearchExecutionSnapshot,
+  UpgradeWeaponSnapshot,
   CoastalBatterySnapshot,
   SeaMineSnapshot,
   QuickChatExecutionSnapshot,

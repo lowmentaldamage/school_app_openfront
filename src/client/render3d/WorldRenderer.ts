@@ -29,7 +29,11 @@ import {
   type Camera2DState,
 } from "./camera/CameraController";
 import { detectDeviceProfile, type DeviceProfile } from "./DeviceProfile";
-import { EffectsRenderer, type DeadUnitEvent } from "./effects/EffectsRenderer";
+import {
+  EffectsRenderer,
+  type DeadUnitEvent,
+  type StrikeTiers,
+} from "./effects/EffectsRenderer";
 import { EnvironmentRenderer } from "./environment/EnvironmentRenderer";
 import { ForestRenderer } from "./environment/ForestRenderer";
 import { SeaLife } from "./environment/SeaLife";
@@ -88,6 +92,7 @@ export interface WorldFrame {
 }
 
 export class WorldRenderer {
+  private strikeTiers: ReadonlyMap<number, StrikeTiers> = new Map();
   readonly scene = new Scene();
   readonly heightfield: Heightfield;
   private readonly terrainDetail: DataTexture;
@@ -285,7 +290,9 @@ export class WorldRenderer {
       mySmallID,
       visible,
     );
-    this.effects.onEvents(frame.events.deadUnits);
+    this.effects.onEvents(frame.events.deadUnits, (id) =>
+      this.strikeTiers.get(id),
+    );
   }
 
   /**
@@ -307,6 +314,11 @@ export class WorldRenderer {
   }
 
   /** Brighten the borders of one player (e.g. hover); -1 clears. */
+  /** Players' weapon tiers by smallID (sizes strike explosions). */
+  setStrikeTiers(tiers: ReadonlyMap<number, StrikeTiers>): void {
+    this.strikeTiers = tiers;
+  }
+
   /** Buildings as flat 2D icons when zoomed out (player setting). */
   setFlatBuildingIcons(on: boolean): void {
     this.units.setIconModeAllowed(on);
@@ -362,6 +374,11 @@ export class WorldRenderer {
     this.units.animate(nowMs, cc.distance);
     this.units.layoutMarkers(cc.camera, this.cssWidth, this.cssHeight);
     this.effects.wake(this.units.wakes);
+    this.effects.contrail(this.units.contrails);
+    if (this.units.launches.length > 0) {
+      this.effects.muzzle(this.units.launches);
+      this.units.launches.length = 0;
+    }
     const sky = this.environment.state;
     this.units.setNight(sky === null ? 0 : 1 - sky.daylight);
     const fov = (cc.camera.fov * Math.PI) / 180;

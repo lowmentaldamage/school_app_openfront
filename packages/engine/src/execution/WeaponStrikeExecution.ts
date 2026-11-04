@@ -25,6 +25,8 @@ import {
 } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import {
   WEAPONS,
+  weaponAtTier,
+  weaponTier,
   type WeaponSpec,
 } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { z } from "zod";
@@ -91,11 +93,14 @@ export class WeaponStrikeExecution implements Execution {
   ) {}
 
   init(mg: Game, ticks: number): void {
-    const spec = WEAPONS[this.weapon];
-    if (spec === undefined || !mg.isValidRef(this.tile)) {
+    const base = WEAPONS[this.weapon];
+    if (base === undefined || !mg.isValidRef(this.tile)) {
       this.rejection = "invalid_tile";
       return;
     }
+    // Power tier at the moment of firing; shots keep it in flight.
+    const tier = weaponTier(this.player.weaponTiers(), this.weapon);
+    const spec = weaponAtTier(base, tier);
     const owner = mg.owner(this.tile);
     if (
       owner.isPlayer() &&
@@ -120,7 +125,7 @@ export class WeaponStrikeExecution implements Execution {
     // Air raid: a bomber flies there and drops the bombs itself.
     if (this.weapon === "airstrike") {
       mg.addExecution(
-        new BomberExecution(this.player, launcher.tile(), this.tile),
+        new BomberExecution(this.player, launcher.tile(), this.tile, tier),
       );
       return;
     }
@@ -147,6 +152,7 @@ export class WeaponStrikeExecution implements Execution {
           launcher.tile(),
           dst,
           i * spec.shotInterval,
+          tier,
         ),
       );
     }

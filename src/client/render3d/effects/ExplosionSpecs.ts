@@ -104,3 +104,37 @@ export function explosionFor(
   }
   return null;
 }
+
+/**
+ * A strike explosion at a weapon power tier (Mk I-III): bigger fireball
+ * and more debris per tier. Mk I is unchanged.
+ */
+export function atPowerTier(spec: ExplosionSpec, tier: number): ExplosionSpec {
+  if (tier <= 1) return spec;
+  const up = tier - 1;
+  return {
+    ...spec,
+    radius: spec.radius * (1 + 0.35 * up),
+    intensity: spec.intensity * (1 + 0.45 * up),
+  };
+}
+
+/**
+ * Weapon tier behind a strike projectile: rockets have their own; shells
+ * may come from artillery, warships or bombers, so the strongest of those.
+ */
+export function strikeTierFor(
+  unitType: string,
+  tiers: {
+    artillery: number;
+    naval: number;
+    airstrike: number;
+    rocket: number;
+  },
+): number {
+  if (unitType === "Rocket") return tiers.rocket;
+  if (unitType === "Artillery Shell") {
+    return Math.max(tiers.artillery, tiers.naval, tiers.airstrike);
+  }
+  return 1;
+}

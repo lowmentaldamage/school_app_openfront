@@ -12,6 +12,7 @@
 
 import {
   UnitType,
+  WEAPON_IDS,
   type WeaponId,
 } from "@laukolaroser/engine-api/game/GameTypes";
 
@@ -146,4 +147,112 @@ export function strikeTroopLoss(
       (Math.max(1, targetTiles) * 1000),
   );
   return Math.min(targetTroops, proportional + tilesHit * spec.troopsPerTile);
+}
+
+// ---------------------------------------------------------------------------
+// Power tiers: every weapon can be upgraded Mk I → Mk II → Mk III with gold.
+// A player's tiers are packed into one integer (2 bits per weapon, in
+// WEAPON_IDS order), like the tech mask, so they travel cheaply.
+// ---------------------------------------------------------------------------
+
+export type WeaponTier = 1 | 2 | 3;
+export const MAX_WEAPON_TIER: WeaponTier = 3;
+
+/** Gold to reach Mk II and Mk III. */
+export const WEAPON_UPGRADE_COST: Readonly<
+  Record<WeaponId, readonly [bigint, bigint]>
+> = {
+  artillery: [250_000n, 700_000n],
+  naval: [250_000n, 700_000n],
+  airstrike: [400_000n, 1_000_000n],
+  rocket: [500_000n, 1_200_000n],
+};
+
+function weaponIndex(id: WeaponId): number {
+  return WEAPON_IDS.indexOf(id);
+}
+
+/** Tier of `id` in a packed tiers value (0 bits = Mk I). */
+export function weaponTier(packed: number, id: WeaponId): WeaponTier {
+  const v = (packed >>> (weaponIndex(id) * 2)) & 3;
+  return (v + 1 > 3 ? 3 : v + 1) as WeaponTier;
+}
+
+/** `packed` with `id` set to `tier`. */
+export function withWeaponTier(
+  packed: number,
+  id: WeaponId,
+  tier: WeaponTier,
+): number {
+  const shift = weaponIndex(id) * 2;
+  return (packed & ~(3 << shift)) | ((tier - 1) << shift);
+}
+
+/** Gold for the next tier of `id`, or null at Mk III. */
+export function weaponUpgradeCost(packed: number, id: WeaponId): bigint | null {
+  const t = weaponTier(packed, id);
+  if (t >= MAX_WEAPON_TIER) return null;
+  return WEAPON_UPGRADE_COST[id][t - 1];
+}
+
+export type WeaponUpgradeBlock = "max" | "gold" | "dead" | null;
+
+/**
+ * Why `id` cannot be upgraded now, or null if it can. `price` maps the
+ * list price to what this player pays (Config.strikeCost: free with
+ * infinite gold).
+ */
+export function weaponUpgradeBlock(
+  packed: number,
+  id: WeaponId,
+  gold: bigint,
+  alive: boolean,
+  price: (cost: bigint) => bigint = (c) => c,
+): WeaponUpgradeBlock {
+  if (!alive) return "dead";
+  const cost = weaponUpgradeCost(packed, id);
+  if (cost === null) return "max";
+  if (gold < price(cost)) return "gold";
+  return null;
+}
+
+/**
+ * The weapon at a tier. Each tier above Mk I adds a shot (rockets: a
+ * bigger blast instead), a tile of blast radius, +40% troop losses, +50%
+ * ship damage and +20% range. Mk III shells and bombs also wreck
+ * buildings, and Mk III bombs and rockets knock them down two levels.
+ */
+export function weaponAtTier(spec: WeaponSpec, tier: WeaponTier): WeaponSpec {
+  if (tier <= 1) return spec;
+  const up = tier - 1;
+  const pct = (v: number, perTier: number) =>
+    Math.floor((v * (100 + perTier * up)) / 100);
+  return {
+    ...spec,
+    shots: spec.id === "rocket" ? spec.shots : spec.shots + up,
+    radius: spec.radius + up + (spec.id === "rocket" ? up : 0),
+    range: pct(spec.range, 20),
+    lossPerMille: pct(spec.lossPerMille, 40),
+    troopsPerTile: pct(spec.troopsPerTile, 40),
+    warshipDamage: pct(spec.warshipDamage, 50),
+    damagesStructures: spec.damagesStructures || tier >= 3,
+  };
+}
+
+/** Building levels one impact knocks off (0 when it spares buildings). */
+export function structureLevelsLost(
+  spec: WeaponSpec,
+  tier: WeaponTier,
+): number {
+  const s = weaponAtTier(spec, tier);
+  if (!s.damagesStructures) return 0;
+  return tier >= 3 && (spec.id === "airstrike" || spec.id === "rocket") ? 2 : 1;
+}
+
+/** A player's weapon at its current tier (anything with weaponTiers()). */
+export function playerWeapon(
+  player: { weaponTiers?(): number },
+  id: WeaponId,
+): WeaponSpec {
+  return weaponAtTier(WEAPONS[id], weaponTier(player.weaponTiers?.() ?? 0, id));
 }

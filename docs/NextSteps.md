@@ -21,12 +21,16 @@ late game where building icons pile up and grow huge near the camera.
    port, factory, market, oil rig, airbase, bunker, SAM, silo)_
 5. **Bug fixes** found along the way; verify everything.
 
-## Phase 2 — weapons and power
+## Phase 2 — weapons and power (done)
 
-6. Weapons with bigger destruction.
-7. Better side weapons: artillery, naval bombardment.
-8. Real planes flying and bombing.
-9. Power tiers and upgrade systems.
+6. Weapons with bigger destruction. _(done: tiered blasts, Mk III wrecks
+   buildings, lingering fires)_
+7. Better side weapons: artillery, naval bombardment. _(done: Mk I-III,
+   muzzle flashes)_
+8. Real planes flying and bombing. _(done: new bomber and fighter models,
+   contrails, cruise over mountains, bombs drop from the plane)_
+9. Power tiers and upgrade systems. _(done: Mk II / Mk III per weapon, ▲
+   in the weapons panel; nations upgrade too)_
 
 ## Phase 3 — nature
 
