@@ -8,7 +8,7 @@ import { ServerEnv } from "./ServerEnv";
 export function getOtelResource() {
   return resourceFromAttributes({
     [ATTR_SERVICE_NAME]: "laukolaroser",
-    [ATTR_SERVICE_VERSION]: "1.0.0",
+    [ATTR_SERVICE_VERSION]: "1.1.0",
     ...getPromLabels(),
   });
 }

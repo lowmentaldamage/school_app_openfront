@@ -113,6 +113,22 @@ maps; the report is `map-3d-report.json`; the command fails if any map
 renders badly. It needs Playwright Chromium
 (`npm i --no-save playwright && npx playwright install chromium`).
 
+### The map editor and custom maps
+
+- `src/client/mapeditor/EditorCore.ts` — the editable map (heights 0-100),
+  brushes, undo/redo, random islands, automatic relief and nations, image
+  import (pictures, heightmaps, generator PNGs). Pure, tested in
+  `tests/client/MapEditorCore.test.ts`.
+- `src/client/mapeditor/MapFileFormats.ts` — TIFF/GeoTIFF, SRTM `.hgt`,
+  ESRI `.asc`, Netpbm, RAW/R16 and CSV readers
+  (`tests/client/MapFileFormats.test.ts`).
+- `src/client/mapeditor/MapEditor.ts` — the editor screen (Lit), loaded
+  with `import()` so it and three.js stay out of the homepage chunk.
+- `packages/shared/src/maps/MapBuilder.ts` / `TerrainLevels.ts` — map file
+  packing and the 0-100 height levels, shared by client and server.
+- `src/server/CustomMaps.ts` — store and HTTP routes (`/api/maps`),
+  bundled-map install. See [Maps.md](Maps.md) for the file layout.
+
 ### Change the UI
 
 - Text: always `translateText("key")` + an entry in `resources/lang/en.json`
@@ -160,7 +176,19 @@ the client allows lobbies without the upstream API. Client side:
 
 ---
 
-## 6. Before you push
+## 6. Releases
+
+Every push to `main` rebuilds the **windows-latest** zip (and, when
+`android/` changes, the **android-latest** APK). A numbered version:
+
+1. Set `resources/version.txt` (e.g. `v1.2.0`) and the top of
+   `resources/changelog.md` (shown in the game's News).
+2. Push to `main`, wait for the builds, then tag it:
+   `git tag v1.2.0 && git push origin v1.2.0`.
+3. The Windows workflow publishes a **Laukolaroser v1.2.0** release with
+   the zip, the latest APK and the changelog as notes.
+
+## 7. Before you push
 
 ```bash
 npm run typecheck && npm run lint && npm run format

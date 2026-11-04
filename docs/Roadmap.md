@@ -14,7 +14,7 @@ Effort: S = a day, M = a few days, L = a week+, in this codebase.
 
 ---
 
-## 0. Already done (v1.0.0)
+## 0. Already done (v1.1.0)
 
 3D battlefield (terrain with 2x render detail, water, forests, sky,
 shadows), 3D units and buildings, explosions, free orbit camera,
@@ -23,9 +23,15 @@ express / armored / troop / rail-SAM trains, AI for all of them, private
 or public self-hosted server with accounts, 3D map previews for every map,
 military-command UI, phone layout, refresh-rate adaptive quality.
 
-Still open from this list: Submarine and Aircraft carrier, air units,
-day/night and weather, sound for the new units, fog of war, economy and
-defence buildings (§3), in-game map editor.
+Since v1.0.0: Submarine and Aircraft carrier, air war (airbase, bombers,
+fighters), day/night and weather, sound for every unit, fog of war with
+radar, economy buildings (gold mine, market, oil rig) and defence extras
+(fort, coastal battery, sea mines), tech tree, ×5 / ×10 speed, the in-game
+map editor with image / heightmap / elevation upload, terrain heights
+0-100, flat 2D building icons when zoomed out, and the bundled maps
+Slovenija and Črna na Koroškem.
+
+Everything planned below is now built; new ideas go at the end.
 
 ---
 

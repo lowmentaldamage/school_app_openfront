@@ -103,7 +103,8 @@ Chrome: menu → _Install app_.
 Zoomed out, every building is a flat 2D icon (a square in its owner's
 colour with a white symbol), like the classic 2D map: stacked buildings
 stay readable and easy to click. Zoom in and the icons turn back into 3D
-models with a small badge above each.
+models with a small badge above each. Prefer 3D at every zoom? Settings → Graphics →
+**Flat building icons** off.
 
 | Building     | Use                                                         |
 | ------------ | ----------------------------------------------------------- |

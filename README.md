@@ -18,7 +18,10 @@ desktop or on your phone.
 - **Weapons** — aim-and-fire artillery, naval bombardment and rocket strikes.
 - **Navy** — warships, fast destroyers and coast-shelling battleships.
 - **Trains** — trade and express trains, armored trains, troop trains and rail SAMs.
-- **Free 3D camera** — turn 360° and tilt, on PC and phone.
+- **Submarines, carriers and air war** — airbases, bomber raids, fighter interception, radar.
+- **Fog of war, tech tree, economy and defences** — gold mines, markets, oil rigs, forts, coastal batteries, sea mines; 12 techs (all lobby options).
+- **Free 3D camera** — turn 360° and tilt with arrow keys, the compass or two fingers; buildings turn into flat 2D icons when zoomed out for easy stacking.
+- **Map editor** — paint terrain or upload any map picture, heightmap or elevation file (PNG, JPG, SVG, TIFF/GeoTIFF, RAW, HGT, ASC, CSV…) and it becomes a 3D map; place nations, set tribes, save it on the server for everyone. Ships with Slovenija and Črna na Koroškem.
 - **Multiplayer** — deterministic lockstep simulation over WebSockets, lobbies and solo games against nations and bots.
 - **Phone ready** — touch controls, adaptive rendering quality and a mobile-first layout.
 - **Many maps** — real-world regions and fictional worlds.
@@ -43,12 +46,15 @@ iOS**: [docs/Install.md](docs/Install.md).
 Requires Node.js 24 (≥ 24.15) and npm 12 (≥ 12.1).
 
 ```bash
-git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
+git clone https://github.com/lowmentaldamage/school_app_openfront laukolaroser
 cd laukolaroser
 npm run inst          # npm ci --ignore-scripts
 npm run dev           # http://localhost:9000  (dev:lan = reachable from phones)
 ```
 
+**Windows (no install):** download `laukolaroser-windows.zip` from the
+[windows-latest release](https://github.com/lowmentaldamage/school_app_openfront/releases/tag/windows-latest),
+unzip, double-click **Start Laukolaroser.bat**.
 **Android app:** download `laukolaroser.apk` from the
 [android-latest release](https://github.com/lowmentaldamage/school_app_openfront/releases/tag/android-latest).
 **iPhone:** Safari → Share → _Add to Home Screen_.
@@ -63,6 +69,11 @@ map (`?renderer=3d` switches back). See [docs/World3D.md](docs/World3D.md).
 cd deploy/selfhost && cp .env.example .env   # set ADMIN_USER / ADMIN_PASSWORD
 docker compose up -d --build                  # http://SERVER-IP:8080
 ```
+
+**There is no default username or password.** Whoever installs the server
+creates the first admin: in `.env` (Docker), or when asked on the first
+start (Windows zip / `npm run play`). Forgot it? On the server:
+`npm run selfhost:admin -- passwd <user> <new-password>`.
 
 Full guide (accounts, HTTPS, playing over the internet):
 [docs/SelfHosting.md](docs/SelfHosting.md). Planned features:

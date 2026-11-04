@@ -27,7 +27,7 @@ sudo usermod -aG docker $USER   # then log out and back in
 ## 2. Get the game and start it
 
 ```bash
-git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
+git clone https://github.com/lowmentaldamage/school_app_openfront laukolaroser
 cd laukolaroser/deploy/selfhost
 cp .env.example .env
 nano .env                 # PRIVATE, ADMIN_USER, ADMIN_PASSWORD, PORT, DOMAIN
@@ -49,6 +49,11 @@ any device on your network. In private mode, log in with the admin account.
 After editing `.env`: `docker compose up -d`.
 
 ## 3. Players and admins (private mode)
+
+**There is no default username or password.** The first admin is the one
+you set in `.env` (`ADMIN_USER` / `ADMIN_PASSWORD`) before the first start
+(or type when the Windows zip / `npm run play` asks). After that you add or
+approve everyone else in the game.
 
 A private server is a closed group: only accounts you approve can play
 — with each other in lobbies, or solo against bots and AI nations.

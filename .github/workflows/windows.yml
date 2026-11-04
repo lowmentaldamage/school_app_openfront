@@ -4,9 +4,12 @@ name: 🪟 Windows test build
 # runtime dependencies, a portable Node.js and "Start Laukolaroser.bat"
 # (scripts/launch-local.cjs). Published as the "windows-latest"
 # pre-release: download the zip, unzip, double-click the .bat.
+# A version tag (v1.1.0 …) instead publishes a "Laukolaroser v1.1.0"
+# release with the zip, the latest Android APK and the changelog.
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -66,11 +69,31 @@ jobs:
         with:
           name: laukolaroser-windows
           path: laukolaroser-windows.zip
-      - name: Publish the windows-latest release
+      - name: Publish the release (windows-latest, or the version tag)
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            files=(laukolaroser-windows.zip)
+            if gh release download android-latest -p laukolaroser.apk; then
+              files+=(laukolaroser.apk)
+            fi
+            for attempt in 1 2 3 4; do
+              if gh release view "$TAG" >/dev/null 2>&1; then
+                gh release upload "$TAG" "${files[@]}" --clobber && exit 0
+              elif gh release create "$TAG" "${files[@]}" \
+                --verify-tag \
+                --title "Laukolaroser $TAG" \
+                --notes-file resources/changelog.md; then
+                exit 0
+              fi
+              echo "release attempt $attempt failed, retrying"
+              sleep $((attempt * 10))
+            done
+            exit 1
+          fi
           # GitHub sometimes answers a release call with HTTP 500 and the
           # step half-applies; retry the whole replace a few times.
           for attempt in 1 2 3 4; do

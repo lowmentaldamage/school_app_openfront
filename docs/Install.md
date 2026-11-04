@@ -58,7 +58,7 @@ node -v     # v24.x
 npm -v      # 12.x
 
 cd $HOME
-git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront laukolaroser
+git clone https://github.com/lowmentaldamage/school_app_openfront laukolaroser
 cd laukolaroser
 npm run inst
 npm run dev
@@ -100,7 +100,7 @@ nvm install 24
 npm install --global npm@12
 sudo apt install -y git        # Fedora: sudo dnf install git
 
-git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront ~/laukolaroser
+git clone https://github.com/lowmentaldamage/school_app_openfront ~/laukolaroser
 cd ~/laukolaroser
 npm run inst
 npm run dev                    # http://localhost:9000
@@ -121,7 +121,7 @@ source ~/.zshrc
 nvm install 24
 npm install --global npm@12
 
-git clone -b ccr-f2fe3bd8-k0h6kk https://github.com/lowmentaldamage/school_app_openfront ~/laukolaroser
+git clone https://github.com/lowmentaldamage/school_app_openfront ~/laukolaroser
 cd ~/laukolaroser
 npm run inst
 npm run dev                                # http://localhost:9000

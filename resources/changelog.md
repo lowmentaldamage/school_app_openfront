@@ -1,4 +1,23 @@
-📦 **Laukolaroser v1.0.0**
+📦 **Laukolaroser v1.1.0**
+
+🆕 **New in v1.1.0**
+
+- Map editor (Map Editor on the home screen): paint water, plains, highland and mountains in 2D or live 3D, raise or lower ground, undo/redo; start blank, from any game map or from random islands
+- Upload any map: pictures (PNG, JPG, WebP, SVG…), heightmaps (16-bit PNG, TIFF, RAW/R16, PGM) or real elevation data (GeoTIFF, SRTM .hgt, ESRI .asc, CSV); it turns into a 3D map that spins 360°, with automatic hills and mountains for flat pictures
+- Place nations by hand or automatically (any number, spread over the land), set the map's tribes, save it on the server: everyone plays it under Custom maps in Solo and Create Lobby; admins can delete maps
+- New maps: Slovenija (14 cities at their real places), Črna na Koroškem and Črna na Koroškem 2
+- Terrain heights from 0 (ground) to 100 (mountain tops) instead of 31 steps: smooth slopes on every map
+- Zoomed out, buildings become flat 2D icons in their owner's colour, so stacked buildings stay easy to see and click (Settings → Graphics → Flat building icons)
+- Camera: arrow keys turn and tilt, Reset view button, two-finger twist on phones; ×5 and ×10 game speed
+- Air war: Airbase, bomber raids, fighter interception; Submarine and Aircraft Carrier
+- Economy buildings: Gold Mine (more on mountains), Market, Oil Rig
+- Defense extras: Fort (attackers near it lose 3× more and move half as fast), Coastal Battery (shells enemy ships), Sea Mines (hidden; destroyers sweep them)
+- Tech tree (lobby option, on by default): 12 techs in Army, Navy, Air & missiles and Economy (🔬 button or key I); AI nations research too
+- Fog of war (lobby option, on by default) and the Radar Station
+- Day and night, weather, a generated soundtrack and sounds for every unit (Settings → Graphics / Audio)
+- Build bar help: hover any building or unit for how to use it and its exact numbers ("?" toggles it)
+- Private server: up to 100 approved accounts, 2 devices per login, lockout after 10 wrong passwords (admin unlocks), synced stats and settings, quick account switching
+- Windows: one-click zip (no install); Android: APK
 
 🌍 **3D battlefield**
 
@@ -8,22 +27,13 @@
 - Explosions, shockwaves and mushroom clouds; railroads and fallout on the map
 - Territory colours, animated borders and player names live on the terrain
 - Clicks and taps land on the exact tile under the pointer, even on mountains
-- Zoomed out, buildings turn into flat 2D icons (owner colour + white symbol, like the classic 2D map), so stacked buildings stay easy to see and click; zoom in to see the 3D models
 - Forests, a living sky and cinematic lighting
 - Rotate and tilt the camera: `[` `]`, Page Up/Down, Home, the on-screen compass, or twist two fingers
 - Build previews, range rings and nuke flight paths shown in 3D
 - Classic flat map still available with `?renderer=2d`
-- Map editor (Map Editor button on the home screen): paint water, plains, highland and mountains in 2D or live 3D, raise/lower ground, undo/redo; start blank, from any game map, from random islands, or upload any map picture, heightmap or elevation file (PNG, JPG, SVG, TIFF/GeoTIFF, RAW, HGT, ASC, PGM, CSV…) and it becomes a spinning 360° 3D map with automatic mountains and nations; auto-place any number of nations, set the map's tribe count; includes the maps Slovenija (14 cities at their real places, 120 tribes), Črna na Koroškem and Črna na Koroškem 2 (8 nations, 60 tribes each); terrain is drawn with heights 0 (ground) to 100 (mountain tops) instead of 31 steps, so slopes are smooth on every map; place AI nations with names and flags; save to the server and everyone can play it under Custom maps in Solo and Create Lobby (admins can delete maps)
-- Defense extras: Fort (attackers near it lose 3× more and move half as fast), Coastal Battery (shore gun that shells enemy ships), Sea Mines (hidden; blow up enemy ships, destroyers sweep them)
-- Tech tree (lobby option, on by default): 12 techs in Army, Navy, Air & missiles and Economy — pay gold, research takes 30–90 s, one at a time (🔬 button or key I); AI nations research too
-- Fog of war (lobby option, on by default): enemy units and buildings only show near your land, ships, planes and radar; buildings stay on the map once seen; incoming nukes are always shown
-- Radar Station: reveals a wide circle and lets your warships hunt submarines inside it
-- Generated soundtrack: calm in peace, drums and timpani at war; rain, wind, thunder, sea, birds by day and crickets at night; sounds for bombers, fighters, bombs, torpedoes and radar
 - Conquest animation: captured land flashes in the new owner's colour as the front advances
 - Detailed buildings: windowed towers, brick and metal facades; city windows light up at night
 - Vehicles turn smoothly; ships heel in turns, planes bank, take off and land at their base; new buildings rise from the ground
-- Day and night: the sun crosses the sky in a 12-minute day; moonlit nights stay readable
-- Weather: clouds, rain, fog and thunderstorms — the same sky for every player (Settings → Graphics, both can be switched off)
 
 📱 **Phones**
 
