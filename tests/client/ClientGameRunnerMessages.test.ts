@@ -215,7 +215,11 @@ describe("joinLobby lobby-phase messages", () => {
     });
 
     await expect(result.prestart).resolves.toBeUndefined();
-    expect(loadCachedTerrainMap).toHaveBeenCalledWith("world", "medium");
+    expect(loadCachedTerrainMap).toHaveBeenCalledWith(
+      "world",
+      "medium",
+      undefined,
+    );
   });
 
   it("shows the connection-error modal when start carries no gameStartInfo", async () => {
