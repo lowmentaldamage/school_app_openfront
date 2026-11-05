@@ -33,6 +33,8 @@ export interface LabelPlayer {
   displayName(): string;
   troops(): number;
   smallID?(): number;
+  isAlive?(): boolean;
+  numTilesOwned?(): number;
   /** Weapon power tiers, packed (engine-lib/weapons/Weapons.ts). */
   weaponTiers?(): number;
 }
@@ -154,6 +156,9 @@ export class World3DView implements ScreenProjector {
     );
     const texts = new Map<string, LabelText>();
     for (const p of all) {
+      // No land left: the name goes at once, without waiting for the
+      // elimination to reach the name list.
+      if (p.isAlive?.() === false || p.numTilesOwned?.() === 0) continue;
       const id = p.id();
       texts.set(id, {
         name: p.displayName(),

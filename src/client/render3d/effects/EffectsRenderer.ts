@@ -417,21 +417,32 @@ export class EffectsRenderer {
         // an ash column that climbs high and spreads into a flat cloud,
         // lava fountains and bombs, glowing lava running down the slopes
         // and a grey ash flow rolling along the ground.
-        this.fire.spawn(x, g + 1.5, z, 0, 0, 0, now, 0.3, r * 0.9, P_FLASH);
-        const top = g + 18 + r * 0.6;
+        // Everything starts above the crater rim (the highest ground
+        // around the vent), never inside the cone.
+        let rim: number = g;
+        for (let a = 0; a < 8; a++) {
+          const ang = (a / 8) * Math.PI * 2;
+          rim = Math.max(
+            rim,
+            this.hf.sample(x + Math.cos(ang) * 1.5, z + Math.sin(ang) * 1.5),
+          );
+        }
+        const vent = rim + 0.8;
+        this.fire.spawn(x, vent + 0.7, z, 0, 0, 0, now, 0.3, r * 0.9, P_FLASH);
+        const top = vent + 18 + r * 0.6;
         for (let i = 0; i < Math.round(70 * k); i++) {
           const at = now + Math.random() * 28;
           // Column: fast and narrow near the vent, wider as it climbs.
           const rise = 5 + Math.random() * 3;
           this.smoke.spawn(
             x + rnd(0.7),
-            g + 1.5 + Math.random() * 2,
+            vent + 1.5 + Math.random() * 2,
             z + rnd(0.7),
             rnd(0.5),
             rise,
             rnd(0.5),
             at,
-            (top - g) / rise + 2,
+            (top - vent) / rise + 2,
             2.2 + Math.random() * 2,
             P_SMOKE,
           );
@@ -458,7 +469,7 @@ export class EffectsRenderer {
           const at = now + Math.random() * 16;
           this.fire.spawn(
             x + rnd(0.5),
-            g + 1,
+            vent + 1,
             z + rnd(0.5),
             rnd(1.5),
             5 + Math.random() * 6,
@@ -471,7 +482,7 @@ export class EffectsRenderer {
           if (i % 2 === 0) {
             this.fire.spawn(
               x,
-              g + 1.5,
+              vent + 1.5,
               z,
               rnd(4),
               8 + Math.random() * 6,
@@ -521,7 +532,7 @@ export class EffectsRenderer {
           const v = r * (0.25 + Math.random() * 0.25);
           this.smoke.spawn(
             x + Math.cos(a),
-            g + 0.5,
+            vent + 0.5,
             z + Math.sin(a),
             Math.cos(a) * v,
             0.2,

@@ -155,7 +155,7 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
     // Tiles per screen pixel: borders keep a minimum on-screen width, so
     // they stay visible when zoomed out instead of thinning to nothing.
     float tpp = length(fwidth(tilePos));
-    float width = clamp(max(uBorderWidth, tpp * 3.0), 0.0, 0.5);
+    float width = clamp(max(uBorderWidth, tpp * 3.6), 0.0, 0.5);
     // same == 1 deep inside, ~0.5 on the boundary.
     float edge = 1.0 - smoothstep(0.5, 0.5 + width, same);
     // Zoomed far out a tile is smaller than a pixel: look further for a
@@ -173,11 +173,17 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
       float pulse = 0.9 + 0.1 * sin(uTime * 2.4 + (tilePos.x + tilePos.y) * 0.08);
       float hi = abs(float(self) - uHighlightOwner) < 0.5 ? 1.35 : 1.0;
       vec3 bc = territoryBorderColor(self) * pulse * hi;
+      // Dark player colours are lifted so the line never sinks into dark
+      // rock or forest.
+      vec3 lumW = vec3(0.2126, 0.7152, 0.0722);
+      bc = mix(bc, vec3(1.0), (1.0 - smoothstep(0.04, 0.2, dot(bc, lumW))) * 0.45);
       color = mix(color, bc, edge);
-      // Dark outline on the outer part of the band, for contrast on any
-      // terrain (snow, sand, pale player colours).
+      // Outline on the outer part of the band: dark on light ground (snow,
+      // sand, pale colours), light on dark ground (rock, forest, night).
       float outer = 1.0 - smoothstep(0.5, 0.5 + width * 0.4, same);
-      color = mix(color, color * 0.25, outer * 0.85);
+      float ground = dot(albedo, lumW);
+      vec3 rim = mix(vec3(0.85), color * 0.25, smoothstep(0.03, 0.09, ground));
+      color = mix(color, rim, outer * 0.85);
     }
   }
   return color;

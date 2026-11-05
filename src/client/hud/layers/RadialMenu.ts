@@ -1398,16 +1398,27 @@ export class RadialMenu implements Controller {
 
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const hud = hudInsets(vw, vh);
 
-    // If the menu cannot fully fit on an axis, pin it to the viewport center on that axis.
+    // If the menu cannot fully fit on an axis, pin it to the free area's
+    // center on that axis. The free area leaves out the HUD bars at the
+    // edges (bottom control bar, side panels), so the menu never covers them.
+    const minX = hud.left + margin;
+    const maxX = vw - hud.right - margin;
+    const minY = hud.top + margin;
+    const maxY = vh - hud.bottom - margin;
     const clampedX =
-      2 * margin > vw
-        ? vw / 2
-        : Math.min(Math.max(this.anchorX, margin), vw - margin);
+      minX > maxX
+        ? 2 * margin > vw
+          ? vw / 2
+          : Math.min(Math.max(this.anchorX, margin), vw - margin)
+        : Math.min(Math.max(this.anchorX, minX), maxX);
     const clampedY =
-      2 * margin > vh
-        ? vh / 2
-        : Math.min(Math.max(this.anchorY, margin), vh - margin);
+      minY > maxY
+        ? 2 * margin > vh
+          ? vh / 2
+          : Math.min(Math.max(this.anchorY, margin), vh - margin)
+        : Math.min(Math.max(this.anchorY, minY), maxY);
 
     const svgSel = this.menuElement.select("svg");
     svgSel.style("top", `${clampedY}px`).style("left", `${clampedX}px`);
@@ -1416,4 +1427,34 @@ export class RadialMenu implements Controller {
   private handleResize = () => {
     if (this.isVisible) this.clampAndSetMenuPositionForLevel(this.currentLevel);
   };
+}
+
+/**
+ * Screen space taken by the HUD bars along each edge: the bottom control
+ * bar, the left weapons/sidebar column and the right sidebar. Only bars
+ * that hug an edge count, so floating panels don't shrink the free area.
+ */
+function hudInsets(
+  vw: number,
+  vh: number,
+): { left: number; right: number; top: number; bottom: number } {
+  const out = { left: 0, right: 0, top: 0, bottom: 0 };
+  const sel =
+    "control-panel, weapons-panel > div, game-left-sidebar, game-right-sidebar";
+  for (const el of document.querySelectorAll<HTMLElement>(sel)) {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) continue;
+    if (r.bottom >= vh - 4 && r.width < vw * 0.8) {
+      out.bottom = Math.max(out.bottom, vh - r.top);
+    } else if (r.left <= 12 && r.right < vw * 0.4) {
+      out.left = Math.max(out.left, r.right);
+    } else if (r.right >= vw - 12 && r.left > vw * 0.6) {
+      out.right = Math.max(out.right, vw - r.left);
+    }
+  }
+  // Never let the HUD squeeze the menu out entirely.
+  out.bottom = Math.min(out.bottom, vh * 0.35);
+  out.left = Math.min(out.left, vw * 0.25);
+  out.right = Math.min(out.right, vw * 0.25);
+  return out;
 }

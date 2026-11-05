@@ -163,6 +163,10 @@ export function flightProgress(
   };
 }
 
+/** Ground samples along a missile track, and the height kept above them. */
+const CLEAR_SAMPLES = 24;
+const CLEARANCE = 2.5;
+
 /**
  * Pose of a ballistic missile (nuke, MIRV warhead, rocket): a clean arc on a
  * straight ground track from launch to target, whatever curve the
@@ -187,7 +191,20 @@ export function ballisticPose(
   const gy = oy + (ty - oy) * p;
   const g0 = Math.max(0, groundAt(ox, oy));
   const g1 = Math.max(0, groundAt(tx, ty));
-  const arc = arcAt(arcPeak(kind, f.distance), f.distance, p);
+  // Raise the arc until it clears every mountain along the track (the
+  // same samples every frame, so the flight path never changes mid-air).
+  let peak = arcPeak(kind, f.distance);
+  for (let i = 1; i < CLEAR_SAMPLES; i++) {
+    const s = i / CLEAR_SAMPLES;
+    const ground = Math.max(
+      0,
+      groundAt(ox + (tx - ox) * s, oy + (ty - oy) * s),
+    );
+    const need =
+      (ground + CLEARANCE - (g0 + (g1 - g0) * s)) / (4 * s * (1 - s));
+    if (need > peak) peak = need;
+  }
+  const arc = arcAt(peak, f.distance, p);
   const base = g0 + (g1 - g0) * p;
   // Never below the ground under it (only matters right at launch/impact).
   const h = Math.max(

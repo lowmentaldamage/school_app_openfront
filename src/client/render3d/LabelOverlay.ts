@@ -215,8 +215,9 @@ export class LabelOverlay {
       const h = name.h + troops.h - Math.round(v.font * 0.45);
       const x0 = v.x - w / 2;
       const y0 = v.y - h / 2;
-      // Shrink the box a little: touching labels are fine, piles are not.
-      const inset = Math.min(w, h) * 0.2;
+      // A small gap around every label: no two labels overlap, so a dense
+      // cluster of small countries shows only the biggest names.
+      const inset = -3;
       if (
         !grid.tryPlace(
           x0 + inset + 200,

@@ -113,6 +113,11 @@ class RainRenderer {
     cameraDistance: number,
     timeSec: number,
   ): void {
+    // Rain is for close-up atmosphere only: it thins out as the camera
+    // climbs and is gone at strategic zoom, so it never washes out the map.
+    const t = Math.min(1, Math.max(0, (cameraDistance - 60) / (220 - 60)));
+    const fade = 1 - t * t * (3 - 2 * t);
+    amount *= fade;
     this.mesh.visible = amount > 0.02;
     if (!this.mesh.visible) return;
     const u = this.material.uniforms;
@@ -124,7 +129,7 @@ class RainRenderer {
     u.uBox.value = box;
     u.uLen.value = box * 0.025;
     u.uTime.value = timeSec;
-    u.uAlpha.value = 0.35 * amount;
+    u.uAlpha.value = 0.22 * amount;
     // Light rain draws fewer streaks.
     const n = Math.ceil(this.count * Math.min(1, 0.3 + amount));
     this.mesh.geometry.setDrawRange(0, n * 2);

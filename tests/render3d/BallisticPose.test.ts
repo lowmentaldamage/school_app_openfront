@@ -45,3 +45,13 @@ describe("ballisticPose", () => {
     expect(end.h).toBeCloseTo(10.5, 6);
   });
 });
+
+describe("ballisticPose clears mountains", () => {
+  it("arcs over a ridge taller than the normal peak", () => {
+    const ridge = (x: number) => (x > 30 && x < 70 ? 60 : 0);
+    for (let x = 0; x <= 100; x += 2) {
+      const p = ballisticPose("atomBomb", 0, 0, x, 0, 100, 0, ridge);
+      expect(p.h).toBeGreaterThan(ridge(x));
+    }
+  });
+});
