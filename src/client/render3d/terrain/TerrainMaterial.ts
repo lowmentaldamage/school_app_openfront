@@ -174,8 +174,8 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   float d10 = abs(Ls - floor(Ls / 10.0 + 0.5) * 10.0) / fw;
   float d50 = abs(Ls - floor(Ls / 50.0 + 0.5) * 50.0) / fw;
   float crowd = 1.0 - smoothstep(1.2, 3.0, fw);
-  float contour = (1.0 - smoothstep(0.4, 1.3, d10)) * 0.16
-                + (1.0 - smoothstep(0.6, 1.8, d50)) * 0.14;
+  float contour = (1.0 - smoothstep(0.4, 1.3, d10)) * 0.1
+                + (1.0 - smoothstep(0.6, 1.8, d50)) * 0.12;
   c *= 1.0 - contour * crowd * step(0.3, h) * smoothstep(28.0, 34.0, Ls);
   // Water tiles (by the tile mask, not the mesh height) read as shallow
   // water even where the coarse mesh pokes above the water plane.
@@ -276,7 +276,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v14";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v15";
   return { material, uniforms };
 }
 

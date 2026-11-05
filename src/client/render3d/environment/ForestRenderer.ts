@@ -30,22 +30,28 @@ const REGION = 256;
 const TRUNK = 0x5a4030;
 
 // Low-poly on purpose: a big map has tens of thousands of trees, so every
-// triangle counts (~30 per tree; the old models were ~250).
+// triangle counts (~45 per tree; the old models were ~250).
 function conifer(): BufferGeometry {
   return new ModelBuilder()
-    .cylinder(0.06, 0.09, 0.4, 4, { color: TRUNK })
-    .cone(0.55, 1.0, 5, { team: true, pos: [0, 0.4, 0] })
-    .cone(0.36, 0.8, 5, { team: true, pos: [0, 0.95, 0] })
+    .cylinder(0.05, 0.08, 0.35, 4, { color: TRUNK })
+    .cone(0.56, 0.75, 6, { team: true, pos: [0, 0.3, 0] })
+    .cone(0.43, 0.65, 6, { team: true, pos: [0, 0.68, 0], rot: [0, 0.5, 0] })
+    .cone(0.28, 0.6, 6, { team: true, pos: [0, 1.05, 0], rot: [0, 1.0, 0] })
     .build();
 }
 
 function broadleaf(): BufferGeometry {
   return new ModelBuilder()
-    .cylinder(0.07, 0.1, 0.55, 4, { color: TRUNK })
-    .add(new IcosahedronGeometry(0.55, 0), {
+    .cylinder(0.06, 0.1, 0.55, 4, { color: TRUNK })
+    .add(new IcosahedronGeometry(0.5, 0), {
       team: true,
-      pos: [0, 0.95, 0],
-      scale: [1, 0.85, 1],
+      pos: [0, 0.9, 0],
+      scale: [1.05, 0.85, 1.05],
+    })
+    .add(new IcosahedronGeometry(0.36, 0), {
+      team: true,
+      pos: [0.22, 1.18, -0.12],
+      rot: [0.4, 0.7, 0],
     })
     .build();
 }
@@ -113,10 +119,11 @@ transformed.z += lkrSway * 0.6;`,
         )
         .replace(
           "#include <color_vertex>",
-          "vColor = vec4(mix(color.rgb, instanceColor.rgb, teamMask), 1.0);",
+          // Foliage is darker deep and low in the crown, sunlit at the top.
+          "vColor = vec4(mix(color.rgb, instanceColor.rgb, teamMask) * mix(1.0, 0.62 + 0.38 * clamp(position.y / 1.35, 0.0, 1.0) + 0.1, teamMask), 1.0);",
         );
     };
-    this.material.customProgramCacheKey = () => "laukolaroser-tree-v2";
+    this.material.customProgramCacheKey = () => "laukolaroser-tree-v3";
 
     const trees = placeTrees(terrain, hf, options);
     this.treeCount = trees.length;
