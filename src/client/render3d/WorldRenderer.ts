@@ -516,5 +516,6 @@ export class WorldRenderer {
     this.renderer.shadowMap.needsUpdate = true;
     this.effects.density =
       this.quality.index <= 0 ? 0.5 : this.quality.index === 1 ? 0.75 : 1;
+    this.effects.setDetail(this.quality.index <= 1 ? 0 : 1);
   }
 }

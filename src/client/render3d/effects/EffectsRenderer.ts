@@ -20,9 +20,11 @@ import {
   type ExplosionSpec,
 } from "./ExplosionSpecs";
 import {
+  P_DEBRIS,
   P_DUST,
   P_FIRE,
   P_FLASH,
+  P_SCORCH,
   P_FOAM,
   P_SMOKE,
   P_SPARK,
@@ -372,7 +374,7 @@ export class EffectsRenderer {
             rnd(0.5),
             at,
             6,
-            r * 0.35,
+            r * 0.22,
             P_SMOKE,
           );
         } else if (kind === "tsunami") {
@@ -520,7 +522,7 @@ export class EffectsRenderer {
       }
       case "storm": {
         // Black clouds, lightning and white water for ~12 s.
-        for (let i = 0; i < Math.round(30 * k); i++) {
+        for (let i = 0; i < Math.round(45 * k); i++) {
           this.smoke.spawn(
             x + rnd(r),
             g + 14 + rnd(2),
@@ -530,7 +532,7 @@ export class EffectsRenderer {
             rnd(0.8),
             now + Math.random() * 10,
             7,
-            r * 0.4,
+            r * 0.24,
             P_SMOKE,
           );
         }
@@ -588,6 +590,12 @@ export class EffectsRenderer {
     }
   }
 
+  /** Noise detail of the particles: 1 full, 0 cheap (low quality). */
+  setDetail(detail: number): void {
+    this.fire.setDetail(detail);
+    this.smoke.setDetail(detail);
+  }
+
   /** Set by WorldRenderer: shakes the camera (earthquakes, eruptions). */
   shake: (amount: number, ms: number) => void = () => {};
 
@@ -620,7 +628,40 @@ export class EffectsRenderer {
         P_FIRE,
       );
     }
-    // Sparks / debris
+    // Debris: dark chunks thrown out of ground blasts, tumbling and landing.
+    if (spec.altitude <= 0.5 && this.hf.sample(x, z) >= 0) {
+      const chunks = Math.round((spec.kind === "nuke" ? 30 : 10) * k) + 2;
+      for (let i = 0; i < chunks; i++) {
+        const [dx, dy, dz] = randDir(0.35);
+        const speed = r * (1.5 + Math.random() * 2.5);
+        this.smoke.spawn(
+          x,
+          ground + 0.2,
+          z,
+          dx * speed,
+          (dy + 0.6) * speed * 1.2,
+          dz * speed,
+          now + Math.random() * 0.05,
+          1.2 + Math.random() * 1.2,
+          0.05 + Math.random() * 0.05 * Math.min(3, r),
+          P_DEBRIS,
+        );
+      }
+      // Scorched ground left behind for a while.
+      this.smoke.spawn(
+        x,
+        ground,
+        z,
+        0,
+        0,
+        0,
+        now + 0.05,
+        spec.kind === "nuke" ? 40 : 18,
+        r * (spec.kind === "nuke" ? 2.2 : 1.6),
+        P_SCORCH,
+      );
+    }
+    // Sparks
     const sparkCount = Math.round((spec.kind === "nuke" ? 40 : 16) * k);
     for (let i = 0; i < sparkCount; i++) {
       const [dx, dy, dz] = randDir(0.3);
