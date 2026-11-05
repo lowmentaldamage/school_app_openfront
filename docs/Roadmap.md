@@ -14,7 +14,12 @@ Effort: S = a day, M = a few days, L = a week+, in this codebase.
 
 ---
 
-## 0. Already done (v1.1.0)
+## 0. Already done (v1.2.0)
+
+v1.2.0: terrain in 100 layers with huge mountains, weapon power tiers
+(Mk I-III), real bombers and fighters, mountains blocking shots and high
+ground range, battle effects on the front, natural disasters (volcanoes,
+earthquakes, tsunamis, storms, wildfires) with a lobby option.
 
 3D battlefield (terrain with 2x render detail, water, forests, sky,
 shadows), 3D units and buildings, explosions, free orbit camera,

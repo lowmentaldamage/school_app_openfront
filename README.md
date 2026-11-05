@@ -13,9 +13,10 @@ desktop or on your phone.
 
 ## Features
 
-- **3D battlefield** — terrain with mountains, coasts and snow, animated water, living territory borders, 3D ships, trains, missiles and buildings, explosions and mushroom clouds, lighting, fog and shadows (Three.js).
+- **3D battlefield** — terrain in 100 height layers with huge mountains, coasts and snow, animated water, living territory borders, 3D ships, trains, missiles and buildings, explosions and mushroom clouds, lighting, fog and shadows (Three.js).
 - **Real-time strategy** — expand, attack, defend, trade, nuke.
-- **Weapons** — aim-and-fire artillery, naval bombardment and rocket strikes.
+- **Weapons** — aim-and-fire artillery, naval bombardment, air raids and rocket strikes, each upgradeable Mk I → Mk III; mountain ranges block shots, high ground shoots further.
+- **Natural disasters** — volcanoes, earthquakes, tsunamis, storms and wildfires with a 10 s warning (lobby option: off / rare / normal / often).
 - **Navy** — warships, fast destroyers and coast-shelling battleships.
 - **Trains** — trade and express trains, armored trains, troop trains and rail SAMs.
 - **Submarines, carriers and air war** — airbases, bomber raids, fighter interception, radar.

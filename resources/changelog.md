@@ -1,6 +1,6 @@
-📦 **Laukolaroser v1.1.0**
+📦 **Laukolaroser v1.2.0**
 
-🆕 **Since v1.1.0**
+🆕 **New in v1.2.0**
 
 - Natural disasters (lobby option, on by default; rare / normal / often): volcanoes, earthquakes, tsunamis, storms and wildfires, announced 10 s ahead with a ring on the map; they cost troops, buildings and ships but never land or more than 12% of an army; 🧪 Test disaster button in solo games
 - Realistic warfare: mountain ranges block artillery, naval fire and rockets (bombers fly over; amber aiming circle when blocked); guns on high ground shoot 10-20% further
@@ -13,7 +13,7 @@
 - Small building icons that keep their size and group into a number when they overlap
 - Better models for cities, ports, factories, markets, oil rigs, airbases, bunkers, SAMs and silos
 
-🆕 **New in v1.1.0**
+🆕 **In v1.1.0**
 
 - Map editor (Map Editor on the home screen): paint water, plains, highland and mountains in 2D or live 3D, raise or lower ground, undo/redo; start blank, from any game map or from random islands
 - Upload any map: pictures (PNG, JPG, WebP, SVG…), heightmaps (16-bit PNG, TIFF, RAW/R16, PGM) or real elevation data (GeoTIFF, SRTM .hgt, ESRI .asc, CSV); it turns into a 3D map that spins 360°, with automatic hills and mountains for flat pictures
