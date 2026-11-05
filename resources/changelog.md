@@ -1,6 +1,19 @@
-📦 **Laukolaroser v1.2.1**
+📦 **Laukolaroser v1.2.2**
 
-🆕 **New in v1.2.1**
+🆕 **New in v1.2.2**
+
+- Real countries on every map: custom and editor maps get named nations with flags instead of only tribes
+- Terrain shows 20 clear stacked layers with a line on every step; calmer, more realistic sea
+- Clearer map: hovering a country only brightens it; bigger building icons with a ring and outline that read on any colour; borders stay visible on dark rock and forest; labels never pile up
+- Eliminated countries' names disappear at once
+- Clicking land you can't reach tells you why
+- Nukes and rockets fly a clean arc over the mountains with an exhaust trail; the aiming line matches
+- More realistic disasters: eruption column with ash cloud, lava flows and ash rolling down the slopes; earthquake fault crack, rubble and aftershocks; a real tsunami wave crest; wind-driven wildfires with embers and burnt ground
+- Rain fades out when you zoom out, so it never hides the map
+- Map editor: fill bucket, eyedropper, smooth and exact-height brushes, square brush, mirror painting for fair maps, keyboard shortcuts and a status bar
+- Private servers: admin sign-in with an authenticator app or Telegram code, 5-try lockout, one-file Linux installer for 50 players in 4 GB
+
+🆕 **In v1.2.1**
 
 - Real particle graphics: turbulent fire, billowing sunlit smoke that greys as it spreads, spark streaks, star flashes, foam, soft dust, tumbling debris and scorched ground after blasts
 - Water reflects the sky and the sun; units and buildings get a light sheen; cloud shadows drift over the land
