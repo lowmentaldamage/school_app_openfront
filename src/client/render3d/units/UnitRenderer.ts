@@ -25,6 +25,7 @@ import {
   Quaternion,
   SRGBColorSpace,
   Vector3,
+  type Texture,
 } from "three";
 import type { Heightfield } from "../terrain/Heightfield";
 import { InstancedPool } from "./InstancedPool";
@@ -439,6 +440,14 @@ export class UnitRenderer {
     this.rising = rising;
     this.markers.end();
     for (const pool of this.pools.values()) pool.end(true);
+  }
+
+  /** Sky reflection map for a light metallic sheen (null: none). */
+  setEnvMap(tex: Texture | null): void {
+    const had = this.material.envMap !== null;
+    this.material.envMap = tex;
+    this.material.envMapIntensity = 0.45;
+    if (had !== (tex !== null)) this.material.needsUpdate = true;
   }
 
   /** Per render frame: interpolate and pose every moving unit. */

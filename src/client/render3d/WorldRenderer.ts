@@ -17,10 +17,14 @@ import { deriveLevels } from "@laukolaroser/shared/maps/TerrainLevels";
 import {
   ACESFilmicToneMapping,
   type DataTexture,
+  Mesh,
   PCFShadowMap,
+  PMREMGenerator,
   Scene,
+  SphereGeometry,
   SRGBColorSpace,
   WebGLRenderer,
+  type WebGLRenderTarget,
 } from "three";
 import { OWNER_MASK } from "../render/gl/utils/TileCodec";
 import { AdaptiveQuality } from "./AdaptiveQuality";
@@ -358,6 +362,44 @@ export class WorldRenderer {
     }
   }
 
+  private pmrem: PMREMGenerator | null = null;
+  private envScene: Scene | null = null;
+  private envTarget: WebGLRenderTarget | null = null;
+  private envAtMs = -1e9;
+
+  /**
+   * Sky reflections for water and units: the live sky (day, night,
+   * weather) rendered into a prefiltered reflection map every few
+   * seconds. Medium quality and up; off on the lowest settings.
+   */
+  private refreshReflections(nowMs: number): void {
+    if (this.quality.index < 2) {
+      if (this.envTarget !== null) {
+        this.water.setEnvMap(null);
+        this.units.setEnvMap(null);
+        this.envTarget.dispose();
+        this.envTarget = null;
+      }
+      return;
+    }
+    if (nowMs - this.envAtMs < 2500) return;
+    this.envAtMs = nowMs;
+    if (this.pmrem === null) {
+      this.pmrem = new PMREMGenerator(this.renderer);
+      this.envScene = new Scene();
+      const dome = new Mesh(
+        new SphereGeometry(50, 32, 16),
+        this.environment.skyMaterial,
+      );
+      this.envScene.add(dome);
+    }
+    const next = this.pmrem.fromScene(this.envScene!, 0, 0.1, 200);
+    this.water.setEnvMap(next.texture);
+    this.units.setEnvMap(next.texture);
+    this.envTarget?.dispose();
+    this.envTarget = next;
+  }
+
   /** Players' weapon tiers by smallID (sizes strike explosions). */
   setStrikeTiers(tiers: ReadonlyMap<number, StrikeTiers>): void {
     this.strikeTiers = tiers;
@@ -407,6 +449,10 @@ export class WorldRenderer {
     this.territory.expireCaptures(nowMs);
     this.terrainUniforms.uCaptureNow.value =
       ((nowMs / CAPTURE_STAMP_MS) % CAPTURE_STAMP_PERIOD) + 1;
+    // Fair-weather clouds always cast a few shadows; overcast skies more.
+    const skyState = this.environment.state;
+    this.terrainUniforms.uCloudCover.value =
+      skyState === null ? 0.25 : 0.25 + 0.75 * skyState.cloud;
     this.water.update(t);
 
     const cc = this.cameraController;
@@ -415,6 +461,7 @@ export class WorldRenderer {
     this.forests.update(t, cc.distance);
     this.seaLife.update(t, cc.distance);
     this.lastTimeSec = t;
+    this.refreshReflections(nowMs);
     for (const [id, until] of this.disasterMarkers) {
       // Safety net: never leave a marker if an "end" was missed.
       if (t > until) {
@@ -485,6 +532,8 @@ export class WorldRenderer {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.envTarget?.dispose();
+    this.pmrem?.dispose();
     this.terrain.dispose();
     this.units.dispose();
     this.effects.dispose();

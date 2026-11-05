@@ -185,19 +185,35 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
   vec2 g = waveGrad(vWaterWorld.xz, uTime) * (1.0 - smoothstep(0.15, 0.8, footprint));
   // Long swell: low frequency, so it stays visible (and alias-free) zoomed out.
   vec2 sp = vWaterWorld.xz;
+  // Faded with distance: on glossy water a regular swell far away
+  // reads as stripes in the sky reflection.
   g += vec2(cos(dot(sp, vec2(0.11, 0.07)) - uTime * 0.9) * 0.11,
-            cos(dot(sp, vec2(-0.05, 0.13)) - uTime * 0.6) * 0.13) * 0.12;
+            cos(dot(sp, vec2(-0.05, 0.13)) - uTime * 0.6) * 0.13) * 0.06
+       * (1.0 - smoothstep(0.4, 2.5, footprint));
   vec3 wn = normalize(vec3(-g.x, 1.0, -g.y));
   normal = normalize((viewMatrix * vec4(wn, 0.0)).xyz);
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v5";
+    material.customProgramCacheKey = () => "laukolaroser-water-v6";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";
     this.mesh.receiveShadow = true;
     this.mesh.renderOrder = 1;
+  }
+
+  /**
+   * Sky reflections: with a reflection map the water turns glossy (sky and
+   * sun mirrored, stronger at grazing angles); null: matte as before.
+   */
+  setEnvMap(tex: Texture | null): void {
+    const m = this.mesh.material as MeshStandardMaterial;
+    const had = m.envMap !== null;
+    m.envMap = tex;
+    m.envMapIntensity = 1.0;
+    m.roughness = tex === null ? 0.55 : 0.16;
+    if (had !== (tex !== null)) m.needsUpdate = true;
   }
 
   update(timeSeconds: number): void {

@@ -123,6 +123,15 @@ vec3 terrainDetailNormal(vec3 wp) {
   }
   return normalize(n);
 }
+uniform float uCloudCover;
+// 0..1 shadow of drifting clouds at a ground point (big soft shapes).
+float cloudShadow(vec2 p) {
+  if (uCloudCover <= 0.0) return 0.0;
+  vec2 q = p * 0.0065 + vec2(uTime * 0.012, uTime * 0.005);
+  float n = tFbm(q) * 0.7 + tNoise(q * 2.3 + 7.0) * 0.3;
+  return smoothstep(0.62 - 0.22 * uCloudCover, 0.8 - 0.2 * uCloudCover, n)
+       * min(1.0, uCloudCover * 1.6);
+}
 vec3 terrainAlbedo(vec3 wp, float up) {
   vec2 td = terrainDetailAt(wp.xz);
   float h = td.r;
@@ -172,6 +181,8 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   // water even where the coarse mesh pokes above the water plane.
   vec3 shallowWater = mix(vec3(0.22, 0.52, 0.55), seabed, 0.25);
   c = mix(shallowWater, c, smoothstep(0.46, 0.52, land));
+  // Cloud shadows drifting across the land (more under cloudy skies).
+  c *= 1.0 - cloudShadow(wp.xz) * 0.32;
   // Authored in sRGB; convert to linear for lighting.
   // Fine grain only where it is larger than a pixel (no distant sparkle).
   float grainAmt = 1.0 - smoothstep(0.15, 0.6, length(fwidth(wp.xz)));
@@ -193,6 +204,8 @@ export interface TerrainMaterialUniforms {
   uHighlightOwner: { value: number };
   /** Current capture stamp (OwnerBuffer.captureStamp, fractional). */
   uCaptureNow: { value: number };
+  /** 0..1 cloud cover for drifting cloud shadows (0: none). */
+  uCloudCover: { value: number };
 }
 
 export function createTerrainMaterial(
@@ -219,6 +232,7 @@ export function createTerrainMaterial(
     uBorderWidth: { value: 0.42 },
     uHighlightOwner: { value: -1 },
     uCaptureNow: { value: 0 },
+    uCloudCover: { value: 0 },
   };
 
   const material = new MeshStandardMaterial({
@@ -262,7 +276,7 @@ float terrainFoot = smoothstep(6.0, 16.0, length(fwidth(vTerrainWorld.xz)));
 normal = normalize(mix((viewMatrix * vec4(terrainN, 0.0)).xyz, normal, terrainFoot));`,
       );
   };
-  material.customProgramCacheKey = () => "laukolaroser-terrain-v13";
+  material.customProgramCacheKey = () => "laukolaroser-terrain-v14";
   return { material, uniforms };
 }
 

@@ -230,6 +230,11 @@ export class EnvironmentRenderer {
     scene.add(this.rain.mesh);
   }
 
+  /** The sky's material (shared with the reflection-map scene). */
+  get skyMaterial(): ShaderMaterial {
+    return this.sky.material as ShaderMaterial;
+  }
+
   /** Day/night and weather switches (user settings). */
   setOptions(options: AtmosphereOptions, seed = 0): void {
     this.options = { ...options };
