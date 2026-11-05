@@ -1,0 +1,111 @@
+LAUKOLAROSER — GEMINI GAMEPLAY VIDEO REVIEW
+============================================
+
+WHAT YOU DO
+-----------
+1. Open https://gemini.google.com (use the best model, e.g. "2.5 Pro" /
+   newest "Pro"; a Google One AI plan lets you upload long videos).
+2. Click "+" -> "Upload files" -> pick the gameplay video
+   (MP4, keep it under ~1 hour; 1080p is enough).
+3. Click "+" -> "Import code" -> paste:
+       https://github.com/lowmentaldamage/school_app_openfront
+   (If the repo is private, Gemini asks you to connect GitHub: allow it.
+    If "Import code" is missing, skip it: the video alone is still useful.)
+4. Copy EVERYTHING between the two lines "=== PROMPT START ===" and
+   "=== PROMPT END ===" below and paste it as your message. Send.
+5. When Gemini answers, copy its whole answer and paste it to Claude with:
+       "Here is Gemini's video review, fix everything in it:"
+   If the answer is very long, ask Gemini "continue" until it writes
+   "END OF REPORT", then paste all parts.
+
+=== PROMPT START ===
+You are a senior game QA tester and graphics engineer. The attached video
+is gameplay of "Laukolaroser", a 3D real-time multiplayer territory
+strategy game (a 3D fork of OpenFront.io, built with TypeScript, Three.js,
+Lit and Vite). The attached GitHub repository is its source code.
+Important folders:
+  src/client/render3d/      3D world renderer (terrain, units, effects,
+                            particles, labels, icons, camera)
+  src/client/hud/           in-game HUD (leaderboard, build bar, panels)
+  src/client/controllers/   mouse / keyboard / touch input
+  src/client/editor/        map editor (if present)
+  packages/engine/          game simulation (executions: attacks, nukes,
+                            disasters, nations AI)
+  packages/engine-lib/      shared rules (Config, weapons, disasters)
+  resources/maps/           maps and their nations (manifest.json)
+
+Watch the WHOLE video carefully, frame by frame where needed, and write a
+report another AI developer (Claude) will use to fix the game. Be
+concrete: what is on screen, what is wrong, what it should look like.
+Never write "looks fine" without checking. Compare with the original
+OpenFront.io wherever it helps (clarity, controls, nations).
+
+Write the report in exactly this structure:
+
+1. SUMMARY
+   5-10 bullet points: the most important problems, worst first.
+
+2. ISSUE LIST
+   One block per problem, numbered, worst first:
+     #N  [severity: CRITICAL / HIGH / MEDIUM / LOW]  short title
+     Timestamp(s): mm:ss (every time it happens, at least the first 3)
+     Category: bug / input-controls / rendering / UI-UX / clarity /
+               performance / gameplay-balance / realism / map-editor
+     What I see: precise description of the frames (positions on screen,
+               colours, sizes, text shown, what the player clicked).
+     Expected: what should happen instead (mention the original
+               OpenFront.io behaviour if relevant).
+     Steps to reproduce: as far as the video shows.
+     Likely code location: file paths in the repo (and function / class
+               names) you believe are responsible, with a one-line reason.
+               Say "unsure" rather than guess wildly.
+     Fix idea: 1-3 sentences.
+
+   Check at least these things and report each one you see:
+   - Mouse: what left click, right click, drag and wheel do. Does left
+     click on enemy / neutral land start an attack? Does it open the
+     wrong panel or show another country's data?
+   - Labels and names: names of dead / eliminated players still drawn?
+     Overlapping, too big, too small, unreadable labels?
+   - Icons: structure / unit icons too big, too small, unclear, hard to
+     tell apart, unreadable on coloured territory, clutter when zoomed out.
+   - Territory: colour too strong, borders unclear, own vs enemy hard to
+     tell, hover effects.
+   - Terrain: are height layers / terraces visible? Mountains, coasts,
+     water, trees, snow: what looks flat, noisy, blocky or unrealistic?
+   - Nukes / missiles / planes / ships: trajectory, speed, flicker,
+     teleporting, pop-in, explosion look and timing.
+   - Natural disasters (volcano, earthquake, tsunami, storm, wildfire):
+     how they look and what is unrealistic.
+   - Nations: are there real countries (named nations) or only small
+     "tribes"/bots? Names shown?
+   - HUD: panels cut off at screen edges, overlapping, debug / test
+     buttons visible to normal players, wrong numbers.
+   - Performance: stutter, frame drops, freezes (with timestamps).
+   - Map editor (if shown): what is missing or awkward compared to
+     frontwars.io's map editor.
+
+3. VISUAL QUALITY SCORE
+   Score 1-10 each with one sentence why: terrain, water, territory
+   colours, icons, labels, effects/explosions, disasters, UI/HUD, overall.
+
+4. TOP 10 FIXES
+   The 10 changes that would improve the game most, in order, each one
+   line, each referring to issue numbers from section 2.
+
+5. QUESTIONS
+   Anything you could not tell from the video.
+
+Finish with the line: END OF REPORT
+=== PROMPT END ===
+
+TIPS
+----
+- Record with the game's own UI visible (no browser zoom; press F11 for
+  full screen). Speak or type notes in the video if you want ("now I left
+  click and it does not attack").
+- Show: start of a game, attacking with left click, a nuke, a disaster,
+  zooming in/out over your territory, an eliminated nation, the map
+  editor.
+- Several short videos (5-10 min each) work better than one long one:
+  run the same prompt for each, then paste all reports to Claude.

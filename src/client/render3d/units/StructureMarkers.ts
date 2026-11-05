@@ -56,9 +56,9 @@ const CELL = 96;
 const COLS = 4;
 
 /** On-screen size in CSS pixels. */
-export const ICON_PX_FLAT = 16;
-export const ICON_PX_BADGE = 13;
-const COUNT_PX = 9;
+export const ICON_PX_FLAT = 22;
+export const ICON_PX_BADGE = 19;
+const COUNT_PX = 11;
 
 const VERT = /* glsl */ `
 attribute float aCell;
@@ -111,8 +111,11 @@ void main() {
   float shape = 1.0 - smoothstep(0.9, 1.0, r);
   if (shape <= 0.0) discard;
   float edge = mix(r, max(q.x, q.y), square);
-  float ring = smoothstep(0.78, 0.86, edge);
-  vec2 iuv = (vUv - 0.5) * mix(1.4, 1.2, vKind) + 0.5;
+  // A white ring inside a dark outline: readable on any territory colour,
+  // including the owner's own (a red icon on red land).
+  float light = smoothstep(0.66, 0.72, edge) * (1.0 - smoothstep(0.80, 0.84, edge));
+  float ring = smoothstep(0.82, 0.88, edge);
+  vec2 iuv = (vUv - 0.5) * mix(1.3, 1.2, vKind) + 0.5;
   float glyph = 0.0;
   if (iuv.x > 0.0 && iuv.x < 1.0 && iuv.y > 0.0 && iuv.y < 1.0) {
     // Round: an interpolated 8.0 can arrive as 7.9999, which would pick
@@ -127,9 +130,11 @@ void main() {
     glyph = texture2D(uAtlas, cellUv).a;
   }
   // instanceColor is linear; this material writes display colours.
-  vec3 bg = pow(max(vColor, vec3(0.0)), vec3(1.0 / 2.2)) * 0.82;
+  // Owner colour, darkened so the white glyph and ring stand out.
+  vec3 bg = pow(max(vColor, vec3(0.0)), vec3(1.0 / 2.2)) * 0.62;
   vec3 col = mix(bg, vec3(1.0), glyph);
-  col = mix(col, vec3(0.03), ring * 0.85);
+  col = mix(col, vec3(0.96), light * (1.0 - vKind) * 0.9);
+  col = mix(col, vec3(0.02), ring * 0.92);
   gl_FragColor = vec4(col, shape * uOpacity);
 }
 `;

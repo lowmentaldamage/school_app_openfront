@@ -167,11 +167,15 @@ diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9), clamp(foam, 0.0, 1.0) * 0.55
   diffuseColor.rgb *= 1.0 + 0.14 * swell * smoothstep(0.1, 0.6, wDepth);
   // Whitecaps from drifting value noise (rotated off the grid), so they
   // scatter like real foam instead of peaking on a regular lattice.
-  float capN = wNoise(W_ROT * p * 0.55 + vec2(uTime * 0.35, -uTime * 0.2)) * 0.6
-             + wNoise(W_ROT * W_ROT * p * 1.3 - vec2(uTime * 0.5, uTime * 0.15)) * 0.4;
-  float capFade = 1.0 - smoothstep(0.12, 0.45, length(fwidth(p)));
-  float cap = smoothstep(0.72, 0.86, capN) * smoothstep(0.35, 1.0, wDepth) * capFade;
-  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.93), cap * 0.4);
+  // Small, sparse and streaked along the wind: real whitecaps are thin
+  // short-lived crests, not white patches.
+  vec2 wp = W_ROT * p;
+  wp = vec2(wp.x * 0.45, wp.y * 1.6);
+  float capN = wNoise(wp * 0.9 + vec2(uTime * 0.35, -uTime * 0.2)) * 0.55
+             + wNoise(W_ROT * wp * 2.1 - vec2(uTime * 0.5, uTime * 0.15)) * 0.45;
+  float capFade = 1.0 - smoothstep(0.08, 0.3, length(fwidth(p)));
+  float cap = smoothstep(0.8, 0.92, capN) * smoothstep(0.45, 1.0, wDepth) * capFade;
+  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.88), cap * 0.22);
 }
 diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
         )
@@ -195,7 +199,7 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v6";
+    material.customProgramCacheKey = () => "laukolaroser-water-v7";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

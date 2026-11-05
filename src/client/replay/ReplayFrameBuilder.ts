@@ -377,14 +377,15 @@ export class ReplayFrameBuilder {
   }
 
   /**
-   * GameView lists every player it knows at (0, 0, size 0) until a
-   * placement arrives. The file only has the placements.
+   * GameView lists every living player it knows at (0, 0, size 0) until a
+   * placement arrives; eliminated players' names leave the map. The file
+   * only has the placements.
    */
   private populateNames(f: ReplayFrame): void {
     this.names.clear();
-    for (const smallID of f.players.keys()) {
+    for (const [smallID, state] of f.players) {
       const playerID = this.playerIDs.get(smallID);
-      if (playerID === undefined) continue;
+      if (playerID === undefined || !state.isAlive) continue;
       this.names.set(
         playerID,
         f.names.get(playerID) ?? { playerID, x: 0, y: 0, size: 0 },

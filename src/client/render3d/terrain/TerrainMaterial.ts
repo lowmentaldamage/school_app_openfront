@@ -78,14 +78,17 @@ float terrainLevelHeight(float L) {
 // Layers follow a smoothed height (a coarser mip, ~2 tiles) so each step
 // is a clean band instead of tracing the fine relief noise.
 float terrainSmoothHeight(vec2 p) {
-  return textureLod(uTerrainDetail, p / uMapSize, 2.0).r;
+  return textureLod(uTerrainDetail, p / uMapSize, 2.5).r;
 }
+// Visible layers: 20 of them (every 5 levels), each a flat tread with a
+// short, steep riser, like a stacked topographic model.
+const float LAYER_STEP = 5.0;
 float terrainTerraced(vec2 p) {
   float h = terrainSmoothHeight(p);
   if (h <= 0.3) return h;
-  float L = terrainLevel(h);
+  float L = terrainLevel(h) / LAYER_STEP;
   float f = fract(L);
-  return terrainLevelHeight(floor(L) + smoothstep(0.35, 0.65, f));
+  return terrainLevelHeight((floor(L) + smoothstep(0.42, 0.58, f)) * LAYER_STEP);
 }
 // Per-pixel normal from the tile heights (central differences, 1 tile),
 // so relief is lit at tile resolution whatever the mesh density. The caller
@@ -106,7 +109,7 @@ vec3 terrainDetailNormal(vec3 wp) {
   float hu = terrainTerraced(wp.xz + vec2(0.0, 1.0));
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
-  vec3 n = vec3((hl - hr) * 1.5, 2.0, (hd - hu) * 1.5);
+  vec3 n = vec3((hl - hr) * 1.15, 2.0, (hd - hu) * 1.15);
   // Gentle micro relief on land (rocky ground, folds), mostly in the
   // hills and mountains; flat ground stays smooth (no tile-sized grain).
   float land = terrainDetailAt(wp.xz).g;
@@ -167,16 +170,24 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   // Beach: a thin sand rim exactly along the tile coastline.
   float beach = smoothstep(0.5, 0.56, land) * (1.0 - smoothstep(0.62, 0.8, land));
   c = mix(c, sand, beach * (1.0 - smoothstep(0.8, 1.6, h)));
-  // Contour lines every 10 layers (stronger every 50) on hills and
-  // mountains (plains stay plain), a pixel or so wide
-  // at any zoom; dropped where they would crowd together.
+  // Layers: every visible layer (5 levels) is a band of its own, alternately
+  // a touch lighter and darker, with a clean contour line on its edge
+  // (stronger every 25 levels), a pixel or so wide at any zoom; lines are
+  // dropped where they would crowd together.
   float fw = max(fwidth(Ls), 1e-4);
-  float d10 = abs(Ls - floor(Ls / 10.0 + 0.5) * 10.0) / fw;
-  float d50 = abs(Ls - floor(Ls / 50.0 + 0.5) * 50.0) / fw;
-  float crowd = 1.0 - smoothstep(1.2, 3.0, fw);
-  float contour = (1.0 - smoothstep(0.4, 1.3, d10)) * 0.1
-                + (1.0 - smoothstep(0.6, 1.8, d50)) * 0.12;
-  c *= 1.0 - contour * crowd * step(0.3, h) * smoothstep(28.0, 34.0, Ls);
+  // Risers sit at the middle of each step (see terrainTerraced): lines and
+  // bands follow them.
+  float u = Ls / LAYER_STEP - 0.5;
+  float riser = floor(u + 0.5);
+  float layer = floor(u) + 1.0;
+  float dL = abs(u - riser) * LAYER_STEP / fw;
+  float d25 = mod(riser, 5.0) < 0.5 ? dL : 1e3;
+  float crowd = 1.0 - smoothstep(0.8, 2.5, fw);
+  float contour = (1.0 - smoothstep(0.5, 1.4, dL)) * 0.22
+                + (1.0 - smoothstep(0.6, 1.8, d25)) * 0.18;
+  float onLand = step(0.3, h) * smoothstep(0.52, 0.6, land);
+  c *= 1.0 + (mod(layer, 2.0) - 0.5) * 0.07 * onLand * crowd;
+  c *= 1.0 - contour * crowd * onLand;
   // Water tiles (by the tile mask, not the mesh height) read as shallow
   // water even where the coarse mesh pokes above the water plane.
   vec3 shallowWater = mix(vec3(0.22, 0.52, 0.55), seabed, 0.25);
@@ -226,9 +237,10 @@ export function createTerrainMaterial(
     uMapSize: { value: new Vector2(mapWidth, mapHeight) },
     uTime: { value: 0 },
     // Light country tint (Settings → Graphics → Country colour); the
-    // hovered country shows at uHoverStrength.
+    // hovered country gets a little more (uHoverStrength is added), never a
+    // solid paint that hides the terrain, icons and units on it.
     uFillStrength: { value: 0.25 },
-    uHoverStrength: { value: 0.8 },
+    uHoverStrength: { value: 0.14 },
     uBorderWidth: { value: 0.42 },
     uHighlightOwner: { value: -1 },
     uCaptureNow: { value: 0 },

@@ -39,11 +39,12 @@ vec4 territoryFill(int owner) {
   return vec4(pow(c.rgb, vec3(2.2)), c.a);
 }
 
-// Fill strength: the player's tint setting, full colour when hovered.
+// Fill strength: the player's tint setting, a little stronger when hovered
+// (the brighter border marks the hovered country; the fill stays see-through).
 float territoryStrength(int owner) {
   if (owner == 0) return 0.0;
   return abs(float(owner) - uHighlightOwner) < 0.5
-    ? max(uFillStrength, uHoverStrength)
+    ? min(uFillStrength + uHoverStrength, 0.6)
     : uFillStrength;
 }
 
@@ -68,8 +69,8 @@ vec3 applyTerritory(vec3 albedo, vec2 tilePos) {
   float w01 = (1.0 - f.x) * f.y;
   float w11 = f.x * f.y;
 
-  // Light tint so the terrain stays visible; the hovered country shows in
-  // full colour (uHighlightOwner).
+  // Light tint so the terrain stays visible; the hovered country a little
+  // stronger (uHighlightOwner).
   vec4 c00 = territoryFill(o00);
   vec4 c10 = territoryFill(o10);
   vec4 c01 = territoryFill(o01);

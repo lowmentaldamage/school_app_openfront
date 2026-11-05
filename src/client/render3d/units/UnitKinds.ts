@@ -164,6 +164,45 @@ export function flightProgress(
 }
 
 /**
+ * Pose of a ballistic missile (nuke, MIRV warhead, rocket): a clean arc on a
+ * straight ground track from launch to target, whatever curve the
+ * simulation's 2D path takes. Altitude is measured from the line between
+ * the launch and target ground heights, never from the ground underneath,
+ * so the missile does not bob over mountains.
+ * @param groundAt ground height (tiles) at a point
+ */
+export function ballisticPose(
+  kind: ModelKind,
+  ox: number,
+  oy: number,
+  x: number,
+  y: number,
+  tx: number,
+  ty: number,
+  groundAt: (x: number, y: number) => number,
+): { x: number; y: number; h: number; yaw: number; pitch: number } {
+  const f = flightProgress(ox, oy, x, y, tx, ty);
+  const p = f.progress;
+  const gx = ox + (tx - ox) * p;
+  const gy = oy + (ty - oy) * p;
+  const g0 = Math.max(0, groundAt(ox, oy));
+  const g1 = Math.max(0, groundAt(tx, ty));
+  const arc = arcAt(arcPeak(kind, f.distance), f.distance, p);
+  const base = g0 + (g1 - g0) * p;
+  // Never below the ground under it (only matters right at launch/impact).
+  const h = Math.max(
+    base + arc.height + 0.5,
+    Math.max(0, groundAt(gx, gy)) + 0.5,
+  );
+  const slope = arc.slope + (f.distance > 0 ? (g1 - g0) / f.distance : 0);
+  const yaw =
+    f.distance > 0
+      ? Math.atan2(-(ty - oy), tx - ox)
+      : Math.atan2(-(y - oy), x - ox);
+  return { x: gx, y: gy, h, yaw, pitch: Math.atan(slope) };
+}
+
+/**
  * Buildings switch to flat 2D icons (like the classic 2D map) when the
  * camera is farther than ICON_MODE_ON, and back to 3D models when it comes
  * closer than ICON_MODE_OFF. The gap stops flicker at the threshold.

@@ -151,6 +151,8 @@ export class FrameNormalizer {
   private live = new Map<number, PlayerState>();
   private snapshots = new Map<number, PlayerState>();
   private smallIDs = new Map<PlayerID, number>();
+  /** Name placements of every player; `names` holds the living ones. */
+  private allNames = new Map<string, NameEntry>();
   private names = new Map<string, NameEntry>();
   /** Accumulated active units. */
   private units = new Map<number, UnitState>();
@@ -221,7 +223,7 @@ export class FrameNormalizer {
       activeUnits: this.units,
       motionPlans,
       names: this.names,
-      namesChanged: this.applyNames(gu),
+      namesChanged: this.applyNames(gu, playerUpdates),
       misc: miscUpdatesOf(gu),
     };
   }
@@ -287,26 +289,39 @@ export class FrameNormalizer {
     return [...changed.values()];
   }
 
-  private applyNames(gu: GameUpdateViewData): boolean {
+  /** Same rule as GameView: eliminated players' names leave the map. */
+  private applyNames(
+    gu: GameUpdateViewData,
+    playerUpdates: readonly PlayerUpdate[],
+  ): boolean {
+    let changed = playerUpdates.some((pu) => pu.isAlive !== undefined);
     const data = gu.playerNameViewData;
-    if (data === undefined) return false;
-    let changed = false;
-    for (const [playerID, nv] of Object.entries(data)) {
-      const x = Math.round(nv.x);
-      const y = Math.round(nv.y);
-      const size = Math.round(nv.size);
-      const prev = this.names.get(playerID);
-      if (
-        prev === undefined ||
-        prev.x !== x ||
-        prev.y !== y ||
-        prev.size !== size
-      ) {
-        this.names.set(playerID, { playerID, x, y, size });
-        changed = true;
+    if (data !== undefined) {
+      for (const [playerID, nv] of Object.entries(data)) {
+        const x = Math.round(nv.x);
+        const y = Math.round(nv.y);
+        const size = Math.round(nv.size);
+        const prev = this.allNames.get(playerID);
+        if (
+          prev === undefined ||
+          prev.x !== x ||
+          prev.y !== y ||
+          prev.size !== size
+        ) {
+          this.allNames.set(playerID, { playerID, x, y, size });
+          changed = true;
+        }
       }
     }
-    return changed;
+    if (!changed) return false;
+    this.names.clear();
+    for (const [playerID, entry] of this.allNames) {
+      const smallID = this.smallIDs.get(playerID);
+      const state = smallID === undefined ? undefined : this.live.get(smallID);
+      if (state !== undefined && !state.isAlive) continue;
+      this.names.set(playerID, entry);
+    }
+    return true;
   }
 }
 

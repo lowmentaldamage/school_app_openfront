@@ -11,6 +11,7 @@ import {
   imageToMap,
   importSize,
   MapDocument,
+  mirrorPoints,
   randomIslands,
 } from "../../src/client/mapeditor/EditorCore";
 
@@ -247,5 +248,69 @@ describe("automatic terrain and nations", () => {
       expect(p.x).toBeLessThan(192);
       expect(p.y).toBeLessThan(152);
     }
+  });
+});
+
+describe("editor tools: fill, pick, smooth, level, mirror, square", () => {
+  it("fill pours terrain over the connected area only", () => {
+    const doc = MapDocument.blank(20, 10);
+    // Water map with two separate land blocks.
+    doc.beginStroke();
+    doc.paint(4, 5, 2, "plains", { shape: "square" });
+    doc.paint(15, 5, 2, "plains", { shape: "square" });
+    doc.endStroke();
+    doc.beginStroke();
+    const n = doc.fill(4, 5, "mountain");
+    doc.endStroke();
+    expect(n).toBe(25);
+    expect(doc.pick(4, 5)!.level).toBeGreaterThanOrEqual(70);
+    expect(doc.pick(15, 5)!.level).toBeLessThan(33);
+    // One undo step.
+    doc.undo();
+    expect(doc.pick(4, 5)!.level).toBeLessThan(33);
+  });
+
+  it("level paints an exact height and pick reads it back", () => {
+    const doc = MapDocument.blank(10, 10);
+    doc.paint(5, 5, 1, "level", { level: 47 });
+    expect(doc.pick(5, 5)).toEqual({ land: true, level: 47 });
+    expect(doc.pick(0, 0)!.land).toBe(false);
+    expect(doc.pick(-1, 0)).toBeNull();
+  });
+
+  it("smooth evens out a spike without moving the coast", () => {
+    const doc = MapDocument.blank(10, 10);
+    doc.paint(5, 5, 3, "level", { level: 20, shape: "square" });
+    doc.paint(5, 5, 0.5, "level", { level: 90 });
+    const before = doc.landTiles();
+    doc.paint(5, 5, 1, "smooth");
+    expect(doc.pick(5, 5)!.level).toBeLessThan(90);
+    expect(doc.landTiles()).toBe(before);
+  });
+
+  it("square brushes cover the corners a round one misses", () => {
+    const round = MapDocument.blank(10, 10);
+    round.paint(5, 5, 2, "plains");
+    const square = MapDocument.blank(10, 10);
+    square.paint(5, 5, 2, "plains", { shape: "square" });
+    expect(square.landTiles()).toBe(25);
+    expect(round.landTiles()).toBeLessThan(25);
+  });
+
+  it("mirror points cover every symmetry", () => {
+    expect(mirrorPoints(1, 2, 10, 8, "none")).toEqual([[1, 2]]);
+    expect(mirrorPoints(1, 2, 10, 8, "x")).toEqual([
+      [1, 2],
+      [8, 2],
+    ]);
+    expect(mirrorPoints(1, 2, 10, 8, "y")).toEqual([
+      [1, 2],
+      [1, 5],
+    ]);
+    expect(mirrorPoints(1, 2, 10, 8, "xy")).toHaveLength(4);
+    expect(mirrorPoints(1, 2, 10, 8, "rot")).toEqual([
+      [1, 2],
+      [8, 5],
+    ]);
   });
 });

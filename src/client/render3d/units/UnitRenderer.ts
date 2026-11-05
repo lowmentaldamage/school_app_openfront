@@ -44,6 +44,7 @@ import { StructureMarkers } from "./StructureMarkers";
 import {
   arcAt,
   arcPeak,
+  ballisticPose,
   BALLISTIC_KINDS,
   flightProgress,
   modelKindFor,
@@ -527,6 +528,9 @@ export class UnitRenderer {
         let h = 0;
         let pitch = 0;
         let roll = lean;
+        // Drawn position (ballistic missiles fly a straight ground track).
+        let px = x;
+        let pz = y;
         let scale = mv.kind === "tradeShip" ? tradeScale : shipScale;
 
         if (SHIP_KINDS.has(mv.kind)) {
@@ -590,6 +594,33 @@ export class UnitRenderer {
             const p = f.progress;
             h = ground + 0.3 + (top - 0.3) * (1 - p * p);
             pitch = -Math.atan(2 * p * 1.5);
+          } else if (Number.isFinite(mv.ox) && mv.kind !== "shell") {
+            const pose = ballisticPose(
+              mv.kind,
+              mv.ox,
+              mv.oy,
+              x,
+              y,
+              mv.tx,
+              mv.ty,
+              (sx, sy) => this.hf.sample(sx, sy),
+            );
+            px = pose.x;
+            pz = pose.y;
+            h = pose.h;
+            yaw = pose.yaw;
+            pitch = pose.pitch;
+            // Exhaust trail behind the missile.
+            if (scale > 0) {
+              this.contrails.push({
+                x: px,
+                y: h,
+                z: pz,
+                yaw,
+                scale,
+                big: true,
+              });
+            }
           } else if (Number.isFinite(mv.ox)) {
             const f = flightProgress(mv.ox, mv.oy, x, y, mv.tx, mv.ty);
             const peak = arcPeak(mv.kind, f.distance);
@@ -617,7 +648,7 @@ export class UnitRenderer {
 
         this.e.set(roll, yaw, pitch);
         this.q.setFromEuler(this.e);
-        this.p.set(x, h, y);
+        this.p.set(px, h, pz);
         this.s.setScalar(scale);
         this.m.compose(this.p, this.q, this.s);
         this.pools.get(mv.kind)!.setMatrix(mv.slot, this.m);

@@ -13,8 +13,10 @@ export function sliderToNationsConfig(
   sliderValue: number,
   defaultNationCount: number,
 ): GameConfig["nations"] {
-  if (sliderValue === 0) return "disabled";
+  // A map without nations of its own (custom/editor maps) gets real
+  // countries from the engine with "default".
   if (sliderValue === defaultNationCount) return "default";
+  if (sliderValue === 0) return "disabled";
   return sliderValue;
 }
 

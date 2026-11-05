@@ -33,7 +33,7 @@ import {
   WireGameStartInfo,
 } from "@laukolaroser/shared/WireSchemas";
 import { ClientEnv } from "../client/ClientEnv";
-import { reloadForUpdate, translateText } from "../client/Utils";
+import { reloadForUpdate, showToast, translateText } from "../client/Utils";
 import { MapLayerController } from "./controllers/MapLayerController";
 import { isDesktopShell } from "./DesktopShell";
 import { FogOfWar } from "./fog/FogOfWar";
@@ -1614,6 +1614,16 @@ export class ClientGameRunner {
           );
         } else if (this.canAutoBoat(actions.buildableUnits, tile)) {
           this.sendBoatAttackIntent(tile);
+        } else if (
+          this.gameView.isLand(tile) &&
+          this.gameView.owner(tile) !== this.myPlayer &&
+          !(
+            this.gameView.owner(tile).isPlayer() &&
+            this.myPlayer!.isFriendly(this.gameView.owner(tile) as PlayerView)
+          )
+        ) {
+          // Say why nothing happened instead of a silent click.
+          showToast(translateText("attack.unreachable"), "red", 2200);
         }
       })
       .catch((error) => {

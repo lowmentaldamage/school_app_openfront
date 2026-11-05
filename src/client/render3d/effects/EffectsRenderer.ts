@@ -413,68 +413,179 @@ export class EffectsRenderer {
 
     switch (kind) {
       case "volcano": {
-        this.explode(
-          { kind: "building", radius: r * 0.45, altitude: 0, intensity: 2.5 },
-          x,
-          z,
-        );
-        // Lava fountains and bombs for ~15 s, an ash column for ~30 s.
+        // A Plinian eruption: a short blast at the crater, then for ~30 s
+        // an ash column that climbs high and spreads into a flat cloud,
+        // lava fountains and bombs, glowing lava running down the slopes
+        // and a grey ash flow rolling along the ground.
+        this.fire.spawn(x, g + 1.5, z, 0, 0, 0, now, 0.3, r * 0.9, P_FLASH);
+        const top = g + 18 + r * 0.6;
         for (let i = 0; i < Math.round(70 * k); i++) {
-          const at = now + Math.random() * 15;
-          this.fire.spawn(
-            x + rnd(0.8),
-            g + 1,
-            z + rnd(0.8),
-            rnd(3),
-            6 + Math.random() * 8,
-            rnd(3),
+          const at = now + Math.random() * 28;
+          // Column: fast and narrow near the vent, wider as it climbs.
+          const rise = 5 + Math.random() * 3;
+          this.smoke.spawn(
+            x + rnd(0.7),
+            g + 1.5 + Math.random() * 2,
+            z + rnd(0.7),
+            rnd(0.5),
+            rise,
+            rnd(0.5),
             at,
-            1.4,
-            1.2 + Math.random(),
+            (top - g) / rise + 2,
+            2.2 + Math.random() * 2,
+            P_SMOKE,
+          );
+          // Umbrella: ash spreading sideways at the top of the column.
+          if (i % 2 === 0) {
+            const a = Math.random() * Math.PI * 2;
+            const v = 1.2 + Math.random() * 1.8;
+            this.smoke.spawn(
+              x + rnd(1.5),
+              top + rnd(1.5),
+              z + rnd(1.5),
+              Math.cos(a) * v * r * 0.25,
+              -0.4,
+              Math.sin(a) * v * r * 0.25,
+              at + 2.5,
+              14,
+              5 + Math.random() * 4,
+              P_SMOKE,
+            );
+          }
+        }
+        // Lava fountain and bombs (sparks fall back with gravity).
+        for (let i = 0; i < Math.round(60 * k); i++) {
+          const at = now + Math.random() * 16;
+          this.fire.spawn(
+            x + rnd(0.5),
+            g + 1,
+            z + rnd(0.5),
+            rnd(1.5),
+            5 + Math.random() * 6,
+            rnd(1.5),
+            at,
+            1.1,
+            0.9 + Math.random() * 0.8,
             P_FIRE,
           );
-          if (i % 3 === 0) {
+          if (i % 2 === 0) {
             this.fire.spawn(
               x,
               g + 1.5,
               z,
-              rnd(5),
-              7 + Math.random() * 6,
-              rnd(5),
+              rnd(4),
+              8 + Math.random() * 6,
+              rnd(4),
               at,
-              2.2,
-              0.5,
+              2.6,
+              0.45,
               P_SPARK,
             );
           }
         }
-        for (let i = 0; i < Math.round(40 * k); i++) {
-          const at = now + Math.random() * 30;
-          this.smoke.spawn(
-            x + rnd(1),
-            g + 3,
-            z + rnd(1),
-            rnd(0.6),
-            2.2 + Math.random(),
-            rnd(0.6),
-            at,
-            8,
-            4 + Math.random() * 3,
-            P_SMOKE,
-          );
+        // Lava flows: a few glowing tongues creeping downhill, leaving
+        // burnt ground.
+        const flows = 4;
+        for (let f = 0; f < flows; f++) {
+          const a = (f / flows) * Math.PI * 2 + Math.random();
+          const len = r * (0.45 + Math.random() * 0.3);
+          const steps = Math.round(16 * k) + 4;
+          for (let j = 0; j < steps; j++) {
+            const d = (j / steps) * len;
+            const wob = Math.sin(j * 0.9 + f) * 0.6;
+            const px = x + Math.cos(a) * d - Math.sin(a) * wob;
+            const pz = z + Math.sin(a) * d + Math.cos(a) * wob;
+            const pg = Math.max(0, this.hf.sample(px, pz));
+            const at = now + 1.5 + (j / steps) * 14;
+            this.fire.spawn(px, pg + 0.12, pz, 0, 0.15, 0, at, 6, 0.9, P_FIRE);
+            this.smoke.spawn(px, pg, pz, 0, 0, 0, at, 30, 1.6, P_SCORCH);
+            if (j % 3 === 0) {
+              this.smoke.spawn(
+                px,
+                pg + 0.3,
+                pz,
+                rnd(0.2),
+                0.7,
+                rnd(0.2),
+                at + 1,
+                5,
+                1.6,
+                P_SMOKE,
+              );
+            }
+          }
         }
-        // Lava flows burn the slopes.
-        for (let i = 0; i < 6; i++) {
-          this.burn(x + rnd(r * 0.4), z + rnd(r * 0.4), r * 0.35, 3);
+        // Pyroclastic flow: grey ash rolling out along the ground.
+        for (let i = 0; i < Math.round(36 * k); i++) {
+          const a = Math.random() * Math.PI * 2;
+          const v = r * (0.25 + Math.random() * 0.25);
+          this.smoke.spawn(
+            x + Math.cos(a),
+            g + 0.5,
+            z + Math.sin(a),
+            Math.cos(a) * v,
+            0.2,
+            Math.sin(a) * v,
+            now + 0.8 + Math.random() * 2,
+            5,
+            2.4 + Math.random() * 1.5,
+            P_DUST,
+          );
         }
         this.shake(1.2, 3500);
         break;
       }
       case "earthquake": {
+        // The ground ruptures along a fault: a jagged crack opens across
+        // the area, dust bursts out of it, rubble falls, and the shaking
+        // comes back as aftershocks.
+        const a = Math.random() * Math.PI;
+        const ux = Math.cos(a);
+        const uz = Math.sin(a);
+        const steps = Math.round(28 * k) + 8;
+        let off = 0;
+        for (let j = 0; j <= steps; j++) {
+          const d = (j / steps - 0.5) * 2 * r * 0.9;
+          off += rnd(0.5);
+          off *= 0.85;
+          const px = x + ux * d - uz * off;
+          const pz = z + uz * d + ux * off;
+          const pg = Math.max(0, this.hf.sample(px, pz));
+          // Opens from the epicentre outwards.
+          const at = now + (Math.abs(d) / r) * 1.2;
+          this.smoke.spawn(px, pg, pz, 0, 0, 0, at, 35, 0.9, P_SCORCH);
+          this.smoke.spawn(
+            px,
+            pg + 0.1,
+            pz,
+            rnd(0.8),
+            0.6,
+            rnd(0.8),
+            at,
+            3.5,
+            1.6,
+            P_DUST,
+          );
+          if (j % 3 === 0) {
+            this.smoke.spawn(
+              px,
+              pg + 0.2,
+              pz,
+              rnd(1.5),
+              1.5 + Math.random() * 1.5,
+              rnd(1.5),
+              at,
+              1.4,
+              0.08,
+              P_DEBRIS,
+            );
+          }
+        }
         for (let w = 0; w < 3; w++) {
           this.rings.spawn(x, g, z, r * (0.6 + w * 0.25), 1.6, now + w * 0.6);
         }
-        for (let i = 0; i < Math.round(60 * k); i++) {
+        // Dust shaken up across the whole area (buildings, slopes).
+        for (let i = 0; i < Math.round(40 * k); i++) {
           const px = x + rnd(r);
           const pz = z + rnd(r);
           const pg = Math.max(0, this.hf.sample(px, pz));
@@ -482,40 +593,48 @@ export class EffectsRenderer {
             px,
             pg + 0.1,
             pz,
-            rnd(1.5),
-            0.3,
-            rnd(1.5),
+            rnd(1.2),
+            0.25,
+            rnd(1.2),
             now + Math.random() * 3,
             3,
-            1.8,
+            1.6,
             P_DUST,
           );
         }
-        this.shake(0.9, 4000);
+        this.shake(1.0, 4000);
+        // Aftershocks.
+        setTimeout(() => this.shake(0.45, 1500), 5500);
+        setTimeout(() => this.shake(0.3, 1200), 9000);
         break;
       }
       case "tsunami": {
-        for (let w = 0; w < 3; w++) {
-          this.rings.spawn(x, 0.2, z, r * (0.8 + w * 0.2), 2.4, now + w * 0.8);
-        }
-        for (let i = 0; i < Math.round(90 * k); i++) {
-          const a = Math.random() * Math.PI * 2;
-          const d = Math.random() * r;
+        // The wave: a continuous white crest racing outwards from the
+        // epicentre, throwing spray up as it breaks on the coast.
+        const crests = Math.round(150 * k);
+        for (let i = 0; i < crests; i++) {
+          const a = (i / crests) * Math.PI * 2 + rnd(0.02);
+          const d = r * (0.15 + Math.random() * 0.85);
           const px = x + Math.cos(a) * d;
           const pz = z + Math.sin(a) * d;
-          const pg = Math.max(0, this.hf.sample(px, pz));
+          const ground = this.hf.sample(px, pz);
+          const at = now + (d / r) * 3;
+          const onLand = ground > 0;
           this.smoke.spawn(
             px,
-            pg + 0.3,
+            Math.max(0, ground) + 0.2,
             pz,
-            Math.cos(a) * 2.5,
-            1.5 + Math.random() * 2,
-            Math.sin(a) * 2.5,
-            now + (d / r) * 2.5,
-            2.4,
-            2,
+            Math.cos(a) * (onLand ? 1.2 : 3),
+            onLand ? 2.5 + Math.random() * 2 : 0.6,
+            Math.sin(a) * (onLand ? 1.2 : 3),
+            at,
+            onLand ? 2.8 : 1.8,
+            onLand ? 2.2 : 1.4,
             P_FOAM,
           );
+        }
+        for (let w = 0; w < 4; w++) {
+          this.rings.spawn(x, 0.2, z, r * (0.7 + w * 0.15), 2.8, now + w * 0.5);
         }
         this.shake(0.4, 2000);
         break;
@@ -560,28 +679,61 @@ export class EffectsRenderer {
         break;
       }
       case "wildfire": {
-        // A front that spreads out from the centre over ~12 s.
-        for (let i = 0; i < Math.round(80 * k); i++) {
+        // A fire front spreading out over ~12 s, pushed by the wind: tall
+        // flames at the front, embers flying ahead, smoke leaning
+        // downwind, burnt black ground left behind.
+        const wind = Math.random() * Math.PI * 2;
+        const wx = Math.cos(wind);
+        const wz = Math.sin(wind);
+        for (let i = 0; i < Math.round(90 * k); i++) {
           const a = Math.random() * Math.PI * 2;
-          const d = Math.random() * r;
+          // Spreads further downwind.
+          const reach = 0.65 + 0.35 * (Math.cos(a - wind) + 1) * 0.5;
+          const d = Math.random() * r * reach;
           const px = x + Math.cos(a) * d;
           const pz = z + Math.sin(a) * d;
-          const pg = Math.max(0, this.hf.sample(px, pz));
           if (this.hf.sample(px, pz) < 0) continue;
+          const pg = Math.max(0, this.hf.sample(px, pz));
           const at = now + (d / r) * 10 + Math.random();
-          this.fire.spawn(px, pg + 0.2, pz, 0, 0.8, 0, at, 1.6, 1.4, P_FIRE);
+          this.fire.spawn(
+            px,
+            pg + 0.2,
+            pz,
+            wx * 0.3,
+            1,
+            wz * 0.3,
+            at,
+            2,
+            1.5,
+            P_FIRE,
+          );
+          this.smoke.spawn(px, pg, pz, 0, 0, 0, at + 1, 40, 1.8, P_SCORCH);
           if (i % 2 === 0) {
             this.smoke.spawn(
               px,
               pg + 0.8,
               pz,
-              rnd(0.4),
-              1.2,
-              rnd(0.4),
+              wx * 1.4 + rnd(0.3),
+              1.3,
+              wz * 1.4 + rnd(0.3),
               at + 0.3,
-              5,
-              2.4,
+              6,
+              2.6,
               P_SMOKE,
+            );
+          }
+          if (i % 4 === 0) {
+            this.fire.spawn(
+              px,
+              pg + 0.8,
+              pz,
+              wx * 3 + rnd(1),
+              3 + Math.random() * 2,
+              wz * 3 + rnd(1),
+              at,
+              1.8,
+              0.3,
+              P_SPARK,
             );
           }
         }

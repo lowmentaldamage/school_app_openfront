@@ -21,7 +21,9 @@ export type BrushTool =
   | "highland"
   | "mountain"
   | "raise"
-  | "lower";
+  | "lower"
+  | "smooth"
+  | "level";
 
 export const BRUSH_TOOLS: readonly BrushTool[] = [
   "water",
@@ -30,7 +32,60 @@ export const BRUSH_TOOLS: readonly BrushTool[] = [
   "mountain",
   "raise",
   "lower",
+  "smooth",
+  "level",
 ];
+
+/** Brush footprint. */
+export type BrushShape = "circle" | "square";
+
+/** Mirror painting: every dab is repeated on the mirrored side(s). */
+export type Symmetry = "none" | "x" | "y" | "xy" | "rot";
+
+/** The points a dab at (x, y) paints on a w×h map with `sym`. */
+export function mirrorPoints(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  sym: Symmetry,
+): [number, number][] {
+  const mx = w - 1 - x;
+  const my = h - 1 - y;
+  switch (sym) {
+    case "x":
+      return [
+        [x, y],
+        [mx, y],
+      ];
+    case "y":
+      return [
+        [x, y],
+        [x, my],
+      ];
+    case "xy":
+      return [
+        [x, y],
+        [mx, y],
+        [x, my],
+        [mx, my],
+      ];
+    case "rot":
+      return [
+        [x, y],
+        [mx, my],
+      ];
+    default:
+      return [[x, y]];
+  }
+}
+
+/** Extra brush settings (shape, the exact height of the Level tool). */
+export interface BrushOptions {
+  shape?: BrushShape;
+  /** 0-100, for the "level" tool. */
+  level?: number;
+}
 
 /**
  * Height bands on the 0 (ground) - 100 (mountain tops) scale; they match
@@ -301,8 +356,15 @@ export class MapDocument {
   }
 
   /** Paint one brush dab, a disc of `radius` tiles centred on (cx, cy). */
-  paint(cx: number, cy: number, radius: number, tool: BrushTool): void {
+  paint(
+    cx: number,
+    cy: number,
+    radius: number,
+    tool: BrushTool,
+    opts: BrushOptions = {},
+  ): void {
     const m = this.map;
+    const square = opts.shape === "square";
     const r = Math.max(0.5, radius);
     const x0 = Math.max(0, Math.floor(cx - r));
     const x1 = Math.min(m.width - 1, Math.ceil(cx + r));
@@ -313,7 +375,7 @@ export class MapDocument {
     for (let y = y0; y <= y1; y++) {
       for (let x = x0; x <= x1; x++) {
         const d2 = (x - cx) * (x - cx) + (y - cy) * (y - cy);
-        if (d2 > r2) continue;
+        if (!square && d2 > r2) continue;
         const i = y * m.width + x;
         // Soft falloff for raise/lower: strongest at the centre.
         const falloff = 1 - Math.sqrt(d2) / (r + 0.5);
@@ -346,6 +408,38 @@ export class MapDocument {
             else this.set(i, TERRAIN_LAND, Math.min(TOP, e));
             break;
           }
+          case "smooth": {
+            // Land heights move toward their neighbours' average; the
+            // coastline stays where it is.
+            if (m.kind[i] !== TERRAIN_LAND) break;
+            let sum = 0;
+            let n = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx < 0 || ny < 0 || nx >= m.width || ny >= m.height)
+                  continue;
+                const j = ny * m.width + nx;
+                if (m.kind[j] !== TERRAIN_LAND) continue;
+                sum += m.elevation[j];
+                n++;
+              }
+            }
+            const avg = sum / n;
+            const k = 0.25 + 0.5 * Math.max(0, falloff);
+            this.set(
+              i,
+              TERRAIN_LAND,
+              Math.round(m.elevation[i] + (avg - m.elevation[i]) * k),
+            );
+            break;
+          }
+          case "level": {
+            const lv = Math.max(0, Math.min(TOP, Math.round(opts.level ?? 30)));
+            this.set(i, TERRAIN_LAND, lv);
+            break;
+          }
         }
       }
     }
@@ -367,14 +461,130 @@ export class MapDocument {
     by: number,
     radius: number,
     tool: BrushTool,
+    opts: BrushOptions = {},
   ): void {
     const dist = Math.hypot(bx - ax, by - ay);
     const step = Math.max(0.5, radius * 0.5);
     const n = Math.max(1, Math.ceil(dist / step));
     for (let i = 1; i <= n; i++) {
       const t = i / n;
-      this.paint(ax + (bx - ax) * t, ay + (by - ay) * t, radius, tool);
+      this.paint(ax + (bx - ax) * t, ay + (by - ay) * t, radius, tool, opts);
     }
+  }
+
+  /**
+   * Fill bucket: the connected area of the same terrain as (x, y) (water,
+   * or land of the same band: plains, highland, mountain) becomes `tool`.
+   * Call between beginStroke/endStroke so it is one undo step.
+   * @returns tiles changed
+   */
+  fill(x: number, y: number, tool: BrushTool, opts: BrushOptions = {}): number {
+    const m = this.map;
+    const w = m.width;
+    const h = m.height;
+    if (x < 0 || y < 0 || x >= w || y >= h) return 0;
+    const bandOf = (i: number): number => {
+      if (m.kind[i] !== TERRAIN_LAND) return -1 - m.kind[i];
+      const e = m.elevation[i];
+      return e < 33 ? 0 : e < 67 ? 1 : 2;
+    };
+    const start = y * w + x;
+    const want = bandOf(start);
+    const seen = new Uint8Array(w * h);
+    const queue = new Int32Array(w * h);
+    let head = 0;
+    let tail = 0;
+    queue[tail++] = start;
+    seen[start] = 1;
+    let x0 = x;
+    let x1 = x;
+    let y0 = y;
+    let y1 = y;
+    let count = 0;
+    while (head < tail) {
+      const i = queue[head++];
+      const tx = i % w;
+      const ty = (i - tx) / w;
+      x0 = Math.min(x0, tx);
+      x1 = Math.max(x1, tx);
+      y0 = Math.min(y0, ty);
+      y1 = Math.max(y1, ty);
+      count++;
+      const nb = [
+        tx > 0 ? i - 1 : -1,
+        tx < w - 1 ? i + 1 : -1,
+        ty > 0 ? i - w : -1,
+        ty < h - 1 ? i + w : -1,
+      ];
+      for (const j of nb) {
+        if (j < 0 || seen[j]) continue;
+        seen[j] = 1;
+        if (bandOf(j) === want) queue[tail++] = j;
+      }
+    }
+    // Paint every reached tile with a 0-radius dab of the tool.
+    for (let k = 0; k < tail; k++) {
+      const i = queue[k];
+      const tx = i % w;
+      this.paintTile(tx, (i - tx) / w, tool, opts);
+    }
+    this.mark(x0, y0, x1, y1);
+    if (tool === "water" || tool === "lower") {
+      this.nations = this.nations.filter(
+        (n) => m.kind[n.y * m.width + n.x] === TERRAIN_LAND,
+      );
+    }
+    this.version++;
+    return count;
+  }
+
+  /** One tile with the tool (as the centre of a brush dab). */
+  private paintTile(
+    x: number,
+    y: number,
+    tool: BrushTool,
+    opts: BrushOptions,
+  ): void {
+    const m = this.map;
+    const i = y * m.width + x;
+    switch (tool) {
+      case "water":
+        this.set(i, TERRAIN_WATER, 0);
+        return;
+      case "plains":
+      case "highland":
+      case "mountain": {
+        const [lo, hi] = BAND[tool];
+        this.set(i, TERRAIN_LAND, Math.round(lo + (hi - lo) * hash2(x, y, 9)));
+        return;
+      }
+      case "level":
+        this.set(
+          i,
+          TERRAIN_LAND,
+          Math.max(0, Math.min(TOP, Math.round(opts.level ?? 30))),
+        );
+        return;
+      case "raise":
+      case "lower": {
+        if (m.kind[i] === TERRAIN_IMPASSABLE) return;
+        const land = m.kind[i] === TERRAIN_LAND;
+        const e = (land ? m.elevation[i] : -1) + (tool === "raise" ? 5 : -5);
+        if (e < 0) this.set(i, TERRAIN_WATER, 0);
+        else this.set(i, TERRAIN_LAND, Math.min(TOP, e));
+        return;
+      }
+      case "smooth":
+        return;
+    }
+  }
+
+  /** Eyedropper: the terrain at a tile (null off the map). */
+  pick(x: number, y: number): { land: boolean; level: number } | null {
+    const m = this.map;
+    if (x < 0 || y < 0 || x >= m.width || y >= m.height) return null;
+    const i = y * m.width + x;
+    return { land: m.kind[i] === TERRAIN_LAND, level: m.elevation[i] };
   }
 
   isLand(x: number, y: number): boolean {

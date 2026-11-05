@@ -363,7 +363,7 @@ describe("GameView.update — packed channels", () => {
     expect(game.frameData().names.get("alice")).toMatchObject({ x: 11, y: 13 });
   });
 
-  it("dead players keep their last name placement (freeze at death)", () => {
+  it("dead players' names leave the map", () => {
     const game = makeGameView();
     game.update(
       withPlayers(1, [makePlayerUpdate({ id: "alice", smallID: 1 })], {
@@ -378,11 +378,14 @@ describe("GameView.update — packed channels", () => {
     ];
     game.update(gu2);
 
-    // A later record must not move her name.
+    expect(game.frameData().names.has("alice")).toBe(false);
+
+    // A later record must not bring it back.
     const gu3 = makeEmptyGu(3);
     gu3.playerNameViewData = { alice: { x: 0, y: 0, size: 0 } };
     game.update(gu3);
-    expect(game.frameData().names.get("alice")).toMatchObject({ x: 7, y: 9 });
+    expect(game.frameData().names.has("alice")).toBe(false);
+    expect(game.player("alice").nameData).toMatchObject({ x: 7, y: 9 });
   });
 });
 

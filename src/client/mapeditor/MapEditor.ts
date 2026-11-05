@@ -31,7 +31,11 @@ import { terrainMapFileLoader } from "../TerrainMapFileLoader";
 import { translateText } from "../Utils";
 import {
   BRUSH_TOOLS,
+  type BrushOptions,
+  type BrushShape,
   type BrushTool,
+  mirrorPoints,
+  type Symmetry,
   type ImageMode,
   imageToMap,
   importSize,
@@ -51,7 +55,7 @@ import {
   UPLOAD_ACCEPT,
 } from "./MapFileFormats";
 
-type Tool = BrushTool | "nation" | "pan" | "orbit";
+type Tool = BrushTool | "fill" | "pick" | "nation" | "pan" | "orbit";
 
 const TOOL_ICON: Record<Tool, string> = {
   water: "🌊",
@@ -60,6 +64,10 @@ const TOOL_ICON: Record<Tool, string> = {
   mountain: "🏔️",
   raise: "⬆️",
   lower: "⬇️",
+  smooth: "〰️",
+  level: "📏",
+  fill: "🪣",
+  pick: "💧",
   nation: "🚩",
   pan: "✋",
   orbit: "🔄",
@@ -111,6 +119,12 @@ function halve(packed: Uint8Array, w: number, h: number): Uint8Array {
 export class MapEditor extends LitElement {
   @state() private tool: Tool = "plains";
   @state() private size = 8;
+  @state() private shape: BrushShape = "circle";
+  /** Height (0-100) painted by the Level tool and used by Fill. */
+  @state() private level = 30;
+  @state() private symmetry: Symmetry = "none";
+  /** Terrain the Fill bucket pours. */
+  @state() private fillWith: BrushTool = "plains";
   @state() private view: "2d" | "3d" = "2d";
   @state() private name = "";
   @state() private statusText = "";
@@ -568,18 +582,52 @@ export class MapEditor extends LitElement {
       ctx.fillText(n.name, sx, sy - 10);
     });
     // Brush outline.
-    if (this.hover && (BRUSH_TOOLS as readonly string[]).includes(this.tool)) {
+    // Mirror axes.
+    if (this.symmetry !== "none") {
+      const w = this.doc.width * this.scale;
+      const h = this.doc.height * this.scale;
+      ctx.save();
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(251,191,36,0.8)";
       ctx.beginPath();
-      ctx.arc(
-        ox + (this.hover.x + 0.5) * this.scale,
-        oy + (this.hover.y + 0.5) * this.scale,
-        Math.max(2, this.size * this.scale),
-        0,
-        Math.PI * 2,
-      );
+      if (
+        this.symmetry === "x" ||
+        this.symmetry === "xy" ||
+        this.symmetry === "rot"
+      ) {
+        ctx.moveTo(ox + w / 2, oy);
+        ctx.lineTo(ox + w / 2, oy + h);
+      }
+      if (
+        this.symmetry === "y" ||
+        this.symmetry === "xy" ||
+        this.symmetry === "rot"
+      ) {
+        ctx.moveTo(ox, oy + h / 2);
+        ctx.lineTo(ox + w, oy + h / 2);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (this.hover && (BRUSH_TOOLS as readonly string[]).includes(this.tool)) {
+      const r = Math.max(2, this.size * this.scale);
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = "rgba(255,255,255,0.9)";
-      ctx.stroke();
+      for (const [px, py] of mirrorPoints(
+        this.hover.x,
+        this.hover.y,
+        this.doc.width,
+        this.doc.height,
+        this.symmetry,
+      )) {
+        const cx = ox + (px + 0.5) * this.scale;
+        const cy = oy + (py + 0.5) * this.scale;
+        ctx.beginPath();
+        if (this.shape === "square") ctx.rect(cx - r, cy - r, r * 2, r * 2);
+        else ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
   }
 
@@ -820,6 +868,43 @@ export class MapEditor extends LitElement {
 
   // ---------------------------------------------------------------- input
 
+  private brushOpts(): BrushOptions {
+    return { shape: this.shape, level: this.level };
+  }
+
+  /** One dab at (x, y) and its mirror images. */
+  private dab(x: number, y: number): void {
+    const tool = this.tool as BrushTool;
+    for (const [px, py] of mirrorPoints(
+      x,
+      y,
+      this.doc.width,
+      this.doc.height,
+      this.symmetry,
+    )) {
+      this.doc.paint(px, py, this.size, tool, this.brushOpts());
+    }
+  }
+
+  private dabLine(ax: number, ay: number, bx: number, by: number): void {
+    const tool = this.tool as BrushTool;
+    const w = this.doc.width;
+    const h = this.doc.height;
+    const a = mirrorPoints(ax, ay, w, h, this.symmetry);
+    const b = mirrorPoints(bx, by, w, h, this.symmetry);
+    for (let i = 0; i < a.length; i++) {
+      this.doc.paintLine(
+        a[i][0],
+        a[i][1],
+        b[i][0],
+        b[i][1],
+        this.size,
+        tool,
+        this.brushOpts(),
+      );
+    }
+  }
+
   private onPointerDown = (e: PointerEvent) => {
     this.spin = false;
     const target = e.currentTarget as HTMLElement;
@@ -848,9 +933,42 @@ export class MapEditor extends LitElement {
       this.handleNationDown(tile.x, tile.y);
       return;
     }
+    if (this.tool === "pick") {
+      const p = this.doc.pick(tile.x, tile.y);
+      if (p) {
+        if (p.land) {
+          this.level = p.level;
+          this.fillWith = "level";
+          this.tool = "level";
+        } else {
+          this.fillWith = "water";
+          this.tool = "water";
+        }
+        this.status = t("picked", { h: p.land ? p.level : t("water_word") });
+      }
+      return;
+    }
+    if (this.tool === "fill") {
+      this.doc.beginStroke();
+      let n = 0;
+      for (const [px, py] of mirrorPoints(
+        tile.x,
+        tile.y,
+        this.doc.width,
+        this.doc.height,
+        this.symmetry,
+      )) {
+        n += this.doc.fill(px, py, this.fillWith, this.brushOpts());
+      }
+      this.doc.endStroke();
+      this.savedId = null;
+      this.status = t("filled", { n });
+      this.rev++;
+      return;
+    }
     this.doc.beginStroke();
     this.painting = tile;
-    this.doc.paint(tile.x, tile.y, this.size, this.tool);
+    this.dab(tile.x, tile.y);
   };
 
   private onPointerMove = (e: PointerEvent) => {
@@ -895,20 +1013,13 @@ export class MapEditor extends LitElement {
     }
     if (
       this.painting &&
-      this.tool !== "nation" &&
-      this.tool !== "pan" &&
-      this.tool !== "orbit"
+      (BRUSH_TOOLS as readonly string[]).includes(this.tool)
     ) {
-      this.doc.paintLine(
-        this.painting.x,
-        this.painting.y,
-        tile.x,
-        tile.y,
-        this.size,
-        this.tool,
-      );
+      this.dabLine(this.painting.x, this.painting.y, tile.x, tile.y);
       this.painting = tile;
     }
+    // Status bar: the tile under the cursor.
+    this.rev++;
   };
 
   private onPointerUp = (e: PointerEvent) => {
@@ -982,6 +1093,23 @@ export class MapEditor extends LitElement {
       this.size = Math.min(80, this.size + 1);
     } else if (e.code === "Escape" && this.menu !== "none") {
       this.menu = "none";
+    } else if (!e.ctrlKey && !e.metaKey && !e.altKey && this.menu === "none") {
+      // Tool shortcuts: 1-8 terrain brushes, F fill, I eyedropper,
+      // N nation, H move, M mirror mode, S brush shape.
+      const digit = /^Digit([1-8])$/.exec(e.code);
+      if (digit) this.tool = BRUSH_TOOLS[Number(digit[1]) - 1];
+      else if (e.code === "KeyF") this.tool = "fill";
+      else if (e.code === "KeyI") this.tool = "pick";
+      else if (e.code === "KeyN") this.tool = "nation";
+      else if (e.code === "KeyH") this.tool = "pan";
+      else if (e.code === "KeyS")
+        this.shape = this.shape === "circle" ? "square" : "circle";
+      else if (e.code === "KeyM") {
+        const order: Symmetry[] = ["none", "x", "y", "xy", "rot"];
+        this.symmetry =
+          order[(order.indexOf(this.symmetry) + 1) % order.length];
+        this.needs2d = true;
+      }
     }
   }
 
@@ -1328,6 +1456,98 @@ export class MapEditor extends LitElement {
     </div>`;
   }
 
+  private renderBrush() {
+    const seg = (on: boolean) =>
+      `flex-1 px-2 py-1 text-xs ${on ? "bg-sky-600" : "bg-slate-800 hover:bg-slate-700"}`;
+    return html`<section
+      class="flex flex-col gap-2 rounded-lg bg-slate-800/60 p-2"
+    >
+      <h3 class="text-xs font-bold uppercase tracking-wide text-sky-300">
+        ${t("brush_title")}
+      </h3>
+      <label class="flex items-center gap-2 text-xs">
+        <span class="w-16">${t("brush", { n: this.size })}</span>
+        <input
+          type="range"
+          min="1"
+          max="80"
+          class="flex-1"
+          .value=${String(this.size)}
+          @input=${(e: Event) =>
+            (this.size = Number((e.target as HTMLInputElement).value))}
+        />
+      </label>
+      <div class="flex overflow-hidden rounded border border-white/15">
+        <button
+          class=${seg(this.shape === "circle")}
+          @click=${() => (this.shape = "circle")}
+        >
+          ● ${t("shape_circle")}
+        </button>
+        <button
+          class=${seg(this.shape === "square")}
+          @click=${() => (this.shape = "square")}
+        >
+          ■ ${t("shape_square")}
+        </button>
+      </div>
+      <label class="flex items-center gap-2 text-xs">
+        <span class="w-16">${t("level_value", { n: this.level })}</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          class="flex-1"
+          .value=${String(this.level)}
+          @input=${(e: Event) => {
+            this.level = Number((e.target as HTMLInputElement).value);
+            if (!(BRUSH_TOOLS as readonly string[]).includes(this.tool))
+              this.tool = "level";
+          }}
+        />
+      </label>
+      <label class="flex items-center gap-2 text-xs">
+        <span class="w-16">${t("fill_with")}</span>
+        <select
+          class="flex-1 rounded bg-slate-900 px-1 py-1"
+          .value=${this.fillWith}
+          @change=${(e: Event) => {
+            this.fillWith = (e.target as HTMLSelectElement).value as BrushTool;
+            this.tool = "fill";
+          }}
+        >
+          ${(
+            ["water", "plains", "highland", "mountain", "level"] as BrushTool[]
+          ).map(
+            (k) =>
+              html`<option value=${k} ?selected=${this.fillWith === k}>
+                ${TOOL_ICON[k]} ${t(`tool_${k}`)}
+              </option>`,
+          )}
+        </select>
+      </label>
+      <label class="flex items-center gap-2 text-xs">
+        <span class="w-16">${t("mirror")}</span>
+        <select
+          class="flex-1 rounded bg-slate-900 px-1 py-1"
+          .value=${this.symmetry}
+          @change=${(e: Event) => {
+            this.symmetry = (e.target as HTMLSelectElement).value as Symmetry;
+            this.needs2d = true;
+          }}
+        >
+          ${(["none", "x", "y", "xy", "rot"] as Symmetry[]).map(
+            (k) =>
+              html`<option value=${k} ?selected=${this.symmetry === k}>
+                ${t(`mirror_${k}`)}
+              </option>`,
+          )}
+        </select>
+      </label>
+      <p class="text-[10px] leading-snug text-white/45">${t("shortcuts")}</p>
+    </section>`;
+  }
+
   private renderAuto() {
     const num = (
       label: string,
@@ -1485,7 +1705,17 @@ export class MapEditor extends LitElement {
     void this.rev;
     const land = this.doc.landTiles();
     const pct = Math.round((land / (this.doc.width * this.doc.height)) * 100);
-    const tools: Tool[] = [...BRUSH_TOOLS, "nation", "pan", "orbit"];
+    const tools: Tool[] = [
+      ...BRUSH_TOOLS,
+      "fill",
+      "pick",
+      "nation",
+      "pan",
+      "orbit",
+    ];
+    const hoverInfo = this.hover
+      ? this.doc.pick(this.hover.x, this.hover.y)
+      : null;
     return html`
       <style>
         .lkr-ed-btn {
@@ -1712,10 +1942,33 @@ export class MapEditor extends LitElement {
                 : nothing
             }
             <div
-              class="pointer-events-none absolute bottom-2 left-2 rounded bg-black/60 px-2 py-1 text-xs text-white/80"
+              class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-x-3 border-t border-white/10 bg-slate-900/90 px-3 py-1 font-mono text-[11px] text-white/75"
             >
-              ${this.doc.width}×${this.doc.height} · ${t("land", { n: pct })} ·
-              ${t(`tool_${this.tool}_hint`)}
+              <span>${this.doc.width}×${this.doc.height}</span>
+              <span>${t("land", { n: pct })}</span>
+              <span>${t("nations_count", { n: this.doc.nations.length })}</span>
+              ${
+                this.hover
+                  ? html`<span class="text-sky-300"
+                      >${this.hover.x}, ${this.hover.y} ·
+                      ${
+                        hoverInfo?.land
+                          ? t("height_at", { h: hoverInfo.level })
+                          : t("water_word")
+                      }</span
+                    >`
+                  : nothing
+              }
+              ${
+                this.symmetry !== "none"
+                  ? html`<span class="text-amber-300"
+                      >${t(`mirror_${this.symmetry}`)}</span
+                    >`
+                  : nothing
+              }
+              <span class="ml-auto hidden font-sans sm:inline"
+                >${t(`tool_${this.tool}_hint`)}</span
+              >
             </div>
             ${
               this.status
@@ -1733,7 +1986,7 @@ export class MapEditor extends LitElement {
               this.showPanel ? "absolute inset-y-0 right-0 z-30 flex" : "hidden"
             } w-72 flex-col gap-3 overflow-y-auto border-l border-white/10 bg-slate-900 p-3 md:static md:flex"
           >
-            ${this.renderAuto()} ${this.renderNations()}
+            ${this.renderBrush()} ${this.renderAuto()} ${this.renderNations()}
             <p class="mt-auto text-[11px] leading-snug text-white/50">
               ${t("help")}
             </p>

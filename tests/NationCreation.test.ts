@@ -338,3 +338,40 @@ describe("createNationsForGame: additionalNations pool", () => {
     expect(new Set(names).size).toBe(8);
   });
 });
+
+describe("real countries fill maps without nations", () => {
+  test("a map with no nations gets real countries with flags by default", () => {
+    const start = makeGameStart(0);
+    start.config.nations = "default";
+    const nations = createNationsForGame(start, [], [], 1, new PseudoRandom(5));
+    expect(nations).toHaveLength(14);
+    for (const n of nations) {
+      expect(n.spawnCell).toBeUndefined();
+      expect(n.playerInfo.nationFlag).toMatch(/^[a-z-]+$/);
+    }
+    expect(new Set(nationNames(nations)).size).toBe(14);
+  });
+
+  test("extra nations beyond the manifest are real countries first", () => {
+    const nations = createNationsForGame(
+      makeGameStart(6),
+      makeManifestNations(2),
+      [],
+      0,
+      new PseudoRandom(3),
+    );
+    const extra = nations.filter(
+      (n) => !n.playerInfo.name.startsWith("Manifest"),
+    );
+    expect(extra).toHaveLength(4);
+    for (const n of extra) expect(n.playerInfo.nationFlag).toBeTruthy();
+  });
+
+  test("disabled still means none", () => {
+    const start = makeGameStart(0);
+    start.config.nations = "disabled";
+    expect(createNationsForGame(start, [], [], 1, new PseudoRandom(5))).toEqual(
+      [],
+    );
+  });
+});

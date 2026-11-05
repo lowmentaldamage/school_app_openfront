@@ -15,7 +15,7 @@
 import {
   BufferAttribute,
   Color,
-  CubicBezierCurve3,
+  CatmullRomCurve3,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -27,8 +27,7 @@ import {
 import type { GhostPreviewData, NukeTrajectoryData } from "../../render/types";
 import type { Heightfield } from "../terrain/Heightfield";
 import {
-  arcAt,
-  arcPeak,
+  ballisticPose,
   modelKindFor,
   STRUCTURE_KINDS,
   zoomScale,
@@ -185,20 +184,25 @@ export class OverlayRenderer {
     if (data === null) return;
 
     const dist = Math.hypot(data.p3x - data.p0x, data.p3y - data.p0y);
-    const peak = arcPeak("atomBomb", dist);
-    // Lift the 2D bezier into 3D with the same arc the missile will fly.
-    const lift = (x: number, y: number, t: number) =>
-      new Vector3(
+    // The exact arc the missile will fly (UnitRenderer: ballisticPose).
+    const pts: Vector3[] = [];
+    for (let i = 0; i <= 24; i++) {
+      const t = i / 24;
+      const x = data.p0x + (data.p3x - data.p0x) * t;
+      const y = data.p0y + (data.p3y - data.p0y) * t;
+      const pose = ballisticPose(
+        "atomBomb",
+        data.p0x,
+        data.p0y,
         x,
-        Math.max(0, this.hf.sample(x, y)) + arcAt(peak, dist, t).height + 0.5,
         y,
+        data.p3x,
+        data.p3y,
+        (sx, sy) => this.hf.sample(sx, sy),
       );
-    const curve = new CubicBezierCurve3(
-      lift(data.p0x, data.p0y, 0),
-      lift(data.p1x, data.p1y, 1 / 3),
-      lift(data.p2x, data.p2y, 2 / 3),
-      lift(data.p3x, data.p3y, 1),
-    );
+      pts.push(new Vector3(pose.x, pose.h, pose.y));
+    }
+    const curve = new CatmullRomCurve3(pts);
     const segments = 64;
     const radial = 5;
     const radius = Math.max(0.25, dist * 0.004);

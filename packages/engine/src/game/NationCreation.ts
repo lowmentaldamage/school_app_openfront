@@ -74,6 +74,18 @@ export function createNationsForGame(
     );
   }
 
+  // Maps without nations of their own (custom and generated editor maps)
+  // still get real countries, placed at random like generated nations.
+  if (manifestNations.length === 0 && additionalNations.length === 0) {
+    return createRandomNations(
+      isCompactMap ? 6 : 14,
+      manifestNations,
+      additionalNations,
+      toNation,
+      random,
+    );
+  }
+
   if (gameStart.config.gameType === GameType.Public) {
     // For HvN, balance nation count to match human count
     if (isHumansVsNations) {
@@ -152,6 +164,33 @@ function createRandomNations(
     remaining -= picked.length;
   }
 
+  // Then real countries (name + flag), placed at random.
+  if (remaining > 0) {
+    const real = random.shuffleArray(
+      REAL_COUNTRIES.filter(([name]) => !usedNames.has(name)),
+    );
+    for (const [name, flag] of real.slice(0, remaining)) {
+      nations.push(
+        new Nation(
+          undefined,
+          new PlayerInfo(
+            name,
+            PlayerType.Nation,
+            null,
+            random.nextID(),
+            false,
+            null,
+            [],
+            null,
+            flag,
+          ),
+        ),
+      );
+      usedNames.add(name);
+      remaining--;
+    }
+  }
+
   for (let i = 0; i < remaining; i++) {
     const name = generateUniqueNationName(random, usedNames);
     usedNames.add(name);
@@ -198,6 +237,81 @@ function generateUniqueNationName(
   }
   return `${baseName} ${counter}`;
 }
+
+/** Real countries (name, flag code) for maps that define too few nations. */
+const REAL_COUNTRIES: readonly (readonly [string, string])[] = [
+  ["United States", "us"],
+  ["Canada", "ca"],
+  ["Mexico", "mx"],
+  ["Cuba", "cu"],
+  ["Colombia", "co"],
+  ["Venezuela", "ve"],
+  ["Argentina", "ar"],
+  ["Brazil", "br"],
+  ["Greenland", "gl"],
+  ["Iceland", "is"],
+  ["United Kingdom", "gb"],
+  ["Ireland", "ie"],
+  ["Spain", "es"],
+  ["Italy", "it"],
+  ["France", "fr"],
+  ["Germany", "de"],
+  ["Sweden", "se"],
+  ["Poland", "pl"],
+  ["Belarus", "by"],
+  ["Romania", "ro"],
+  ["Türkiye", "tr"],
+  ["Norway", "no"],
+  ["Finland", "fi"],
+  ["Ukraine", "ua"],
+  ["Russia", "ru"],
+  ["Mongolia", "mn"],
+  ["China", "cn"],
+  ["India", "in"],
+  ["Kazakhstan", "kz"],
+  ["Iran", "ir"],
+  ["Saudi Arabia", "sa"],
+  ["Australia", "au"],
+  ["New Zealand", "nz"],
+  ["Algeria", "dz"],
+  ["Libya", "ly"],
+  ["Egypt", "eg"],
+  ["Niger", "ne"],
+  ["Sudan", "sd"],
+  ["DR Congo", "cd"],
+  ["Ethiopia", "et"],
+  ["South Africa", "za"],
+  ["Madagascar", "mg"],
+  ["Chad", "td"],
+  ["Namibia", "na"],
+  ["Philippines", "ph"],
+  ["Thailand", "th"],
+  ["Taiwan", "tw"],
+  ["Japan", "jp"],
+  ["Siberia", "Siberia"],
+  ["Nunavut", "Nunavut"],
+  ["West Antarctica", "aq"],
+  ["Peru", "pe"],
+  ["Zambia", "zm"],
+  ["Latvia", "lv"],
+  ["Bhutan", "bt"],
+  ["Indonesia", "id"],
+  ["East Antarctica", "aq"],
+  ["Oman", "om"],
+  ["Morocco", "ma"],
+  ["Uruguay", "uy"],
+  ["Bolivia", "bo"],
+  ["Alaska", "Alaska"],
+  ["Yukon", "Yukon"],
+  ["California", "California"],
+  ["Texas", "Texas"],
+  ["Quebec", "Quebec"],
+  ["Benin", "bj"],
+  ["Senegal", "sn"],
+  ["Kenya", "ke"],
+  ["Pakistan", "pk"],
+  ["Sri Lanka", "lk"],
+];
 
 function generateNationName(random: PseudoRandom): string {
   const template = NAME_TEMPLATES[random.nextInt(0, NAME_TEMPLATES.length)];

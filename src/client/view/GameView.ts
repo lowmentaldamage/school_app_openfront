@@ -340,6 +340,10 @@ export class GameView implements GameLike {
       if (pu.embargoes !== undefined) {
         this._relationsDirty = true;
       }
+      // A player died (or came back): its name leaves (or rejoins) the map.
+      if (pu.isAlive !== undefined) {
+        this._namesDirty = true;
+      }
 
       if (existing !== undefined) {
         existing.applyUpdate(pu);
@@ -509,6 +513,8 @@ export class GameView implements GameLike {
       this._namesDirty = false;
       this._names.clear();
       for (const p of this._players.values()) {
+        // Eliminated players keep their last placement; never draw it.
+        if (!p.state.isAlive) continue;
         this._names.set(p.id(), {
           playerID: p.id(),
           x: p.nameData?.x ?? 0,
