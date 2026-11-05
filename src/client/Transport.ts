@@ -1,6 +1,7 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   AllPlayers,
+  type DisasterKind,
   GameType,
   Gold,
   PlayerID,
@@ -244,6 +245,10 @@ export class UpgradeWeaponIntentEvent implements GameEvent {
   constructor(public readonly weapon: WeaponId) {}
 }
 
+export class TriggerDisasterIntentEvent implements GameEvent {
+  constructor(public readonly kind: DisasterKind) {}
+}
+
 export class FireWeaponIntentEvent implements GameEvent {
   constructor(
     public readonly weapon: WeaponId,
@@ -380,6 +385,9 @@ export class Transport {
     });
     this.subscribe(UpgradeWeaponIntentEvent, (e) => {
       this.sendIntent({ type: "upgrade_weapon", weapon: e.weapon });
+    });
+    this.subscribe(TriggerDisasterIntentEvent, (e) => {
+      this.sendIntent({ type: "trigger_disaster", kind: e.kind });
     });
     this.subscribe(FireWeaponIntentEvent, (e) => {
       this.sendIntent({ type: "fire_weapon", weapon: e.weapon, tile: e.tile });

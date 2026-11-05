@@ -15,6 +15,7 @@ import { AttackExecution } from "./AttackExecution";
 import { BoatRetreatExecution } from "./BoatRetreatExecution";
 import { ConstructionExecution } from "./ConstructionExecution";
 import { DeleteUnitExecution } from "./DeleteUnitExecution";
+import { DisasterExecution } from "./DisasterExecution";
 import { DonateGoldExecution } from "./DonateGoldExecution";
 import { DonateTroopsExecution } from "./DonateTroopExecution";
 import { EmbargoAllExecution } from "./EmbargoAllExecution";
@@ -87,6 +88,8 @@ export class Executor {
         return new ResearchExecution(player, intent.tech);
       case "upgrade_weapon":
         return new UpgradeWeaponExecution(player, intent.weapon);
+      case "trigger_disaster":
+        return new DisasterExecution(player, intent.kind);
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

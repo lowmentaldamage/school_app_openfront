@@ -1,5 +1,6 @@
 import {
   DISASTER_KINDS,
+  GameType,
   PlayerInfo,
   PlayerType,
   UnitType,
@@ -7,7 +8,9 @@ import {
 import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 import {
   DISASTER_INTERVAL,
+  DISASTER_WEIGHTS,
   DISASTERS,
+  disasterKindOrder,
   disasterGap,
   disasterTroopLoss,
   GRACE_TICKS,
@@ -173,5 +176,61 @@ describe("DisasterExecution", () => {
     exec.announce(game.ticks(), "wildfire", game.ref(150, 100));
     executeTicks(game, 10);
     await expectSnapshotRoundTrip(game, "big_plains", WARNING_TICKS + 100);
+  });
+});
+
+describe("trigger_disaster (test button)", () => {
+  it("in a solo game sets off the chosen disaster at once, after the warning", async () => {
+    const game = await setup(
+      "big_plains",
+      { instantBuild: true, gameType: GameType.Singleplayer },
+      [new PlayerInfo("alice", PlayerType.Human, "client_a", "alice")],
+    );
+    const a = game.player("alice");
+    conquerRect(game, a, 0, 0, 100, 200);
+    a.addTroops(100_000);
+    while (game.inSpawnPhase()) game.executeNextTick();
+    const exec = new DisasterExecution(a, "earthquake");
+    game.addExecution(exec);
+    const updates = disasterUpdates(game, WARNING_TICKS + 5);
+    expect(exec.refused).toBe(false);
+    expect(updates.map((u) => `${u.kind}:${u.phase}`)).toEqual([
+      "earthquake:warning",
+      "earthquake:strike",
+    ]);
+    expect(exec.isActive()).toBe(false);
+  });
+
+  it("is refused in multiplayer without host cheats", async () => {
+    const game = await setup(
+      "big_plains",
+      { instantBuild: true, gameType: GameType.Public },
+      [
+        new PlayerInfo("alice", PlayerType.Human, "client_a", "alice"),
+        new PlayerInfo("bob", PlayerType.Human, "client_b", "bob"),
+      ],
+    );
+    const a = game.player("alice");
+    conquerRect(game, a, 0, 0, 100, 200);
+    while (game.inSpawnPhase()) game.executeNextTick();
+    const exec = new DisasterExecution(a, "volcano");
+    game.addExecution(exec);
+    const updates = disasterUpdates(game, 5);
+    expect(exec.refused).toBe(true);
+    expect(updates).toEqual([]);
+  });
+});
+
+describe("disasterKindOrder", () => {
+  it("picks kinds by weight and always lists every kind once", () => {
+    const firsts: Record<string, number> = {};
+    for (let r = 0; r < 1000; r++) {
+      const order = disasterKindOrder(r);
+      expect(new Set(order).size).toBe(DISASTER_KINDS.length);
+      firsts[order[0]] = (firsts[order[0]] ?? 0) + 1;
+    }
+    for (const k of DISASTER_KINDS) {
+      expect(firsts[k]).toBeCloseTo(DISASTER_WEIGHTS[k] * 10, -1);
+    }
   });
 });

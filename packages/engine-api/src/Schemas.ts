@@ -18,6 +18,7 @@ import {
   TECH_IDS,
   WEAPON_IDS,
   DISASTER_FREQUENCIES,
+  DISASTER_KINDS,
 } from "./game/GameTypes";
 import { PlayerStatsSchema } from "./StatsSchemas";
 
@@ -52,12 +53,14 @@ export type Intent =
   | ToggleGameStartTimer
   | FireWeaponIntent
   | ResearchIntent
-  | UpgradeWeaponIntent;
+  | UpgradeWeaponIntent
+  | TriggerDisasterIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type FireWeaponIntent = z.infer<typeof FireWeaponIntentSchema>;
 export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
 export type UpgradeWeaponIntent = z.infer<typeof UpgradeWeaponIntentSchema>;
+export type TriggerDisasterIntent = z.infer<typeof TriggerDisasterIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>;
 export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>;
@@ -563,6 +566,12 @@ export const UpgradeWeaponIntentSchema = z.object({
   weapon: z.enum(WEAPON_IDS),
 });
 
+/** Set off a disaster now (solo, or the lobby host with host cheats). */
+export const TriggerDisasterIntentSchema = z.object({
+  type: z.literal("trigger_disaster"),
+  kind: z.enum(DISASTER_KINDS),
+});
+
 export const DeleteUnitIntentSchema = z.object({
   type: z.literal("delete_unit"),
   unitId: zb.uint(),
@@ -638,6 +647,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   FireWeaponIntentSchema,
   ResearchIntentSchema,
   UpgradeWeaponIntentSchema,
+  TriggerDisasterIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

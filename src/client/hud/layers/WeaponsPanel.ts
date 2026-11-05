@@ -9,7 +9,12 @@
  * engine-lib weapon specs, so the panel agrees with the simulation.
  */
 
-import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
+import {
+  GameType,
+  UnitType,
+  type DisasterKind,
+} from "@laukolaroser/engine-api/game/GameTypes";
+import { canTriggerDisaster } from "@laukolaroser/engine-lib/disasters/Disasters";
 import { renderNumber } from "@laukolaroser/engine-lib/Format";
 import {
   WEAPON_IDS,
@@ -27,7 +32,10 @@ import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { Controller } from "../../Controller";
 import { WeaponAimEvent } from "../../InputHandler";
-import { UpgradeWeaponIntentEvent } from "../../Transport";
+import {
+  TriggerDisasterIntentEvent,
+  UpgradeWeaponIntentEvent,
+} from "../../Transport";
 import { UIState } from "../../UIState";
 import { translateText } from "../../Utils";
 import { GameView, UnitView } from "../../view";
@@ -88,6 +96,8 @@ export class WeaponsPanel extends LitElement implements Controller {
   };
   @state() private gold = 0n;
   @state() private tiers = 0;
+  @state() private canTrigger = false;
+  @state() private disasterMenu = false;
   @state() private visible = false;
 
   createRenderRoot() {
@@ -112,6 +122,12 @@ export class WeaponsPanel extends LitElement implements Controller {
     const ready = { artillery: 0, naval: 0, rocket: 0, airstrike: 0 };
     const owned = { artillery: 0, naval: 0, rocket: 0, airstrike: 0 };
     this.tiers = me.weaponTiers();
+    const gc = this.game.config().gameConfig();
+    this.canTrigger = canTriggerDisaster(
+      gc.gameType === GameType.Singleplayer,
+      me.isLobbyCreator(),
+      gc.hostCheats !== undefined && gc.hostCheats !== null,
+    );
     for (const id of WEAPON_IDS) {
       const spec = weaponAtTier(WEAPONS[id], weaponTier(this.tiers, id));
       for (const u of me.units(...spec.launchers)) {
@@ -122,6 +138,47 @@ export class WeaponsPanel extends LitElement implements Controller {
     this.ready = ready;
     this.owned = owned;
     this.gold = me.gold();
+  }
+
+  private disasterButtons() {
+    if (!this.canTrigger) return "";
+    const kinds: [DisasterKind, string][] = [
+      ["volcano", "🌋"],
+      ["earthquake", "🌍"],
+      ["tsunami", "🌊"],
+      ["storm", "⛈️"],
+      ["wildfire", "🔥"],
+    ];
+    return html`<div class="mt-2 flex items-center gap-1">
+      <button
+        class="w-14 h-10 rounded-xl border border-white/10 bg-zinc-900/70 text-white text-[10px] leading-tight hover:bg-zinc-800/90 active:scale-95 touch-manipulation"
+        title=${translateText("disaster_test.hint")}
+        aria-expanded=${this.disasterMenu}
+        @click=${() => (this.disasterMenu = !this.disasterMenu)}
+      >
+        <span class="text-base">🧪</span><br />${translateText(
+          "disaster_test.button",
+        )}
+      </button>
+      ${
+        this.disasterMenu
+          ? kinds.map(
+              ([k, icon]) =>
+                html`<button
+                  class="w-10 h-10 rounded-lg border border-white/10 bg-zinc-900/85 text-lg hover:bg-zinc-800 active:scale-95 touch-manipulation"
+                  title=${translateText(`disaster_test.${k}`)}
+                  aria-label=${translateText(`disaster_test.${k}`)}
+                  @click=${() => {
+                    this.eventBus.emit(new TriggerDisasterIntentEvent(k));
+                    this.disasterMenu = false;
+                  }}
+                >
+                  ${icon}
+                </button>`,
+            )
+          : ""
+      }
+    </div>`;
   }
 
   private upgrade(id: WeaponId) {
@@ -240,6 +297,7 @@ export class WeaponsPanel extends LitElement implements Controller {
             </div>
           `;
         })}
+        ${this.disasterButtons()}
         ${
           aiming
             ? html`<div

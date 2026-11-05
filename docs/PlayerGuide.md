@@ -339,8 +339,12 @@ pulsing ring on the map in the disaster's colour, with signs on the ground
 | Wildfire   | Plains and hills         | A fire front spreading for ~12 s; troops lost                 |
 
 Medium strength: a disaster never takes land and never costs a player more
-than 20% of their troops. Buildings above level 1 lose a level; only
-volcanoes destroy level-1 buildings.
+than 12% of their troops. Buildings above level 1 lose a level; level-1
+buildings are flattened only near the centre (anywhere for a volcano).
+
+**Test disaster** (🧪 under the weapon buttons; solo games, or the lobby
+host with host cheats on): set off any disaster at once — it still gives
+the 10 s warning.
 
 ## 9. Settings worth knowing
 

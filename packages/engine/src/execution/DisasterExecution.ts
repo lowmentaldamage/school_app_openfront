@@ -13,6 +13,7 @@
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   DISASTER_KINDS,
+  GameType,
   MessageType,
   Structures,
   UnitType,
@@ -21,7 +22,10 @@ import {
 } from "@laukolaroser/engine-api/game/GameTypes";
 import { GameUpdateType } from "@laukolaroser/engine-api/game/GameUpdates";
 import {
+  canTriggerDisaster,
+  disasterKindOrder,
   COAST_TILES,
+  CORE_PERCENT,
   DISASTERS,
   disasterGap,
   disasterTroopLoss,
@@ -30,7 +34,10 @@ import {
   WARNING_TICKS,
 } from "@laukolaroser/engine-lib/disasters/Disasters";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
-import { zInt } from "@laukolaroser/engine-lib/snapshot/SnapshotType";
+import {
+  zInt,
+  zPlayerRef,
+} from "@laukolaroser/engine-lib/snapshot/SnapshotType";
 import { z } from "zod";
 import { Execution, Game, Player } from "../game/Game";
 import { execSnapshotType } from "../snapshot/ExecutionSnapshot";
@@ -89,27 +96,82 @@ export function disasterFrequency(mg: Game): DisasterFrequency {
   return gc.disasters ?? "off";
 }
 
+/** Ids of disasters set off by hand start here (never clash with ids 1..). */
+const TRIGGERED_ID_BASE = 1_000_000;
+
 export class DisasterExecution implements Execution {
   private mg: Game | null = null;
   private nextAt = -1;
   private nextId = 1;
   private active: ActiveDisaster | null = null;
+  /** One disaster set off by hand (trigger_disaster), then done. */
+  private oneShot: DisasterKind | null = null;
+  private done = false;
   /** The last pulse's effects (tests). */
   lastResult: DisasterResult | null = null;
+  /** True when a trigger_disaster was refused (not allowed). */
+  refused = false;
 
-  init(mg: Game, _ticks: number): void {
+  /**
+   * Without arguments: the scheduler (one per game). With a player and a
+   * kind: that disaster at once (the "test disaster" button), if allowed.
+   */
+  constructor(
+    private triggeredBy: Player | null = null,
+    kind: DisasterKind | null = null,
+  ) {
+    this.oneShot = triggeredBy !== null ? kind : null;
+  }
+
+  init(mg: Game, ticks: number): void {
     this.mg = mg;
+    if (this.triggeredBy === null || this.oneShot === null) return;
+    const gc = mg.config().gameConfig();
+    const allowed = canTriggerDisaster(
+      gc.gameType === GameType.Singleplayer,
+      this.triggeredBy.isLobbyCreator(),
+      gc.hostCheats !== undefined && gc.hostCheats !== null,
+    );
+    if (!allowed || gc.tutorial === true) {
+      this.refused = true;
+      this.done = true;
+      return;
+    }
+    this.nextId = TRIGGERED_ID_BASE + ticks;
+    // At the triggering player's own land when possible, else anywhere fitting.
+    const rand = new PseudoRandom(ticks * 13 + 7);
+    const own = this.triggeredBy.tiles();
+    let tile: TileRef | undefined;
+    if (this.oneShot !== "storm" && own.size > 0) {
+      const arr = Array.from(own);
+      for (let i = 0; i < 40 && tile === undefined; i++) {
+        const t = arr[rand.nextInt(0, arr.length)];
+        if (this.fits(this.oneShot, t)) tile = t;
+      }
+    }
+    if (!this.announce(ticks, this.oneShot, tile)) this.done = true;
   }
 
   tick(ticks: number): void {
     const mg = this.mg!;
+    if (this.done) return;
+    if (this.oneShot !== null) {
+      this.step(ticks, "frequent");
+      if (this.active === null) this.done = true;
+      return;
+    }
     const freq = disasterFrequency(mg);
     if (freq === "off" || mg.inSpawnPhase()) return;
-    if (this.nextAt < 0) {
-      this.nextAt = ticks + GRACE_TICKS + this.gap(ticks, freq);
-    }
+    this.step(ticks, freq);
+  }
+
+  private step(ticks: number, freq: Exclude<DisasterFrequency, "off">): void {
     const a = this.active;
     if (a === null) {
+      if (this.oneShot !== null) return;
+      if (this.nextAt < 0) {
+        this.nextAt = ticks + GRACE_TICKS + this.gap(ticks, freq);
+      }
       if (ticks >= this.nextAt) this.announce(ticks);
       return;
     }
@@ -132,13 +194,13 @@ export class DisasterExecution implements Execution {
     let pick: { kind: DisasterKind; tile: TileRef } | null = null;
     if (kind !== undefined && tile !== undefined) {
       pick = { kind, tile };
+    } else if (kind !== undefined && this.oneShot !== null) {
+      // A hand-triggered kind: that kind only.
+      const t = this.findPlace(kind, rand);
+      if (t !== null) pick = { kind, tile: t };
     } else {
-      // Try kinds in a random order until one has a fitting place.
-      const kinds = [...DISASTER_KINDS];
-      for (let i = kinds.length - 1; i > 0; i--) {
-        const j = rand.nextInt(0, i + 1);
-        [kinds[i], kinds[j]] = [kinds[j], kinds[i]];
-      }
+      // A kind by weight first, the others as fallbacks.
+      const kinds = disasterKindOrder(rand.nextInt(0, 1000));
       if (kind !== undefined) kinds.unshift(kind);
       for (const k of kinds) {
         const t = this.findPlace(k, rand);
@@ -192,9 +254,50 @@ export class DisasterExecution implements Execution {
     });
   }
 
+  /** Whether `t` suits `kind` (same rules as findPlace). */
+  private fits(kind: DisasterKind, t: TileRef): boolean {
+    const mg = this.mg!;
+    const land = mg.isLand(t);
+    const mag = land ? mg.magnitude(t) : 0;
+    switch (kind) {
+      case "volcano":
+        return land && mag >= 20 && mag < 30;
+      case "earthquake":
+        return land;
+      case "tsunami":
+        return mg.isOceanShore(t);
+      case "storm":
+        return mg.isOcean(t);
+      case "wildfire":
+        return land && mag < 20;
+    }
+  }
+
   /** A random tile that suits `kind`, or null. */
   private findPlace(kind: DisasterKind, rand: PseudoRandom): TileRef | null {
     const mg = this.mg!;
+    // Most quakes, fires and tsunamis hit where people live: near a
+    // random city, factory or port (a port for a tsunami).
+    if (
+      (kind === "earthquake" || kind === "wildfire" || kind === "tsunami") &&
+      rand.nextInt(0, 100) < 70
+    ) {
+      const near = mg.units(
+        kind === "tsunami"
+          ? [UnitType.Port]
+          : [UnitType.City, UnitType.Factory, UnitType.Port],
+      );
+      if (near.length > 0) {
+        const base = near[rand.nextInt(0, near.length)].tile();
+        for (let i = 0; i < 30; i++) {
+          const x = mg.x(base) + rand.nextInt(-8, 9);
+          const y = mg.y(base) + rand.nextInt(-8, 9);
+          if (!mg.isValidCoord(x, y)) continue;
+          const t = mg.ref(x, y);
+          if (this.fits(kind, t)) return t;
+        }
+      }
+    }
     if (kind === "storm") {
       // Where ships sail, else open sea.
       const ships = mg.units([...SHIPS, ...WARSHIPS]);
@@ -215,7 +318,8 @@ export class DisasterExecution implements Execution {
       let score = -1;
       switch (kind) {
         case "volcano":
-          if (land && mag >= 20) score = mag;
+          // Real mountains (not the impassable ice caps), lived-in first.
+          if (land && mag >= 20 && mag < 30) score = owned ? 2 : 1;
           break;
         case "earthquake":
           if (land) score = owned ? 2 : 1;
@@ -289,17 +393,23 @@ export class DisasterExecution implements Execution {
       }
     }
 
-    // Buildings: may lose a level; level 1 only falls to volcanoes.
+    // Buildings: may lose a level. Level 1 falls only near the centre
+    // (anywhere for a volcano).
     const perPulse = Math.floor(spec.buildingHitPerMille / spec.pulses);
+    const core = Math.floor((spec.radius * CORE_PERCENT) / 100);
     if (perPulse > 0) {
-      for (const { unit } of mg.nearbyUnits(
+      for (const { unit, distSquared } of mg.nearbyUnits(
         a.tile,
         spec.radius,
         Structures.types,
       )) {
         if (!unit.isActive() || !hits(unit.tile())) continue;
         if (rand.nextInt(0, 1000) >= perPulse) continue;
-        if (unit.level() > 1 || spec.destroysBuildings) {
+        if (
+          unit.level() > 1 ||
+          spec.destroysBuildings ||
+          distSquared <= core * core
+        ) {
           unit.decreaseLevel();
           res.buildingsHit++;
         }
@@ -342,7 +452,7 @@ export class DisasterExecution implements Execution {
   }
 
   isActive(): boolean {
-    return true;
+    return !this.done;
   }
 
   activeDuringSpawnPhase(): boolean {
@@ -351,6 +461,10 @@ export class DisasterExecution implements Execution {
 
   snapshot(_w: SnapshotWriter): ExecRecord {
     return DisasterSnapshot.write({
+      oneShot: this.oneShot,
+      done: this.done,
+      triggeredBy:
+        this.triggeredBy === null ? null : _w.player(this.triggeredBy),
       initialized: this.mg !== null,
       nextAt: this.nextAt,
       nextId: this.nextId,
@@ -369,14 +483,25 @@ export class DisasterExecution implements Execution {
 
   restoreSnapshot(s: DisasterState, r: SnapshotReader): void {
     this.mg = s.initialized ? r.game : null;
+    this.oneShot = s.oneShot ?? null;
+    this.done = s.done ?? false;
+    this.triggeredBy =
+      s.triggeredBy === null || s.triggeredBy === undefined
+        ? null
+        : r.player(s.triggeredBy);
     this.nextAt = s.nextAt;
     this.nextId = s.nextId;
     this.active = s.active === null ? null : { ...s.active };
     this.lastResult = null;
+    this.refused = false;
   }
 }
 
 const DisasterStateSchema = z.object({
+  // Hand-triggered one-shot (optional: older snapshots are schedulers).
+  oneShot: z.enum(DISASTER_KINDS).nullable().optional(),
+  done: z.boolean().optional(),
+  triggeredBy: zPlayerRef().nullable().optional(),
   initialized: z.boolean(),
   nextAt: zInt(),
   nextId: zInt(),

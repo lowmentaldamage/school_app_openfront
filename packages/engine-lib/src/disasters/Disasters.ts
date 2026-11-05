@@ -6,7 +6,7 @@
  * agree. Pure data and integer maths; deterministic.
  *
  * Medium strength: a disaster hurts a region (troops, buildings, ships) but
- * never takes more than LOSS_CAP_PERCENT of any player's army and never
+ * never takes more than LOSS_CAP_PERCENT (12%) of any player's army and never
  * takes land. Each one is announced WARNING_TICKS before it hits.
  */
 
@@ -23,7 +23,7 @@ export const WARNING_TICKS = 100;
 /** No disaster in the first minutes after the spawn phase (3 min). */
 export const GRACE_TICKS = 1_800;
 /** A player loses at most this share of their troops to one disaster. */
-export const LOSS_CAP_PERCENT = 20;
+export const LOSS_CAP_PERCENT = 12;
 
 /** Average ticks between disasters, by frequency (10 ticks = 1 s). */
 export const DISASTER_INTERVAL: Readonly<
@@ -45,7 +45,10 @@ export interface DisasterSpec {
   lossPerMille: number;
   /** Per-mille chance each building in the area loses a level. */
   buildingHitPerMille: number;
-  /** Buildings at level 1 may be destroyed (else they are spared). */
+  /**
+   * Level-1 buildings anywhere in the area may be destroyed (volcanoes);
+   * otherwise only those near the centre (CORE_FRACTION of the radius).
+   */
   destroysBuildings: boolean;
   /** Per-mille chance each transport / trade ship in the area sinks. */
   shipSinkPerMille: number;
@@ -57,6 +60,9 @@ export interface DisasterSpec {
   pulses: number;
 }
 
+/** Share of the radius where any disaster can flatten level-1 buildings. */
+export const CORE_PERCENT = 40;
+
 /** Tsunamis reach this far inland. */
 export const COAST_TILES = 4;
 /** Ticks between the pulses of a long disaster (wildfire, storm). */
@@ -66,7 +72,7 @@ export const DISASTERS: Readonly<Record<DisasterKind, DisasterSpec>> = {
   volcano: {
     kind: "volcano",
     radius: 12,
-    lossPerMille: 2_500,
+    lossPerMille: 5_000,
     buildingHitPerMille: 700,
     destroysBuildings: true,
     shipSinkPerMille: 300,
@@ -77,7 +83,7 @@ export const DISASTERS: Readonly<Record<DisasterKind, DisasterSpec>> = {
   earthquake: {
     kind: "earthquake",
     radius: 18,
-    lossPerMille: 1_200,
+    lossPerMille: 2_500,
     buildingHitPerMille: 500,
     destroysBuildings: false,
     shipSinkPerMille: 0,
@@ -88,7 +94,7 @@ export const DISASTERS: Readonly<Record<DisasterKind, DisasterSpec>> = {
   tsunami: {
     kind: "tsunami",
     radius: 22,
-    lossPerMille: 1_500,
+    lossPerMille: 3_000,
     buildingHitPerMille: 450,
     destroysBuildings: false,
     shipSinkPerMille: 600,
@@ -99,7 +105,7 @@ export const DISASTERS: Readonly<Record<DisasterKind, DisasterSpec>> = {
   storm: {
     kind: "storm",
     radius: 26,
-    lossPerMille: 300,
+    lossPerMille: 600,
     buildingHitPerMille: 0,
     destroysBuildings: false,
     shipSinkPerMille: 350,
@@ -110,7 +116,7 @@ export const DISASTERS: Readonly<Record<DisasterKind, DisasterSpec>> = {
   wildfire: {
     kind: "wildfire",
     radius: 10,
-    lossPerMille: 1_800,
+    lossPerMille: 3_500,
     buildingHitPerMille: 250,
     destroysBuildings: false,
     shipSinkPerMille: 0,
@@ -119,6 +125,36 @@ export const DISASTERS: Readonly<Record<DisasterKind, DisasterSpec>> = {
     pulses: 3,
   },
 };
+
+/** How likely each kind is picked (it falls back to others if no place fits). */
+export const DISASTER_WEIGHTS: Readonly<Record<DisasterKind, number>> = {
+  earthquake: 30,
+  volcano: 20,
+  wildfire: 20,
+  tsunami: 15,
+  storm: 15,
+};
+
+/**
+ * Kinds in the order to try: one picked by weight first, then the rest by
+ * weight (rand1000 in [0, 1000)).
+ */
+export function disasterKindOrder(rand1000: number): DisasterKind[] {
+  const total = DISASTER_KINDS.reduce((s, k) => s + DISASTER_WEIGHTS[k], 0);
+  let r = Math.floor((rand1000 * total) / 1000);
+  let first: DisasterKind = DISASTER_KINDS[0];
+  for (const k of DISASTER_KINDS) {
+    if (r < DISASTER_WEIGHTS[k]) {
+      first = k;
+      break;
+    }
+    r -= DISASTER_WEIGHTS[k];
+  }
+  const rest = [...DISASTER_KINDS]
+    .filter((k) => k !== first)
+    .sort((a, b) => DISASTER_WEIGHTS[b] - DISASTER_WEIGHTS[a]);
+  return [first, ...rest];
+}
 
 /** Ticks between two disasters: the average ± 30% (rand in [0, 1000)). */
 export function disasterGap(
@@ -146,4 +182,17 @@ export function disasterTroopLoss(
   );
   const cap = Math.floor((troops * LOSS_CAP_PERCENT) / (100 * spec.pulses));
   return Math.min(raw, cap);
+}
+
+/**
+ * Who may set off a disaster at once (the "test disaster" button): anyone
+ * in a solo game; in multiplayer only the lobby host, and only with host
+ * cheats on (so it can never decide a real match).
+ */
+export function canTriggerDisaster(
+  singleplayer: boolean,
+  isLobbyCreator: boolean,
+  hostCheatsOn: boolean,
+): boolean {
+  return singleplayer || (isLobbyCreator && hostCheatsOn);
 }

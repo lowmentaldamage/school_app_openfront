@@ -2,7 +2,7 @@
 
 🆕 **Since v1.1.0**
 
-- Natural disasters (lobby option, on by default; rare / normal / often): volcanoes, earthquakes, tsunamis, storms and wildfires, announced 10 s ahead with a ring on the map; they cost troops, buildings and ships but never land or more than 20% of an army
+- Natural disasters (lobby option, on by default; rare / normal / often): volcanoes, earthquakes, tsunamis, storms and wildfires, announced 10 s ahead with a ring on the map; they cost troops, buildings and ships but never land or more than 12% of an army; 🧪 Test disaster button in solo games
 - Realistic warfare: mountain ranges block artillery, naval fire and rockets (bombers fly over; amber aiming circle when blocked); guns on high ground shoot 10-20% further
 - Weapon power tiers: upgrade artillery, naval fire, air raids and rockets to Mk II and Mk III (yellow ▲ next to each weapon): more shots, bigger blasts, longer range; Mk III wrecks buildings
 - Bigger destruction: heavy hits blow up bigger and leave fires and smoke; guns flash when they fire

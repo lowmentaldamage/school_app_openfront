@@ -915,6 +915,15 @@
     "normal": "Normal · 5 min",
     "rare": "Rare · 10 min"
   },
+  "disaster_test": {
+    "button": "Test disaster",
+    "earthquake": "Test: earthquake",
+    "hint": "Set off a natural disaster now (solo games, or the lobby host with host cheats). It still gives the 10 s warning.",
+    "storm": "Test: storm (at sea)",
+    "tsunami": "Test: tsunami (on a coast)",
+    "volcano": "Test: volcano eruption (on a mountain)",
+    "wildfire": "Test: wildfire"
+  },
   "discord_user_header": {
     "avatar_alt": "Avatar"
   },
