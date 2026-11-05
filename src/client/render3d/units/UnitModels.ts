@@ -160,19 +160,58 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       .build(),
 
   // Long flat deck with an island on the starboard side.
-  carrier: () =>
-    new ModelBuilder()
-      .hull(4.4, 1.0, 0.42, { color: 0x5f6870 })
-      .box(4.6, 0.08, 1.3, { color: 0x3d3f33, pos: [0, 0.4, 0] })
-      .box(4.2, 0.02, 0.05, { color: WHITE, pos: [0, 0.44, 0] })
-      .box(0.9, 0.55, 0.28, { color: 0x5f6870, pos: [0.3, 0.44, -0.52] })
-      .box(0.92, 0.1, 0.3, { team: true, pos: [0.3, 0.99, -0.52] })
-      .cylinder(0.03, 0.03, 0.5, 4, {
-        color: DARK_STEEL,
-        pos: [0.3, 1.09, -0.52],
+  // Aircraft carrier: grey hull, flight deck with centre line and an
+  // angled landing strip, island with mast and radar, parked planes with
+  // team-coloured tails.
+  carrier: () => {
+    const deck = 0x4a4d50;
+    const b = new ModelBuilder()
+      .hull(4.4, 1.05, 0.42, { color: 0x5f6870, pattern: "panels" })
+      .box(3.9, 0.07, 1.15, { color: deck, pos: [-0.25, 0.4, 0] })
+      // Angled landing strip off the port side.
+      .box(2.2, 0.075, 0.42, {
+        color: deck,
+        pos: [-0.75, 0.4, 0.38],
+        rot: [0, 0.16, 0],
       })
-      .box(4.4, 0.05, 1.0, { team: true, pos: [0, 0.02, 0] })
-      .build(),
+      .box(3.6, 0.08, 0.03, { color: WHITE, pos: [-0.2, 0.41, -0.05] })
+      .box(2.0, 0.085, 0.025, {
+        color: HAZARD,
+        pos: [-0.75, 0.41, 0.38],
+        rot: [0, 0.16, 0],
+      })
+      // Island: superstructure, bridge windows, mast, radar.
+      .box(0.75, 0.42, 0.24, {
+        color: 0x5f6870,
+        pattern: "windows",
+        pos: [0.2, 0.47, -0.44],
+      })
+      .box(0.5, 0.2, 0.2, { color: 0x6b757d, pos: [0.25, 0.89, -0.44] })
+      .box(0.52, 0.06, 0.22, { team: true, pos: [0.25, 1.09, -0.44] })
+      .cylinder(0.025, 0.03, 0.45, 4, {
+        color: DARK_STEEL,
+        pos: [0.25, 1.15, -0.44],
+      })
+      .cylinder(0.12, 0.04, 0.03, 8, {
+        color: WHITE,
+        pos: [0.25, 1.4, -0.44],
+        rot: [0.6, 0, 0],
+      })
+      // Waterline stripe in the owner's colour.
+      .box(4.3, 0.05, 1.07, { team: true, pos: [0, 0.02, 0] });
+    // Parked planes on the bow deck.
+    for (const [x, z] of [
+      [1.05, 0.25],
+      [1.35, -0.05],
+      [1.05, -0.3],
+      [0.75, 0.25],
+    ] as const) {
+      b.box(0.3, 0.035, 0.05, { color: 0x8a8f86, pos: [x, 0.47, z] })
+        .box(0.07, 0.02, 0.28, { color: 0x8a8f86, pos: [x + 0.02, 0.47, z] })
+        .box(0.06, 0.07, 0.015, { team: true, pos: [x - 0.12, 0.49, z] });
+    }
+    return b.build();
+  },
 
   transport: () =>
     new ModelBuilder()

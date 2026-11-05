@@ -101,9 +101,11 @@ void main() {
     col = vec3(1.0, 0.8, 0.4);
     a = soft * (1.0 - vT);
   } else if (vKind < 2.5) {
-    float shade = 0.12 + 0.18 * vT + 0.06 * vSeed;
-    col = vec3(shade, shade * 0.96, shade * 0.92);
-    a = soft * 0.55 * sin(3.14159 * vT) * (0.7 + 0.3 * vSeed);
+    // Dark grey near the fire, lightening to pale grey as it spreads
+    // (real smoke and ash, not a black blanket); thinner as it ages.
+    float shade = 0.2 + 0.36 * vT + 0.06 * vSeed;
+    col = vec3(shade, shade * 0.97, shade * 0.93);
+    a = soft * 0.48 * sin(3.14159 * vT) * (1.0 - 0.35 * vT) * (0.7 + 0.3 * vSeed);
   } else if (vKind < 3.5) {
     col = vec3(1.0, 0.97, 0.9);
     a = soft * (1.0 - vT) * (1.0 - vT);

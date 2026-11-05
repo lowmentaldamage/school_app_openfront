@@ -24,6 +24,10 @@ declare global {
       /** Tile to centre on (default: the middle of the stage). */
       cx?: number;
       cy?: number;
+      /** Detonate this unit type at the centre (e.g. "Atom Bomb"). */
+      explosion?: string;
+      /** ms after the detonation to capture (default 600). */
+      explosionAtMs?: number;
       /** Play a natural disaster at the centre (warning, then strike). */
       disaster?: string;
       /** ms after the strike to capture (default 1500; < 0: the warning). */
@@ -177,6 +181,26 @@ async function run(): Promise<void> {
       now += 16;
       world.render(cam, now);
     }
+    if (opts.explosion !== undefined) {
+      const pos = Math.round(cam.centerY) * W + Math.round(cam.centerX);
+      world.updateFrame(
+        {
+          ...frame([]),
+          events: {
+            deadUnits: [{ unitType: opts.explosion, pos, reachedTarget: true }],
+          },
+        },
+        pal,
+        now,
+      );
+      const end = now + (opts.explosionAtMs ?? 600);
+      // At most ~60 frames: the software renderer is slow.
+      const step = Math.max(16, (end - now) / 60);
+      while (now < end) {
+        now = Math.min(end, now + step);
+        world.render(cam, now);
+      }
+    }
     if (opts.disaster !== undefined) {
       const tile = Math.round(cam.centerY) * W + Math.round(cam.centerX);
       const base = { id: 1, kind: opts.disaster, tile, radius: 12 };
@@ -189,8 +213,9 @@ async function run(): Promise<void> {
       const after = opts.disasterAtMs ?? 1500;
       if (after >= 0) world.onDisasters([{ ...base, phase: "strike" }]);
       const end = now + Math.max(0, after);
+      const step = Math.max(16, (end - now) / 60);
       while (now < end) {
-        now = Math.min(end, now + 16);
+        now = Math.min(end, now + step);
         world.render(cam, now);
       }
     }
