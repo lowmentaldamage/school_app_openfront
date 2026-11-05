@@ -1,6 +1,14 @@
-📦 **Laukolaroser v1.2.0**
+📦 **Laukolaroser v1.2.1**
 
-🆕 **New in v1.2.0**
+🆕 **New in v1.2.1**
+
+- Real particle graphics: turbulent fire, billowing sunlit smoke that greys as it spreads, spark streaks, star flashes, foam, soft dust, tumbling debris and scorched ground after blasts
+- Water reflects the sky and the sun; units and buildings get a light sheen; cloud shadows drift over the land
+- New aircraft carrier model (flight deck, landing strip, island, parked planes); fuller trees
+- 🧪 Test disaster button (solo games, or the lobby host with host cheats)
+- Disasters rebalanced: they strike near cities, ports and real mountains, and hurt more (never more than 12% of an army)
+
+🆕 **In v1.2.0**
 
 - Natural disasters (lobby option, on by default; rare / normal / often): volcanoes, earthquakes, tsunamis, storms and wildfires, announced 10 s ahead with a ring on the map; they cost troops, buildings and ships but never land or more than 12% of an army; 🧪 Test disaster button in solo games
 - Realistic warfare: mountain ranges block artillery, naval fire and rockets (bombers fly over; amber aiming circle when blocked); guns on high ground shoot 10-20% further
