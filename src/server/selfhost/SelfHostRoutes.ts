@@ -4,6 +4,10 @@
  *   GET    /status                      → { enabled, registration, limits }
  *   POST   /login        {username,password,deviceId,deviceName}
  *                                       → { token, username, role }
+ *          admins with two-step sign-in get { twoFactor, ticket, telegram,
+ *          setup } instead, then:
+ *   POST   /login/2fa    {ticket, code}  → { token, username, role }
+ *   POST   /login/2fa/telegram {ticket}  → code sent by the Telegram bot
  *   POST   /register     {username,password} → access request (pending)
  *   GET    /me           (Bearer)       → { username, role, stats }
  *   POST   /password     (Bearer) {current, password}  → change own password
@@ -19,6 +23,7 @@
  *   DELETE /users/:name                                → remove
  *   POST   /users/:name/approve                        → approve a request
  *   POST   /users/:name/unlock                         → unlock after wrong passwords
+ *   POST   /users/:name/2fa-reset                      → remove an authenticator
  *   DELETE /users/:name/devices[/:id]                  → free device slot(s)
  *
  * Login attempts are rate limited per IP. Every change takes effect at
@@ -51,6 +56,15 @@ import {
 } from "./SelfHostAuth";
 import { issueSessionToken } from "./SessionToken";
 import { telegramAdmin } from "./TelegramAdmin";
+import {
+  adminTwoFactorRequired,
+  issueTicket,
+  newTotpSecret,
+  otpauthUri,
+  readTicket,
+  TelegramCodes,
+  verifyTotp,
+} from "./TwoFactor";
 
 const LoginSchema = z.object({
   username: z.string().max(64),
@@ -123,6 +137,7 @@ export function createSelfHostRouter(): express.Router {
   // shared network can't lock its players out of signing in.
   const requestLimiter = new LoginLimiter(20, 60 * 60 * 1000);
   const store = accountStore();
+  const telegramCodes = new TelegramCodes();
 
   const fail = (res: Response, status: number, error: string) =>
     res.status(status).json({ error });
@@ -235,24 +250,153 @@ export function createSelfHostRouter(): express.Router {
         fail(res, 403, "This account is disabled");
         return;
       }
-      const refused = store.useDevice(
-        account.username,
-        body.data.deviceId,
-        body.data.deviceName,
-      );
-      if (refused !== null) {
-        fail(
-          res,
-          403,
-          `This account is already used on ${maxDevices()} devices. Ask the admin to free one.`,
-        );
+      // Admins: a second step (authenticator app or Telegram code)
+      // before any session or device slot is given out.
+      if (
+        account.role === "admin" &&
+        (adminTwoFactorRequired() || account.totpSecret !== undefined)
+      ) {
+        const setup =
+          account.totpSecret === undefined
+            ? store.pendingTotp(account.username, newTotpSecret)
+            : null;
+        res.json({
+          twoFactor: true,
+          ticket: issueTicket(
+            {
+              u: account.username,
+              v: account.version,
+              d: body.data.deviceId,
+              n: body.data.deviceName,
+            },
+            sessionSecret(),
+          ),
+          telegram: telegramAdmin() !== null,
+          setup:
+            setup === null
+              ? null
+              : { secret: setup, uri: otpauthUri(setup, account.username) },
+        });
         return;
       }
-      res.json({
-        token: tokenFor(account, body.data.deviceId),
-        username: account.username,
-        role: account.role,
-      });
+      finishLogin(res, account, body.data.deviceId, body.data.deviceName);
+    }),
+  );
+
+  const finishLogin = (
+    res: Response,
+    account: Account,
+    deviceId: string,
+    deviceName: string,
+  ) => {
+    const refused = store.useDevice(account.username, deviceId, deviceName);
+    if (refused !== null) {
+      fail(
+        res,
+        403,
+        `This account is already used on ${maxDevices()} devices. Ask the admin to free one.`,
+      );
+      return;
+    }
+    res.json({
+      token: tokenFor(account, deviceId),
+      username: account.username,
+      role: account.role,
+    });
+  };
+
+  /** The admin behind a valid second-step ticket, or null (reply sent). */
+  const ticketAccount = (
+    res: Response,
+    ticket: string,
+  ): { account: Account; d: string; n: string } | null => {
+    const t = readTicket(ticket, sessionSecret());
+    const account = t === null ? undefined : store.find(t.u);
+    if (
+      t === null ||
+      account === undefined ||
+      account.version !== t.v ||
+      account.disabled
+    ) {
+      fail(res, 401, "Sign-in expired, enter your password again");
+      return null;
+    }
+    if (account.locked) {
+      fail(
+        res,
+        423,
+        "This account is locked. Unlock it from Telegram or another admin.",
+      );
+      return null;
+    }
+    return { account, d: t.d, n: t.n };
+  };
+
+  router.post(
+    "/login/2fa/telegram",
+    handle((req, res) => {
+      const body = z
+        .object({ ticket: z.string().max(2000) })
+        .safeParse(req.body);
+      if (!body.success) {
+        fail(res, 400, "Bad request");
+        return;
+      }
+      const who = ticketAccount(res, body.data.ticket);
+      if (who === null) return;
+      const bot = telegramAdmin();
+      if (bot === null) {
+        fail(res, 400, "Telegram is not set up on this server");
+        return;
+      }
+      const code = telegramCodes.issue(who.account.username);
+      void bot.sendLoginCode(who.account.username, code);
+      res.json({ sent: true });
+    }),
+  );
+
+  router.post(
+    "/login/2fa",
+    handle((req, res) => {
+      const ip = req.ip ?? "unknown";
+      if (limiter.blocked(ip)) {
+        fail(res, 429, "Too many attempts, try again in a few minutes");
+        return;
+      }
+      const body = z
+        .object({ ticket: z.string().max(2000), code: z.string().max(12) })
+        .safeParse(req.body);
+      if (!body.success) {
+        fail(res, 400, "Enter the 6-digit code");
+        return;
+      }
+      const who = ticketAccount(res, body.data.ticket);
+      if (who === null) return;
+      const a = who.account;
+      const code = body.data.code;
+      let ok = false;
+      if (a.totpSecret !== undefined) {
+        ok = verifyTotp(a.totpSecret, code);
+      } else if (
+        a.totpPending !== undefined &&
+        verifyTotp(a.totpPending, code)
+      ) {
+        store.confirmTotp(a.username);
+        ok = true;
+      }
+      if (!ok) ok = telegramCodes.check(a.username, code);
+      if (!ok) {
+        limiter.recordFailure(ip);
+        if (store.failSecondStep(a.username)) {
+          void telegramAdmin()?.notifyLocked(a.username);
+          fail(res, 423, "Too many wrong codes: the account is locked.");
+          return;
+        }
+        fail(res, 401, "Wrong or expired code");
+        return;
+      }
+      store.passSecondStep(a.username);
+      finishLogin(res, store.find(a.username)!, who.d, who.n);
     }),
   );
 
@@ -450,6 +594,15 @@ export function createSelfHostRouter(): express.Router {
     handle((req, res) => {
       if (!requireAdmin(req, res)) return;
       store.unlock(String(req.params.name));
+      res.json({ ok: true });
+    }),
+  );
+
+  router.post(
+    "/users/:name/2fa-reset",
+    handle((req, res) => {
+      if (!requireAdmin(req, res)) return;
+      store.resetTotp(String(req.params.name));
       res.json({ ok: true });
     }),
   );

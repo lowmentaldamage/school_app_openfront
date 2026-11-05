@@ -1,0 +1,349 @@
+#!/usr/bin/env bash
+# =============================================================================
+#  Laukolaroser private server installer — play.laukomma.com
+#  © OpenFront and Contributors, Laukolaroser. AGPL-3.0.
+# =============================================================================
+#
+#  WHAT IT DOES (Ubuntu 22.04+/Debian 12+, run as root or with sudo):
+#    1. Installs Docker + git.
+#    2. Downloads the game to /opt/laukolaroser.
+#    3. Asks for: admin user + password, your separate player account,
+#       optional Telegram bot (backup sign-in codes + unlock from phone).
+#    4. Private server: max 50 accounts, players get 5 password tries
+#       (then locked until you unlock), admins must use password + 6-digit
+#       code (authenticator app or Telegram).
+#    5. Caps the whole game at 4 GB RAM / 2 CPU cores.
+#    6. Puts it on https://play.laukomma.com behind the web server that
+#       already runs laukomma.com (nginx, Apache or Caddy; installs Caddy
+#       if none), with a free Let's Encrypt certificate.
+#    7. Adds https://laukomma.com/dashboard -> game admin dashboard.
+#
+#  BEFORE YOU RUN IT:
+#    In your DNS, add an A record:  play.laukomma.com -> this server's IP
+#    (same IP as laukomma.com). Ports 80 and 443 must be open.
+#
+#  HOW TO RUN:
+#    1. Copy this file to the server (or download it), e.g. to /root.
+#    2. sudo bash laukolaroser-install.txt
+#    3. Answer the questions. Takes 5-15 minutes (the first build).
+#
+#  AFTER:
+#    Admin dashboard:  https://laukomma.com/dashboard
+#                      (= https://play.laukomma.com/#admin)
+#    Play:             https://play.laukomma.com
+#    First admin sign-in shows a key: add it to Google Authenticator /
+#    Authy / Aegis, then type the 6-digit code. From then on: user +
+#    password + code, from anywhere.
+#
+#  RE-RUN to update the game to the newest version: same command. Your
+#  accounts and settings in /opt/laukolaroser/deploy/selfhost/data stay.
+#
+#  USEFUL COMMANDS (in /opt/laukolaroser/deploy/selfhost):
+#    docker compose logs -f game                 live log
+#    docker compose restart game                 restart
+#    docker compose exec -u node game npx tsx scripts/selfhost-admin.ts list
+#    docker compose exec -u node game npx tsx scripts/selfhost-admin.ts unlock <user>
+#    docker compose exec -u node game npx tsx scripts/selfhost-admin.ts passwd <user> <newpass>
+#    Lost your authenticator?  Edit .env: ADMIN_2FA=optional, then
+#    "docker compose up -d", sign in, press "Reset 2FA" for yourself, set
+#    ADMIN_2FA=required again and "docker compose up -d".
+# =============================================================================
+
+set -euo pipefail
+
+GAME_HOST="play.laukomma.com"
+SITE_HOST="laukomma.com"
+REPO="https://github.com/lowmentaldamage/school_app_openfront.git"
+BRANCH="main"
+DIR="/opt/laukolaroser"
+APP="$DIR/deploy/selfhost"
+PORT=8080
+
+say()  { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
+warn() { printf '\033[1;33m!! %s\033[0m\n' "$*"; }
+die()  { printf '\033[1;31mXX %s\033[0m\n' "$*"; exit 1; }
+
+[ "$(id -u)" -eq 0 ] || die "Run as root: sudo bash $0"
+command -v apt-get >/dev/null || die "This installer is for Ubuntu/Debian (apt)."
+
+# ----------------------------------------------------------------- packages
+say "Installing Docker and tools"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -y
+apt-get install -y ca-certificates curl git openssl
+if ! command -v docker >/dev/null || ! docker compose version >/dev/null 2>&1; then
+  curl -fsSL https://get.docker.com | sh
+fi
+systemctl enable --now docker
+
+# -------------------------------------------------------------------- code
+say "Downloading the game to $DIR"
+if [ -d "$DIR/.git" ]; then
+  git -C "$DIR" fetch --depth 1 origin "$BRANCH"
+  git -C "$DIR" reset --hard "origin/$BRANCH"
+else
+  if ! git clone --depth 1 -b "$BRANCH" "$REPO" "$DIR" 2>/dev/null; then
+    warn "The repository is private. Make a GitHub token (github.com ->"
+    warn "Settings -> Developer settings -> Fine-grained tokens, read-only"
+    warn "'Contents' on school_app_openfront) and paste it here."
+    read -rsp "GitHub token: " GH_TOKEN; echo
+    git clone --depth 1 -b "$BRANCH" \
+      "https://x-access-token:${GH_TOKEN}@github.com/lowmentaldamage/school_app_openfront.git" "$DIR"
+    git -C "$DIR" remote set-url origin \
+      "https://x-access-token:${GH_TOKEN}@github.com/lowmentaldamage/school_app_openfront.git"
+  fi
+fi
+cd "$APP"
+
+# ---------------------------------------------------------------- settings
+ask() { # ask VAR "Question" [default]
+  local v; read -rp "$2${3:+ [$3]}: " v; printf -v "$1" '%s' "${v:-${3:-}}"
+}
+ask_pw() { # ask_pw VAR "Question"
+  local a b
+  while :; do
+    read -rsp "$2 (min 8 chars): " a; echo
+    read -rsp "Repeat: " b; echo
+    [ "$a" = "$b" ] && [ ${#a} -ge 8 ] && break
+    warn "Passwords differ or are too short, again."
+  done
+  printf -v "$1" '%s' "$a"
+}
+
+NEW_INSTALL=0
+if [ ! -f .env ]; then
+  NEW_INSTALL=1
+  say "Accounts"
+  ask ADMIN_USER "Admin username (for the dashboard)" "admin"
+  ask_pw ADMIN_PASSWORD "Admin password"
+  echo
+  echo "Your separate account for playing like a normal player:"
+  ask PLAYER_USER "Player username" ""
+  if [ -n "$PLAYER_USER" ]; then ask_pw PLAYER_PASSWORD "Player password"; fi
+
+  say "Telegram (optional, press Enter to skip)"
+  echo "Gives you sign-in codes by Telegram as a backup to the authenticator"
+  echo "app, and lets you approve/unlock players from your phone."
+  echo "Make a bot: in Telegram open @BotFather -> /newbot -> copy the token."
+  ask TELEGRAM_BOT_TOKEN "Bot token" ""
+  TELEGRAM_ADMIN_CHAT_ID=""
+  if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+    echo "Your chat id: after install send /start to your bot, it replies with"
+    echo "the number. Enter it now if you already know it, else press Enter"
+    echo "and add it later to $APP/.env (TELEGRAM_ADMIN_CHAT_ID=...)."
+    ask TELEGRAM_ADMIN_CHAT_ID "Chat id" ""
+  fi
+
+  umask 077
+  cat > .env <<EOF
+# Laukolaroser — play.laukomma.com (written by the installer)
+PRIVATE=1
+ADMIN_USER=$ADMIN_USER
+ADMIN_PASSWORD=$ADMIN_PASSWORD
+PORT=$PORT
+BIND=127.0.0.1
+DOMAIN=$GAME_HOST
+
+# Private group: 50 accounts, 2 devices each, you add/approve everyone.
+MAX_ACCOUNTS=50
+MAX_DEVICES=2
+REGISTRATION=on
+# Wrong passwords (or wrong admin codes) in a row before the account locks.
+MAX_FAILED_LOGINS=5
+# Admins: password + 6-digit code (authenticator app or Telegram).
+ADMIN_2FA=required
+
+TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+TELEGRAM_ADMIN_CHAT_ID=$TELEGRAM_ADMIN_CHAT_ID
+
+# Resources: 4 GB RAM total, 2 cores, 3 game workers x 640 MB heap.
+MEM_LIMIT=4g
+CPUS=2.0
+NUM_WORKERS=3
+NODE_HEAP_MB=640
+EOF
+  umask 022
+else
+  say "Keeping existing settings in $APP/.env"
+fi
+mkdir -p data
+
+# ------------------------------------------------------------------- start
+say "Building and starting the game (first time takes a while)"
+docker compose up -d --build
+
+say "Waiting for the game to answer"
+for i in $(seq 1 90); do
+  curl -fsS "http://127.0.0.1:$PORT/" >/dev/null 2>&1 && break
+  sleep 2
+  [ "$i" -eq 90 ] && die "Game did not start. See: cd $APP && docker compose logs game"
+done
+
+if [ "$NEW_INSTALL" -eq 1 ] && [ -n "${PLAYER_USER:-}" ]; then
+  say "Creating player account $PLAYER_USER"
+  docker compose exec -T -u node game npx tsx scripts/selfhost-admin.ts \
+    add "$PLAYER_USER" "$PLAYER_PASSWORD" player || warn "Could not create it; add it from the dashboard."
+fi
+# The admin password only seeds the first start; remove it from disk.
+sed -i 's/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=/' .env
+
+# ------------------------------------------------------------ web server
+DASH="https://$GAME_HOST/#admin"
+DASH_DONE=0
+
+setup_nginx() {
+  say "nginx found: adding $GAME_HOST"
+  local conf=/etc/nginx/conf.d/laukolaroser.conf
+  [ -d /etc/nginx/sites-available ] && conf=/etc/nginx/sites-available/laukolaroser.conf
+  if [ -f "$conf" ]; then
+    echo "$conf exists (kept, certificate renews by itself)."
+  else
+  cat > "$conf" <<EOF
+map \$http_upgrade \$lauko_connection { default upgrade; '' close; }
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $GAME_HOST;
+    client_max_body_size 50m;
+    location / {
+        proxy_pass http://127.0.0.1:$PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$lauko_connection;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+}
+EOF
+  if [ -d /etc/nginx/sites-enabled ]; then
+    ln -sf "$conf" /etc/nginx/sites-enabled/laukolaroser.conf
+  fi
+  nginx -t && systemctl reload nginx
+  apt-get install -y certbot python3-certbot-nginx
+  certbot --nginx -d "$GAME_HOST" --non-interactive --agree-tos \
+    --register-unsafely-without-email --redirect || warn "certbot failed: check DNS for $GAME_HOST, then run: certbot --nginx -d $GAME_HOST"
+  fi
+
+  # laukomma.com/dashboard -> game dashboard
+  local site
+  for site in $(grep -rlE "server_name[^;]*[[:space:]]$SITE_HOST([[:space:]]|;)" /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null | grep -v laukolaroser || true); do
+    site=$(readlink -f "$site")
+    if ! grep -q "location = /dashboard" "$site"; then
+      cp "$site" "$site.bak-laukolaroser"
+      sed -i -E "/server_name[^;]*[[:space:]]$SITE_HOST([[:space:]]|;)/a\\    location = /dashboard { return 302 $DASH; }" "$site"
+      if nginx -t; then systemctl reload nginx; DASH_DONE=1
+      else cp "$site.bak-laukolaroser" "$site"; nginx -t && systemctl reload nginx; fi
+    else DASH_DONE=1; fi
+  done
+}
+
+setup_apache() {
+  say "Apache found: adding $GAME_HOST"
+  a2enmod proxy proxy_http proxy_wstunnel rewrite headers >/dev/null
+  if [ -f /etc/apache2/sites-available/laukolaroser.conf ]; then
+    echo "Apache site exists (kept, certificate renews by itself)."
+  else
+  cat > /etc/apache2/sites-available/laukolaroser.conf <<EOF
+<VirtualHost *:80>
+    ServerName $GAME_HOST
+    ProxyPreserveHost On
+    ProxyTimeout 3600
+    RewriteEngine On
+    RewriteCond %{HTTP:Upgrade} =websocket [NC]
+    RewriteRule ^/(.*) ws://127.0.0.1:$PORT/\$1 [P,L]
+    ProxyPass / http://127.0.0.1:$PORT/
+    ProxyPassReverse / http://127.0.0.1:$PORT/
+    RequestHeader set X-Forwarded-Proto expr=%{REQUEST_SCHEME}
+</VirtualHost>
+EOF
+  a2ensite laukolaroser >/dev/null
+  apache2ctl configtest && systemctl reload apache2
+  apt-get install -y certbot python3-certbot-apache
+  certbot --apache -d "$GAME_HOST" --non-interactive --agree-tos \
+    --register-unsafely-without-email --redirect || warn "certbot failed: check DNS for $GAME_HOST, then run: certbot --apache -d $GAME_HOST"
+  fi
+
+  local site
+  for site in $(grep -rlE "ServerName[[:space:]]+$SITE_HOST[[:space:]]*$" /etc/apache2/sites-enabled 2>/dev/null || true); do
+    site=$(readlink -f "$site")
+    if ! grep -q "Redirect 302 /dashboard" "$site"; then
+      cp "$site" "$site.bak-laukolaroser"
+      sed -i -E "/ServerName[[:space:]]+$SITE_HOST[[:space:]]*$/a\\    Redirect 302 /dashboard $DASH" "$site"
+      if apache2ctl configtest; then systemctl reload apache2; DASH_DONE=1
+      else cp "$site.bak-laukolaroser" "$site"; systemctl reload apache2; fi
+    else DASH_DONE=1; fi
+  done
+}
+
+setup_caddy() {
+  say "Caddy: adding $GAME_HOST (HTTPS is automatic)"
+  local cf=/etc/caddy/Caddyfile
+  if ! grep -q "^$GAME_HOST" "$cf" 2>/dev/null; then
+    cat >> "$cf" <<EOF
+
+$GAME_HOST {
+	reverse_proxy 127.0.0.1:$PORT
+}
+EOF
+  fi
+  if grep -qE "^(https?://)?$SITE_HOST([ ,].*)?\{" "$cf" && ! grep -q "redir /dashboard" "$cf"; then
+    cp "$cf" "$cf.bak-laukolaroser"
+    sed -i -E "/^(https?:\/\/)?$SITE_HOST([ ,].*)?\{/a\\	redir /dashboard $DASH" "$cf"
+    if caddy validate --config "$cf" >/dev/null 2>&1; then DASH_DONE=1
+    else cp "$cf.bak-laukolaroser" "$cf"; fi
+  elif grep -q "redir /dashboard" "$cf"; then DASH_DONE=1; fi
+  systemctl reload caddy || systemctl restart caddy
+}
+
+if systemctl is-active --quiet nginx; then setup_nginx
+elif systemctl is-active --quiet apache2; then setup_apache
+elif systemctl is-active --quiet caddy; then setup_caddy
+else
+  say "No web server running: installing Caddy"
+  apt-get install -y debian-keyring debian-archive-keyring apt-transport-https gnupg
+  curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt > /etc/apt/sources.list.d/caddy-stable.list
+  apt-get update -y && apt-get install -y caddy
+  : > /etc/caddy/Caddyfile
+  setup_caddy
+fi
+
+# Firewall (only if ufw is on).
+if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
+  ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null
+fi
+
+# ---------------------------------------------------------------- done
+say "Done"
+cat <<EOF
+
+  Play:             https://$GAME_HOST
+  Admin dashboard:  $DASH
+EOF
+if [ "$DASH_DONE" -eq 1 ]; then
+  echo "                    also https://$SITE_HOST/dashboard"
+else
+  cat <<EOF
+
+  Could not add https://$SITE_HOST/dashboard automatically. Put this link or
+  button on your laukomma.com dashboard page:
+
+    <a href="$DASH" style="display:inline-block;padding:10px 18px;background:#0284c7;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">Laukolaroser admin</a>
+EOF
+fi
+cat <<EOF
+
+  Admin sign-in: username + password, then the 6-digit code. The first time
+  you get a key: add it to an authenticator app (Google Authenticator,
+  Authy, Aegis...) and type the code it shows.${TELEGRAM_BOT_TOKEN:+ "Send code to Telegram" also works.}
+
+  Players: username + password only, 5 wrong tries lock the account; you
+  unlock it in the dashboard (or from Telegram).
+  Limits: 50 accounts, 2 devices each, 4 GB RAM, 2 CPU cores.
+
+  Settings: $APP/.env  (after changes: cd $APP && docker compose up -d)
+EOF

@@ -40,8 +40,20 @@ export interface SelfHostUser {
   pending: boolean;
   locked: boolean;
   failedLogins: number;
+  /** An authenticator app is set up (admins). */
+  twoFactor?: boolean;
   devices: { id: string; name: string; lastSeen: number }[];
   stats: SelfHostStats;
+}
+
+/** Admins' second sign-in step (see server TwoFactor.ts). */
+export interface TwoFactorChallenge {
+  twoFactor: true;
+  ticket: string;
+  /** The server can send a code by Telegram. */
+  telegram: boolean;
+  /** First sign-in: the authenticator key to set up. */
+  setup: { secret: string; uri: string } | null;
 }
 
 let enabled: boolean | null = null;
@@ -240,15 +252,36 @@ async function api<T>(
 export async function login(
   username: string,
   password: string,
-): Promise<SelfHostSession> {
-  const s = await api<SelfHostSession>(
+): Promise<SelfHostSession | TwoFactorChallenge> {
+  const s = await api<SelfHostSession | TwoFactorChallenge>(
     "POST",
     "/login",
     { username, password, deviceId: deviceId(), deviceName: deviceName() },
     false,
   );
+  if ("twoFactor" in s) return s;
   save(s);
   return s;
+}
+
+/** The admin's second step: a code from the authenticator app or Telegram. */
+export async function loginWithCode(
+  ticket: string,
+  code: string,
+): Promise<SelfHostSession> {
+  const s = await api<SelfHostSession>(
+    "POST",
+    "/login/2fa",
+    { ticket, code },
+    false,
+  );
+  save(s);
+  return s;
+}
+
+/** Ask the server's Telegram bot to send a one-time sign-in code. */
+export async function sendTelegramCode(ticket: string): Promise<void> {
+  await api("POST", "/login/2fa/telegram", { ticket }, false);
 }
 
 /** Ask the admin for an account (approved later in the admin panel). */
@@ -380,6 +413,8 @@ export const adminApi = {
     ),
   unlock: (username: string) =>
     api("POST", `/users/${encodeURIComponent(username)}/unlock`),
+  resetTwoFactor: (username: string) =>
+    api("POST", `/users/${encodeURIComponent(username)}/2fa-reset`),
   approve: (username: string) =>
     api("POST", `/users/${encodeURIComponent(username)}/approve`),
   resetDevices: (username: string) =>

@@ -15,7 +15,8 @@
  *    (default 2); an admin frees slots;
  *  - after SELFHOST_MAX_FAILED_LOGINS wrong passwords in a row (default
  *    10) the account locks until an admin unlocks it (or resets its
- *    password).
+ *    password);
+ *  - admins can have a second sign-in step (TwoFactor.ts).
  * Only the master writes this file (logins, admin actions).
  */
 
@@ -43,6 +44,10 @@ const AccountSchema = z.object({
   failedLogins: z.number().int().nonnegative().optional(),
   /** Locked after too many wrong passwords; only an admin unlocks. */
   locked: z.boolean().optional(),
+  /** Admin two-step sign-in: authenticator secret (base32) once set up. */
+  totpSecret: z.string().optional(),
+  /** A secret shown for setup, active after its first correct code. */
+  totpPending: z.string().optional(),
   /** Devices this account has signed in on (oldest first). */
   devices: z
     .array(
@@ -67,6 +72,8 @@ export interface PublicAccount {
   pending: boolean;
   locked: boolean;
   failedLogins: number;
+  /** An authenticator app is set up (admins). */
+  twoFactor: boolean;
   devices: { id: string; name: string; lastSeen: number }[];
 }
 
@@ -163,6 +170,7 @@ export class AccountStore {
       pending: a.pending === true,
       locked: a.locked === true,
       failedLogins: a.failedLogins ?? 0,
+      twoFactor: a.totpSecret !== undefined,
       devices: (a.devices ?? []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -231,6 +239,55 @@ export class AccountStore {
       reason: "wrong",
       attemptsLeft: left <= 3 ? left : null,
     };
+  }
+
+  /**
+   * A wrong second-step code: counts toward the lockout like a wrong
+   * password. Returns true when the account is now locked.
+   */
+  failSecondStep(username: string): boolean {
+    const a = this.require(username);
+    a.failedLogins = (a.failedLogins ?? 0) + 1;
+    if (a.failedLogins >= maxFailedLogins()) a.locked = true;
+    this.save();
+    return a.locked === true;
+  }
+
+  /** Clears the failure count after a passed second step. */
+  passSecondStep(username: string): void {
+    const a = this.require(username);
+    if ((a.failedLogins ?? 0) > 0) {
+      a.failedLogins = 0;
+      this.save();
+    }
+  }
+
+  /** The authenticator secret to show for setup (kept until confirmed). */
+  pendingTotp(username: string, fresh: () => string): string {
+    const a = this.require(username);
+    if (a.totpPending === undefined) {
+      a.totpPending = fresh();
+      this.save();
+    }
+    return a.totpPending;
+  }
+
+  /** The setup code was right: the pending secret becomes active. */
+  confirmTotp(username: string): void {
+    const a = this.require(username);
+    if (a.totpPending === undefined) return;
+    a.totpSecret = a.totpPending;
+    a.totpPending = undefined;
+    this.save();
+  }
+
+  /** Removes an admin's authenticator (lost phone); set up again at sign-in. */
+  resetTotp(username: string): void {
+    const a = this.require(username);
+    a.totpSecret = undefined;
+    a.totpPending = undefined;
+    a.version++;
+    this.save();
   }
 
   unlock(username: string): void {

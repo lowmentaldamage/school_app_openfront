@@ -427,6 +427,109 @@ describe("self-host HTTP API", () => {
     expect((await tryPw("lucky123")).status).toBe(200);
   });
 
+  it("admins need a second step when 2FA is required; players do not", async () => {
+    const { totpCode } = await import("../../src/server/selfhost/TwoFactor");
+    const now = () => totpCode(secretOf, Math.floor(Date.now() / 30_000));
+    let secretOf = "";
+    const boss = (
+      await call("POST", "/login", { username: "boss", password: "secret123" })
+    ).json.token as string;
+    await call(
+      "POST",
+      "/users",
+      { username: "sec", password: "sec12345", role: "admin" },
+      boss,
+    );
+    process.env.SELFHOST_ADMIN_2FA = "required";
+    try {
+      const step1 = await call("POST", "/login", {
+        username: "sec",
+        password: "sec12345",
+      });
+      expect(step1.status).toBe(200);
+      expect(step1.json.token).toBeUndefined();
+      expect(step1.json.twoFactor).toBe(true);
+      const setup = step1.json.setup as { secret: string; uri: string };
+      expect(setup.uri).toContain(setup.secret);
+      secretOf = setup.secret;
+      const ticket = step1.json.ticket as string;
+      expect(
+        (await call("POST", "/login/2fa", { ticket, code: "000000" })).status,
+      ).toBe(401);
+      const ok = await call("POST", "/login/2fa", { ticket, code: now() });
+      expect(ok.status).toBe(200);
+      expect(ok.json.role).toBe("admin");
+      expect(typeof ok.json.token).toBe("string");
+
+      // Set up now: the next sign-in asks only for the code.
+      const again = await call("POST", "/login", {
+        username: "sec",
+        password: "sec12345",
+      });
+      expect(again.json.setup).toBeNull();
+      expect(
+        (
+          await call("POST", "/login/2fa", {
+            ticket: again.json.ticket,
+            code: now(),
+          })
+        ).status,
+      ).toBe(200);
+      expect(
+        (
+          await call("POST", "/login/2fa", {
+            ticket: "forged.ticket",
+            code: now(),
+          })
+        ).status,
+      ).toBe(401);
+
+      // Players still sign in with just the password.
+      const player = await call("POST", "/login", {
+        username: "lucky",
+        password: "lucky123",
+      });
+      expect(typeof player.json.token).toBe("string");
+
+      // Wrong codes count toward the lockout.
+      process.env.SELFHOST_MAX_FAILED_LOGINS = "5";
+      const t3 = (
+        await call("POST", "/login", { username: "sec", password: "sec12345" })
+      ).json.ticket;
+      let r = 0;
+      for (let i = 0; i < 5; i++) {
+        r = (await call("POST", "/login/2fa", { ticket: t3, code: "111111" }))
+          .status;
+      }
+      expect(r).toBe(423);
+      expect(
+        (await call("POST", "/login/2fa", { ticket: t3, code: now() })).status,
+      ).toBe(423);
+      expect((await call("POST", "/users/sec/unlock", {}, boss)).status).toBe(
+        200,
+      );
+
+      // The admin reset removes the authenticator: setup starts over.
+      const list = (await call("GET", "/users", undefined, boss)).json
+        .users as {
+        username: string;
+        twoFactor: boolean;
+      }[];
+      expect(list.find((u) => u.username === "sec")?.twoFactor).toBe(true);
+      expect(
+        (await call("POST", "/users/sec/2fa-reset", {}, boss)).status,
+      ).toBe(200);
+      const fresh = await call("POST", "/login", {
+        username: "sec",
+        password: "sec12345",
+      });
+      expect(fresh.json.setup).not.toBeNull();
+    } finally {
+      delete process.env.SELFHOST_ADMIN_2FA;
+      delete process.env.SELFHOST_MAX_FAILED_LOGINS;
+    }
+  });
+
   it("rate limits a flood of failed logins from one address", async () => {
     let last = 0;
     for (let i = 0; i < 35; i++) {

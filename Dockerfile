@@ -25,6 +25,8 @@ COPY client-api.json ./
 COPY resources ./resources
 # (No proprietary/ directory in Laukolaroser: the build uses resources/.)
 COPY src ./src
+# Account tool for self-hosted servers (docker compose exec game npx tsx scripts/selfhost-admin.ts list).
+COPY scripts/selfhost-admin.ts ./scripts/selfhost-admin.ts
 COPY packages ./packages
 # build-prod runs scripts/buildAssetHashes.ts after vite, to emit
 # static/asset-hashes.json and static/core-version.txt for the desktop

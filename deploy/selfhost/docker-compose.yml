@@ -18,7 +18,9 @@ services:
     image: laukolaroser:latest
     restart: unless-stopped
     ports:
-      - "${PORT:-8080}:80"
+      # BIND=127.0.0.1 when a reverse proxy (nginx/Apache/Caddy) on the same
+      # server handles HTTPS, so the game is reachable only through it.
+      - "${BIND:-0.0.0.0}:${PORT:-8080}:80"
     environment:
       # The game server's built-in "dev" environment skips every external
       # service (no Cloudflare, no third-party API). PRIVATE=1 (default)
@@ -34,24 +36,31 @@ services:
       SELFHOST_MAX_DEVICES: ${MAX_DEVICES:-2}
       SELFHOST_REGISTRATION: ${REGISTRATION:-on}
       SELFHOST_MAX_FAILED_LOGINS: ${MAX_FAILED_LOGINS:-10}
+      # required = every admin signs in with password + 6-digit code
+      # (authenticator app, or a Telegram code); optional = only admins
+      # who set one up. Players always use just username + password.
+      SELFHOST_ADMIN_2FA: ${ADMIN_2FA:-optional}
       # Optional Telegram admin bot (docs/SelfHosting.md §3): approve
       # access requests and unlock accounts from your phone.
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_ADMIN_CHAT_ID: ${TELEGRAM_ADMIN_CHAT_ID:-}
       DOMAIN: ${DOMAIN:-localhost}
-      # 2 game workers: plenty for 2 games x 15 players (players' devices run
-      # the simulation; the server only relays their moves).
-      NUM_WORKERS: "2"
-      NODE_OPTIONS: --max-old-space-size=320
+      # Game workers. Players' devices run the simulation; the server only
+      # relays moves, so 3 workers carry 50 players across several games.
+      # Heap per Node process (master + each worker): with 3 workers and
+      # 640 MB each the whole stack stays under the 4 GB cap below.
+      NUM_WORKERS: ${NUM_WORKERS:-3}
+      NODE_OPTIONS: --max-old-space-size=${NODE_HEAP_MB:-640}
       GIT_COMMIT: selfhost
       TURNSTILE_SITE_KEY: 1x00000000000000000000AA
       API_KEY: selfhosted-not-used
       ADMIN_BOT_API_KEY: selfhosted-not-used
     volumes:
       - ./data:/data
-    # Hard caps for a small home server.
-    mem_limit: 2g
-    cpus: 2.0
+    # Hard caps: the whole server (game + nginx inside) never uses more.
+    mem_limit: ${MEM_LIMIT:-4g}
+    memswap_limit: ${MEM_LIMIT:-4g}
+    cpus: ${CPUS:-2.0}
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1/"]
       interval: 30s

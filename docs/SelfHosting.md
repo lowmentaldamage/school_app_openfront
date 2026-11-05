@@ -10,10 +10,19 @@ Two modes (one setting, `PRIVATE` in `.env`):
 | **Private** (`1`, default) | Only players you create, each with a username and password. Admins add/remove players; anyone logged in can create games. |
 | **Public** (`0`)           | Anyone with the link, no login.                                                                                           |
 
-**Requirements:** 64-bit Linux with Docker, **2 GB RAM** and 1–2 CPU cores
-for 2 games × 15 players. The game simulation runs on each player's
+**Requirements:** 64-bit Linux with Docker, **4 GB RAM** and 2 CPU cores
+for up to 50 players (the default caps). The game simulation runs on each player's
 device; the server only relays moves, so it stays light (about 210–290 MB
 idle and about 440 MB after a two-player game in testing).
+
+**One-file install (Ubuntu/Debian, with a domain):**
+`deploy/selfhost/laukolaroser-install.txt` installs Docker, asks for the
+admin and your own player account, sets the 50-account / 5-tries /
+admin-2FA / 4 GB rules, puts the game on HTTPS behind the nginx, Apache or
+Caddy that already runs on the server (or installs Caddy), and adds a
+`/dashboard` link on the main site. Copy it to the server and run
+`sudo bash laukolaroser-install.txt`. Edit `GAME_HOST` / `SITE_HOST` at
+the top for other domains. The manual steps follow.
 
 ---
 
@@ -63,7 +72,8 @@ A private server is a closed group: only accounts you approve can play
 | Accounts on the server      | 100     | `MAX_ACCOUNTS=30` (any number)          |
 | Devices per account         | 2       | `MAX_DEVICES=2`                         |
 | Players can ask for access  | on      | `REGISTRATION=off` (you add everyone)   |
-| Wrong passwords before lock | 10      | `MAX_FAILED_LOGINS=10`                  |
+| Wrong passwords before lock | 10      | `MAX_FAILED_LOGINS=5`                   |
+| Admin two-step sign-in      | off     | `ADMIN_2FA=required`                    |
 
 Then `docker compose up -d` again.
 
@@ -81,12 +91,31 @@ In the game menu tap your name (bottom-left) → **Manage players**:
   account out everywhere and frees both slots, e.g. when a player gets a
   new phone. A third device is refused with a message to ask you.
 - **Stats**: wins / games and hours played (multiplayer and solo).
-- **Locked** accounts (🔒, listed first): after 10 wrong passwords in a row
+- **Locked** accounts (🔒, listed first): after 10 (`MAX_FAILED_LOGINS`) wrong passwords in a row
   an account locks — even the right password is refused — until you press
   **Unlock** (or reset its password). Players see a warning when 3, 2 and
   1 tries are left.
 - **Reset password**, **Disable / Enable**, **Make admin / player**,
   **Remove**.
+
+- **Reset 2FA** (admins with an authenticator): removes the key; they set
+  up a new one at their next sign-in.
+
+**Admin two-step sign-in (`ADMIN_2FA=required`):** admins sign in with
+username + password, then a 6-digit code. The first sign-in shows a key
+(and an _Open in authenticator app_ link): add it to Google Authenticator,
+Authy, Aegis or any TOTP app and type the code. With the Telegram bot set
+up, **Send code to Telegram** sends a one-time code (5 minutes) to the
+admin chats instead. Wrong codes count toward the lockout like wrong
+passwords. Players always use just username + password. With
+`ADMIN_2FA=optional` only admins who already set up a key are asked.
+Lost the phone: set `ADMIN_2FA=optional`, `docker compose up -d`, sign in,
+press **Reset 2FA** on yourself, then set it back (or have another admin
+press it).
+
+**Play as a normal player too:** create a second, _player_ account for
+yourself and sign in with it (tap your name → _Add another player_ to
+switch between both on one device). Keep the admin account for managing.
 
 **Admin dashboard link:** open `http://<server>/#admin` (logged in as an
 admin) to jump straight to Manage players. Add it to your phone's home
@@ -218,9 +247,11 @@ tar czf laukolaroser-backup-$(date +%F).tgz -C laukolaroser/deploy/selfhost data
 
 ## 8. Resource limits
 
-`docker-compose.yml` caps the container at **2 GB RAM / 2 CPUs** and runs
-2 game workers with a 320 MB heap each. To change: edit `mem_limit`,
-`cpus` and `NUM_WORKERS` there.
+`docker-compose.yml` caps the whole container (game + its nginx) at
+**4 GB RAM / 2 CPUs** and runs 3 game workers; each Node process (master +
+workers) gets a 640 MB heap, so everything stays under the cap with 50
+players. Change with `MEM_LIMIT`, `CPUS`, `NUM_WORKERS` and `NODE_HEAP_MB`
+in `.env`; keep (`NUM_WORKERS` + 1) × `NODE_HEAP_MB` below `MEM_LIMIT`.
 
 ## 9. Troubleshooting
 
@@ -232,7 +263,7 @@ tar czf laukolaroser-backup-$(date +%F).tgz -C laukolaroser/deploy/selfhost data
 | Too many failed logins               | Logins are rate-limited per IP; wait 10 minutes                  |
 | Works at home, not outside           | Check the tunnel / port forward and `DOMAIN`; use HTTPS          |
 | Players disconnect over the internet | Make sure the proxy passes WebSockets                            |
-| Out of memory                        | Fewer `NUM_WORKERS`, or raise `mem_limit`                        |
+| Out of memory                        | Fewer `NUM_WORKERS`, or raise `MEM_LIMIT`                        |
 
 ## 10. Without Docker (testing only)
 

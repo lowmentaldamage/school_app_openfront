@@ -234,6 +234,17 @@ export class SelfHostAdmin extends LitElement {
                             ${translateText("selfhost.reset_password")}
                           </button>
                           ${
+                            u.role === "admin" && u.twoFactor
+                              ? html`<button
+                                  class=${btn}
+                                  title=${translateText("selfhost.reset_2fa_hint")}
+                                  @click=${() => void this.run(() => adminApi.resetTwoFactor(u.username), translateText("selfhost.updated", { name: u.username }))}
+                                >
+                                  ${translateText("selfhost.reset_2fa")}
+                                </button>`
+                              : ""
+                          }
+                          ${
                             u.username.toLowerCase() === me
                               ? ""
                               : html`

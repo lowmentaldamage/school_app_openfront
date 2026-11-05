@@ -131,6 +131,13 @@ export class TelegramAdmin {
     );
   }
 
+  /** A one-time admin sign-in code (two-step sign-in backup). */
+  sendLoginCode(username: string, code: string): Promise<void> {
+    return this.sendAll(
+      `🔐 Sign-in code for ${username}: ${code}\nValid 5 minutes. If this was not you, change your password.`,
+    );
+  }
+
   /** An account locked after too many wrong passwords. */
   notifyLocked(username: string): Promise<void> {
     return this.sendAll(
