@@ -153,9 +153,13 @@ vec2 waveGrad(vec2 p, float t) {
 float wLand = waterLand();
 if (wLand > 0.5) discard;
 float wDepth = waterDepth01();
-vec3 shallow = pow(vec3(0.20, 0.58, 0.62), vec3(2.2));
-vec3 deep = pow(vec3(0.03, 0.14, 0.30), vec3(2.2));
-diffuseColor.rgb = mix(shallow, deep, smoothstep(0.0, 0.85, wDepth));
+// Natural sea: a thin turquoise shelf right at the coast, quickly giving
+// way to blue and then deep ocean (no wide neon halo around the land).
+vec3 shallow = pow(vec3(0.24, 0.55, 0.56), vec3(2.2));
+vec3 mid = pow(vec3(0.07, 0.30, 0.44), vec3(2.2));
+vec3 deep = pow(vec3(0.03, 0.13, 0.29), vec3(2.2));
+diffuseColor.rgb = mix(shallow, mid, smoothstep(0.0, 0.12, wDepth));
+diffuseColor.rgb = mix(diffuseColor.rgb, deep, smoothstep(0.1, 0.55, wDepth));
 float foam = max(1.0 - smoothstep(0.02, 0.10, wDepth), smoothstep(0.3, 0.5, wLand))
            * (0.6 + 0.4 * sin(uTime * 1.6 + (vWaterWorld.x + vWaterWorld.z) * 1.3));
 diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.9), clamp(foam, 0.0, 1.0) * 0.55);
@@ -199,7 +203,7 @@ diffuseColor.a = mix(0.55, 0.94, smoothstep(0.0, 0.5, wDepth));`,
 }`,
         );
     };
-    material.customProgramCacheKey = () => "laukolaroser-water-v7";
+    material.customProgramCacheKey = () => "laukolaroser-water-v8";
 
     this.mesh = new Mesh(geom, material);
     this.mesh.name = "water";

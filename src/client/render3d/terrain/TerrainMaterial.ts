@@ -103,10 +103,15 @@ float terrainSlopeUp(vec3 wp) {
 }
 vec3 terrainDetailNormal(vec3 wp) {
   // One-tile steps: the terraced field has no detail finer than that.
-  float hl = terrainTerraced(wp.xz - vec2(1.0, 0.0));
-  float hr = terrainTerraced(wp.xz + vec2(1.0, 0.0));
-  float hd = terrainTerraced(wp.xz - vec2(0.0, 1.0));
-  float hu = terrainTerraced(wp.xz + vec2(0.0, 1.0));
+  // Zoomed out (a tile near a pixel) the steps would only alias into black
+  // stripes, so the shading blends to the smooth relief instead.
+  float stepFade = 1.0 - smoothstep(0.35, 1.1, length(fwidth(wp.xz)));
+  vec2 dx = vec2(1.0, 0.0);
+  vec2 dz = vec2(0.0, 1.0);
+  float hl = mix(terrainSmoothHeight(wp.xz - dx), terrainTerraced(wp.xz - dx), stepFade);
+  float hr = mix(terrainSmoothHeight(wp.xz + dx), terrainTerraced(wp.xz + dx), stepFade);
+  float hd = mix(terrainSmoothHeight(wp.xz - dz), terrainTerraced(wp.xz - dz), stepFade);
+  float hu = mix(terrainSmoothHeight(wp.xz + dz), terrainTerraced(wp.xz + dz), stepFade);
   // Shading relief is exaggerated: game heights are low, and real
   // landscapes read through their light and shadow.
   vec3 n = vec3((hl - hr) * 1.15, 2.0, (hd - hu) * 1.15);
@@ -148,7 +153,9 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   grass = mix(grass, vec3(0.30, 0.44, 0.17), n2 * 0.5);
   // Highland meadow: olive green, browner where the noise is high.
   vec3 dry = mix(vec3(0.34, 0.42, 0.20), vec3(0.50, 0.46, 0.30), n);
-  vec3 rock = mix(vec3(0.36, 0.34, 0.31), vec3(0.52, 0.49, 0.45), n2);
+  // Warm, varied rock (sandstone to granite) instead of flat grey-brown.
+  vec3 rock = mix(vec3(0.46, 0.41, 0.35), vec3(0.62, 0.57, 0.50), n2);
+  rock = mix(rock, vec3(0.40, 0.39, 0.38), smoothstep(0.55, 0.8, n) * 0.5);
   vec3 snow = vec3(0.93, 0.94, 0.97);
 
   vec3 c = seabed;
@@ -159,12 +166,16 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   float L = terrainLevel(max(h, 0.3));
   float Ls = terrainLevel(max(terrainSmoothHeight(wp.xz), 0.3));
   c = mix(c, dry, smoothstep(30.0, 40.0, L + (n - 0.5) * 8.0));
-  c = mix(c, rock, smoothstep(64.0, 72.0, L + (n - 0.5) * 8.0));
+  // Alpine meadows on the lower mountains, bare rock higher up.
+  c = mix(c, rock, smoothstep(68.0, 80.0, L + (n - 0.5) * 10.0));
   // Steep faces are rock regardless of altitude.
   c = mix(c, rock, smoothstep(0.86, 0.70, up) * step(0.2, h));
   // Snow: patchy on the high peaks and ridges, never a flat white sheet;
   // steep faces stay rock.
-  float patches = smoothstep(0.38, 0.62, tFbm(wp.xz * 0.22 + 31.0));
+  // Patches only matter up close; from afar the snowfield reads as one
+  // clean white surface (no grey speckle).
+  float far = smoothstep(0.25, 0.8, length(fwidth(wp.xz)));
+  float patches = mix(smoothstep(0.3, 0.6, tFbm(wp.xz * 0.12 + 31.0)), 1.0, far * 0.8);
   float snowLine = smoothstep(86.0, 93.0, L + (n - 0.5) * 6.0);
   c = mix(c, snow, snowLine * mix(0.35, 1.0, patches) * smoothstep(0.5, 0.8, up));
   // Beach: a thin sand rim exactly along the tile coastline.
@@ -182,7 +193,10 @@ vec3 terrainAlbedo(vec3 wp, float up) {
   float layer = floor(u) + 1.0;
   float dL = abs(u - riser) * LAYER_STEP / fw;
   float d25 = mod(riser, 5.0) < 0.5 ? dL : 1e3;
-  float crowd = 1.0 - smoothstep(0.8, 2.5, fw);
+  // Lines and bands are close-up detail: gone once a tile is about a pixel
+  // (world view), and wherever they would crowd together on steep ground.
+  float crowd = (1.0 - smoothstep(0.6, 1.8, fw))
+              * (1.0 - smoothstep(0.3, 0.9, length(fwidth(wp.xz))));
   float contour = (1.0 - smoothstep(0.5, 1.4, dL)) * 0.22
                 + (1.0 - smoothstep(0.6, 1.8, d25)) * 0.18;
   float onLand = step(0.3, h) * smoothstep(0.52, 0.6, land);

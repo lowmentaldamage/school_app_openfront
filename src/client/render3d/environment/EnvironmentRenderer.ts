@@ -227,6 +227,8 @@ export class EnvironmentRenderer {
     this.sun.castShadow = quality.shadows;
     this.sun.shadow.mapSize.set(quality.shadowMapSize, quality.shadowMapSize);
     this.sun.shadow.bias = -0.0004;
+    // Soft shadows: mountains shade the valleys without turning them black.
+    this.sun.shadow.intensity = 0.62;
     this.sun.shadow.normalBias = 0.3;
     scene.add(this.sun);
     scene.add(this.sun.target);
