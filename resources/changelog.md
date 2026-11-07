@@ -1,6 +1,13 @@
-📦 **Laukolaroser v1.2.2**
+📦 **Laukolaroser v1.2.3**
 
-🆕 **New in v1.2.2**
+🆕 **New in v1.2.3**
+
+- Cleaner terrain at every zoom: smooth relief from afar, layers and contour lines up close
+- Natural coasts: a thin turquoise shelf instead of a wide neon halo
+- Clean white snowfields, warmer and more varied rock, alpine meadows on lower mountains
+- Softer shadows: valleys behind mountains are shaded, not black
+
+🆕 **In v1.2.2**
 
 - Real countries on every map: custom and editor maps get named nations with flags instead of only tribes
 - Terrain shows 20 clear stacked layers with a line on every step; calmer, more realistic sea
