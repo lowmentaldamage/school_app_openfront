@@ -593,6 +593,16 @@ export class UserSettings {
     this.setBool("settings.weatherEffects", !this.weatherEffects());
   }
 
+  /** Dark mode for playing at night: darker menus and HUD, dimmer map. */
+  darkMode() {
+    return this.getBool("settings.darkMode", false);
+  }
+
+  toggleDarkMode() {
+    this.setBool("settings.darkMode", !this.darkMode());
+    applyDarkMode(this.darkMode());
+  }
+
   toggleAlertFrame() {
     this.setBool("settings.alertFrame", !this.alertFrame());
   }
@@ -1330,4 +1340,10 @@ export class UserSettings {
       this.setAudioVolume(category, volume);
     }
   }
+}
+
+/** Puts the page in (or out of) dark mode; see styles.css `html.lkr-dark`. */
+export function applyDarkMode(on: boolean): void {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("lkr-dark", on);
 }

@@ -9,9 +9,7 @@ import type { GameConfig } from "@laukolaroser/engine-api/Schemas";
 import {
   COASTAL_BATTERY,
   FORT,
-  SEA_MINE,
 } from "@laukolaroser/engine-lib/defense/Defenses";
-import { NAVAL_CLASSES } from "@laukolaroser/engine-lib/naval/NavalClasses";
 import { EngineConfig } from "@laukolaroser/engine/configuration/EngineConfig";
 import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
 import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
@@ -19,7 +17,6 @@ import { NationDefenseBehavior } from "@laukolaroser/engine/execution/nation/Nat
 import { WarshipExecution } from "@laukolaroser/engine/execution/WarshipExecution";
 import { Game, Player, Unit } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
-import { expectSnapshotRoundTrip } from "./util/Snapshot";
 import { executeTicks } from "./util/utils";
 
 const MAP = "half_land_half_ocean";
@@ -126,54 +123,10 @@ describe("Coastal Battery", () => {
   });
 });
 
-describe("Sea Mine", () => {
-  beforeEach(makeGame);
-
-  function layMine(x: number, y: number) {
-    for (let yy = 0; yy < 16; yy++) p1.conquer(game.ref(COAST_X, yy));
-    return build(p1, UnitType.SeaMine, x, y);
-  }
-
-  test("can only be laid at sea near your land, spaced apart", () => {
-    expect(p1.canBuild(UnitType.SeaMine, game.ref(12, 8))).toBe(false);
-    const mine = layMine(12, 8);
-    expect(mine).toBeDefined();
-    expect(p1.canBuild(UnitType.SeaMine, game.ref(13, 8))).toBe(false);
-    expect(p1.canBuild(UnitType.SeaMine, game.ref(3, 8))).toBe(false); // land
-  });
-
-  test("blows up an enemy warship that sails into it", () => {
-    const mine = layMine(12, 8);
-    const enemy = ship(p2, UnitType.Warship, 13, 8);
-    executeTicks(game, 4);
-    expect(mine.isActive()).toBe(false);
-    expect(!enemy.isActive() || enemy.health() <= 1000 - SEA_MINE.damage).toBe(
-      true,
-    );
-  });
-
-  test("destroyers sweep mines without damage", () => {
-    const mine = layMine(12, 8);
-    const d = ship(p2, UnitType.Destroyer, 13, 8);
-    executeTicks(game, 4);
-    expect(mine.isActive()).toBe(false);
-    expect(d.isActive()).toBe(true);
-    expect(d.health()).toBe(NAVAL_CLASSES[UnitType.Destroyer].maxHealth);
-  });
-
-  test("own ships are safe", () => {
-    const mine = layMine(12, 8);
-    ship(p1, UnitType.Warship, 13, 8);
-    executeTicks(game, 6);
-    expect(mine.isActive()).toBe(true);
-  });
-
-  test("snapshot round trip with a battery and mines", async () => {
-    layMine(12, 4);
-    build(p1, UnitType.CoastalBattery, COAST_X, 12);
-    ship(p2, UnitType.Warship, 14, 12);
-    executeTicks(game, 5);
-    await expectSnapshotRoundTrip(game, MAP, 20);
+describe("Sea Mine (removed)", () => {
+  test("can no longer be laid", async () => {
+    const game = await setup("half_land_half_ocean", { instantBuild: true });
+    expect(game.config().isUnitDisabled(UnitType.SeaMine)).toBe(true);
   });
 });
 

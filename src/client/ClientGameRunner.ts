@@ -725,11 +725,8 @@ function mountWebGLFrameLoop(
       warIntensity(incoming, outgoing, me?.troops() ?? 0),
     );
     const sky = atmosphereAt(
-      gv.ticks(),
-      {
-        dayNight: skySettings.dayNightCycle(),
-        weather: skySettings.weatherEffects(),
-      },
+      1500,
+      { dayNight: false, weather: false },
       skySeed,
     );
     worldAudio.setWorld({
@@ -767,13 +764,13 @@ function mountWebGLFrameLoop(
 
   if (world3d !== null) {
     builder.setRendererUploadsEnabled(false);
+    const ATMOSPHERE_DAY_TICK = 1500;
     builder.addFrameListener((gv, palette) => {
+      // Always a clear day: no weather, no night (dark mode dims the map
+      // instead when it is wanted).
       world3d.setAtmosphere(
-        gv.ticks(),
-        {
-          dayNight: skySettings.dayNightCycle(),
-          weather: skySettings.weatherEffects(),
-        },
+        ATMOSPHERE_DAY_TICK,
+        { dayNight: false, weather: false },
         skySeed,
       );
       world3d.setFlatBuildingIcons(skySettings.flatBuildingIcons());

@@ -15,7 +15,6 @@ import { AttackExecution } from "./AttackExecution";
 import { BoatRetreatExecution } from "./BoatRetreatExecution";
 import { ConstructionExecution } from "./ConstructionExecution";
 import { DeleteUnitExecution } from "./DeleteUnitExecution";
-import { DisasterExecution } from "./DisasterExecution";
 import { DonateGoldExecution } from "./DonateGoldExecution";
 import { DonateTroopsExecution } from "./DonateTroopExecution";
 import { EmbargoAllExecution } from "./EmbargoAllExecution";
@@ -34,9 +33,7 @@ import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { TribeSpawner } from "./TribeSpawner";
 import { UpgradeStructureExecution } from "./UpgradeStructureExecution";
-import { UpgradeWeaponExecution } from "./UpgradeWeaponExecution";
 import { PlayerSpawner } from "./utils/PlayerSpawner";
-import { WeaponStrikeExecution } from "./WeaponStrikeExecution";
 
 export class Executor {
   // private random = new PseudoRandom(999)
@@ -82,14 +79,15 @@ export class Executor {
         return new RetreatExecution(player, intent.attackID);
       case "cancel_boat":
         return new BoatRetreatExecution(player, intent.unitID);
+      // Aimed strikes, weapon upgrades and disasters were taken out of the
+      // game; old clients' intents for them do nothing.
       case "fire_weapon":
-        return new WeaponStrikeExecution(player, intent.weapon, intent.tile);
+        return new NoOpExecution();
       case "research":
         return new ResearchExecution(player, intent.tech);
       case "upgrade_weapon":
-        return new UpgradeWeaponExecution(player, intent.weapon);
       case "trigger_disaster":
-        return new DisasterExecution(player, intent.kind);
+        return new NoOpExecution();
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

@@ -144,7 +144,7 @@ const DEFAULT_OPTIONS = {
   waterNukes: false,
   fogOfWar: true,
   techTree: true,
-  disasters: "normal" as DisasterFrequency,
+  disasters: "off" as DisasterFrequency,
   doomsdayClock: false,
   doomsdayClockSpeed: "normal" as DoomsdayClockSpeed,
   overtime: false,
@@ -607,14 +607,6 @@ export class SinglePlayerModal extends BaseModal {
                   {
                     labelKey: "game_settings.tech_tree",
                     checked: this.techTree,
-                  },
-                  {
-                    labelKey: "game_settings.disasters",
-                    checked: this.disasters !== "off",
-                    disasterFrequency:
-                      this.disasters === "off"
-                        ? this.disasterPick
-                        : this.disasters,
                   },
                   {
                     labelKey: "game_settings.doomsday_clock",

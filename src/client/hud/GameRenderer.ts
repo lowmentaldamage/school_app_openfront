@@ -49,7 +49,6 @@ import { SettingsModal } from "./layers/SettingsModal";
 import { SpawnTimer } from "./layers/SpawnTimer";
 import { TutorialPanel } from "./layers/TutorialPanel";
 import { UnitDisplay } from "./layers/UnitDisplay";
-import { WeaponsPanel } from "./layers/WeaponsPanel";
 import { WinModal } from "./layers/WinModal";
 import { loadAllSprites } from "./SpriteLoader";
 
@@ -240,14 +239,6 @@ export function createRenderer(
   unitDisplay.eventBus = eventBus;
   unitDisplay.uiState = uiState;
 
-  const weaponsPanel = document.querySelector("weapons-panel") as WeaponsPanel;
-  if (!(weaponsPanel instanceof WeaponsPanel)) {
-    console.error("weapons panel not found");
-  }
-  weaponsPanel.game = game;
-  weaponsPanel.eventBus = eventBus;
-  weaponsPanel.uiState = uiState;
-
   const researchPanel = document.querySelector(
     "research-panel",
   ) as ResearchPanel;
@@ -388,7 +379,6 @@ export function createRenderer(
     immunityTimer,
     gameLeftSidebar,
     unitDisplay,
-    weaponsPanel,
     researchPanel,
     gameRightSidebar,
     controlPanel,

@@ -17,6 +17,17 @@ import { RAIL_UNITS } from "../rail/RailUnits";
 import { hasTech, TECH_EFFECTS } from "../tech/Tech";
 import { assertNever } from "../Util";
 
+/**
+ * Units taken out of the game (simpler, smoother play): military trains and
+ * sea mines. Always treated as disabled, whatever the lobby says.
+ */
+export const REMOVED_UNITS: ReadonlySet<UnitType> = new Set<UnitType>([
+  UnitType.ArmoredTrain,
+  UnitType.TroopTrain,
+  UnitType.RailSAM,
+  UnitType.SeaMine,
+]);
+
 export interface NukeMagnitude {
   inner: number;
   outer: number;
@@ -195,6 +206,7 @@ export class Config {
   }
 
   isUnitDisabled(unitType: UnitType): boolean {
+    if (REMOVED_UNITS.has(unitType)) return true;
     return this._gameConfig.disabledUnits?.includes(unitType) ?? false;
   }
   instantBuild(): boolean {

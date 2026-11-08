@@ -165,7 +165,9 @@ import { parseReplayViewerHash } from "./replay/ReplayViewerRoute";
 // oxlint-disable-next-line import/no-duplicates -- Required custom-element registration.
 import "./UsernameInput";
 import { UsernameInput } from "./UsernameInput";
-import { UserSettings } from "./UserSettings";
+import { applyDarkMode, UserSettings } from "./UserSettings";
+
+applyDarkMode(new UserSettings().darkMode());
 import "./components/BannedModal";
 import "./components/DesktopStatusBar";
 import "./components/MarketingConsentToast";

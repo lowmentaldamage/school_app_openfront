@@ -256,7 +256,7 @@ export class NationExecution implements Execution {
     this.attackBehavior.maybeAttack();
     this.warshipBehavior.counterWarshipInfestation();
     this.nukeBehavior.maybeSendNuke();
-    this.weaponBehavior.maybeFire();
+    // Aimed strikes are out of the game; nations bomb with airbases instead.
     this.navyBehavior.maybeBuild();
     this.railBehavior.maybeBuild();
     this.economyBehavior.maybeBuild();

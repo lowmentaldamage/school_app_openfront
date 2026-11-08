@@ -431,12 +431,8 @@ export class UserSettingModal extends BaseModal {
     console.log("🤡 Emojis:", this.userSettings.emojis() ? "ON" : "OFF");
   }
 
-  private toggleDayNight() {
-    this.userSettings.toggleDayNightCycle();
-  }
-
-  private toggleWeather() {
-    this.userSettings.toggleWeatherEffects();
+  private toggleDarkMode() {
+    this.userSettings.toggleDarkMode();
   }
 
   private toggleFlatIcons() {
@@ -1938,19 +1934,11 @@ export class UserSettingModal extends BaseModal {
       ></setting-toggle>
 
       <setting-toggle
-        label="${translateText("user_setting.day_night_label")}"
-        description="${translateText("user_setting.day_night_desc")}"
-        id="day-night-toggle"
-        .checked=${this.userSettings.dayNightCycle()}
-        @change=${this.toggleDayNight}
-      ></setting-toggle>
-
-      <setting-toggle
-        label="${translateText("user_setting.weather_label")}"
-        description="${translateText("user_setting.weather_desc")}"
-        id="weather-toggle"
-        .checked=${this.userSettings.weatherEffects()}
-        @change=${this.toggleWeather}
+        label="${translateText("user_setting.dark_mode_label")}"
+        description="${translateText("user_setting.dark_mode_desc")}"
+        id="dark-mode-toggle"
+        .checked=${this.userSettings.darkMode()}
+        @change=${this.toggleDarkMode}
       ></setting-toggle>
 
       <setting-slider

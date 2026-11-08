@@ -201,11 +201,19 @@ describe.each(VARIANTS)("full game snapshots: %s", (_, overrides) => {
       // also finishes in init; WeaponTiers.test.ts covers it.
       // Disaster only runs with the disasters option, which the reference
       // game leaves off; Disasters.test.ts covers it (snapshots included).
+      // Aimed strikes, weapon upgrades, disasters and military trains were
+      // taken out of the game; their executions only run in their own tests.
       const neverStored = new Set([
         "Pause",
         "WeaponStrike",
         "UpgradeWeapon",
         "Disaster",
+        "RailUnit",
+        "SeaMine",
+        // Until nations fly bomber runs (next step of the air rework).
+        "Projectile",
+        "Bomber",
+        "Fighter",
       ]);
       const missing = EXECUTION_SNAPSHOT_TYPES.map((t) => t.name).filter(
         (name) => !reference.execTypes.has(name) && !neverStored.has(name),

@@ -974,3 +974,14 @@ body.in-game tutorial-panel > div {
     height: 44px;
   }
 }
+
+/* Dark mode (Settings): dims the whole screen — menus, HUD and map — for
+   playing at night. A click-through layer, so nothing else changes. */
+html.lkr-dark body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.3);
+  pointer-events: none;
+  z-index: 2147483647;
+}

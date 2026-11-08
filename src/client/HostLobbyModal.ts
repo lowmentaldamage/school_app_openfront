@@ -112,7 +112,7 @@ export class HostLobbyModal extends BaseModal {
   @state() private waterNukes: boolean = false;
   @state() private fogOfWar: boolean = true;
   @state() private techTree: boolean = true;
-  @state() private disasters: DisasterFrequency = "normal";
+  @state() private disasters: DisasterFrequency = "off";
   /** Last frequency picked, restored when disasters are switched back on. */
   private disasterPick: DisasterFrequency = "normal";
   @state() private lobbyId = "";
@@ -762,14 +762,6 @@ export class HostLobbyModal extends BaseModal {
                     checked: this.techTree,
                   },
                   {
-                    labelKey: "game_settings.disasters",
-                    checked: this.disasters !== "off",
-                    disasterFrequency:
-                      this.disasters === "off"
-                        ? this.disasterPick
-                        : this.disasters,
-                  },
-                  {
                     labelKey: "game_settings.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -1134,7 +1126,7 @@ export class HostLobbyModal extends BaseModal {
     this.waterNukes = false;
     this.fogOfWar = true;
     this.techTree = true;
-    this.disasters = "normal";
+    this.disasters = "off";
     this.disasterPick = "normal";
     this.hostCheatsEnabled = false;
     this.hostCheatInfiniteGold = false;
