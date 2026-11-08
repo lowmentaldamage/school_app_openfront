@@ -1189,9 +1189,17 @@ describe("WinModal provisional XP at death", () => {
 
     it("shows the server's figure alone when it answers before one is worked out", async () => {
       stubXpEndpoint(() => json(endServerXp()));
+      // The working-out waits on the config until after the server has
+      // answered, so the order never depends on how fast this machine is.
+      let releaseConfig = () => {};
+      const pending = new Promise((resolve) => {
+        releaseConfig = () => resolve(CONFIG);
+      });
+      fetchProgressionConfig.mockReturnValue(pending);
       const { game, end } = aliveGame();
       await mount(game);
       await endGame(end);
+      releaseConfig();
       expect(xpState()).toBe("result");
       expect(view().reconciled).toBeUndefined();
       expect(panel()!.querySelector("[data-xp-confirmed]")).toBeNull();

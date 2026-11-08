@@ -28,6 +28,8 @@ services:
       # the link play without logging in.
       GAME_ENV: dev
       SELF_HOSTED: ${PRIVATE:-1}
+      # No upstream API on your own server: skip its polling loops.
+      OFFLINE_API: "1"
       SELFHOST_DATA_DIR: /data
       SELFHOST_ADMIN_USER: ${ADMIN_USER:-}
       SELFHOST_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}

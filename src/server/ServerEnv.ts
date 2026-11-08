@@ -312,6 +312,17 @@ export class ServerEnv {
     }
     return ServerEnv.cachedMachine;
   }
+  /**
+   * No upstream API (self-hosted servers, the Windows zip): loops that only
+   * talk to it (ranked lobbies, cosmetics/clan-tag lists) stay off instead
+   * of logging a failed request every few seconds forever.
+   */
+  static offline(): boolean {
+    return (
+      process.env.OFFLINE_API === "1" || process.env.SELF_HOSTED !== undefined
+    );
+  }
+
   static otelEnabled(): boolean {
     return (
       ServerEnv.gameEnv !== GameEnv.Dev &&
