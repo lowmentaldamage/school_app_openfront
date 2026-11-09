@@ -15,12 +15,14 @@ import {
 import { ClientID, GameConfig, GameID } from "@laukolaroser/engine-api/Schemas";
 import {
   airbaseReady,
+  bomberCooldown,
   bombLine,
   bombsForLevel,
   ROCKET_BOMBER,
 } from "@laukolaroser/engine-lib/air/RocketBomber";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
+import { hasTech } from "@laukolaroser/engine-lib/tech/Tech";
 import { findClosestBy } from "@laukolaroser/engine-lib/Util";
 import {
   launcherRange,
@@ -870,7 +872,15 @@ function wireBomberAim(
     let bestD = Infinity;
     for (const u of me.units(UnitType.Airbase)) {
       if (u.isUnderConstruction()) continue;
-      if (!airbaseReady(u.missileTimerQueue(), tick)) continue;
+      if (
+        !airbaseReady(
+          u.missileTimerQueue(),
+          tick,
+          bomberCooldown(hasTech(me.techMask(), "jet_engines")),
+        )
+      ) {
+        continue;
+      }
       const dx = gameView.x(u.tile()) - a.x;
       const dy = gameView.y(u.tile()) - a.y;
       const d = dx * dx + dy * dy;

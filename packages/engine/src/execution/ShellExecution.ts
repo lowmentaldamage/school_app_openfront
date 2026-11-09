@@ -131,6 +131,23 @@ export class ShellExecution implements Execution {
         (damageMultiplier * TECH_EFFECTS.hullsDamageTakenPercent) / 100,
       );
     }
+    // Tech: Torpedoes (submarine shooter) and Armor Plating (target).
+    if (
+      this.ownerUnit.type() === UnitType.Submarine &&
+      this._owner.hasTech("torpedoes")
+    ) {
+      damageMultiplier = Math.floor(
+        (damageMultiplier * TECH_EFFECTS.torpedoDamagePercent) / 100,
+      );
+    }
+    if (
+      CombatShips.has(this.target.type()) &&
+      targetOwner.hasTech("armor_plating")
+    ) {
+      damageMultiplier = Math.floor(
+        (damageMultiplier * TECH_EFFECTS.armorPlatingDamageTakenPercent) / 100,
+      );
+    }
 
     return Math.round((baseDamage / 250) * damageMultiplier);
   }

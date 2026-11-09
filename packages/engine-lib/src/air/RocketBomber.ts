@@ -79,10 +79,21 @@ export function bombLine(
   return out;
 }
 
+/** Airbase reload in ticks: 30 s, a third less with Jet Engines. */
+export function bomberCooldown(jetEngines: boolean): number {
+  return jetEngines
+    ? Math.floor((ROCKET_BOMBER.cooldownTicks * 67) / 100)
+    : ROCKET_BOMBER.cooldownTicks;
+}
+
 /** Whether an airbase whose launch history is `queue` can fly at `tick`. */
-export function airbaseReady(queue: readonly number[], tick: number): boolean {
+export function airbaseReady(
+  queue: readonly number[],
+  tick: number,
+  cooldown: number = ROCKET_BOMBER.cooldownTicks,
+): boolean {
   for (const t of queue) {
-    if (tick - t < ROCKET_BOMBER.cooldownTicks) return false;
+    if (tick - t < cooldown) return false;
   }
   return true;
 }
@@ -91,10 +102,11 @@ export function airbaseReady(queue: readonly number[], tick: number): boolean {
 export function airbaseReloadLeft(
   queue: readonly number[],
   tick: number,
+  cooldown: number = ROCKET_BOMBER.cooldownTicks,
 ): number {
   let left = 0;
   for (const t of queue) {
-    left = Math.max(left, ROCKET_BOMBER.cooldownTicks - (tick - t));
+    left = Math.max(left, cooldown - (tick - t));
   }
   return Math.max(0, left);
 }

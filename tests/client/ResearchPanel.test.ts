@@ -44,10 +44,10 @@ describe("ResearchPanel", () => {
     const cards = [...el.querySelectorAll("[role=dialog] button")].filter(
       (b) => !b.textContent?.includes("✕"),
     ) as HTMLButtonElement[];
-    expect(cards).toHaveLength(12);
+    expect(cards).toHaveLength(18);
     // Drill is done, Fortification is next in the army branch.
     const enabled = cards.filter((b) => !b.disabled);
-    expect(enabled.length).toBe(4); // fortify + the three other tier 1s
+    expect(enabled.length).toBe(6); // fortify + the five other line starts
     enabled[0].click();
     expect(sent).toEqual(["fortify"]);
   });

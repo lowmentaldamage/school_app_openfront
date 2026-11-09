@@ -285,6 +285,13 @@ export const TECH_IDS = [
   "trade",
   "industry",
   "construction",
+  // Second line of the air and navy branches.
+  "flak_shells",
+  "jet_engines",
+  "carpet_bombing",
+  "naval_radar",
+  "torpedoes",
+  "armor_plating",
 ] as const;
 export type TechId = (typeof TECH_IDS)[number];
 

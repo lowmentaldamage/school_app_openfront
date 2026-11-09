@@ -6,6 +6,7 @@ import {
 } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   airbaseReady,
+  bomberCooldown,
   bombLine,
   bombsForLevel,
   ROCKET_BOMBER,
@@ -46,6 +47,13 @@ describe("rocket bomber rules", () => {
     expect(pts[1][0] - pts[0][0]).toBe(10);
     const long = bombLine(0, 0, 500, 0, 5, 1000, 1000);
     expect(long[4][0]).toBe(ROCKET_BOMBER.maxLineLength);
+  });
+
+  it("Jet Engines cut the reload by a third", () => {
+    expect(bomberCooldown(false)).toBe(ROCKET_BOMBER.cooldownTicks);
+    expect(bomberCooldown(true)).toBe(201);
+    expect(airbaseReady([0], 201, bomberCooldown(true))).toBe(true);
+    expect(airbaseReady([0], 201)).toBe(false);
   });
 
   it("an airbase reloads for 30 seconds", () => {

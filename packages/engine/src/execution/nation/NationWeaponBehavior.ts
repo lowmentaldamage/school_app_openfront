@@ -19,6 +19,7 @@ import {
 } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   airbaseReady,
+  bomberCooldown,
   ROCKET_BOMBER,
 } from "@laukolaroser/engine-lib/air/RocketBomber";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
@@ -58,7 +59,15 @@ export class NationWeaponBehavior {
     );
     for (const base of this.player.units(UnitType.Airbase)) {
       if (base.isUnderConstruction()) continue;
-      if (!airbaseReady(base.missileTimerQueue(), this.mg.ticks())) continue;
+      if (
+        !airbaseReady(
+          base.missileTimerQueue(),
+          this.mg.ticks(),
+          bomberCooldown(this.player.hasTech("jet_engines")),
+        )
+      ) {
+        continue;
+      }
       const target = this.raidTarget(
         base.tile(),
         ROCKET_BOMBER.range,

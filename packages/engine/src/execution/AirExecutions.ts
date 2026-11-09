@@ -94,7 +94,10 @@ export function antiAirFire(mg: Game, plane: Unit, owner: Player): boolean {
     }
   }
   // Flak guns (stronger per level) and warships' anti-aircraft guns.
-  const flakRange = Math.max(FLAK.range, SHIP_ANTI_AIR.range);
+  const flakRange = Math.max(
+    FLAK.range,
+    Math.floor((SHIP_ANTI_AIR.range * TECH_EFFECTS.navalRadarPercent) / 100),
+  );
   for (const { unit, distSquared } of mg.nearbyUnits(plane.tile(), flakRange, [
     UnitType.FlakGun,
     UnitType.Warship,
@@ -106,11 +109,26 @@ export function antiAirFire(mg: Game, plane: Unit, owner: Player): boolean {
       continue;
     }
     const isFlak = unit.type() === UnitType.FlakGun;
-    const range = isFlak ? FLAK.range : SHIP_ANTI_AIR.range;
+    const radar = !isFlak && unit.owner().hasTech("naval_radar");
+    const range = isFlak
+      ? FLAK.range
+      : radar
+        ? Math.floor(
+            (SHIP_ANTI_AIR.range * TECH_EFFECTS.navalRadarPercent) / 100,
+          )
+        : SHIP_ANTI_AIR.range;
     if (distSquared > range * range) continue;
-    const damage = isFlak
+    let damage = isFlak
       ? Math.floor((FLAK.damage * (2 + unit.level() - 1)) / 2)
       : SHIP_ANTI_AIR.damage;
+    // Tech: Flak Shells (guns) and Naval Radar (ships).
+    if (isFlak && unit.owner().hasTech("flak_shells")) {
+      damage = Math.floor(
+        (damage * TECH_EFFECTS.flakShellsDamagePercent) / 100,
+      );
+    } else if (radar) {
+      damage = Math.floor((damage * TECH_EFFECTS.navalRadarPercent) / 100);
+    }
     plane.modifyHealth(-damage, unit.owner());
     if (!plane.isActive() || plane.health() <= 0) {
       if (plane.isActive()) plane.delete(true, unit.owner());

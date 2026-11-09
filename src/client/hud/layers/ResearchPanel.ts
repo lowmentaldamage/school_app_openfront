@@ -26,6 +26,22 @@ import { translateText } from "../../Utils";
 import { GameView } from "../../view";
 
 const BRANCHES: readonly TechBranch[] = ["army", "navy", "air", "economy"];
+
+/** The lines of a branch: each starts at a tier I tech and follows its chain. */
+function techLines(branch: TechBranch): TechId[][] {
+  const inBranch = TECHS.filter((t) => t.branch === branch);
+  return inBranch
+    .filter((t) => t.requires === null)
+    .map((root) => {
+      const line: TechId[] = [root.id];
+      for (;;) {
+        const next = inBranch.find((t) => t.requires === line[line.length - 1]);
+        if (next === undefined) break;
+        line.push(next.id);
+      }
+      return line;
+    });
+}
 const BRANCH_ICONS: Record<TechBranch, string> = {
   army: "🪖",
   navy: "⚓",
@@ -148,18 +164,36 @@ export class ResearchPanel extends LitElement implements Controller {
           <p class="text-xs text-white/70 mb-3">
             ${translateText("research.hint")}
           </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="flex flex-col gap-4">
             ${BRANCHES.map(
               (b) => html`
-                <section>
+                <section class="rounded-xl bg-white/[0.03] p-3">
                   <h3
                     class="text-xs font-bold uppercase tracking-[0.15em] text-sky-400 mb-2"
                   >
                     ${BRANCH_ICONS[b]} ${translateText(`research.branch_${b}`)}
                   </h3>
                   <div class="flex flex-col gap-2">
-                    ${TECHS.filter((t) => t.branch === b).map((t) =>
-                      this.renderCard(t.id, busy),
+                    ${techLines(b).map(
+                      (line) => html`
+                        <div
+                          class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-2"
+                        >
+                          ${line.map(
+                            (id, i) =>
+                              html`${
+                                i > 0
+                                  ? html`<div
+                                      class="hidden sm:flex items-center text-white/30 text-lg"
+                                      aria-hidden="true"
+                                    >
+                                      →
+                                    </div>`
+                                  : ""
+                              }${this.renderCard(id, busy)}`,
+                          )}
+                        </div>
+                      `,
                     )}
                   </div>
                 </section>
@@ -207,11 +241,23 @@ export class ResearchPanel extends LitElement implements Controller {
           <span class="font-semibold text-sm"
             >${translateText(`research.tech_${id}`)}</span
           >
-          <span class="text-[10px] text-white/50">T${s.tier}</span>
+          <span
+            class="rounded bg-white/10 px-1.5 text-[10px] font-bold text-white/70"
+            >${["I", "II", "III"][s.tier - 1]}</span
+          >
         </div>
         <div class="text-xs text-white/75 mt-1">
           ${translateText(`research.tech_${id}_desc`)}
         </div>
+        ${
+          s.requires !== null && block === "locked"
+            ? html`<div class="text-[10px] text-white/45 mt-1">
+                ${translateText("research.requires", {
+                  name: translateText(`research.tech_${s.requires}`),
+                })}
+              </div>`
+            : ""
+        }
         <div class="flex items-center justify-between mt-2 text-[11px]">
           <span class="text-amber-300"
             >${renderNumber(s.cost)} · ${Math.round(s.ticks / 10)}s</span

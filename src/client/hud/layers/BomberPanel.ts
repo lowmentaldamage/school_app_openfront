@@ -10,10 +10,12 @@
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import {
   airbaseReloadLeft,
+  bomberCooldown,
   bombsForLevel,
   ROCKET_BOMBER,
 } from "@laukolaroser/engine-lib/air/RocketBomber";
 import { renderNumber } from "@laukolaroser/engine-lib/Format";
+import { hasTech } from "@laukolaroser/engine-lib/tech/Tech";
 import { EventBus } from "@laukolaroser/shared/EventBus";
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
@@ -63,15 +65,19 @@ export class BomberPanel extends LitElement implements Controller {
     this.airbases = bases.length;
     let bestLevel = 0;
     let soonest = Infinity;
+    const mask = me.techMask();
+    const cooldown = bomberCooldown(hasTech(mask, "jet_engines"));
     for (const u of bases) {
-      const left = airbaseReloadLeft(u.missileTimerQueue(), tick);
+      const left = airbaseReloadLeft(u.missileTimerQueue(), tick, cooldown);
       soonest = Math.min(soonest, left);
       if (left === 0) bestLevel = Math.max(bestLevel, u.level());
     }
     this.reload = bases.length === 0 ? 0 : Math.ceil(soonest / 10);
-    this.bombs = bombsForLevel(
-      bestLevel || Math.max(1, ...bases.map((u) => u.level())),
-    );
+    let bombs =
+      bombsForLevel(bestLevel || Math.max(1, ...bases.map((u) => u.level()))) +
+      (hasTech(mask, "heavy_bombers") ? 4 : 0);
+    if (hasTech(mask, "carpet_bombing")) bombs = Math.floor((bombs * 3) / 2);
+    this.bombs = bombs;
     this.affordable =
       me.gold() >= this.game.config().strikeCost(ROCKET_BOMBER.cost, me);
   }

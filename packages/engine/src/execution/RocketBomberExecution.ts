@@ -14,6 +14,7 @@ import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
 import { ANTI_AIR } from "@laukolaroser/engine-lib/air/Air";
 import {
   airbaseReady,
+  bomberCooldown,
   bombLine,
   bombsForLevel,
   ROCKET_BOMBER,
@@ -72,7 +73,15 @@ export function pickAirbase(
     const d = mg.euclideanDistSquared(u.tile(), from);
     if (d > range2) continue;
     anyInRange = true;
-    if (!airbaseReady(u.missileTimerQueue(), mg.ticks())) continue;
+    if (
+      !airbaseReady(
+        u.missileTimerQueue(),
+        mg.ticks(),
+        bomberCooldown(player.hasTech("jet_engines")),
+      )
+    ) {
+      continue;
+    }
     if (d < bestD || (d === bestD && u.id() < best!.id())) {
       best = u;
       bestD = d;
@@ -122,18 +131,24 @@ export class RocketBomberExecution implements Execution {
     // Forget runs that have reloaded, then log this one.
     while (
       airbase.missileTimerQueue().length > 0 &&
-      ticks - airbase.missileTimerQueue()[0] >= ROCKET_BOMBER.cooldownTicks
+      ticks - airbase.missileTimerQueue()[0] >=
+        bomberCooldown(this.player.hasTech("jet_engines"))
     ) {
       airbase.reloadMissile();
     }
     airbase.launch();
     this.base = airbase.tile();
-    // Tech: Heavy Bombers add bombs to every run.
-    const count =
+    // Tech: Heavy Bombers add bombs, Carpet Bombing half again.
+    let count =
       bombsForLevel(airbase.level()) +
       (this.player.hasTech("heavy_bombers")
         ? TECH_EFFECTS.heavyBomberExtraShots * 2
         : 0);
+    if (this.player.hasTech("carpet_bombing")) {
+      count = Math.floor(
+        (count * TECH_EFFECTS.carpetBombingBombsPercent) / 100,
+      );
+    }
     this.drops = bombLine(
       mg.x(this.from),
       mg.y(this.from),
@@ -171,7 +186,12 @@ export class RocketBomberExecution implements Execution {
       this.active = false;
       return;
     }
-    for (let i = 0; i < ROCKET_BOMBER.speed; i++) {
+    const speed =
+      ROCKET_BOMBER.speed +
+      (this.player.hasTech("jet_engines")
+        ? TECH_EFFECTS.jetEnginesExtraSpeed
+        : 0);
+    for (let i = 0; i < speed; i++) {
       const dest = this.returning ? this.base : this.drops[this.nextDrop];
       const next = stepToward(mg, bomber.tile(), dest);
       if (next !== bomber.tile()) bomber.move(next);

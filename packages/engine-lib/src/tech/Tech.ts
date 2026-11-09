@@ -1,8 +1,8 @@
 /**
  * Tech tree — research with gold and time, one project at a time.
  *
- * Four branches (Army, Navy, Air & missiles, Economy), three tiers each;
- * a tier needs the tier before it in the same branch. Researched techs
+ * Four branches (Army, Navy, Air, Economy), three tiers each; Air and Navy
+ * have two lines of three. A tier needs the tier before it in its line. Researched techs
  * are a bitmask on the player (bit = TECHS index), so they travel cheaply
  * to the client. Shared by the engine (rules) and the client (panel), so
  * both always agree. Integer maths only; deterministic.
@@ -61,6 +61,12 @@ export const TECHS: readonly TechSpec[] = [
   spec("trade", "economy", 1, null),
   spec("industry", "economy", 2, "trade"),
   spec("construction", "economy", 3, "industry"),
+  spec("flak_shells", "air", 1, null),
+  spec("jet_engines", "air", 2, "flak_shells"),
+  spec("carpet_bombing", "air", 3, "jet_engines"),
+  spec("naval_radar", "navy", 1, null),
+  spec("torpedoes", "navy", 2, "naval_radar"),
+  spec("armor_plating", "navy", 3, "torpedoes"),
 ];
 
 /**
@@ -92,6 +98,20 @@ export const TECH_EFFECTS = {
   industryIncomePercent: 125,
   /** Structure build costs. */
   constructionCostPercent: 85,
+  /** Anti-air: Flak gun damage. */
+  flakShellsDamagePercent: 150,
+  /** Rocket bomber: extra tiles per tick. */
+  jetEnginesExtraSpeed: 1,
+  /** Rocket bomber: airbase reload. */
+  jetEnginesReloadPercent: 67,
+  /** Rocket bomber: bombs per run. */
+  carpetBombingBombsPercent: 150,
+  /** Anti-air: warships' range and damage. */
+  navalRadarPercent: 140,
+  /** ShellExecution: damage of submarine torpedoes. */
+  torpedoDamagePercent: 150,
+  /** ShellExecution: damage taken by warships (stacks with Hulls). */
+  armorPlatingDamageTakenPercent: 80,
 } as const;
 
 export function techIndex(id: TechId): number {
