@@ -1,6 +1,17 @@
-📦 **Laukolaroser v1.2.3**
+📦 **Laukolaroser v1.3.0**
 
-🆕 **New in v1.2.3**
+🆕 **New in v1.3.0**
+
+- ✈️ Rocket bomber: tap Bomber (key J) and drag a line; a jet from your nearest Airbase drops 10 / 25 / 50 bombs along it (airbase level 1 / 2 / 3). 150K gold, 30 s reload. Bombs kill troops, damage buildings, hit ships and take land
+- New Flak Gun: cheap anti-aircraft building with visible flak bursts; warships and SAMs also shoot planes; shot-down planes crash trailing smoke
+- Ships fight visibly: turrets turn to aim, guns flash and smoke, shells leave tracers, submarine torpedoes leave a wake
+- Jet bombers and fighters, flying higher with take-off and landing
+- Tech tree: second Air and Navy lines (Flak Shells, Jet Engines, Carpet Bombing, Naval Radar, Heavy Torpedoes, Armor Plating) and a clearer panel
+- Simpler game: the weapons sidebar, weapon upgrades, natural disasters, military trains and sea mines are gone
+- Always a clear day; new Dark mode in Settings for playing at night
+- Flatter, smoother terrain with finer layers; land changes hands with a smooth colour sweep; thin smoke over the front; the light darkens while you are at war
+
+🆕 **In v1.2.3**
 
 - Cleaner terrain at every zoom: smooth relief from afar, layers and contour lines up close
 - Natural coasts: a thin turquoise shelf instead of a wide neon halo

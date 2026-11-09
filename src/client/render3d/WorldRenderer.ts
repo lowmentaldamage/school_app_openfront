@@ -410,6 +410,14 @@ export class WorldRenderer {
     this.units.setIconModeAllowed(on);
   }
 
+  /** Target war mood (0-1); the exposure eases towards it. */
+  private warMood = 0;
+  private warMoodShown = 0;
+
+  setWarMood(intensity: number): void {
+    this.warMood = Math.max(0, Math.min(1, intensity));
+  }
+
   /** Country tint 0-1 (0: outlines only, 1: solid colour). */
   setTerritoryTint(strength: number): void {
     this.terrainUniforms.uFillStrength.value = Math.max(
@@ -455,6 +463,10 @@ export class WorldRenderer {
       skyState === null ? 0.25 : 0.25 + 0.75 * skyState.cloud;
     this.water.update(t);
 
+    // Ease into (and out of) the war mood over a few seconds.
+    this.warMoodShown +=
+      (this.warMood - this.warMoodShown) * Math.min(1, this.lastDtMs / 3000);
+    this.renderer.toneMappingExposure = 1.05 - 0.16 * this.warMoodShown;
     const cc = this.cameraController;
     cc.step(this.lastDtMs);
     cc.sync(camera);

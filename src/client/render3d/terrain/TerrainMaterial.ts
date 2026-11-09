@@ -66,12 +66,12 @@ vec2 terrainDetailAt(vec2 p) {
 float terrainLevel(float h) {
   if (h < 1.5) return max(0.0, (h - 0.3) / 0.036);
   if (h < 9.0) return 33.3333 + (h - 1.5) / 0.225;
-  return 66.6667 + (h - 9.0) / 1.53;
+  return 66.6667 + (h - 9.0) / 0.99;
 }
 float terrainLevelHeight(float L) {
   if (L < 33.3333) return 0.3 + L * 0.036;
   if (L < 66.6667) return 1.5 + (L - 33.3333) * 0.225;
-  return 9.0 + (L - 66.6667) * 1.53;
+  return 9.0 + (L - 66.6667) * 0.99;
 }
 // Height snapped to its layer: flat treads with a short riser between
 // layers, so the land reads as clean stacked layers. Water is unchanged.
@@ -80,9 +80,9 @@ float terrainLevelHeight(float L) {
 float terrainSmoothHeight(vec2 p) {
   return textureLod(uTerrainDetail, p / uMapSize, 2.5).r;
 }
-// Visible layers: 20 of them (every 5 levels), each a flat tread with a
+// Visible layers: 25 of them (every 4 levels), each a flat tread with a
 // short, steep riser, like a stacked topographic model.
-const float LAYER_STEP = 5.0;
+const float LAYER_STEP = 4.0;
 float terrainTerraced(vec2 p) {
   float h = terrainSmoothHeight(p);
   if (h <= 0.3) return h;
@@ -127,7 +127,8 @@ vec3 terrainDetailNormal(vec3 wp) {
     float gx = tFbm(q + vec2(e, 0.0)) - c0;
     float gz = tFbm(q + vec2(0.0, e)) - c0;
     float steep = 0.08 + 0.92 * smoothstep(40.0, 75.0, terrainLevel(terrainDetailAt(wp.xz).r));
-    n.xz -= vec2(gx, gz) / e * 0.08 * steep * micro;
+    // Only on the high mountains: lower ground stays smooth (no bumps).
+    n.xz -= vec2(gx, gz) / e * 0.05 * steep * steep * micro;
   }
   return normalize(n);
 }

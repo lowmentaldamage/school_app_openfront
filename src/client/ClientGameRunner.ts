@@ -732,9 +732,10 @@ function mountWebGLFrameLoop(
     const outgoing = (me?.outgoingAttacks() ?? []).filter(
       (a) => a.targetID !== 0,
     ).length;
-    worldAudio.setIntensity(
-      warIntensity(incoming, outgoing, me?.troops() ?? 0),
-    );
+    const war = warIntensity(incoming, outgoing, me?.troops() ?? 0);
+    worldAudio.setIntensity(war);
+    // Darker, heavier light while the player is at war.
+    world3d?.setWarMood(Math.max(0, (war - 0.15) / 0.85));
     const sky = atmosphereAt(
       1500,
       { dayNight: false, weather: false },

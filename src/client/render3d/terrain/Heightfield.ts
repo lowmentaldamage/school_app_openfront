@@ -89,9 +89,9 @@ export const MIN_LAND_HEIGHT = 0.12;
 export const MAX_WATER_HEIGHT = -0.08;
 
 /** Height of the highest layer (level 100), in tiles. */
-export const TOP_HEIGHT = 60;
+export const TOP_HEIGHT = 42;
 /** Height of the impassable peaks, above every layer. */
-export const IMPASSABLE_HEIGHT = 66;
+export const IMPASSABLE_HEIGHT = 46;
 
 /**
  * Land height (tiles) for a layer, 0 ground to 100 mountain tops.
@@ -99,7 +99,7 @@ export const IMPASSABLE_HEIGHT = 66;
  * and mountain tops are huge:
  *   plains   0-33   0.3 … 1.5  (0.036 per layer)
  *   highland 33-67  1.5 … 9    (0.225 per layer)
- *   mountain 67-100 9 … 60     (1.53 per layer)
+ *   mountain 67-100 9 … 42     (0.99 per layer)
  * Exaggerated relief: on a map thousands of tiles wide, true-to-scale
  * mountains would be invisible bumps. TerrainMaterial's terrainLevel()
  * is the inverse; keep them in step.

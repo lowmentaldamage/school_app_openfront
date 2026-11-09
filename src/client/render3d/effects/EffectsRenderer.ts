@@ -240,70 +240,17 @@ export class EffectsRenderer {
       const y = this.hf.sample(x, z);
       if (y <= 0) continue;
       made++;
-      // Rifle flashes, a few staggered over half a second.
-      for (let j = 0; j < 3; j++) {
-        this.fire.spawn(
-          x + (Math.random() - 0.5) * 0.8,
-          y + 0.12,
-          z + (Math.random() - 0.5) * 0.8,
-          0,
-          0,
-          0,
-          now + Math.random() * 0.5,
-          0.09,
-          0.45 * k,
-          P_FLASH,
-        );
-      }
-      // Tracers flying flat across the front.
-      const a = Math.random() * Math.PI * 2;
-      for (let j = 0; j < 2; j++) {
-        const sp = 6 + Math.random() * 4;
-        this.fire.spawn(
-          x,
-          y + 0.18,
-          z,
-          Math.cos(a) * sp,
-          1.2,
-          Math.sin(a) * sp,
-          now + j * 0.15 + Math.random() * 0.2,
-          0.3,
-          0.16 * k,
-          P_SPARK,
-        );
-      }
-      // Now and then a shell lands: a small fireball and a dust ring.
-      if (Math.random() < 0.22) {
-        const bt = now + Math.random() * 0.6;
-        this.fire.spawn(x, y + 0.2, z, 0, 0, 0, bt, 0.18, 1.6 * k, P_FLASH);
-        this.fire.spawn(x, y + 0.2, z, 0, 1.5, 0, bt, 0.45, 0.9 * k, P_FIRE);
-        for (let j = 0; j < 4; j++) {
-          const da = (j / 4) * Math.PI * 2 + a;
-          this.smoke.spawn(
-            x,
-            y + 0.05,
-            z,
-            Math.cos(da) * 1.4,
-            0,
-            Math.sin(da) * 1.4,
-            bt,
-            1.1,
-            0.7 * k,
-            P_DUST,
-          );
-        }
-      }
-      // Gun smoke drifting off.
+      // A clean front: no flashes, just thin smoke drifting over it.
       this.smoke.spawn(
         x,
-        y + 0.25,
+        y + 0.3,
         z,
-        (Math.random() - 0.5) * 0.4,
-        0.2,
-        (Math.random() - 0.5) * 0.4,
+        0.35 + (Math.random() - 0.5) * 0.3,
+        0.25,
+        0.2 + (Math.random() - 0.5) * 0.3,
         now + Math.random() * 0.4,
-        2.2,
-        1.3 * k,
+        3.2,
+        1.5 * k,
         P_SMOKE,
       );
     }

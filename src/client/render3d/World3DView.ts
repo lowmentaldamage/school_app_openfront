@@ -86,6 +86,11 @@ export class World3DView implements ScreenProjector {
     this.world.overlays.setGhost(data);
   }
 
+  /** War mood 0 (peace) - 1 (fighting for survival): dims the light. */
+  setWarMood(intensity: number): void {
+    this.world.setWarMood(intensity);
+  }
+
   /** Rocket bomber run preview; null hides it. */
   setBomberLine(p: BomberLinePreview | null): void {
     this.world.overlays.setBomberLine(p);
