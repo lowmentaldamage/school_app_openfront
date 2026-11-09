@@ -109,6 +109,52 @@ export class EffectsRenderer {
       spec = atPowerTier(spec, tier);
       this.explode(spec, x, z);
       if (tier >= 2) this.burn(x, z, spec.radius, tier);
+      if (
+        !d.reachedTarget &&
+        (d.unitType === "Bomber" || d.unitType === "Fighter")
+      ) {
+        this.planeCrash(x, z, spec.altitude);
+      }
+    }
+  }
+
+  /**
+   * A plane shot down: a burning wreck falls trailing black smoke and hits
+   * the ground a little further on with a small blast.
+   */
+  planeCrash(x: number, z: number, altitude: number): void {
+    const now = this.time;
+    const ground = Math.max(0, this.hf.sample(x, z));
+    const dir = Math.random() * Math.PI * 2;
+    const fall = 2.2;
+    const steps = Math.round(14 * Math.max(0.5, this.density));
+    for (let i = 0; i <= steps; i++) {
+      const f = i / steps;
+      const px = x + Math.cos(dir) * f * 6;
+      const pz = z + Math.sin(dir) * f * 6;
+      const h = ground + altitude * (1 - f * f);
+      const at = now + f * fall;
+      this.smoke.spawn(px, h, pz, 0, 0.3, 0, at, 3, 0.9 + f, P_SMOKE);
+      if (i % 2 === 0)
+        this.fire.spawn(px, h, pz, 0, 0, 0, at, 0.4, 0.7, P_FIRE);
+    }
+    const ex = x + Math.cos(dir) * 6;
+    const ez = z + Math.sin(dir) * 6;
+    const eg = Math.max(0, this.hf.sample(ex, ez));
+    this.fire.spawn(ex, eg + 0.5, ez, 0, 0, 0, now + fall, 0.25, 3, P_FLASH);
+    for (let i = 0; i < 6; i++) {
+      this.smoke.spawn(
+        ex + (Math.random() - 0.5),
+        eg + 0.3,
+        ez + (Math.random() - 0.5),
+        (Math.random() - 0.5) * 0.4,
+        1,
+        (Math.random() - 0.5) * 0.4,
+        now + fall + 0.1,
+        4,
+        1.6,
+        P_SMOKE,
+      );
     }
   }
 

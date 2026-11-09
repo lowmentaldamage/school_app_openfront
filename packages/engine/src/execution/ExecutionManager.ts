@@ -28,6 +28,7 @@ import { PauseExecution } from "./PauseExecution";
 import { QuickChatExecution } from "./QuickChatExecution";
 import { ResearchExecution } from "./ResearchExecution";
 import { RetreatExecution } from "./RetreatExecution";
+import { RocketBomberExecution } from "./RocketBomberExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
@@ -88,6 +89,8 @@ export class Executor {
       case "upgrade_weapon":
       case "trigger_disaster":
         return new NoOpExecution();
+      case "bomber_run":
+        return new RocketBomberExecution(player, intent.from, intent.to);
       case "move_warship":
         return new MoveWarshipExecution(player, intent.unitIds, intent.tile);
       case "spawn":

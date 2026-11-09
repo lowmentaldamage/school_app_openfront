@@ -54,10 +54,12 @@ export type Intent =
   | FireWeaponIntent
   | ResearchIntent
   | UpgradeWeaponIntent
-  | TriggerDisasterIntent;
+  | TriggerDisasterIntent
+  | BomberRunIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type FireWeaponIntent = z.infer<typeof FireWeaponIntentSchema>;
+export type BomberRunIntent = z.infer<typeof BomberRunIntentSchema>;
 export type ResearchIntent = z.infer<typeof ResearchIntentSchema>;
 export type UpgradeWeaponIntent = z.infer<typeof UpgradeWeaponIntentSchema>;
 export type TriggerDisasterIntent = z.infer<typeof TriggerDisasterIntentSchema>;
@@ -554,6 +556,13 @@ export const FireWeaponIntentSchema = z.object({
   tile: zb.uint(),
 });
 
+/** Rocket bomber run along a line (see engine-lib/air/RocketBomber.ts). */
+export const BomberRunIntentSchema = z.object({
+  type: z.literal("bomber_run"),
+  from: zb.uint(),
+  to: zb.uint(),
+});
+
 /** Start researching a tech (see engine-lib/tech/Tech.ts). */
 export const ResearchIntentSchema = z.object({
   type: z.literal("research"),
@@ -648,6 +657,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   ResearchIntentSchema,
   UpgradeWeaponIntentSchema,
   TriggerDisasterIntentSchema,
+  BomberRunIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

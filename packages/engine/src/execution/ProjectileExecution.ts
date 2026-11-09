@@ -90,6 +90,8 @@ export class ProjectileExecution implements Execution {
     private waitTicks: number,
     /** Power tier the shot was fired with (Mk I-III). */
     private tier: WeaponTier = 1,
+    /** Enemy land tiles the impact takes for the shooter (rocket bombs). */
+    private capture = 0,
   ) {}
 
   private get spec(): WeaponSpec {
@@ -203,6 +205,17 @@ export class ProjectileExecution implements Execution {
       }
     }
 
+    // Rocket bombs: the enemy land right where they hit changes hands.
+    if (this.capture > 0 && target.isPlayer() && this.isEnemy(target)) {
+      let taken = 0;
+      for (const t of mg.circleSearch(this.dst, 2)) {
+        if (taken >= this.capture) break;
+        if (mg.owner(t) !== target || !mg.isLand(t)) continue;
+        this.player.conquer(t);
+        taken++;
+      }
+    }
+
     if (target.isPlayer() && this.isEnemy(target) && res.troopsKilled > 0) {
       mg.displayMessage(
         HIT_MESSAGE_KEYS[this.weapon],
@@ -234,6 +247,7 @@ export class ProjectileExecution implements Execution {
       dst: this.dst,
       waitTicks: this.waitTicks,
       tier: this.tier,
+      capture: this.capture,
     });
   }
 
@@ -252,6 +266,7 @@ export class ProjectileExecution implements Execution {
     this.dst = s.dst;
     this.waitTicks = s.waitTicks;
     this.tier = (s.tier ?? 1) as WeaponTier;
+    this.capture = s.capture ?? 0;
   }
 }
 
@@ -266,6 +281,8 @@ const ProjectileStateSchema = z.object({
   waitTicks: zInt(),
   // Optional: older snapshots were all Mk I.
   tier: zInt().optional(),
+  // Optional: older snapshots took no land.
+  capture: zInt().optional(),
 });
 type ProjectileState = z.infer<typeof ProjectileStateSchema>;
 

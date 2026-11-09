@@ -977,76 +977,106 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
     return b.box(0.12, 0.05, 0.12, { team: true, pos: [0, 0.3, 0] }).build();
   },
 
-  // Four-engine heavy bomber (nose along +x): long fuselage, glazed nose,
-  // tapered wings with engines and propeller discs, twin tail fins in the
-  // owner's colour.
+  // Rocket jet bomber (nose along +x): long dark fuselage with a pointed
+  // nose, swept wings, two engines with glowing rocket nozzles at the back,
+  // twin tail fins in the owner's colour.
   bomber: () => {
-    const body = 0x5f6b4a;
+    const body = 0x4a5058;
     const b = new ModelBuilder()
-      .cylinder(0.12, 0.07, 1.5, 8, {
+      .cylinder(0.11, 0.09, 1.55, 10, {
         color: body,
         pattern: "panels",
-        pos: [-0.8, 0, 0],
+        pos: [-0.85, 0, 0],
         rot: [0, 0, -PI / 2],
       })
-      .sphere(0.12, {
+      .cone(0.11, 0.42, 10, {
+        color: 0x3a3f46,
+        pos: [0.7, 0, 0],
+        rot: [0, 0, -PI / 2],
+      })
+      .sphere(0.07, {
         color: GLASS,
-        pos: [0.7, 0.0, 0],
-        scale: [1.2, 0.9, 0.9],
+        pos: [0.52, 0.08, 0],
+        scale: [2.2, 0.7, 0.9],
       })
-      .box(0.32, 0.035, 2.1, {
+      // Swept wings: each half angled back from the fuselage.
+      .box(0.42, 0.03, 1.05, {
         color: body,
         pattern: "panels",
-        pos: [0.1, -0.02, 0],
+        pos: [-0.12, -0.02, 0.5],
+        rot: [0, 0.55, 0],
       })
-      .box(0.2, 0.025, 0.75, { color: body, pos: [-0.72, 0.02, 0] })
-      .box(0.2, 0.26, 0.025, { team: true, pos: [-0.74, 0.03, 0.36] })
-      .box(0.2, 0.26, 0.025, { team: true, pos: [-0.74, 0.03, -0.36] })
-      .box(0.1, 0.04, 0.3, { team: true, pos: [0.0, 0.02, 0] });
-    for (const z of [-0.75, -0.38, 0.38, 0.75]) {
-      b.cylinder(0.055, 0.045, 0.32, 6, {
+      .box(0.42, 0.03, 1.05, {
+        color: body,
+        pattern: "panels",
+        pos: [-0.12, -0.02, -0.5],
+        rot: [0, -0.55, 0],
+      })
+      // Wing tips in team colour.
+      .box(0.16, 0.035, 0.12, { team: true, pos: [-0.42, -0.02, 0.95] })
+      .box(0.16, 0.035, 0.12, { team: true, pos: [-0.42, -0.02, -0.95] })
+      // Tail planes and twin fins.
+      .box(0.2, 0.025, 0.62, { color: body, pos: [-0.78, 0.02, 0] })
+      .box(0.24, 0.3, 0.025, {
+        team: true,
+        pos: [-0.74, 0.04, 0.16],
+        rot: [0.25, 0, 0],
+      })
+      .box(0.24, 0.3, 0.025, {
+        team: true,
+        pos: [-0.74, 0.04, -0.16],
+        rot: [-0.25, 0, 0],
+      });
+    // Engines with rocket nozzles.
+    for (const z of [-0.2, 0.2]) {
+      b.cylinder(0.07, 0.075, 0.55, 8, {
         color: DARK_STEEL,
-        pos: [0.12, -0.04, z],
+        pos: [-0.85, -0.06, z],
         rot: [0, 0, -PI / 2],
-      }).cylinder(0.1, 0.1, 0.008, 10, {
-        color: 0x4a4f54,
-        pos: [0.46, -0.04, z],
+      }).cylinder(0.06, 0.045, 0.08, 8, {
+        color: 0xff7a1a,
+        pos: [-0.9, -0.06, z],
         rot: [0, 0, PI / 2],
       });
     }
     return b.build();
   },
 
-  // Single-seat fighter: slim fuselage, swept wings, bubble canopy,
-  // propeller and a team-coloured tail.
+  // Jet fighter: slim fuselage, sharp nose, swept wings, bubble canopy,
+  // one engine nozzle and a team-coloured tail.
   fighter: () =>
     new ModelBuilder()
-      .cylinder(0.075, 0.04, 0.95, 8, {
-        color: 0x8a8f86,
+      .cylinder(0.07, 0.05, 0.85, 8, {
+        color: 0x7d838a,
         pattern: "panels",
-        pos: [-0.5, 0, 0],
+        pos: [-0.45, 0, 0],
         rot: [0, 0, -PI / 2],
       })
-      .cone(0.075, 0.12, 8, {
-        color: DARK_STEEL,
-        pos: [0.42, 0, 0],
+      .cone(0.07, 0.28, 8, {
+        color: 0x5d636a,
+        pos: [0.4, 0, 0],
         rot: [0, 0, -PI / 2],
       })
-      .box(0.28, 0.02, 1.05, {
-        color: 0x8a8f86,
-        pos: [0.02, -0.02, 0],
-        rot: [0, 0.18, 0],
+      .box(0.3, 0.02, 0.55, {
+        color: 0x7d838a,
+        pos: [-0.1, -0.02, 0.26],
+        rot: [0, 0.6, 0],
       })
-      .box(0.14, 0.02, 0.42, { color: 0x8a8f86, pos: [-0.42, 0.02, 0] })
-      .box(0.16, 0.16, 0.02, { team: true, pos: [-0.44, 0.06, 0] })
-      .sphere(0.06, {
+      .box(0.3, 0.02, 0.55, {
+        color: 0x7d838a,
+        pos: [-0.1, -0.02, -0.26],
+        rot: [0, -0.6, 0],
+      })
+      .box(0.14, 0.02, 0.36, { color: 0x7d838a, pos: [-0.42, 0.01, 0] })
+      .box(0.18, 0.18, 0.02, { team: true, pos: [-0.4, 0.07, 0] })
+      .sphere(0.055, {
         color: GLASS,
-        pos: [0.12, 0.06, 0],
-        scale: [1.6, 0.8, 0.9],
+        pos: [0.16, 0.06, 0],
+        scale: [1.8, 0.8, 0.9],
       })
-      .cylinder(0.09, 0.09, 0.006, 10, {
-        color: 0x4a4f54,
-        pos: [0.57, 0, 0],
+      .cylinder(0.05, 0.04, 0.06, 8, {
+        color: 0xff7a1a,
+        pos: [-0.47, 0, 0],
         rot: [0, 0, PI / 2],
       })
       .build(),

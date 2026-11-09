@@ -43,6 +43,7 @@ import { RailUnitExecutionSnapshot } from "../execution/RailUnitExecution";
 import { RecomputeRailClusterExecutionSnapshot } from "../execution/RecomputeRailClusterExecution";
 import { ResearchExecutionSnapshot } from "../execution/ResearchExecution";
 import { RetreatExecutionSnapshot } from "../execution/RetreatExecution";
+import { RocketBomberSnapshot } from "../execution/RocketBomberExecution";
 import { SAMLauncherExecutionSnapshot } from "../execution/SAMLauncherExecution";
 import { SAMMissileExecutionSnapshot } from "../execution/SAMMissileExecution";
 import { ShellExecutionSnapshot } from "../execution/ShellExecution";
@@ -101,6 +102,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   AirbaseSnapshot,
   BomberSnapshot,
   FighterSnapshot,
+  RocketBomberSnapshot,
   IncomeBuildingSnapshot,
   ResearchExecutionSnapshot,
   UpgradeWeaponSnapshot,

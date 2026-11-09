@@ -13,4 +13,6 @@ export interface UIState {
   weaponTargeting?: WeaponId | null;
   /** The aim point is in range but mountains block every shot. */
   weaponAimBlocked?: boolean;
+  /** Rocket bomber aiming: the next drag on the map draws its bomb line. */
+  bomberAiming?: boolean;
 }

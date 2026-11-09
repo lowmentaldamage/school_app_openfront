@@ -249,6 +249,14 @@ export class TriggerDisasterIntentEvent implements GameEvent {
   constructor(public readonly kind: DisasterKind) {}
 }
 
+/** Rocket bomber run along a line (engine-lib/air/RocketBomber.ts). */
+export class BomberRunIntentEvent implements GameEvent {
+  constructor(
+    public readonly from: TileRef,
+    public readonly to: TileRef,
+  ) {}
+}
+
 export class FireWeaponIntentEvent implements GameEvent {
   constructor(
     public readonly weapon: WeaponId,
@@ -388,6 +396,9 @@ export class Transport {
     });
     this.subscribe(TriggerDisasterIntentEvent, (e) => {
       this.sendIntent({ type: "trigger_disaster", kind: e.kind });
+    });
+    this.subscribe(BomberRunIntentEvent, (e) => {
+      this.sendIntent({ type: "bomber_run", from: e.from, to: e.to });
     });
     this.subscribe(FireWeaponIntentEvent, (e) => {
       this.sendIntent({ type: "fire_weapon", weapon: e.weapon, tile: e.tile });

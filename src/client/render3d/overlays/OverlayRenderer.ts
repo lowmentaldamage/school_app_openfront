@@ -14,7 +14,13 @@
 
 import {
   BufferAttribute,
+  BufferGeometry as LineGeometry,
   Color,
+  DynamicDrawUsage,
+  InstancedMesh,
+  Line,
+  LineBasicMaterial,
+  Matrix4,
   CatmullRomCurve3,
   Group,
   Mesh,
@@ -48,6 +54,16 @@ const DISASTER_COLORS: Record<string, number> = {
 const SAFE = new Color(0xf5f5f5);
 const OUT_OF_REACH = new Color(0xfbbf24);
 const INTERCEPT = new Color(0xef4444);
+
+/** Rocket bomber run preview: where each bomb will fall. */
+export interface BomberLinePreview {
+  /** Bomb points (continuous tile coordinates), in flight order. */
+  points: readonly (readonly [number, number])[];
+  /** A ready airbase can fly it. */
+  ok: boolean;
+  /** Bomb blast radius (tiles). */
+  radius: number;
+}
 
 export interface WeaponAim {
   /** Continuous tile coordinates of the aim point. */
@@ -95,6 +111,21 @@ export class OverlayRenderer {
     depthWrite: false,
   });
   private aimData: WeaponAim | null = null;
+  /** Bomber run preview: one ring per bomb plus the flight line. */
+  private readonly bombRings: InstancedMesh;
+  private readonly bombMat = new MeshBasicMaterial({
+    transparent: true,
+    opacity: 0.8,
+    depthTest: false,
+    depthWrite: false,
+  });
+  private readonly bombLine: Line;
+  private readonly bombLineMat = new LineBasicMaterial({
+    transparent: true,
+    opacity: 0.9,
+    depthTest: false,
+    depthWrite: false,
+  });
   /** Disaster warning rings by disaster id. */
   private readonly disasters = new Map<
     number,
@@ -127,13 +158,53 @@ export class OverlayRenderer {
     this.aimInner.visible = false;
     this.aim.renderOrder = 12;
     this.aimInner.renderOrder = 12;
+    this.bombRings = new InstancedMesh(ring, this.bombMat, 64);
+    this.bombRings.instanceMatrix.setUsage(DynamicDrawUsage);
+    this.bombRings.count = 0;
+    this.bombRings.frustumCulled = false;
+    this.bombRings.renderOrder = 12;
+    this.bombLine = new Line(new LineGeometry(), this.bombLineMat);
+    this.bombLine.frustumCulled = false;
+    this.bombLine.renderOrder = 12;
+    this.bombLine.visible = false;
     this.group.add(
       this.ghost,
       this.range,
       this.target,
       this.aim,
       this.aimInner,
+      this.bombRings,
+      this.bombLine,
     );
+  }
+
+  /** Rocket bomber run preview; null hides it. */
+  setBomberLine(p: BomberLinePreview | null): void {
+    if (p === null || p.points.length === 0) {
+      this.bombRings.count = 0;
+      this.bombLine.visible = false;
+      return;
+    }
+    const color = p.ok ? BAD : BLOCKED;
+    this.bombMat.color.copy(color);
+    this.bombLineMat.color.copy(color);
+    const m = new Matrix4();
+    const n = Math.min(64, p.points.length);
+    const verts = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      const [x, y] = p.points[i];
+      const h = Math.max(0, this.hf.sample(x, y)) + 0.35;
+      m.makeScale(p.radius, 1, p.radius).setPosition(x, h, y);
+      this.bombRings.setMatrixAt(i, m);
+      verts.set([x, h + 0.2, y], i * 3);
+    }
+    this.bombRings.count = n;
+    this.bombRings.instanceMatrix.needsUpdate = true;
+    this.bombLine.geometry.dispose();
+    const g = new LineGeometry();
+    g.setAttribute("position", new BufferAttribute(verts, 3));
+    this.bombLine.geometry = g;
+    this.bombLine.visible = n > 1;
   }
 
   /** Weapon aiming reticle; null hides it. */

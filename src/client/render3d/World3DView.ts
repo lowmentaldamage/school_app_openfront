@@ -20,7 +20,7 @@ import type { Camera2DState } from "./camera/CameraController";
 import { OrbitControls } from "./camera/OrbitControls";
 import type { StrikeTiers } from "./effects/EffectsRenderer";
 import { LabelOverlay, type LabelEntry, type LabelText } from "./LabelOverlay";
-import type { WeaponAim } from "./overlays/OverlayRenderer";
+import type { BomberLinePreview, WeaponAim } from "./overlays/OverlayRenderer";
 import {
   type DisasterEvent3D,
   WorldRenderer,
@@ -84,6 +84,11 @@ export class World3DView implements ScreenProjector {
   /** Build-mode ghost (mirrors MapRenderer.updateGhostPreview). */
   setGhostPreview(data: GhostPreviewData | null): void {
     this.world.overlays.setGhost(data);
+  }
+
+  /** Rocket bomber run preview; null hides it. */
+  setBomberLine(p: BomberLinePreview | null): void {
+    this.world.overlays.setBomberLine(p);
   }
 
   /** Weapon aim reticle; null hides it. */

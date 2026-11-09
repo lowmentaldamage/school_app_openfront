@@ -56,6 +56,40 @@ function hostile(a: Player, b: Player): boolean {
   return a !== b && !a.isFriendly(b);
 }
 
+/**
+ * Anti-air fire at an enemy plane (one volley): SAM launchers, Rail SAMs,
+ * Flak guns and warships in range. Returns true when it was shot down.
+ */
+export function antiAirFire(mg: Game, plane: Unit, owner: Player): boolean {
+  const maxRange = Math.floor(
+    (ANTI_AIR.range * TECH_EFFECTS.samRangePercent) / 100,
+  );
+  for (const { unit, distSquared } of mg.nearbyUnits(plane.tile(), maxRange, [
+    UnitType.SAMLauncher,
+    UnitType.RailSAM,
+  ])) {
+    if (unit.isUnderConstruction() || !hostile(unit.owner(), owner)) {
+      continue;
+    }
+    // Tech: SAM Radar (range) and Interceptors (damage).
+    const shooter = unit.owner();
+    const range = shooter.hasTech("sam_radar") ? maxRange : ANTI_AIR.range;
+    if (distSquared > range * range) continue;
+    const damage = shooter.hasTech("interceptors")
+      ? Math.floor(
+          (ANTI_AIR.damage * TECH_EFFECTS.interceptorDamagePercent) / 100,
+        )
+      : ANTI_AIR.damage;
+    plane.modifyHealth(-damage, shooter);
+    // modifyHealth removes a unit whose health reaches 0.
+    if (!plane.isActive() || plane.health() <= 0) {
+      if (plane.isActive()) plane.delete(true, shooter);
+      return true;
+    }
+  }
+  return false;
+}
+
 export class BomberExecution implements Execution {
   private mg: Game | null = null;
   private active = true;
@@ -103,6 +137,7 @@ export class BomberExecution implements Execution {
         break;
       }
       if (this.returning && bomber.tile() === this.base) {
+        bomber.setReachedTarget();
         bomber.delete(false);
         this.active = false;
         return;
@@ -113,35 +148,9 @@ export class BomberExecution implements Execution {
 
   /** Enemy SAMs in range fire; returns true when the bomber was shot down. */
   private antiAirFire(): boolean {
-    const mg = this.mg!;
-    const bomber = this.bomber!;
-    const maxRange = Math.floor(
-      (ANTI_AIR.range * TECH_EFFECTS.samRangePercent) / 100,
-    );
-    for (const { unit, distSquared } of mg.nearbyUnits(
-      bomber.tile(),
-      maxRange,
-      [UnitType.SAMLauncher, UnitType.RailSAM],
-    )) {
-      if (unit.isUnderConstruction() || !hostile(unit.owner(), this.player)) {
-        continue;
-      }
-      // Tech: SAM Radar (range) and Interceptors (damage).
-      const owner = unit.owner();
-      const range = owner.hasTech("sam_radar") ? maxRange : ANTI_AIR.range;
-      if (distSquared > range * range) continue;
-      const damage = owner.hasTech("interceptors")
-        ? Math.floor(
-            (ANTI_AIR.damage * TECH_EFFECTS.interceptorDamagePercent) / 100,
-          )
-        : ANTI_AIR.damage;
-      bomber.modifyHealth(-damage, owner);
-      // modifyHealth removes a unit whose health reaches 0.
-      if (!bomber.isActive() || bomber.health() <= 0) {
-        if (bomber.isActive()) bomber.delete(true, unit.owner());
-        this.active = false;
-        return true;
-      }
+    if (antiAirFire(this.mg!, this.bomber!, this.player)) {
+      this.active = false;
+      return true;
     }
     return false;
   }
@@ -292,6 +301,7 @@ export class FighterExecution implements Execution {
         this.returning = true;
       }
       if (this.returning && f.tile() === this.base) {
+        f.setReachedTarget();
         f.delete(false);
         this.active = false;
         return;

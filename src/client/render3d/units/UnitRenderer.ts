@@ -551,8 +551,8 @@ export class UnitRenderer {
             }
           }
         } else if (AIR_KINDS.has(mv.kind)) {
-          scale = airScale * (mv.kind === "bomber" ? 1.4 : 1);
-          const cruise = mv.kind === "bomber" ? 9 : 11;
+          scale = airScale * (mv.kind === "bomber" ? 1.6 : 1.1);
+          const cruise = mv.kind === "bomber" ? 14 : 16;
           const fromBase = Number.isFinite(mv.ox)
             ? Math.hypot(x - mv.ox, y - mv.oy)
             : 99;

@@ -70,6 +70,18 @@ export function explosionFor(
       ? null
       : { kind: "airburst", radius: 5, altitude: 14, intensity: 1 };
   }
+  // A plane that lands just vanishes; one shot down blows up in the air
+  // (EffectsRenderer adds the smoking fall and the crash).
+  if (unitType === "Bomber" || unitType === "Fighter") {
+    return reachedTarget
+      ? null
+      : {
+          kind: "airburst",
+          radius: unitType === "Bomber" ? 3 : 2,
+          altitude: unitType === "Bomber" ? 14 : 16,
+          intensity: 0.7,
+        };
+  }
   if (unitType === "SAMMissile") {
     return { kind: "airburst", radius: 2, altitude: 10, intensity: 0.5 };
   }

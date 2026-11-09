@@ -35,6 +35,7 @@ export function getDefaultKeybinds(isMac: boolean): Record<string, string> {
     attackRatioDown: "KeyT",
     attackRatioUp: "KeyY",
     boatAttack: "KeyB",
+    bomberRun: "KeyJ",
     groundAttack: "KeyG",
     retaliateAttack: "Shift+KeyR",
     requestAlliance: "KeyK",

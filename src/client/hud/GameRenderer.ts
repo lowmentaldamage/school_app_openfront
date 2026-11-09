@@ -25,6 +25,7 @@ import { FrameProfiler } from "./FrameProfiler";
 import { ActionableEvents } from "./layers/ActionableEvents";
 import { AlertFrame } from "./layers/AlertFrame";
 import { AttacksDisplay } from "./layers/AttacksDisplay";
+import { BomberPanel } from "./layers/BomberPanel";
 import { BuildMenu } from "./layers/BuildMenu";
 import { ChatDisplay } from "./layers/ChatDisplay";
 import { ChatModal } from "./layers/ChatModal";
@@ -239,6 +240,14 @@ export function createRenderer(
   unitDisplay.eventBus = eventBus;
   unitDisplay.uiState = uiState;
 
+  const bomberPanel = document.querySelector("bomber-panel") as BomberPanel;
+  if (!(bomberPanel instanceof BomberPanel)) {
+    console.error("bomber panel not found");
+  }
+  bomberPanel.game = game;
+  bomberPanel.eventBus = eventBus;
+  bomberPanel.uiState = uiState;
+
   const researchPanel = document.querySelector(
     "research-panel",
   ) as ResearchPanel;
@@ -380,6 +389,7 @@ export function createRenderer(
     gameLeftSidebar,
     unitDisplay,
     researchPanel,
+    bomberPanel,
     gameRightSidebar,
     controlPanel,
     playerInfo,

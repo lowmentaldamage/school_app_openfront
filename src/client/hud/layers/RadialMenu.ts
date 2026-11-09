@@ -1440,7 +1440,7 @@ function hudInsets(
 ): { left: number; right: number; top: number; bottom: number } {
   const out = { left: 0, right: 0, top: 0, bottom: 0 };
   const sel =
-    "control-panel, weapons-panel > div, game-left-sidebar, game-right-sidebar";
+    "control-panel, bomber-panel > div, game-left-sidebar, game-right-sidebar";
   for (const el of document.querySelectorAll<HTMLElement>(sel)) {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) continue;

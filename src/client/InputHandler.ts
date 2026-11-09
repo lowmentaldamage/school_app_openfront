@@ -37,6 +37,25 @@ export class WeaponAimEvent implements GameEvent {
   constructor(public readonly weapon: WeaponId | null) {}
 }
 
+/** Rocket bomber aiming switched on or off. */
+/** HUD button: start (or cancel) rocket bomber aiming. */
+export class ToggleBomberAimEvent implements GameEvent {}
+
+export class BomberAimEvent implements GameEvent {
+  constructor(public readonly on: boolean) {}
+}
+
+/** The bomber line being dragged (screen coords); `done` on release. */
+export class BomberDragEvent implements GameEvent {
+  constructor(
+    public readonly x0: number,
+    public readonly y0: number,
+    public readonly x1: number,
+    public readonly y1: number,
+    public readonly done: boolean,
+  ) {}
+}
+
 export class TouchEvent implements GameEvent {
   constructor(
     public readonly x: number,
@@ -301,6 +320,8 @@ export class InputHandler {
   private lastGestureScale: number | null = null;
 
   private pointerDown: boolean = false;
+  /** Start of the bomber line being dragged (screen coords). */
+  private bomberDrag: { x: number; y: number } | null = null;
 
   private alternateView = false;
 
@@ -360,6 +381,7 @@ export class InputHandler {
     // game's events. off() first so a second initialize() cannot double it.
     this.eventBus.off(UnitSelectionEvent, this.onUnitSelection);
     this.eventBus.on(UnitSelectionEvent, this.onUnitSelection);
+    this.eventBus.on(ToggleBomberAimEvent, () => this.toggleBomberAim());
     this.eventBus.off(EmojiTableVisibleEvent, this.onEmojiTableVisible);
     this.eventBus.on(EmojiTableVisibleEvent, this.onEmojiTableVisible);
 
@@ -437,12 +459,27 @@ export class InputHandler {
     this.multiSelectionActive = false;
   }
 
+  /** Rocket bomber: start (or cancel) drawing a bomb line. */
+  toggleBomberAim(): void {
+    const on = !this.uiState.bomberAiming;
+    this.uiState.bomberAiming = on;
+    this.bomberDrag = null;
+    if (on) {
+      this.uiState.weaponTargeting = null;
+      this.setGhostStructure(null);
+    }
+    this.eventBus.emit(new BomberAimEvent(on));
+  }
+
   /** Re-read the player's keybinds and rebuild the key dispatch table. */
   private buildKeybindTable() {
     this.uiState.preventStacking = false;
     this.keybinds = this.userSettings.keybinds(Platform.isMac);
     this.keybindAndEvent = [];
 
+    this.addKeybindAndEvent(this.keybinds.bomberRun, () => {
+      this.toggleBomberAim();
+    });
     this.addKeybindAndEvent(this.keybinds.boatAttack, () => {
       this.eventBus.emit(new DoBoatAttackEvent());
     });
@@ -838,6 +875,13 @@ export class InputHandler {
             closedUI = true;
           }
 
+          if (this.uiState.bomberAiming) {
+            this.uiState.bomberAiming = false;
+            this.bomberDrag = null;
+            this.eventBus.emit(new BomberAimEvent(false));
+            closedUI = true;
+          }
+
           if (this.selectionBoxActive) {
             this.selectionBoxActive = false;
             this.eventBus.emit(new WarshipSelectionBoxCancelEvent());
@@ -1053,6 +1097,21 @@ export class InputHandler {
     this.pointerDown = true;
     this.pointers.set(event.pointerId, event);
 
+    // Rocket bomber aiming: this drag draws the bomb line, not a pan.
+    if (this.uiState.bomberAiming && this.pointers.size === 1) {
+      this.bomberDrag = { x: event.clientX, y: event.clientY };
+      this.eventBus.emit(
+        new BomberDragEvent(
+          event.clientX,
+          event.clientY,
+          event.clientX,
+          event.clientY,
+          false,
+        ),
+      );
+      return;
+    }
+
     if (this.pointers.size === 1) {
       this.lastPointerX = event.clientX;
       this.lastPointerY = event.clientY;
@@ -1180,6 +1239,24 @@ export class InputHandler {
     // The release listener is global so map drags can end over the HUD. A HUD
     // click has no matching map pointerdown and must not reuse stale map state.
     if (!this.pointerDown || !this.pointers.has(event.pointerId)) {
+      return;
+    }
+    if (this.bomberDrag !== null) {
+      const start = this.bomberDrag;
+      this.bomberDrag = null;
+      this.pointerDown = false;
+      this.pointers.delete(event.pointerId);
+      this.eventBus.emit(
+        new BomberDragEvent(
+          start.x,
+          start.y,
+          event.clientX,
+          event.clientY,
+          true,
+        ),
+      );
+      this.uiState.bomberAiming = false;
+      this.eventBus.emit(new BomberAimEvent(false));
       return;
     }
     this.pointerDown = false;
@@ -1387,6 +1464,19 @@ export class InputHandler {
       return;
     }
     this.pointers.set(event.pointerId, event);
+
+    if (this.bomberDrag !== null) {
+      this.eventBus.emit(
+        new BomberDragEvent(
+          this.bomberDrag.x,
+          this.bomberDrag.y,
+          event.clientX,
+          event.clientY,
+          false,
+        ),
+      );
+      return;
+    }
 
     if (this.pointers.size === 1) {
       const deltaX = event.clientX - this.lastPointerX;

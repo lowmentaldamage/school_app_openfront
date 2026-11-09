@@ -13,6 +13,12 @@ import {
   HashUpdate,
 } from "@laukolaroser/engine-api/game/GameUpdates";
 import { ClientID, GameConfig, GameID } from "@laukolaroser/engine-api/Schemas";
+import {
+  airbaseReady,
+  bombLine,
+  bombsForLevel,
+  ROCKET_BOMBER,
+} from "@laukolaroser/engine-lib/air/RocketBomber";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import { TerrainMapData } from "@laukolaroser/engine-lib/game/TerrainMapLoader";
 import { findClosestBy } from "@laukolaroser/engine-lib/Util";
@@ -56,6 +62,8 @@ import {
   MouseMoveEvent,
   MouseUpEvent,
   WeaponAimEvent,
+  BomberAimEvent,
+  BomberDragEvent,
   TickMetricsEvent,
   ToggleRenderDebugGuiEvent,
 } from "./InputHandler";
@@ -96,6 +104,7 @@ import { themeProvider } from "./theme/ThemeProvider";
 import { GoToPlayerEvent, type TransformHandler } from "./TransformHandler";
 import {
   counterAttackTroops,
+  BomberRunIntentEvent,
   FireWeaponIntentEvent,
   MoveWarshipIntentEvent,
   NewLobbyEvent,
@@ -117,7 +126,7 @@ import {
   UserSettings,
 } from "./UserSettings";
 import { createCanvas } from "./Utils";
-import { GameView, PlayerView } from "./view";
+import { GameView, PlayerView, UnitView } from "./view";
 import { WebGLFrameBuilder } from "./WebGLFrameBuilder";
 import { WorkerClient } from "./WorkerClient";
 
@@ -827,6 +836,86 @@ function mountWebGLFrameLoop(
  * 3D — green when one of the player's ready launchers can reach it, red when
  * not. Touch screens have no hover, so the reticle starts at screen centre.
  */
+/**
+ * Rocket bomber: while the player drags a line, show where every bomb will
+ * fall (red when a ready airbase can fly it, amber when not); on release,
+ * send the run.
+ */
+function wireBomberAim(
+  eventBus: EventBus,
+  gameView: GameView,
+  transformHandler: TransformHandler,
+  world3d: World3DView,
+): void {
+  const tileAt = (sx: number, sy: number): { x: number; y: number } | null => {
+    const p = transformHandler.screenToWorldCoordinatesFloat(sx, sy);
+    const x = Math.floor(p.x);
+    const y = Math.floor(p.y);
+    return gameView.isValidCoord(x, y) ? { x, y } : null;
+  };
+  eventBus.on(BomberAimEvent, (e) => {
+    if (!e.on) world3d.setBomberLine(null);
+  });
+  eventBus.on(BomberDragEvent, (e) => {
+    const me = gameView.myPlayer();
+    const a = tileAt(e.x0, e.y0);
+    const b = tileAt(e.x1, e.y1);
+    if (me === null || a === null || b === null) {
+      world3d.setBomberLine(null);
+      return;
+    }
+    const tick = gameView.ticks();
+    const range2 = ROCKET_BOMBER.range * ROCKET_BOMBER.range;
+    let base: UnitView | null = null;
+    let bestD = Infinity;
+    for (const u of me.units(UnitType.Airbase)) {
+      if (u.isUnderConstruction()) continue;
+      if (!airbaseReady(u.missileTimerQueue(), tick)) continue;
+      const dx = gameView.x(u.tile()) - a.x;
+      const dy = gameView.y(u.tile()) - a.y;
+      const d = dx * dx + dy * dy;
+      if (d <= range2 && d < bestD) {
+        bestD = d;
+        base = u;
+      }
+    }
+    if (e.done) {
+      world3d.setBomberLine(null);
+      // Too short to be a line: bomb around the clicked point.
+      const len = Math.abs(b.x - a.x) + Math.abs(b.y - a.y);
+      const to = len < 3 ? { x: a.x + 6, y: a.y } : b;
+      eventBus.emit(
+        new BomberRunIntentEvent(
+          gameView.ref(a.x, a.y),
+          gameView.ref(
+            Math.min(gameView.width() - 1, to.x),
+            Math.min(gameView.height() - 1, to.y),
+          ),
+        ),
+      );
+      if (base === null) {
+        showToast(translateText("bomber.no_ready_airbase"), "red", 2500);
+      }
+      return;
+    }
+    const count = bombsForLevel(base?.level() ?? 1);
+    const pts = bombLine(
+      a.x,
+      a.y,
+      b.x,
+      b.y,
+      count,
+      gameView.width(),
+      gameView.height(),
+    ).map(([x, y]) => [x + 0.5, y + 0.5] as const);
+    world3d.setBomberLine({
+      points: pts,
+      ok: base !== null,
+      radius: ROCKET_BOMBER.bombRadius,
+    });
+  });
+}
+
 function wireWeaponAim(
   eventBus: EventBus,
   gameView: GameView,
@@ -1173,6 +1262,7 @@ async function createClientGame(
         gameRenderer.transformHandler,
         world3d,
       );
+      wireBomberAim(eventBus, gameView, gameRenderer.transformHandler, world3d);
       // Debug/test handles, like window.__webglView for the 2D renderer.
       (window as unknown as { __world3d?: unknown }).__world3d = world3d;
       (window as unknown as { __camera?: unknown }).__camera =

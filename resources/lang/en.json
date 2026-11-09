@@ -191,6 +191,16 @@
     "title": "Your account is banned",
     "until": "Banned until {date}."
   },
+  "bomber": {
+    "title": "Bomber",
+    "hint": "Rocket bomber (J): tap, then drag a line on the map. A jet from your nearest ready Airbase drops its bombs along it: 10 / 25 / 50 bombs at airbase level 1 / 2 / 3. Costs {cost} gold, then the airbase reloads for 30 s.",
+    "needs_airbase": "Build an Airbase",
+    "reloading": "Reloading {s}s",
+    "need_gold": "Not enough gold",
+    "drag_line": "Drag a line",
+    "bombs": "{n} bombs",
+    "no_ready_airbase": "No ready Airbase in range of that line."
+  },
   "build_help": {
     "also_hits": "Also hits",
     "artillery": "Weapon",

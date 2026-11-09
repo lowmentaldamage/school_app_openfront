@@ -1,5 +1,5 @@
 /**
- * NationWeaponBehavior — AI nations use weapon strikes in wars.
+ * NationWeaponBehavior — AI nations fly rocket bomber runs in wars.
  *
  * Only against players they are actually fighting (an attack in either
  * direction), only when the strike is cheap relative to their treasury (so
@@ -15,32 +15,24 @@ import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import {
   Difficulty,
   Structures,
+  UnitType,
 } from "@laukolaroser/engine-api/game/GameTypes";
+import {
+  airbaseReady,
+  ROCKET_BOMBER,
+} from "@laukolaroser/engine-lib/air/RocketBomber";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
-  launcherRange,
   lineOfFireBlocked,
-  playerWeapon,
-  WEAPONS,
-  weaponUpgradeCost,
   type WeaponId,
 } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { Game, Player } from "../../game/Game";
-import { UpgradeWeaponExecution } from "../UpgradeWeaponExecution";
-import { launcherReady, WeaponStrikeExecution } from "../WeaponStrikeExecution";
+import { RocketBomberExecution } from "../RocketBomberExecution";
 
-/** Order of preference, and how many strikes' worth of gold to keep. */
-const PLAN: readonly { weapon: WeaponId; reserve: bigint }[] = [
-  { weapon: "rocket", reserve: 6n },
-  { weapon: "artillery", reserve: 4n },
-  { weapon: "naval", reserve: 4n },
-  { weapon: "airstrike", reserve: 5n },
-];
+/** Nations keep this many runs' worth of gold before flying one. */
+const BOMBER_RESERVE = 4n;
 
-/** Nations upgrade a weapon once they hold this many times its price. */
-const UPGRADE_RESERVE = 4n;
 const SAMPLES_PER_LAUNCHER = 12;
-const MAX_LAUNCHERS_TRIED = 3;
 
 export class NationWeaponBehavior {
   constructor(
@@ -48,54 +40,48 @@ export class NationWeaponBehavior {
     private readonly player: Player,
   ) {}
 
-  /** Call on the nation's decision ticks. */
+  /**
+   * Call on the nation's decision ticks: in a war, a nation with a ready
+   * Airbase and gold to spare flies a rocket bomber run over the enemy
+   * (its buildings first, else its border), the line continuing past the
+   * target away from the airbase.
+   */
   maybeFire(): void {
     if (this.mg.config().gameConfig().difficulty === Difficulty.Easy) return;
+    if (this.mg.config().isUnitDisabled(UnitType.Airbase)) return;
+    const cost = this.mg.config().strikeCost(ROCKET_BOMBER.cost, this.player);
+    if (this.player.gold() < cost * BOMBER_RESERVE) return;
     const enemies = this.enemiesAtWar();
     if (enemies.size === 0) return;
     const rand = new PseudoRandom(
       this.mg.ticks() * 7_919 + this.player.smallID() * 104_729,
     );
-
-    // Rich nations buy power tiers for weapons they can fire.
-    for (const { weapon } of PLAN) {
-      const cost = weaponUpgradeCost(this.player.weaponTiers(), weapon);
-      if (cost === null || this.player.gold() < cost * UPGRADE_RESERVE) {
-        continue;
-      }
-      if (this.player.units(WEAPONS[weapon].launchers).length === 0) continue;
-      this.mg.addExecution(new UpgradeWeaponExecution(this.player, weapon));
+    for (const base of this.player.units(UnitType.Airbase)) {
+      if (base.isUnderConstruction()) continue;
+      if (!airbaseReady(base.missileTimerQueue(), this.mg.ticks())) continue;
+      const target = this.raidTarget(
+        base.tile(),
+        ROCKET_BOMBER.range,
+        enemies,
+        rand,
+      );
+      if (target === null) return;
+      const mg = this.mg;
+      const dx = mg.x(target) - mg.x(base.tile());
+      const dy = mg.y(target) - mg.y(base.tile());
+      const len = Math.max(1, Math.abs(dx) + Math.abs(dy));
+      const ex = Math.max(
+        0,
+        Math.min(mg.width() - 1, mg.x(target) + Math.trunc((dx * 30) / len)),
+      );
+      const ey = Math.max(
+        0,
+        Math.min(mg.height() - 1, mg.y(target) + Math.trunc((dy * 30) / len)),
+      );
+      mg.addExecution(
+        new RocketBomberExecution(this.player, target, mg.ref(ex, ey)),
+      );
       return;
-    }
-
-    for (const { weapon, reserve } of PLAN) {
-      const spec = playerWeapon(this.player, weapon);
-      if (spec.launchers.every((t) => this.mg.config().isUnitDisabled(t))) {
-        continue;
-      }
-      if (this.player.gold() < spec.cost * reserve) continue;
-      let tried = 0;
-      for (const launcher of this.player.units(spec.launchers)) {
-        if (tried >= MAX_LAUNCHERS_TRIED) break;
-        if (!launcherReady(this.mg, launcher, spec)) continue;
-        tried++;
-        const target =
-          weapon === "airstrike"
-            ? this.raidTarget(launcher.tile(), spec.range, enemies, rand)
-            : this.findTarget(
-                launcher.tile(),
-                launcherRange(this.mg, spec, launcher.tile()),
-                enemies,
-                rand,
-                weapon,
-              );
-        if (target !== null) {
-          this.mg.addExecution(
-            new WeaponStrikeExecution(this.player, weapon, target),
-          );
-          return;
-        }
-      }
     }
   }
 

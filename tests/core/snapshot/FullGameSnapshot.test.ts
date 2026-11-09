@@ -210,7 +210,9 @@ describe.each(VARIANTS)("full game snapshots: %s", (_, overrides) => {
         "Disaster",
         "RailUnit",
         "SeaMine",
-        // Until nations fly bomber runs (next step of the air rework).
+        // The reference game ends before nations build airbases and fly;
+        // RocketBomber.test.ts and EconomyAndAir.test.ts round-trip them.
+        "RocketBomber",
         "Projectile",
         "Bomber",
         "Fighter",
