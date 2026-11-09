@@ -15,6 +15,7 @@
  *  - Models grow as the camera pulls back so they stay readable.
  */
 
+import { FLAK, SHIP_ANTI_AIR } from "@laukolaroser/engine-lib/air/Air";
 import {
   type Camera,
   Color,
@@ -57,7 +58,12 @@ import {
   nextIconMode,
   zoomScale,
 } from "./UnitKinds";
-import { ALL_MODEL_KINDS, modelGeometry, type ModelKind } from "./UnitModels";
+import {
+  ALL_MODEL_KINDS,
+  modelGeometry,
+  TURRET_LAYOUT,
+  type ModelKind,
+} from "./UnitModels";
 
 /** The UnitState fields this renderer reads. */
 export interface UnitInput {
@@ -90,9 +96,20 @@ interface Mover {
   ty: number;
   targetUnitId: number | null;
   slot: number;
+  owner: number;
+  /** Turret instance slots (warship kinds, see TURRET_LAYOUT). */
+  turrets: number[] | null;
 }
 
 const CONSTRUCTION_GREY = new Color(0.55, 0.55, 0.55);
+
+/** Ships whose guns also fire at planes (engine SHIP_ANTI_AIR). */
+const AA_SHIPS = new Set<string>([
+  "Warship",
+  "Destroyer",
+  "Battleship",
+  "Aircraft Carrier",
+]);
 
 /** A structure currently playing its "rises from the ground" animation. */
 interface Rising {
@@ -235,6 +252,31 @@ export class UnitRenderer {
   private rising: Rising[] = [];
   /** Shells dropped by a bomber: they fall from its altitude. */
   private readonly bombs = new Set<number>();
+  /** Shells in flight this frame (glowing tracers). */
+  readonly tracers: { x: number; y: number; z: number }[] = [];
+  /** Shells fired by submarines: torpedoes running along the surface. */
+  private readonly torpedoes = new Set<number>();
+  /** Submarine tiles of the latest tick. */
+  private subTiles: { x: number; y: number }[] = [];
+  /** Drawn position of every mover this frame (turrets aim at them). */
+  private readonly moverPos = new Map<number, { x: number; z: number }>();
+  /** Current turret headings by ship id * 8 + turret index. */
+  private readonly turretYaw = new Map<number, number>();
+  /** Anti-aircraft guns (Flak, warships) of the latest tick. */
+  private readonly aaSites: {
+    x: number;
+    z: number;
+    owner: number;
+    range: number;
+  }[] = [];
+  /** Flak bursts around enemy planes this frame (the effects draw them). */
+  readonly flakBursts: {
+    x: number;
+    y: number;
+    z: number;
+    ax: number;
+    az: number;
+  }[] = [];
   /** Shots fired since the effects last took them (muzzle flashes). */
   readonly launches: { x: number; z: number; big: boolean }[] = [];
   /** Aircraft this frame (for contrails). */
@@ -318,9 +360,29 @@ export class UnitRenderer {
     const structScale = zoomScale(cameraDistance, 110, 2.2);
     const metro = metroFactors(units.values(), w);
     const bomberTiles: { x: number; y: number }[] = [];
+    this.aaSites.length = 0;
+    this.subTiles = [];
     for (const u of units.values()) {
-      if (u.isActive && u.unitType === "Bomber") {
+      if (!u.isActive) continue;
+      if (u.unitType === "Bomber") {
         bomberTiles.push({ x: u.pos % w, y: Math.floor(u.pos / w) });
+      }
+      if (u.unitType === "Submarine") {
+        this.subTiles.push({ x: u.pos % w, y: Math.floor(u.pos / w) });
+      }
+      const aaRange =
+        u.unitType === "Flak Gun" && !u.underConstruction
+          ? FLAK.range
+          : AA_SHIPS.has(u.unitType)
+            ? SHIP_ANTI_AIR.range
+            : 0;
+      if (aaRange > 0) {
+        this.aaSites.push({
+          x: (u.pos % w) + 0.5,
+          z: Math.floor(u.pos / w) + 0.5,
+          owner: u.ownerID,
+          range: aaRange,
+        });
       }
     }
 
@@ -386,6 +448,8 @@ export class UnitRenderer {
         ty: NaN,
         targetUnitId: u.targetUnitId,
         slot: 0,
+        owner: u.ownerID,
+        turrets: null,
       };
       const ballistic = BALLISTIC_KINDS.has(kind) && u.targetTile !== null;
       if (ballistic || AIR_KINDS.has(kind)) {
@@ -404,10 +468,22 @@ export class UnitRenderer {
               }
             }
           }
+          // A shell born at a submarine is a torpedo.
+          if (kind === "shell") {
+            for (const sub of this.subTiles) {
+              const ex = sub.x - o.x;
+              const ey = sub.y - o.y;
+              if (ex * ex + ey * ey <= 4) {
+                this.torpedoes.add(u.id);
+                break;
+              }
+            }
+          }
           // Guns and launch pads flash when a shell or rocket leaves them.
           if (
             (kind === "artilleryShell" && !this.bombs.has(u.id)) ||
-            kind === "rocket"
+            kind === "rocket" ||
+            (kind === "shell" && !this.torpedoes.has(u.id))
           ) {
             this.launches.push({
               x: o.x,
@@ -425,12 +501,23 @@ export class UnitRenderer {
       }
       // Placeholder matrix; animate() writes the real one this frame.
       mover.slot = pool.push(this.m, this.c);
+      const layout = TURRET_LAYOUT[kind];
+      if (layout !== undefined) {
+        const tp = this.pools.get("turret")!;
+        mover.turrets = layout.map(() => tp.push(this.m, this.c));
+      }
       movers.push(mover);
     }
 
     for (const id of this.origins.keys())
       if (!seen.has(id)) this.origins.delete(id);
     for (const id of this.bombs) if (!seen.has(id)) this.bombs.delete(id);
+    for (const id of this.torpedoes)
+      if (!seen.has(id)) this.torpedoes.delete(id);
+    for (const id of this.moverPos.keys())
+      if (!seen.has(id)) this.moverPos.delete(id);
+    for (const k of this.turretYaw.keys())
+      if (!seen.has(Math.floor(k / 8))) this.turretYaw.delete(k);
     for (const id of this.headings.keys())
       if (!seen.has(id)) this.headings.delete(id);
     for (const id of this.poses.keys())
@@ -488,6 +575,7 @@ export class UnitRenderer {
 
     this.wakes.length = 0;
     this.contrails.length = 0;
+    this.tracers.length = 0;
     // Ballistic first, so SAM missiles can read their target's altitude.
     for (let pass = 0; pass < 2; pass++) {
       for (const mv of this.movers) {
@@ -562,6 +650,17 @@ export class UnitRenderer {
           const clear = Math.max(0, this.hf.ceilingAt(x, y) - groundA);
           h = groundA + airAltitude(fromBase, cruise + clear);
           this.airHeight.set(mv.id, h);
+          // Flak: enemy anti-aircraft guns in range fire at this plane.
+          if (this.aaSites.length > 0 && Math.random() < 0.12) {
+            for (const s of this.aaSites) {
+              if (s.owner === mv.owner) continue;
+              const dx = s.x - x;
+              const dz = s.z - y;
+              if (dx * dx + dz * dz > s.range * s.range) continue;
+              this.flakBursts.push({ x, y: h, z: y, ax: s.x, az: s.z });
+              break;
+            }
+          }
           if (scale > 0) {
             this.contrails.push({
               x,
@@ -621,6 +720,11 @@ export class UnitRenderer {
                 big: true,
               });
             }
+          } else if (this.torpedoes.has(mv.id)) {
+            // Torpedo: runs just under the surface, leaving a white wake.
+            h = -0.05;
+            pitch = 0;
+            this.wakes.push({ x, z: y, yaw, scale: scale * 0.5 });
           } else if (Number.isFinite(mv.ox)) {
             const f = flightProgress(mv.ox, mv.oy, x, y, mv.tx, mv.ty);
             const peak = arcPeak(mv.kind, f.distance);
@@ -628,6 +732,10 @@ export class UnitRenderer {
             const ground = Math.max(0, this.hf.sample(x, y));
             h = ground + arc.height + 0.5;
             pitch = Math.atan(arc.slope);
+            // Glowing tracer behind ship and artillery shells.
+            if (mv.kind === "shell" || mv.kind === "artilleryShell") {
+              this.tracers.push({ x, y: h, z: y });
+            }
           } else {
             h = 12;
           }
@@ -652,9 +760,56 @@ export class UnitRenderer {
         this.s.setScalar(scale);
         this.m.compose(this.p, this.q, this.s);
         this.pools.get(mv.kind)!.setMatrix(mv.slot, this.m);
+        this.moverPos.set(mv.id, { x: px, z: pz });
+        if (mv.turrets !== null) {
+          this.placeTurrets(mv, px, h, pz, yaw, roll, scale, dt);
+        }
       }
     }
+    this.pools.get("turret")!.touchMatrices();
     for (const mv of this.movers) this.pools.get(mv.kind)!.touchMatrices();
+  }
+
+  /**
+   * Gun turrets of a warship: on deck, turned towards the ship's target
+   * when it has one (smoothly), else resting fore / aft.
+   */
+  private placeTurrets(
+    mv: Mover,
+    x: number,
+    h: number,
+    z: number,
+    yaw: number,
+    roll: number,
+    scale: number,
+    dt: number,
+  ): void {
+    const layout = TURRET_LAYOUT[mv.kind]!;
+    const tp = this.pools.get("turret")!;
+    const target =
+      mv.targetUnitId !== null ? this.moverPos.get(mv.targetUnitId) : undefined;
+    const c = Math.cos(yaw);
+    const s = Math.sin(yaw);
+    for (let i = 0; i < layout.length; i++) {
+      const t = layout[i];
+      const wx = x + c * t.x * scale;
+      const wz = z - s * t.x * scale;
+      const rest = yaw + (t.aft ? Math.PI : 0);
+      const want =
+        target !== undefined
+          ? Math.atan2(-(target.z - wz), target.x - wx)
+          : rest;
+      const key = mv.id * 8 + i;
+      const cur = this.turretYaw.get(key) ?? rest;
+      const next = turnToward(cur, want, 2.2 * dt);
+      this.turretYaw.set(key, next);
+      this.e.set(roll, next, 0);
+      this.q.setFromEuler(this.e);
+      this.p.set(wx, h + t.y * scale, wz);
+      this.s.setScalar(scale * t.size);
+      this.m.compose(this.p, this.q, this.s);
+      tp.setMatrix(mv.turrets![i], this.m);
+    }
   }
 
   /** Pose buildings that are still rising out of the ground. */

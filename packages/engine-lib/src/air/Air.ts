@@ -29,6 +29,25 @@ export const FIGHTER = {
   maxFlightTicks: 120,
 } as const;
 
+/**
+ * Flak gun: cheap anti-aircraft building. Bursts of flak damage enemy
+ * planes flying through its range (more per level).
+ */
+export const FLAK = {
+  baseCost: 100_000,
+  maxCost: 500_000,
+  /** Tiles. */
+  range: 26,
+  /** Damage per volley at level 1 (+50% per extra level). */
+  damage: 60,
+} as const;
+
+/** Warships, destroyers, battleships and carriers fire at planes too. */
+export const SHIP_ANTI_AIR = {
+  range: 16,
+  damage: 35,
+} as const;
+
 /** Anti-air fire on bombers from enemy SAM launchers and Rail SAMs. */
 export const ANTI_AIR = {
   range: 30,

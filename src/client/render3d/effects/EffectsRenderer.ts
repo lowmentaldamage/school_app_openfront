@@ -341,6 +341,53 @@ export class EffectsRenderer {
    * White contrails behind aircraft: a short-lived puff every few frames
    * at each plane's tail, capped so a big raid stays cheap.
    */
+  /** Shell tracers: a short-lived glowing dot behind each shell in flight. */
+  tracers(shells: readonly { x: number; y: number; z: number }[]): void {
+    if (shells.length === 0) return;
+    const now = this.time;
+    const chance = Math.min(1, 40 / shells.length) * this.density;
+    for (const sh of shells) {
+      if (Math.random() > chance) continue;
+      this.fire.spawn(sh.x, sh.y, sh.z, 0, 0, 0, now, 0.18, 0.35, P_FIRE);
+    }
+  }
+
+  /**
+   * Flak: a quick flash and a puff of dark smoke at a random spot around a
+   * plane, and a faint tracer climbing from the gun.
+   */
+  flak(
+    bursts: readonly {
+      x: number;
+      y: number;
+      z: number;
+      ax: number;
+      az: number;
+    }[],
+  ): void {
+    const now = this.time;
+    for (const b of bursts) {
+      const px = b.x + (Math.random() - 0.5) * 3;
+      const py = b.y + (Math.random() - 0.3) * 2;
+      const pz = b.z + (Math.random() - 0.5) * 3;
+      this.fire.spawn(px, py, pz, 0, 0, 0, now, 0.12, 1.4, P_FLASH);
+      this.smoke.spawn(px, py, pz, 0, 0.1, 0, now + 0.05, 2.2, 1.1, P_SMOKE);
+      const g = Math.max(0, this.hf.sample(b.ax, b.az)) + 0.6;
+      this.fire.spawn(
+        b.ax,
+        g,
+        b.az,
+        (px - b.ax) * 2.5,
+        (py - g) * 2.5,
+        (pz - b.az) * 2.5,
+        now,
+        0.35,
+        0.25,
+        P_SPARK,
+      );
+    }
+  }
+
   contrail(
     planes: readonly {
       x: number;

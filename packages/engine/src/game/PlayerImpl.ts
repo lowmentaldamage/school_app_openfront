@@ -1697,6 +1697,7 @@ export class PlayerImpl implements Player {
       case UnitType.Airbase:
       case UnitType.RadarStation:
       case UnitType.Fort:
+      case UnitType.FlakGun:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       case UnitType.CoastalBattery:
         return this.coastalBatterySpawn(targetTile, validTiles);

@@ -43,6 +43,7 @@ const ICONS: Partial<Record<ModelKind, string>> = {
   oilRig: "images/OilRigIconWhite.svg",
   airbase: "images/AirbaseIconWhite.svg",
   radarStation: "images/RadarIconWhite.svg",
+  flakGun: "images/FlakIconWhite.svg",
   fort: "images/FortIconWhite.svg",
   coastalBattery: "images/CoastalBatteryIconWhite.svg",
 };

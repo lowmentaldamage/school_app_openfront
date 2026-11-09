@@ -12,7 +12,7 @@ import {
 import { PlayerLike } from "@laukolaroser/engine-api/game/ReadViews";
 import { TeamCountConfig } from "@laukolaroser/engine-api/Schemas";
 import { NukeType } from "@laukolaroser/engine-api/StatsSchemas";
-import { AIRBASE } from "@laukolaroser/engine-lib/air/Air";
+import { AIRBASE, FLAK } from "@laukolaroser/engine-lib/air/Air";
 import { Config } from "@laukolaroser/engine-lib/configuration/Config";
 import {
   COASTAL_BATTERY,
@@ -460,6 +460,11 @@ export class EngineConfig extends Config {
         return this.costWrapper(
           (n: number) => scaledCost(SEA_MINE, n),
           UnitType.SeaMine,
+        );
+      case UnitType.FlakGun:
+        return this.costWrapper(
+          (n: number) => scaledCost(FLAK, n),
+          UnitType.FlakGun,
         );
       case UnitType.RadarStation:
         return this.costWrapper(

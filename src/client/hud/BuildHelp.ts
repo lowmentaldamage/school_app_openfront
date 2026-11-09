@@ -8,7 +8,13 @@
  */
 
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
-import { AIRBASE, BOMBER, FIGHTER } from "@laukolaroser/engine-lib/air/Air";
+import {
+  AIRBASE,
+  BOMBER,
+  FIGHTER,
+  FLAK,
+} from "@laukolaroser/engine-lib/air/Air";
+import { ROCKET_BOMBER } from "@laukolaroser/engine-lib/air/RocketBomber";
 import {
   COASTAL_BATTERY,
   FORT,
@@ -166,11 +172,20 @@ export function buildHelp(
       return {
         use: t("use_airbase"),
         stats: [
-          line("raid_range", `${WEAPONS.airstrike.range} ${t("tiles")}`),
-          line("raid_cost", renderNumber(WEAPONS.airstrike.cost)),
-          line("bombs", WEAPONS.airstrike.shots),
+          line("raid_range", `${ROCKET_BOMBER.range} ${t("tiles")}`),
+          line("raid_cost", renderNumber(ROCKET_BOMBER.cost)),
+          line("bombs", "10 / 25 / 50"),
+          line("reload", `${ROCKET_BOMBER.cooldownTicks / 10} s`),
           line("fighters", `${FIGHTER.interceptRange} ${t("tiles")}`),
           line("cost_from", renderNumber(AIRBASE.baseCost)),
+        ],
+      };
+    case UnitType.FlakGun:
+      return {
+        use: t("use_flak"),
+        stats: [
+          line("range", `${FLAK.range} ${t("tiles")}`),
+          line("cost_from", renderNumber(FLAK.baseCost)),
         ],
       };
     case UnitType.RadarStation:

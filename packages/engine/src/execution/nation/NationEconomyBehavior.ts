@@ -21,6 +21,7 @@ const LIMITS: Partial<Record<UnitType, number>> = {
   [UnitType.OilRig]: 2,
   [UnitType.Airbase]: 1,
   [UnitType.RadarStation]: 1,
+  [UnitType.FlakGun]: 2,
 };
 
 export class NationEconomyBehavior {
@@ -43,6 +44,7 @@ export class NationEconomyBehavior {
     const order: UnitType[] = atWar
       ? [
           UnitType.Airbase,
+          UnitType.FlakGun,
           UnitType.RadarStation,
           UnitType.GoldMine,
           UnitType.OilRig,

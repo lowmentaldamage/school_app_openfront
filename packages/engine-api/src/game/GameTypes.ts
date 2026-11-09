@@ -239,6 +239,8 @@ export enum UnitType {
   Fort = "Fort",
   CoastalBattery = "Coastal Battery",
   SeaMine = "Sea Mine",
+  // Air defense (see engine-lib/air/Air.ts).
+  FlakGun = "Flak Gun",
 }
 
 /** Aim-and-fire weapons; rules live in engine-lib/weapons/Weapons.ts. */
@@ -347,6 +349,7 @@ export const Structures = unitTypeGroup([
   UnitType.RadarStation,
   UnitType.Fort,
   UnitType.CoastalBattery,
+  UnitType.FlakGun,
 ] as const);
 
 /** Income buildings (engine-lib/economy/Economy.ts). */

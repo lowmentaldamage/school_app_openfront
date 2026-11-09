@@ -24,6 +24,8 @@ export type ModelKind =
   | "oilRig"
   | "airbase"
   | "radarStation"
+  | "flakGun"
+  | "turret"
   | "fort"
   | "coastalBattery"
   | "seaMine"
@@ -76,13 +78,7 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
         color: DARK_STEEL,
         pos: [-0.3, 0.84, 0],
       })
-      // fore and aft turrets with barrels
-      .cylinder(0.17, 0.19, 0.12, 8, { color: DARK_STEEL, pos: [0.75, 0.3, 0] })
-      .box(0.5, 0.05, 0.05, { color: BLACK, pos: [1.0, 0.36, 0.05] })
-      .box(0.5, 0.05, 0.05, { color: BLACK, pos: [1.0, 0.36, -0.05] })
-      .cylinder(0.17, 0.19, 0.12, 8, { color: DARK_STEEL, pos: [-1.0, 0.3, 0] })
-      .box(0.5, 0.05, 0.05, { color: BLACK, pos: [-1.25, 0.36, 0.05] })
-      .box(0.5, 0.05, 0.05, { color: BLACK, pos: [-1.25, 0.36, -0.05] })
+      // Gun turrets are separate models that turn to aim (TURRET_LAYOUT).
       .box(3.0, 0.05, 0.82, { team: true, pos: [-0.05, 0.02, 0] })
       .build(),
 
@@ -102,11 +98,6 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
         pos: [-0.35, 0.38, 0],
         rot: [0, 0, 0.25],
       })
-      .cylinder(0.12, 0.13, 0.09, 8, {
-        color: DARK_STEEL,
-        pos: [0.85, 0.26, 0],
-      })
-      .box(0.42, 0.04, 0.04, { color: BLACK, pos: [1.08, 0.3, 0] })
       .box(0.5, 0.07, 0.07, { color: DARK_STEEL, pos: [-0.8, 0.27, 0.1] })
       .box(0.5, 0.07, 0.07, { color: DARK_STEEL, pos: [-0.8, 0.27, -0.1] })
       .box(2.8, 0.04, 0.58, { team: true, pos: [-0.05, 0.02, 0] })
@@ -126,21 +117,18 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
       })
       .cylinder(0.11, 0.13, 0.36, 7, { color: BLACK, pos: [-0.55, 0.85, 0] })
       .box(4.0, 0.06, 1.08, { team: true, pos: [-0.05, 0.02, 0] });
-    for (const [x, dir, y] of [
-      [1.05, 1, 0.42],
-      [0.62, 1, 0.56],
-      [-1.25, -1, 0.42],
-    ] as const) {
-      b.cylinder(0.24, 0.27, 0.16, 10, { color: DARK_STEEL, pos: [x, y, 0] });
-      for (const z of [-0.09, 0, 0.09]) {
-        b.box(0.62, 0.05, 0.05, {
-          color: BLACK,
-          pos: [x + dir * 0.36, y + 0.06, z],
-        });
-      }
-    }
     return b.build();
   },
+
+  // A gun turret (barrels along +x), placed and aimed per ship.
+  turret: () =>
+    new ModelBuilder()
+      .cylinder(0.17, 0.19, 0.12, 8, { color: DARK_STEEL })
+      .box(0.22, 0.09, 0.2, { color: DARK_STEEL, pos: [0.02, 0.08, 0] })
+      .box(0.12, 0.02, 0.21, { team: true, pos: [-0.04, 0.17, 0] })
+      .box(0.5, 0.05, 0.05, { color: BLACK, pos: [0.28, 0.1, 0.05] })
+      .box(0.5, 0.05, 0.05, { color: BLACK, pos: [0.28, 0.1, -0.05] })
+      .build(),
 
   // Low, dark hull mostly under water, conning tower with a team band.
   submarine: () =>
@@ -868,6 +856,32 @@ const builders: Record<ModelKind, () => BufferGeometry> = {
     );
   },
 
+  // Flak gun: sandbagged pit, turntable and twin barrels raised at the sky.
+  flakGun: () => {
+    const b = new ModelBuilder()
+      .cylinder(0.9, 1.0, 0.16, 12, { color: 0x8a7f62 })
+      .cylinder(0.78, 0.82, 0.22, 12, {
+        color: 0xa8976b,
+        pattern: "brick",
+        pos: [0, 0.16, 0],
+      })
+      .cylinder(0.42, 0.46, 0.12, 10, { color: DARK_STEEL, pos: [0, 0.3, 0] })
+      .box(0.5, 0.26, 0.42, {
+        color: 0x5f6b4a,
+        pattern: "panels",
+        pos: [0, 0.42, 0],
+      })
+      .box(0.36, 0.06, 0.46, { team: true, pos: [0, 0.68, 0] });
+    for (const z of [-0.1, 0.1]) {
+      b.cylinder(0.035, 0.04, 0.85, 6, {
+        color: BLACK,
+        pos: [0.12, 0.55, z],
+        rot: [0, 0, -0.55],
+      });
+    }
+    return b.build();
+  },
+
   // Radar: equipment hut, lattice mast and a tilted dish.
   radarStation: () =>
     new ModelBuilder()
@@ -1243,3 +1257,25 @@ export function disposeModelCache(): void {
   for (const g of cache.values()) g.dispose();
   cache.clear();
 }
+
+/**
+ * Gun turrets of each warship kind, in model space: x along the hull, y up,
+ * `aft` turrets rest facing backwards, `size` scales the turret.
+ */
+export const TURRET_LAYOUT: Partial<
+  Record<
+    ModelKind,
+    readonly { x: number; y: number; aft: boolean; size: number }[]
+  >
+> = {
+  warship: [
+    { x: 0.75, y: 0.3, aft: false, size: 1 },
+    { x: -1.0, y: 0.3, aft: true, size: 1 },
+  ],
+  destroyer: [{ x: 0.85, y: 0.26, aft: false, size: 0.75 }],
+  battleship: [
+    { x: 1.05, y: 0.42, aft: false, size: 1.45 },
+    { x: 0.62, y: 0.56, aft: false, size: 1.45 },
+    { x: -1.25, y: 0.42, aft: true, size: 1.45 },
+  ],
+};

@@ -11,6 +11,7 @@ export const marketIcon = assetUrl("images/MarketIconWhite.svg");
 export const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
 export const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
 export const radarIcon = assetUrl("images/RadarIconWhite.svg");
+export const flakIcon = assetUrl("images/FlakIconWhite.svg");
 export const fortIcon = assetUrl("images/FortIconWhite.svg");
 export const coastalBatteryIcon = assetUrl(
   "images/CoastalBatteryIconWhite.svg",

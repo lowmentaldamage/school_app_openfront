@@ -37,6 +37,7 @@ const marketIcon = assetUrl("images/MarketIconWhite.svg");
 const oilRigIcon = assetUrl("images/OilRigIconWhite.svg");
 const airbaseIcon = assetUrl("images/AirbaseIconWhite.svg");
 const radarIcon = assetUrl("images/RadarIconWhite.svg");
+const flakIcon = assetUrl("images/FlakIconWhite.svg");
 const fortIcon = assetUrl("images/FortIconWhite.svg");
 const coastalBatteryIcon = assetUrl("images/CoastalBatteryIconWhite.svg");
 const seaMineIcon = assetUrl("images/SeaMineIconWhite.svg");
@@ -145,6 +146,13 @@ const buildTable: BuildItemDisplay[][] = [
       icon: airbaseIcon,
       description: "build_menu.desc.airbase",
       key: "unit_type.airbase",
+      countable: true,
+    },
+    {
+      unitType: UnitType.FlakGun,
+      icon: flakIcon,
+      description: "build_menu.desc.flak_gun",
+      key: "unit_type.flak_gun",
       countable: true,
     },
     {

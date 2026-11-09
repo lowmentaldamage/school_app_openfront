@@ -474,6 +474,11 @@ export class WorldRenderer {
     this.units.layoutMarkers(cc.camera, this.cssWidth, this.cssHeight);
     this.effects.wake(this.units.wakes);
     this.effects.contrail(this.units.contrails);
+    this.effects.tracers(this.units.tracers);
+    if (this.units.flakBursts.length > 0) {
+      this.effects.flak(this.units.flakBursts);
+      this.units.flakBursts.length = 0;
+    }
     if (this.units.launches.length > 0) {
       this.effects.muzzle(this.units.launches);
       this.units.launches.length = 0;

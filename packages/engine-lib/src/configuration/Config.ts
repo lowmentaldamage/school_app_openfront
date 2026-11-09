@@ -258,6 +258,7 @@ export class Config {
       case UnitType.Airbase:
       case UnitType.RadarStation:
       case UnitType.Fort:
+      case UnitType.FlakGun:
         info = {
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
           upgradable: true,

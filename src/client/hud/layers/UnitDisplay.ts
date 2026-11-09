@@ -20,6 +20,7 @@ import { buildHelp, stackingTip } from "../BuildHelp";
 import {
   airbaseIcon,
   radarIcon,
+  flakIcon,
   fortIcon,
   coastalBatteryIcon,
   seaMineIcon,
@@ -70,6 +71,7 @@ export class UnitDisplay extends LitElement implements Controller {
   private _oilRigs = 0;
   private _airbases = 0;
   private _radars = 0;
+  private _flaks = 0;
   private _forts = 0;
   private _batteries = 0;
   private _mines = 0;
@@ -180,6 +182,7 @@ export class UnitDisplay extends LitElement implements Controller {
     this._oilRigs = player.totalUnitLevels(UnitType.OilRig);
     this._airbases = player.totalUnitLevels(UnitType.Airbase);
     this._radars = player.totalUnitLevels(UnitType.RadarStation);
+    this._flaks = player.totalUnitLevels(UnitType.FlakGun);
     this._forts = player.totalUnitLevels(UnitType.Fort);
     this._batteries = player.totalUnitLevels(UnitType.CoastalBattery);
     this._mines = player.units(UnitType.SeaMine).length;
@@ -292,6 +295,13 @@ export class UnitDisplay extends LitElement implements Controller {
             this._airbases,
             UnitType.Airbase,
             "airbase",
+            "",
+          )}
+          ${this.renderUnitItem(
+            flakIcon,
+            this._flaks,
+            UnitType.FlakGun,
+            "flak_gun",
             "",
           )}
           ${this.renderUnitItem(

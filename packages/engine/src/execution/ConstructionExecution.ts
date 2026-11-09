@@ -197,7 +197,8 @@ export class ConstructionExecution implements Execution {
         break;
       case UnitType.RadarStation:
       case UnitType.Fort:
-        // Passive: warships, attacks and the fog of war read them directly.
+      case UnitType.FlakGun:
+        // Passive (Flak: anti-air fire reads it, see AirExecutions): warships, attacks and the fog of war read them directly.
         break;
       case UnitType.CoastalBattery:
         this.mg.addExecution(new CoastalBatteryExecution(this.structure!));
@@ -229,6 +230,7 @@ export class ConstructionExecution implements Execution {
       case UnitType.Fort:
       case UnitType.CoastalBattery:
       case UnitType.SeaMine:
+      case UnitType.FlakGun:
         return true;
       default:
         return false;

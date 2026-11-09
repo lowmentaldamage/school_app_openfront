@@ -253,8 +253,8 @@ describe("tiered strikes", () => {
   });
 });
 
-describe("NationWeaponBehavior upgrades", () => {
-  it("a rich nation at war buys a tier for a weapon it can fire", async () => {
+describe("NationWeaponBehavior bomber runs", () => {
+  it("a rich nation at war with an airbase flies a rocket bomber run", async () => {
     const game = await setup("big_plains", { instantBuild: true }, [
       new PlayerInfo("nation", PlayerType.Nation, null, "nation"),
       new PlayerInfo("bob", PlayerType.Human, "client_b", "bob"),
@@ -265,18 +265,18 @@ describe("NationWeaponBehavior upgrades", () => {
     conquerRect(game, b, 100, 0, 200, 200);
     n.addTroops(200_000);
     b.addTroops(200_000);
-    n.addGold(WEAPON_UPGRADE_COST.artillery[0] * 5n);
-    build(game, n, 90, 100, UnitType.DefensePost);
+    n.addGold(10_000_000n);
+    build(game, n, 50, 100, UnitType.Airbase);
+    expect(n.units(UnitType.Airbase).length).toBe(1);
     game.addExecution(new AttackExecution(20_000, n, b.id()));
     game.executeNextTick();
     expect(n.outgoingAttacks().length).toBeGreaterThan(0);
-    expect(n.units(UnitType.DefensePost).length).toBe(1);
+    // No more aimed strikes or weapon upgrades.
     new NationWeaponBehavior(game, n).maybeFire();
     game.executeNextTick();
-    expect(weaponTier(n.weaponTiers(), "artillery")).toBe(2);
-    // No launchers for these, so no tiers bought.
-    expect(weaponTier(n.weaponTiers(), "naval")).toBe(1);
-    expect(weaponTier(n.weaponTiers(), "airstrike")).toBe(1);
+    game.executeNextTick();
+    expect(n.units(UnitType.Bomber).length).toBe(1);
+    expect(weaponTier(n.weaponTiers(), "artillery")).toBe(1);
   });
 });
 

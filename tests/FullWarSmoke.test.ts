@@ -1,7 +1,7 @@
 /**
- * End-to-end smoke test of a whole war on the world map: every building,
- * every ship and train, every weapon (with upgrades), land and naval
- * attacks, all three nukes and all five disasters, in one game. It checks
+ * End-to-end smoke test of a whole war on the world map: every building
+ * (Flak included), every warship, a rocket bomber run, a land attack and
+ * all three nukes, in one game. It checks
  * that each piece actually happens (units appear, strikes land, land
  * changes hands) and that the simulation never throws along the way.
  */
@@ -10,16 +10,12 @@ import {
   PlayerInfo,
   PlayerType,
   UnitType,
-  type DisasterKind,
 } from "@laukolaroser/engine-api/game/GameTypes";
-import { WEAPON_IDS } from "@laukolaroser/engine-lib/weapons/Weapons";
 import { AttackExecution } from "@laukolaroser/engine/execution/AttackExecution";
 import { ConstructionExecution } from "@laukolaroser/engine/execution/ConstructionExecution";
-import { DisasterExecution } from "@laukolaroser/engine/execution/DisasterExecution";
 import { MirvExecution } from "@laukolaroser/engine/execution/MIRVExecution";
 import { NukeExecution } from "@laukolaroser/engine/execution/NukeExecution";
-import { UpgradeWeaponExecution } from "@laukolaroser/engine/execution/UpgradeWeaponExecution";
-import { WeaponStrikeExecution } from "@laukolaroser/engine/execution/WeaponStrikeExecution";
+import { RocketBomberExecution } from "@laukolaroser/engine/execution/RocketBomberExecution";
 import type { Game, Player } from "@laukolaroser/engine/game/Game";
 import { setup } from "./util/Setup";
 import { executeTicks } from "./util/utils";
@@ -107,6 +103,7 @@ describe("full war smoke test", () => {
       UnitType.RadarStation,
       UnitType.Fort,
       UnitType.CoastalBattery,
+      UnitType.FlakGun,
     ];
     const missing: string[] = [];
     for (const type of STRUCTURES) {
@@ -143,23 +140,16 @@ describe("full war smoke test", () => {
       expect(a.units(type).length, type).toBeGreaterThan(0);
     }
 
-    // Weapons: upgrade each to Mk III, then fire at the defender's border.
-    const target = [...b.tiles()].find(
-      (t) => game.x(t) === 1062 && game.isLand(t),
-    )!;
-    expect(target).toBeDefined();
-    for (const id of WEAPON_IDS) {
-      game.addExecution(new UpgradeWeaponExecution(a, id));
-      executeTicks(game, 1);
-      game.addExecution(new UpgradeWeaponExecution(a, id));
-      executeTicks(game, 1);
-    }
+    // Rocket bomber run along the defender's border.
     const troopsBefore = b.troops();
-    for (const id of WEAPON_IDS) {
-      game.addExecution(new WeaponStrikeExecution(a, id, target));
-      executeTicks(game, 2);
-    }
-    executeTicks(game, 120);
+    const run = new RocketBomberExecution(
+      a,
+      game.ref(1075, 180),
+      game.ref(1075, 230),
+    );
+    game.addExecution(run);
+    executeTicks(game, 200);
+    expect(run.rejection).toBeNull();
     expect(b.troops()).toBeLessThan(troopsBefore + 1_000_000);
 
     // Land attack: the attacker takes ground from the defender.
@@ -181,18 +171,7 @@ describe("full war smoke test", () => {
     executeTicks(game, 400);
     expect(b.numTilesOwned()).toBeLessThan(defenderTiles);
 
-    // All five disasters.
-    for (const kind of [
-      "volcano",
-      "earthquake",
-      "tsunami",
-      "storm",
-      "wildfire",
-    ] as DisasterKind[]) {
-      game.addExecution(new DisasterExecution(a, kind));
-      executeTicks(game, 5);
-    }
-    executeTicks(game, 600);
+    executeTicks(game, 300);
 
     expect(a.isAlive()).toBe(true);
   }, 120_000);

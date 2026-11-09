@@ -10,7 +10,13 @@
 
 import { TileRef } from "@laukolaroser/engine-api/game/GameMap";
 import { UnitType } from "@laukolaroser/engine-api/game/GameTypes";
-import { ANTI_AIR, BOMBER, FIGHTER } from "@laukolaroser/engine-lib/air/Air";
+import {
+  ANTI_AIR,
+  BOMBER,
+  FIGHTER,
+  FLAK,
+  SHIP_ANTI_AIR,
+} from "@laukolaroser/engine-lib/air/Air";
 import { PseudoRandom } from "@laukolaroser/engine-lib/PseudoRandom";
 import {
   zInt,
@@ -84,6 +90,30 @@ export function antiAirFire(mg: Game, plane: Unit, owner: Player): boolean {
     // modifyHealth removes a unit whose health reaches 0.
     if (!plane.isActive() || plane.health() <= 0) {
       if (plane.isActive()) plane.delete(true, shooter);
+      return true;
+    }
+  }
+  // Flak guns (stronger per level) and warships' anti-aircraft guns.
+  const flakRange = Math.max(FLAK.range, SHIP_ANTI_AIR.range);
+  for (const { unit, distSquared } of mg.nearbyUnits(plane.tile(), flakRange, [
+    UnitType.FlakGun,
+    UnitType.Warship,
+    UnitType.Destroyer,
+    UnitType.Battleship,
+    UnitType.Carrier,
+  ])) {
+    if (unit.isUnderConstruction() || !hostile(unit.owner(), owner)) {
+      continue;
+    }
+    const isFlak = unit.type() === UnitType.FlakGun;
+    const range = isFlak ? FLAK.range : SHIP_ANTI_AIR.range;
+    if (distSquared > range * range) continue;
+    const damage = isFlak
+      ? Math.floor((FLAK.damage * (2 + unit.level() - 1)) / 2)
+      : SHIP_ANTI_AIR.damage;
+    plane.modifyHealth(-damage, unit.owner());
+    if (!plane.isActive() || plane.health() <= 0) {
+      if (plane.isActive()) plane.delete(true, unit.owner());
       return true;
     }
   }
