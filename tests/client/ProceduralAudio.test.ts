@@ -97,6 +97,40 @@ describe("AudioEventTracker", () => {
     expect(t.update([unit(1, "City", 1)], 1, all, 160)).toEqual(["capture"]);
   });
 
+  test("battle sounds: gunfire, hits, flak and front crackle", () => {
+    const t = new AudioEventTracker();
+    const all = () => true;
+    t.update([], 1, all, 100);
+    expect(t.update([unit(7, "Shell", 2)], 1, all, 100)).toEqual(["gunfire"]);
+    expect(t.update([], 1, all, 100)).toEqual(["explosion"]);
+    // Off screen: silent.
+    t.update([unit(8, "Shell", 2, { pos: 5 })], 1, (p) => p !== 5, 100);
+    expect(t.update([], 1, (p) => p !== 5, 100)).toEqual([]);
+    // Enemy plane over a flak gun.
+    t.update([unit(9, "Flak Gun", 1)], 1, all, 100);
+    expect(
+      t.update([unit(9, "Flak Gun", 1), unit(10, "Fighter", 2)], 1, all, 100),
+    ).toEqual(["fighter", "flak"]);
+    // Own planes over own flak: no flak.
+    const own = new AudioEventTracker();
+    own.update([unit(1, "Flak Gun", 1), unit(2, "Fighter", 1)], 1, all, 0);
+    expect(
+      own.update([unit(1, "Flak Gun", 1), unit(2, "Fighter", 1)], 1, all, 0),
+    ).toEqual([]);
+    // Fighting at a front: periodic crackle, none in peace.
+    const front = new AudioEventTracker();
+    let crackles = 0;
+    let quiet = 0;
+    for (let i = 0; i < 40; i++) {
+      if (front.update([], 1, all, 0, 1).includes("skirmish")) crackles++;
+    }
+    for (let i = 0; i < 40; i++) {
+      if (front.update([], 1, all, 0, 0.15).includes("skirmish")) quiet++;
+    }
+    expect(crackles).toBeGreaterThanOrEqual(7);
+    expect(quiet).toBe(0);
+  });
+
   test("war intensity", () => {
     expect(warIntensity(0, 0, 1000)).toBeLessThan(0.3);
     expect(warIntensity(0, 2, 1000)).toBe(0.6);

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   arcPeak,
   ballisticPose,
+  PATROL_RADIUS,
+  patrolPose,
 } from "../../src/client/render3d/units/UnitKinds";
 
 describe("ballisticPose", () => {
@@ -53,5 +55,25 @@ describe("ballisticPose clears mountains", () => {
       const p = ballisticPose("atomBomb", 0, 0, x, 0, 100, 0, ridge);
       expect(p.h).toBeGreaterThan(ridge(x));
     }
+  });
+});
+
+describe("patrolPose", () => {
+  it("circles the airbase, the two fighters opposite each other", () => {
+    for (const t of [0, 1.3, 7.9]) {
+      const a = patrolPose(50, 60, 0, 3, t);
+      const b = patrolPose(50, 60, 1, 3, t);
+      expect(Math.hypot(a.x - 50, a.z - 60)).toBeCloseTo(PATROL_RADIUS, 6);
+      // Opposite sides of the base.
+      expect((a.x - 50) * (b.x - 50) + (a.z - 60) * (b.z - 60)).toBeLessThan(0);
+    }
+  });
+
+  it("heading points along the direction of flight", () => {
+    const t = 2;
+    const p0 = patrolPose(0, 0, 0, 0, t);
+    const p1 = patrolPose(0, 0, 0, 0, t + 0.01);
+    const yaw = Math.atan2(-(p1.z - p0.z), p1.x - p0.x);
+    expect(Math.cos(yaw - p0.yaw)).toBeGreaterThan(0.999);
   });
 });

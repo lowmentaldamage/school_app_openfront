@@ -769,6 +769,7 @@ function mountWebGLFrameLoop(
       me?.smallID() ?? null,
       audible,
       me?.numTilesOwned() ?? 0,
+      war,
     )) {
       worldAudio.cue(cue);
     }

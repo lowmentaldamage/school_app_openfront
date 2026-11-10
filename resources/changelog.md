@@ -1,4 +1,9 @@
-📦 **Laukolaroser v1.3.0**
+📦 **Laukolaroser v1.3.1**
+
+🆕 **New in v1.3.1**
+
+- 🔊 Battle sounds: naval guns firing, shell hits, flak pops when enemy planes fly over anti-air, and rifle/machine-gun crackle while you fight at a front (louder and faster under heavy attack)
+- ✈️ Two fighters now circle above every finished Airbase when idle
 
 🆕 **New in v1.3.0**
 

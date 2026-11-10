@@ -316,3 +316,30 @@ export function hiddenSubmarines(
   }
   return hidden;
 }
+
+/** Radius (tiles) of the circle idle fighters fly above their airbase. */
+export const PATROL_RADIUS = 5;
+/** Angular speed of a patrol (radians per second). */
+export const PATROL_SPEED = 0.45;
+
+/**
+ * Idle fighter `index` (0 or 1) circling above an airbase at (cx, cz):
+ * position on the circle and heading (yaw, as the renderer measures it:
+ * atan2(-dz, dx) of the direction of flight). The two fighters fly
+ * opposite each other; `seed` staggers different airbases.
+ */
+export function patrolPose(
+  cx: number,
+  cz: number,
+  index: number,
+  seed: number,
+  t: number,
+): { x: number; z: number; yaw: number } {
+  const a = t * PATROL_SPEED + seed * 0.77 + index * Math.PI;
+  const r = PATROL_RADIUS + index * 0.8;
+  const x = cx + Math.cos(a) * r;
+  const z = cz + Math.sin(a) * r;
+  // Counter-clockwise in (x, z): velocity (-sin a, cos a).
+  const yaw = Math.atan2(-Math.cos(a), -Math.sin(a));
+  return { x, z, yaw };
+}

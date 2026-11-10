@@ -36,10 +36,11 @@ export function warIntensity(
 export class AudioEventTracker {
   private readonly known = new Map<
     number,
-    { type: string; building: boolean }
+    { type: string; building: boolean; pos?: number }
   >();
   private lastTiles = -1;
   private first = true;
+  private frame = 0;
 
   /**
    * @param inView whether a tile is on screen (sounds of others' units
@@ -51,31 +52,46 @@ export class AudioEventTracker {
     mySmallID: number | null,
     inView: (pos: number) => boolean,
     myTiles: number,
+    war = 0,
   ): WorldCue[] {
     const cues = new Set<WorldCue>();
     const present = new Set<number>();
     let bombers = 0;
+    // Anti-air on screen and planes of another owner on screen → flak.
+    const aaOwners = new Set<number>();
+    const planeOwners = new Set<number>();
     for (const u of units) {
       if (!u.isActive) continue;
       present.add(u.id);
       if (u.unitType === "Bomber") bombers++;
+      if (!this.first && inView(u.pos)) {
+        if (AA_TYPES.has(u.unitType) && !u.underConstruction) {
+          aaOwners.add(u.ownerID);
+        } else if (u.unitType === "Bomber" || u.unitType === "Fighter") {
+          planeOwners.add(u.ownerID);
+        }
+      }
       const mine = mySmallID !== null && u.ownerID === mySmallID;
       const prev = this.known.get(u.id);
       if (prev === undefined) {
         this.known.set(u.id, {
           type: u.unitType,
           building: u.underConstruction,
+          pos: u.pos,
         });
         if (this.first) continue;
         const heard = mine || inView(u.pos);
         if (u.unitType === "Bomber" && heard) cues.add("bomber");
         else if (u.unitType === "Fighter" && heard) cues.add("fighter");
         else if (u.unitType === "Submarine" && mine) cues.add("torpedo");
+        else if (u.unitType === "Shell" && heard) cues.add("gunfire");
+        else if (u.unitType === "SAMMissile" && heard) cues.add("flak");
         else if (mine && !u.underConstruction && isStructure(u.unitType)) {
           cues.add(u.unitType === "Radar Station" ? "radar" : "build");
         }
         continue;
       }
+      prev.pos = u.pos;
       if (prev.building && !u.underConstruction) {
         prev.building = false;
         if (mine) cues.add(u.unitType === "Radar Station" ? "radar" : "build");
@@ -84,8 +100,27 @@ export class AudioEventTracker {
     for (const [id, k] of this.known) {
       if (present.has(id)) continue;
       this.known.delete(id);
-      // Bombs landing during an air raid.
+      // Bombs landing during an air raid; shells hitting on screen.
       if (k.type === "Artillery Shell" && bombers > 0) cues.add("bomb");
+      else if (
+        (k.type === "Artillery Shell" || k.type === "Shell") &&
+        k.pos !== undefined &&
+        inView(k.pos)
+      ) {
+        cues.add("explosion");
+      }
+    }
+    for (const a of aaOwners) {
+      for (const p of planeOwners) {
+        if (a !== p) cues.add("flak");
+      }
+    }
+    // Distant rifle and machine-gun crackle while fighting at a front:
+    // every 10 frames at 0.6 intensity, every 5 under heavy attack.
+    this.frame++;
+    if (!this.first && war >= 0.6) {
+      const every = war >= 1 ? 5 : war >= 0.85 ? 7 : 10;
+      if (this.frame % every === 0) cues.add("skirmish");
     }
     if (
       !this.first &&
@@ -99,6 +134,8 @@ export class AudioEventTracker {
     return [...cues];
   }
 }
+
+const AA_TYPES = new Set(["Flak Gun", "SAM Launcher", "Rail SAM"]);
 
 const STRUCTURE_TYPES = new Set([
   "City",
@@ -114,6 +151,7 @@ const STRUCTURE_TYPES = new Set([
   "Radar Station",
   "Fort",
   "Coastal Battery",
+  "Flak Gun",
 ]);
 
 function isStructure(type: string): boolean {

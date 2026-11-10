@@ -46,6 +46,8 @@ import {
   arcAt,
   arcPeak,
   ballisticPose,
+  PATROL_SPEED,
+  patrolPose,
   BALLISTIC_KINDS,
   flightProgress,
   modelKindFor,
@@ -232,6 +234,8 @@ const SUB_SIGHT_RANGE = 30;
 
 /** Camera distance beyond which trade ships are not drawn (clutter). */
 const TRADE_HIDE_DISTANCE = 700;
+/** Most idle patrol fighters drawn (two per airbase). */
+const MAX_PATROLS = 48;
 
 export class UnitRenderer {
   readonly group = new Group();
@@ -290,6 +294,15 @@ export class UnitRenderer {
   }[] = [];
   /** Moving surface ships this frame (for wakes). */
   readonly wakes: { x: number; z: number; yaw: number; scale: number }[] = [];
+  /** Idle fighters circling above finished airbases (cosmetic). */
+  private patrols: {
+    slot: number;
+    cx: number;
+    cz: number;
+    ground: number;
+    index: number;
+    seed: number;
+  }[] = [];
   /** Icon badge above every building (always readable, any zoom). */
   private readonly markers = new StructureMarkers();
   private lastAnimMs = 0;
@@ -360,6 +373,7 @@ export class UnitRenderer {
     const structScale = zoomScale(cameraDistance, 110, 2.2);
     const metro = metroFactors(units.values(), w);
     const bomberTiles: { x: number; y: number }[] = [];
+    const patrols: typeof this.patrols = [];
     this.aaSites.length = 0;
     this.subTiles = [];
     for (const u of units.values()) {
@@ -430,6 +444,24 @@ export class UnitRenderer {
         this.markers.push(kind, x, h + 1.2 * sy, y, this.c);
         if (age < BUILD_RISE_MS) {
           rising.push({ kind, slot, at: st.at, x, h, y, yaw, sxz, sy });
+        }
+        // Two fighters circle above every finished airbase.
+        if (
+          u.unitType === "Airbase" &&
+          !u.underConstruction &&
+          patrols.length < MAX_PATROLS
+        ) {
+          const fp = this.pools.get("fighter")!;
+          for (let i = 0; i < 2; i++) {
+            patrols.push({
+              slot: fp.push(this.m, this.c),
+              cx: x,
+              cz: y,
+              ground: h,
+              index: i,
+              seed: u.id,
+            });
+          }
         }
         continue;
       }
@@ -526,6 +558,7 @@ export class UnitRenderer {
       if (!structsNow.has(id)) this.structSeen.delete(id);
     this.movers = movers;
     this.rising = rising;
+    this.patrols = patrols;
     this.markers.end();
     for (const pool of this.pools.values()) pool.end(true);
   }
@@ -559,6 +592,7 @@ export class UnitRenderer {
       this.iconMode,
     );
     this.animateRising(nowMs);
+    this.animatePatrols(nowMs / 1000, cameraDistance);
     if (this.movers.length === 0) return;
     const alpha = Math.min(1, (nowMs - this.tickAt) / this.tickIntervalMs);
     const t = nowMs / 1000;
@@ -768,6 +802,26 @@ export class UnitRenderer {
     }
     this.pools.get("turret")!.touchMatrices();
     for (const mv of this.movers) this.pools.get(mv.kind)!.touchMatrices();
+  }
+
+  /** Idle fighters: a slow banked circle at cruise height over the base. */
+  private animatePatrols(t: number, cameraDistance: number): void {
+    if (this.patrols.length === 0) return;
+    const scale = zoomScale(cameraDistance, 90, 7) * 1.1;
+    for (const p of this.patrols) {
+      const pose = patrolPose(p.cx, p.cz, p.index, p.seed, t);
+      const ground = Math.max(p.ground, this.hf.sample(pose.x, pose.z));
+      const clear = Math.max(0, this.hf.ceilingAt(pose.x, pose.z) - ground);
+      const h = ground + 13 + clear + p.index * 0.6;
+      // Bank into the turn (yaw turns at -PATROL_SPEED).
+      this.e.set(bankFor(true, -PATROL_SPEED), pose.yaw, 0);
+      this.q.setFromEuler(this.e);
+      this.p.set(pose.x, h, pose.z);
+      this.s.setScalar(scale);
+      this.m.compose(this.p, this.q, this.s);
+      this.pools.get("fighter")!.setMatrix(p.slot, this.m);
+    }
+    this.pools.get("fighter")!.touchMatrices();
   }
 
   /**

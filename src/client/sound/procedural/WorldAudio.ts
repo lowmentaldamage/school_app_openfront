@@ -24,7 +24,11 @@ export type WorldCue =
   | "torpedo"
   | "radar"
   | "build"
-  | "capture";
+  | "capture"
+  | "gunfire"
+  | "flak"
+  | "explosion"
+  | "skirmish";
 
 export interface WorldState {
   daylight: number;
@@ -46,6 +50,10 @@ const CUE_GAP_S: Record<WorldCue, number> = {
   radar: 1.5,
   build: 0.3,
   capture: 2,
+  gunfire: 0.35,
+  flak: 0.5,
+  explosion: 0.25,
+  skirmish: 0.4,
 };
 
 export class WorldAudio {
@@ -131,6 +139,14 @@ export class WorldAudio {
         return this.clank(now);
       case "capture":
         return this.swell(now);
+      case "gunfire":
+        return this.cannon(now, 0.22);
+      case "flak":
+        return this.flak(now);
+      case "explosion":
+        return this.boom(now, 0.32);
+      case "skirmish":
+        return this.crackle(now);
     }
   }
 
@@ -591,6 +607,79 @@ export class WorldAudio {
       o.stop(t + dt + 0.25);
     }
     this.thud(t, 0.18);
+  }
+
+  /** Naval gun / battery: sharp crack plus a low body. */
+  private cannon(t: number, vol: number): void {
+    const ctx = this.ctx!;
+    const ng = pluck(ctx, t, 0.18, vol);
+    const hp = ctx.createBiquadFilter();
+    hp.type = "bandpass";
+    hp.frequency.value = 1500;
+    hp.Q.value = 0.7;
+    hp.connect(ng).connect(this.effects!);
+    const n = ctx.createBufferSource();
+    n.buffer = this.noiseBuffer();
+    n.connect(hp);
+    n.start(t, Math.random());
+    n.stop(t + 0.2);
+    this.thud(t, vol * 0.8);
+  }
+
+  /** Flak: three or four quick dull pops in the sky. */
+  private flak(t: number): void {
+    const count = 3 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < count; i++) {
+      const dt = i * (0.11 + Math.random() * 0.06);
+      this.pop(t + dt, 0.1 + Math.random() * 0.05, 500 + Math.random() * 300);
+    }
+  }
+
+  /** Shell / bomb hit: a deep rumble with a noisy tail. */
+  private boom(t: number, vol: number): void {
+    const ctx = this.ctx!;
+    const g = env(ctx, t, 0.01, 0.05, 1.1, vol * 0.6);
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(1200, t);
+    lp.frequency.exponentialRampToValueAtTime(150, t + 1.1);
+    lp.connect(g).connect(this.effects!);
+    const n = ctx.createBufferSource();
+    n.buffer = this.noiseBuffer();
+    n.connect(lp);
+    n.start(t, Math.random());
+    n.stop(t + 1.25);
+    this.thud(t, vol);
+  }
+
+  /** Distant small-arms fire: a burst of short muffled clicks. */
+  private crackle(t: number): void {
+    const shots = 2 + Math.floor(Math.random() * 5);
+    let dt = 0;
+    for (let i = 0; i < shots; i++) {
+      this.pop(
+        t + dt,
+        0.035 + Math.random() * 0.03,
+        1100 + Math.random() * 900,
+      );
+      dt += 0.05 + Math.random() * 0.12;
+    }
+  }
+
+  /** One filtered noise click. */
+  private pop(t: number, vol: number, hz: number): void {
+    const ctx = this.ctx!;
+    const g = pluck(ctx, t, 0.09, vol);
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = hz;
+    bp.Q.value = 1.2;
+    bp.connect(g).connect(this.effects!);
+    const n = ctx.createBufferSource();
+    n.buffer = this.noiseBuffer();
+    n.connect(bp);
+    n.start(t, Math.random());
+    n.stop(t + 0.12);
   }
 
   private swell(t: number): void {
